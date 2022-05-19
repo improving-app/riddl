@@ -1,0 +1,7 @@
+context Staff is {
+    entity Volunteer is {???} //What is the difference between Volunteer and Worker?
+    entity Worker is {???}
+    entity Schedule is {???}
+    entity Shift is {???}
+    entity Role is {???}
+}

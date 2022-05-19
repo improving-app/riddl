@@ -1,0 +1,10 @@
+context Commerce is {
+    entity Store is {???}
+    entity Catalog is {???}//Catalog is intended to be a collection of all products available in a store. In implementation is it that 
+                            //much different than a category?
+    entity Product is {???}
+    entity Category is {???}
+    entity Promotion is {???}
+    entity Order is {???}//I would like an order to be verified via NFT
+    entity Cart is {???}//I would like to not have a persistant cart?
+}

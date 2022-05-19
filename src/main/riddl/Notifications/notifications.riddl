@@ -1,0 +1,5 @@
+context Notifications is {
+    entity SMSNotification is {???}
+    entity EmailNotification is {???}
+    entity PushNotification is {???}
+}

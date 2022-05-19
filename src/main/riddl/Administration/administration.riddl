@@ -1,0 +1,5 @@
+context Administration is {
+    entity Organization is {???}
+    entity Member is {???} //I would like Members to be mastered as Self Sovereign Identity
+    entity Vendor is {???}
+}

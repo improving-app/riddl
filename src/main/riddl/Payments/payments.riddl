@@ -1,0 +1,8 @@
+context Payments is {
+    entity CreditCard is {???}
+    entity ApplePay is {???}
+    entity GooglePay is {???}
+    entity PayPal is {???}
+    entity Venmo is {???}
+    entity IAppCoin is {???}
+}
