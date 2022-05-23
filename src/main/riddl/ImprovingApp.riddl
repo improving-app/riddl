@@ -12,10 +12,288 @@ domain ImprovingApp is {
         country: String,
         postalCode: PostalCode
     }
+    type VenueId is Id( Venue )
+    type OrganizationId is Id( Organization )
+    type LocationId is Id( Location )
+    type EventId is Id( Event )
     
-    include "Administration/administration"
-    include "Events/events"
-    include "Commerce/commerce"
-    include "Payments/payments"
-    include "Staff/staff"
-} described in file "/Users/jameslovell/projects/ImprovingApp/src/main/riddl/ImprovingApp.md" 
+    context Calendars is {
+        //Thinking of "outsourcing" this feature to google calendar. As such, this domain is an integration 
+        //to the 3rd party app. It would be a good chance to teach the focuser pattern. There might also be 
+        //some light customization (TBD). 
+        //The google calendar API can be found here: https://developers.google.com/calendar/api
+    }
+
+    context Event is {
+        type EventInfo is {
+            eventName: String,
+            venue: VenueId,
+            location: LocationId,
+            startDateTime: DateTime,
+            endDateTime: DateTime,
+            sponsoringOrg: OrganizationId,
+            supportingOrgs: OrganizationId*,
+            stores: StoreId* //TODO: Do we want the association of Event<->Store here or on Store?
+        }
+        
+        entity Event is {
+            option is aggregate
+            state Scheduled is {
+                eventId: EventId,
+                eventInfo: EventInfo
+            } handler ScheduledEventHandler is {???}
+            state InProgress is {
+                //eventId: EventId,
+                eventInfo: EventInfo
+                //score, period, etc...
+            } handler InProgressEventHandler is {???}
+            state Past is {
+                //eventId: EventId,
+                eventInfo: EventInfo
+                //finalScore
+            } handler PastEventHandler is {???}
+            state Cancelled is {
+                //eventId: EventId,
+                eventInfo: EventInfo
+                //reason
+            } handler CancelledEventHandler is {???}
+            //also consider postponed, delayed, resheduled
+        }
+
+        // entity Game is {
+        //     state PendingGame is {???} handler PendingGameHandler is {???}
+        //     state InProgressEvent is {???} handler InProgressGameHandler is {???}
+        //     state PastEvent is {???} handler PastGameHandler is {???}
+        //     state CancelledEvent is {???} handler CancelledGameHandler is {???}
+        //     state PostponedGame is {???} handler PostponedGameHandler is {???}
+        //     state DelayedGame is {???} handler DelayedGameHandler is {???}
+        // }
+    }
+
+    context Vendor is {
+        type StoreId is Id( Store )
+        type CatalogId is Id( Catalog )
+        type CategoryId is Id( Category )
+        type VendorId is Id( Vendor )
+        type ProductId is Id( Product )
+        // type Active is String
+        // type Inactive is String
+        // type Terminated is String
+        // type Suspended is String
+        //type VendorStatus is any of [Active, Inactive, Terminated, Suspended]
+        type StoreInfo is {
+            storeName: String,
+            catalogId: CatalogId,
+            storeOpen: DateTime,
+            storeClose: DateTime,
+            associatedEvent: EventId,
+            sponsoringOrg: OrganizationId,
+            vendor: VendorId
+        }
+        
+        entity Vendor is {
+            state Active is {
+                vendorId: VendorId,
+                name: String,
+                status: String,
+                approvedOn: Date,
+                description: String,
+                contactName: String,
+                contactPhone: MobileNumber,
+                contactEmail: EmailAddress
+            } handler ActiveVendorHandler is {???}
+        }
+
+        entity Store is {
+            state Staged is {
+                storeId: StoreId,
+                storeInfo: StoreInfo
+            } handler StagedStoreHandler is {???}
+            state Open is {
+                storeId: StoreId,
+                storeInfo: StoreInfo
+            } handler OpenStoreHandler is {???}
+            state Closed is {
+                storeId: StoreId,
+                storeInfo: StoreInfo
+            } handler ClosedStoreHandler is {???}
+        }
+
+        entity Catalog is {
+            state Catalog is {
+                catalogId: CatalogId,
+                name: String,
+                products: ProductId+
+            } handler CatalogHandler is {???}
+        } 
+        entity Category is {
+            state Category is {
+                categoryId: CategoryId,
+                name: String,
+                products: ProductId+
+            } handler CategoryHandler is {???}
+        } 
+        entity Product is {
+            state Active is {
+                sku: String,
+                name: String,
+                image: URL,
+                description: String,
+                price: Number,
+                cost: Number
+                //kits i.e. combo meal
+                //condiments - catsup, mustard, jalapenos, etc.
+            } handler ActiveProductHandler is {???}
+            state Inactive is {
+                sku: String,
+                name: String,
+                image: URL,
+                description: String,
+                price: Number,
+                cost: Number
+                //kits i.e. combo meal
+                //condiments - catsup, mustard, jalapenos, etc.
+            } handler InactiveProductHandler is {???}
+        }
+    }
+    domain Inventory is {
+        context ProductInventory is {
+            entity ProductInventory is {
+                state Available is {???} handler AvailableProductHandler is {???}
+                state LowInventory is {???} handler LowInventoryHandler is {???}
+                state SoldOut is {???} handler SoldOutHandler is {???}
+            }
+        }
+    }
+    context Commerce is {
+        type PromotionId is Id( Promotion )
+        type PromotionInfo is {
+            name: String, 
+            startTime: DateTime,
+            endTime: DateTime,
+            condition: String,
+            action: String
+        }
+        type PaymentId is Id( Payment )
+        type LineItem is {
+            productId: ProductId,
+            quantity: Number,
+            promotion: PromotionId,
+            extendedPrice: Number //Price of product after promotion has been applied
+            //TODO: At doTERRA we calculated tax at the LineItem Level
+        }
+        type OrderId is Id( Order )
+        type OrderInfo is {
+            customerId: MemberId, //TODO: This should be CustomerId but not sure how to model that in RIDDL
+            lineItems: LineItem+,
+            itemTotal: Number,
+            taxTotal: Number,
+            deliveryTotal: Number, //TODO: Should delivery just be a LineItem?
+            grandTotal: Number,
+            paymentId: PaymentId
+        }
+        type DeliveryId is Id( Delivery )
+        type DeliveryInfo is {
+            orderId: OrderId,
+            location: LocationId,
+            specialInstructions: String
+        }
+
+        entity Promotion is {
+            state active is {???} handler ActivePromotionHandler is {???}
+            state expired is {???} handler InactivePromotionHandler is {???}
+        } //not part of MVP
+
+        entity PaymentProvider is {???} //TBD - after MVP
+        
+        entity Payment is {
+            state Payment is {
+                paymentId: PaymentId,
+                orderId: OrderId,
+                amount: Number,
+                dateProcessed: DateTime
+            } handler PaymentHandler is {???}
+        }
+        entity Cart is {???} //develop as a future feature - Persistant Cart - Training exercise
+        
+        entity Order is {
+            state placed is {???} handler PlacedOrderHandler is {???}
+            state inProcess is {???} handler InProcessOrderHandler is {???}
+            state ready is {???} handler ReadyOrderHandler is {???}
+            state delivered is {???} handler DeliveredOrderHandler is {???}
+            state cancelled is {???} handler CancelledOrderHandler is {???}
+        }
+
+        entity Delivery is {
+            state pending is {???} handler PendingDeliveryHandler is {???}
+            state ready is {???} handler ReadyDeliveryHandler is {???}
+            state enRoute is {???} handler enRoutDeliveryHandler is {???}
+            state delivered is {???} handler DeliveredDeliveryHandler is {???}
+        } //not part of MVP
+    }
+    context Organization is {
+        type MemberId is Id( Member )
+        type Student: String
+        type FacultyStaff: String
+        type Vendor: String
+        type Sponsor: String
+        type General: String
+        type Alumni: String
+        type Parent: String
+        type MemberType is one of { Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent }
+        type MemberInfo is {
+            handle: String,
+            avitar: URL, //thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content.
+            firstName: String,
+            lastName: String,
+            mobileNumber: MobileNumber,
+            organizations: String, //Not sure we should model this here. Instead a projection with organization membership might be better. 
+            relatedMembers: String, //Primary use case is parent/student. I am sure there are others. Might be a better way to document such a relationship.
+            memberType: MemberType
+        }
+
+        entity Organization is {???}
+        
+        entity Member is {
+            option is aggregate
+            state active is {
+                memberId: MemberId,
+                memberInfo: MemberInfo
+            } 
+            handler ActiveMemberHandler is {???}
+
+            state guest is {
+                memberId: MemberId
+                //Guest Info
+            } //Anonymous User
+            state inactive is {
+                memberId: MemberId,
+                memberInfo: MemberInfo 
+            } //An inactive user is one who has not used the application in a period of time (1 year?).
+            handler InactiveMemberHandler is {???}
+            
+            state suspended is {
+                memberId: MemberId,
+                memberInfo: MemberInfo
+            } //A suspended member is one who is not able to use the application due to misuse, non-payment, or a host of other reasons, but may be reinstated at some point and we want to retain their data.
+            handler SuspendedMemberHandler is {???}
+
+            state terminated is { 
+                memberId: MemberId
+            } //A terminated member is one who exercises their right to be forgotten.
+            handler TerminagedMemberHandler is {???}
+        }
+        entity Venue is {
+            option is aggregate
+            state Available is {???} handler AvailableVenueHandler is {???}
+        } 
+        entity Location is {???} //handler LocationHandler is {???}
+    }
+
+
+    // include "Administration/administration"
+    // include "Events/events"
+    // include "Commerce/commerce"
+    // include "Payments/payments"
+    // include "Staff/staff"
+} described in file "/Users/jameslovell/projects/improving-app-riddl/src/main/riddl/ImprovingApp.md" 
