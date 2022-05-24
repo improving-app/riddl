@@ -197,7 +197,7 @@ domain ImprovingApp is {
             orderId: OrderId,
             location: LocationId,
             specialInstructions: String
-        }
+        } //not part of MVP
 
         entity Promotion is {
             state active is {???} handler ActivePromotionHandler is {???}
@@ -283,6 +283,9 @@ domain ImprovingApp is {
             } //A terminated member is one who exercises their right to be forgotten.
             handler TerminagedMemberHandler is {???}
         }
+    }
+
+    context Venue is {
         entity Venue is {
             option is aggregate
             state Available is {???} handler AvailableVenueHandler is {???}
