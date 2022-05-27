@@ -231,7 +231,22 @@ domain ImprovingApp is {
             state delivered is {???} handler DeliveredDeliveryHandler is {???}
         } //not part of MVP
     }
-    context Organization is {
+    context OrganizationContext is {
+        //Organization Details
+        type ResponsibleOrgId is Id(ResponsibleOrganization)
+        type Incubating: String
+        type OrganizationType is one of {ResponsibleOrgId, OrganizationId}
+        type OrganizationInfo is {
+            name: String, //i.e. Provo High School
+            shortName: String, //i.e. PHS
+            address: Address,
+            childOrganizations: OrganizationId*
+            //calendar: Calendar
+        }
+        type BillingAccount: String
+        type PaymentAccount: String
+        
+        //Member Details
         type MemberId is Id( Member )
         type Student: String
         type FacultyStaff: String
@@ -247,12 +262,82 @@ domain ImprovingApp is {
             firstName: String,
             lastName: String,
             mobileNumber: MobileNumber,
-            organizations: String, //Not sure we should model this here. Instead a projection with organization membership might be better. 
+            organizations: OrganizationType+, 
             relatedMembers: String, //Primary use case is parent/student. I am sure there are others. Might be a better way to document such a relationship.
             memberType: MemberType
         }
 
-        entity Organization is {???}
+        entity ResponsibleOrganization is {
+            state Incubating is {
+                oid: ResponsibleOrgId,
+                orgDetails: OrganizationInfo,
+                url: URL,
+                billingAccount: BillingAccount,
+                paymentAccount: PaymentAccount,
+                availableVenues: VenueId*
+            } handler IncubatingResponsibleOrganizationHandler is {???}
+            
+            state Active is {
+                oid: ResponsibleOrgId,
+                orgDetails: OrganizationInfo,
+                url: URL,
+                billingAccount: BillingAccount,
+                paymentAccount: PaymentAccount,
+                availableVenues: VenueId*
+            } handler ActiveResponsibleOrganization is {???}
+
+            state Inactive is {
+                oid: ResponsibleOrgId,
+                orgDetails: OrganizationInfo,
+                url: URL,
+                billingAccount: BillingAccount,
+                paymentAccount: PaymentAccount,
+                availableVenues: VenueId*
+            } handler InactiveResponsibleOrganization is {???}
+
+            state Suspended is {
+                oid: ResponsibleOrgId,
+                orgDetails: OrganizationInfo,
+                url: URL,
+                billingAccount: BillingAccount,
+                paymentAccount: PaymentAccount,
+                availableVenues: VenueId*
+            } handler SuspendedResponsibleOrganization is {???}
+
+            state Terminated is {
+                oid: ResponsibleOrgId
+            } handler TerminatedResponsibleOrganization is {???}
+        }
+
+        entity Organization is {
+            state IncubatingOrganization is {
+                oid: OrganizationId,
+                orgDetails: OrganizationInfo,
+                parentOrganization: OrganizationType
+            } handler IncubatingOrganizationHanlder is {???}
+            
+            state ActiveOrganization is {
+                oid: OrganizationId,
+                orgDetails: OrganizationInfo,
+                parentOrganization: OrganizationType
+            } handler ActiveOrganizationHanlder is {???}
+
+            state InactiveOrganization is {
+                oid: OrganizationId,
+                orgDetails: OrganizationInfo,
+                parentOrganization: OrganizationType
+            } handler InactiveOrganizationHanlder is {???}
+
+            state SuspendedOrganization is {
+                oid: OrganizationId,
+                orgDetails: OrganizationInfo,
+                parentOrganization: OrganizationType
+            } handler SuspendedOrganizationHanlder is {???}
+
+            state TerminatedOrganization is {
+                oid: OrganizationId
+            } handler TerminatedOrganizationHanlder is {???}
+        }
         
         entity Member is {
             option is aggregate
@@ -285,13 +370,18 @@ domain ImprovingApp is {
         }
     }
 
-    context Venue is {
+    context VenueContext is {
         entity Venue is {
             option is aggregate
             state Available is {???} handler AvailableVenueHandler is {???}
         } 
         entity Location is {???} //handler LocationHandler is {???}
     }
+
+    // context Account is {
+    //     entity BillingAccount is {???}
+    //     entity PaymentAccount is {???}
+    // }
 
 
     // include "Administration/administration"
