@@ -12,8 +12,11 @@ domain ImprovingApp is {
         country: String,
         postalCode: PostalCode
     }
-    type VenueId is Id( Venue )
+    
+    type ResponsibleOrgId is Id(ResponsibleOrganization)
     type OrganizationId is Id( Organization )
+    type OrganizationType is one of {ResponsibleOrgId, OrganizationId}
+    type VenueId is Id( Venue )
     type LocationId is Id( Location )
     type EventId is Id( Event )
     
@@ -31,8 +34,9 @@ domain ImprovingApp is {
             location: LocationId,
             startDateTime: DateTime,
             endDateTime: DateTime,
-            sponsoringOrg: OrganizationId,
-            supportingOrgs: OrganizationId*,
+            sponsoringOrg: OrganizationType,
+            participatingOrgs: OrganizationType*,
+            supportingOrgs: OrganizationType*,
             stores: StoreId* //TODO: Do we want the association of Event<->Store here or on Store?
         }
         
@@ -90,18 +94,35 @@ domain ImprovingApp is {
             sponsoringOrg: OrganizationId,
             vendor: VendorId
         }
+        type VendorInfo is {
+            name: String,
+            description: String?,
+            contactName: String,
+            contactPhone: MobileNumber,
+            contactEmail: EmailAddress,
+            vendorSince: Date?
+        }
         
         entity Vendor is {
+            state Draft is {
+                vendorId: VendorId,
+                vendorInfo: VendorInfo
+            } handler DraftVendor is {???}
             state Active is {
                 vendorId: VendorId,
-                name: String,
-                status: String,
-                approvedOn: Date,
-                description: String,
-                contactName: String,
-                contactPhone: MobileNumber,
-                contactEmail: EmailAddress
+                vendorInfo: VendorInfo
             } handler ActiveVendorHandler is {???}
+            state Inactive is {
+                vendorId: VendorId,
+                vendorInfo: VendorInfo
+            } handler InactiveVendor is {???}
+            state Suspended is {
+                vendorId: VendorId,
+                vendorInfo: VendorInfo
+            } handler SuspendedVendorHandler is {???}
+            state Terminated is {
+                vendorId: VendorId
+            } handler TerminatedVendor is {???}
         }
 
         entity Store is {
@@ -156,12 +177,11 @@ domain ImprovingApp is {
             } handler InactiveProductHandler is {???}
         }
     }
-    domain Inventory is {
+    domain InventoryDomain is {
         context ProductInventory is {
             entity ProductInventory is {
-                state Available is {???} handler AvailableProductHandler is {???}
-                state LowInventory is {???} handler LowInventoryHandler is {???}
-                state SoldOut is {???} handler SoldOutHandler is {???}
+                state ActiveState is {???} handler AvailableProductHandler is {???}
+                state EmptyState is {???} handler EmptyStateHandler is {???}
             }
         }
     }
@@ -200,8 +220,8 @@ domain ImprovingApp is {
         } //not part of MVP
 
         entity Promotion is {
-            state active is {???} handler ActivePromotionHandler is {???}
-            state expired is {???} handler InactivePromotionHandler is {???}
+            state Active is {???} handler ActivePromotionHandler is {???}
+            state Expired is {???} handler InactivePromotionHandler is {???}
         } //not part of MVP
 
         entity PaymentProvider is {???} //TBD - after MVP
@@ -217,25 +237,24 @@ domain ImprovingApp is {
         entity Cart is {???} //develop as a future feature - Persistant Cart - Training exercise
         
         entity Order is {
-            state placed is {???} handler PlacedOrderHandler is {???}
-            state inProcess is {???} handler InProcessOrderHandler is {???}
-            state ready is {???} handler ReadyOrderHandler is {???}
-            state delivered is {???} handler DeliveredOrderHandler is {???}
-            state cancelled is {???} handler CancelledOrderHandler is {???}
+            state Placed is {???} handler PlacedOrderHandler is {???}
+            state InProcess is {???} handler InProcessOrderHandler is {???}
+            state Ready is {???} handler ReadyOrderHandler is {???}
+            state Delivered is {???} handler DeliveredOrderHandler is {???}
+            state Cancelled is {???} handler CancelledOrderHandler is {???}
         }
 
         entity Delivery is {
-            state pending is {???} handler PendingDeliveryHandler is {???}
-            state ready is {???} handler ReadyDeliveryHandler is {???}
-            state enRoute is {???} handler enRoutDeliveryHandler is {???}
-            state delivered is {???} handler DeliveredDeliveryHandler is {???}
+            state Pending is {???} handler PendingDeliveryHandler is {???}
+            state Ready is {???} handler ReadyDeliveryHandler is {???}
+            state EnRoute is {???} handler EnRoutDeliveryHandler is {???}
+            state Delivered is {???} handler DeliveredDeliveryHandler is {???}
         } //not part of MVP
     }
     context OrganizationContext is {
-        //Organization Details
-        type ResponsibleOrgId is Id(ResponsibleOrganization)
-        type Incubating: String
-        type OrganizationType is one of {ResponsibleOrgId, OrganizationId}
+        //Organization Details        
+        type Draft: String
+        
         type OrganizationInfo is {
             name: String, //i.e. Provo High School
             shortName: String, //i.e. PHS
@@ -268,14 +287,14 @@ domain ImprovingApp is {
         }
 
         entity ResponsibleOrganization is {
-            state Incubating is {
+            state Draft is {
                 oid: ResponsibleOrgId,
                 orgDetails: OrganizationInfo,
                 url: URL,
                 billingAccount: BillingAccount,
                 paymentAccount: PaymentAccount,
                 availableVenues: VenueId*
-            } handler IncubatingResponsibleOrganizationHandler is {???}
+            } handler DraftResponsibleOrganizationHandler is {???}
             
             state Active is {
                 oid: ResponsibleOrgId,
@@ -310,11 +329,11 @@ domain ImprovingApp is {
         }
 
         entity Organization is {
-            state IncubatingOrganization is {
+            state DraftOrganization is {
                 oid: OrganizationId,
                 orgDetails: OrganizationInfo,
                 parentOrganization: OrganizationType
-            } handler IncubatingOrganizationHanlder is {???}
+            } handler DraftOrganizationHanlder is {???}
             
             state ActiveOrganization is {
                 oid: OrganizationId,
@@ -341,29 +360,29 @@ domain ImprovingApp is {
         
         entity Member is {
             option is aggregate
-            state active is {
+            state Active is {
                 memberId: MemberId,
                 memberInfo: MemberInfo
             } 
             handler ActiveMemberHandler is {???}
-
-            state guest is {
+            state Guest is {
                 memberId: MemberId
                 //Guest Info
             } //Anonymous User
-            state inactive is {
+            handlerGuestMemberHandler is {???}
+            state Inactive is {
                 memberId: MemberId,
                 memberInfo: MemberInfo 
             } //An inactive user is one who has not used the application in a period of time (1 year?).
             handler InactiveMemberHandler is {???}
             
-            state suspended is {
+            state Suspended is {
                 memberId: MemberId,
                 memberInfo: MemberInfo
             } //A suspended member is one who is not able to use the application due to misuse, non-payment, or a host of other reasons, but may be reinstated at some point and we want to retain their data.
             handler SuspendedMemberHandler is {???}
 
-            state terminated is { 
+            state Terminated is { 
                 memberId: MemberId
             } //A terminated member is one who exercises their right to be forgotten.
             handler TerminagedMemberHandler is {???}
@@ -381,6 +400,9 @@ domain ImprovingApp is {
     // context Account is {
     //     entity BillingAccount is {???}
     //     entity PaymentAccount is {???}
+    //     entity Payment is {???}
+    //     entity Invoice is {???}
+    //     entity Statement is {???} //a detailed accounting of a payment
     // }
 
 
