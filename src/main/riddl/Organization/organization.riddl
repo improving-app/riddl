@@ -133,4 +133,6 @@ context OrganizationContext is {
         } //A terminated member is one who exercises their right to be forgotten.
         handler TerminagedMemberHandler is {???}
     }
-}
+
+    entity Guest is {???}
+} described in file "/Users/jameslovell/projects/improving-app-riddl/src/main/riddl/Organization/overview.md"
