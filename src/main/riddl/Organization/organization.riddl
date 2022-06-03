@@ -1,0 +1,136 @@
+context OrganizationContext is {
+    //Organization Details        
+    type OrganizationInfo is {
+        name: String, //i.e. Provo High School
+        shortName: String, //i.e. PHS
+        address: Address,
+        childOrganizations: OrganizationId*,
+        isPrivate: Boolean
+        //calendar: Calendar
+    }
+    type BillingAccount: String
+    type PaymentAccount: String
+    
+    //Member Details
+    type MemberId is Id( Member )
+    type Student: String
+    type FacultyStaff: String
+    type Vendor: String
+    type Sponsor: String
+    type General: String
+    type Alumni: String
+    type Parent: String
+    type MemberType is one of { Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent }
+    type MemberInfo is {
+        handle: String,
+        avitar: URL, //thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content.
+        firstName: String,
+        lastName: String,
+        mobileNumber: MobileNumber,
+        organizations: OrganizationType+, 
+        relatedMembers: String, //Primary use case is parent/student. I am sure there are others. Might be a better way to document such a relationship.
+        memberType: MemberType
+    }
+
+    entity ResponsibleOrganization is {
+        state Draft is {
+            oid: ResponsibleOrgId,
+            orgDetails: OrganizationInfo,
+            url: URL,
+            billingAccount: BillingAccount,
+            paymentAccount: PaymentAccount,
+            availableVenues: VenueId*
+        } handler DraftResponsibleOrganizationHandler is {???}
+        
+        state Active is {
+            oid: ResponsibleOrgId,
+            orgDetails: OrganizationInfo,
+            url: URL,
+            billingAccount: BillingAccount,
+            paymentAccount: PaymentAccount,
+            availableVenues: VenueId*
+        } handler ActiveResponsibleOrganization is {???}
+
+        state Inactive is {
+            oid: ResponsibleOrgId,
+            orgDetails: OrganizationInfo,
+            url: URL,
+            billingAccount: BillingAccount,
+            paymentAccount: PaymentAccount,
+            availableVenues: VenueId*
+        } handler InactiveResponsibleOrganization is {???}
+
+        state Suspended is {
+            oid: ResponsibleOrgId,
+            orgDetails: OrganizationInfo,
+            url: URL,
+            billingAccount: BillingAccount,
+            paymentAccount: PaymentAccount,
+            availableVenues: VenueId*
+        } handler SuspendedResponsibleOrganization is {???}
+
+        state Terminated is {
+            oid: ResponsibleOrgId
+        } handler TerminatedResponsibleOrganization is {???}
+    }
+
+    entity Organization is {
+        state DraftOrganization is {
+            oid: OrganizationId,
+            orgDetails: OrganizationInfo,
+            parentOrganization: OrganizationType
+        } handler DraftOrganizationHanlder is {???}
+        
+        state ActiveOrganization is {
+            oid: OrganizationId,
+            orgDetails: OrganizationInfo,
+            parentOrganization: OrganizationType
+        } handler ActiveOrganizationHanlder is {???}
+
+        state InactiveOrganization is {
+            oid: OrganizationId,
+            orgDetails: OrganizationInfo,
+            parentOrganization: OrganizationType
+        } handler InactiveOrganizationHanlder is {???}
+
+        state SuspendedOrganization is {
+            oid: OrganizationId,
+            orgDetails: OrganizationInfo,
+            parentOrganization: OrganizationType
+        } handler SuspendedOrganizationHanlder is {???}
+
+        state TerminatedOrganization is {
+            oid: OrganizationId
+        } handler TerminatedOrganizationHanlder is {???}
+    }
+    
+    entity Member is {
+        option is aggregate
+        state Active is {
+            memberId: MemberId,
+            memberInfo: MemberInfo
+        } 
+        handler ActiveMemberHandler is {???}
+        state Guest is {
+            memberId: MemberId
+            //Guest Info
+        } //Anonymous User
+        handlerGuestMemberHandler is {???}
+        state Inactive is {
+            memberId: MemberId,
+            memberInfo: MemberInfo 
+        } //An inactive user is one who has not used the application in a period of time (1 year?).
+        handler InactiveMemberHandler is {???}
+        
+        state Suspended is {
+            memberId: MemberId,
+            memberInfo: MemberInfo
+        } //A suspended member is one who is not able to use the application due to misuse, non-payment, or a host of other reasons, but may be reinstated at some point and we want to retain their data.
+        handler SuspendedMemberHandler is {???}
+
+        state Terminated is { 
+            memberId: MemberId
+        } //A terminated member is one who exercises their right to be forgotten.
+        handler TerminagedMemberHandler is {???}
+    }
+}

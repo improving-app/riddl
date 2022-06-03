@@ -1,10 +1,66 @@
 context Commerce is {
-    entity Store is {???}
-    entity Catalog is {???}//Catalog is intended to be a collection of all products available in a store. In implementation is it that 
-                            //much different than a category?
-    entity Product is {???}
-    entity Category is {???}
-    entity Promotion is {???}
-    entity Order is {???}//I would like an order to be verified via NFT
-    entity Cart is {???}//I would like to not have a persistant cart?
+    type PromotionId is Id( Promotion )
+    type PromotionInfo is {
+        name: String, 
+        startTime: DateTime,
+        endTime: DateTime,
+        condition: String,
+        action: String
+    }
+    type PaymentId is Id( Payment )
+    type LineItem is {
+        productId: ProductId,
+        quantity: Number,
+        promotion: PromotionId,
+        extendedPrice: Number //Price of product after promotion has been applied
+        //TODO: At doTERRA we calculated tax at the LineItem Level
+    }
+    type OrderId is Id( Order )
+    type OrderInfo is {
+        customerId: MemberId, //TODO: This should be CustomerId but not sure how to model that in RIDDL
+        lineItems: LineItem+,
+        itemTotal: Number,
+        taxTotal: Number,
+        deliveryTotal: Number, //TODO: Should delivery just be a LineItem?
+        grandTotal: Number,
+        paymentId: PaymentId
+    }
+    type DeliveryId is Id( Delivery )
+    type DeliveryInfo is {
+        orderId: OrderId,
+        location: LocationId,
+        specialInstructions: String
+    } //not part of MVP
+
+    entity Promotion is {
+        state Active is {???} handler ActivePromotionHandler is {???}
+        state Expired is {???} handler InactivePromotionHandler is {???}
+    } //not part of MVP
+
+    entity PaymentProvider is {???} //TBD - after MVP
+    
+    entity Payment is {
+        state Payment is {
+            paymentId: PaymentId,
+            orderId: OrderId,
+            amount: Number,
+            dateProcessed: DateTime
+        } handler PaymentHandler is {???}
+    }
+    entity Cart is {???} //develop as a future feature - Persistant Cart - Training exercise
+    
+    entity Order is {
+        state Placed is {???} handler PlacedOrderHandler is {???}
+        state InProcess is {???} handler InProcessOrderHandler is {???}
+        state Ready is {???} handler ReadyOrderHandler is {???}
+        state Delivered is {???} handler DeliveredOrderHandler is {???}
+        state Cancelled is {???} handler CancelledOrderHandler is {???}
+    }
+
+    entity Delivery is {
+        state Pending is {???} handler PendingDeliveryHandler is {???}
+        state Ready is {???} handler ReadyDeliveryHandler is {???}
+        state EnRoute is {???} handler EnRoutDeliveryHandler is {???}
+        state Delivered is {???} handler DeliveredDeliveryHandler is {???}
+    } //not part of MVP
 }

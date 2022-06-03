@@ -1,6 +1,0 @@
-context Events is {
-    entity Calendar is {???}
-    entity Event is {???}
-    entity Venue is {???} //does this belong in the Administration Context?
-    entity Location is {???} //does this belong in the Administration Context?
-}

@@ -1,0 +1,100 @@
+context Vendor is {
+    type StoreId is Id( Store )
+    type CatalogId is Id( Catalog )
+    type CategoryId is Id( Category )
+    type ProductId is Id( Product )
+    type VendorId is Id( Vendor )
+    
+    type StoreInfo is {
+        storeName: String,
+        catalogId: CatalogId,
+        storeOpen: DateTime,
+        storeClose: DateTime,
+        associatedEvent: EventId,
+        sponsoringOrg: OrganizationId,
+        vendor: VendorId
+    }
+    type VendorInfo is {
+        name: String,
+        description: String?,
+        contactName: String,
+        contactPhone: MobileNumber,
+        contactEmail: EmailAddress,
+        vendorSince: Date?,
+        expiration: Date?
+    }
+    type ProductInfo is {
+        name: String,
+        image: URL,
+        description: String,
+        price: Number,
+        cost: Number,
+        organization: OrganizationType
+    }
+    
+    entity Vendor is {
+        state Draft is {
+            vendorId: VendorId,
+            vendorInfo: VendorInfo
+        } handler DraftVendor is {???}
+        state Active is {
+            vendorId: VendorId,
+            vendorInfo: VendorInfo
+        } handler ActiveVendorHandler is {???}
+        state Inactive is {
+            vendorId: VendorId,
+            vendorInfo: VendorInfo
+        } handler InactiveVendor is {???}
+        state Suspended is {
+            vendorId: VendorId,
+            vendorInfo: VendorInfo
+        } handler SuspendedVendorHandler is {???}
+        state Terminated is {
+            vendorId: VendorId
+        } handler TerminatedVendor is {???}
+    }
+
+    entity Store is {
+        state Staged is {
+            storeId: StoreId,
+            storeInfo: StoreInfo
+        } handler StagedStoreHandler is {???}
+        state Open is {
+            storeId: StoreId,
+            storeInfo: StoreInfo
+        } handler OpenStoreHandler is {???}
+        state Closed is {
+            storeId: StoreId,
+            storeInfo: StoreInfo
+        } handler ClosedStoreHandler is {???}
+    }
+
+    entity Catalog is {
+        state Catalog is {
+            catalogId: CatalogId,
+            name: String,
+            products: ProductId+
+        } handler CatalogHandler is {???}
+    } 
+    entity Category is {
+        state Category is {
+            categoryId: CategoryId,
+            name: String,
+            products: ProductId+
+        } handler CategoryHandler is {???}
+    } 
+    entity Product is {
+        state Active is {
+            sku: String,
+            productInfo: ProductInfo
+            //kits i.e. combo meal - future scope
+            //condiments - catsup, mustard, jalapenos, etc. - future scope
+        } handler ActiveProductHandler is {???}
+        state Inactive is {
+            sku: String,
+            productInfo: ProductInfo
+            //kits i.e. combo meal
+            //condiments - catsup, mustard, jalapenos, etc.
+        } handler InactiveProductHandler is {???}
+    }
+}

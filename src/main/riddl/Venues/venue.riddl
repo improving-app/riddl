@@ -1,0 +1,7 @@
+context VenueContext is {
+    entity Venue is {
+        option is aggregate
+        state Available is {???} handler AvailableVenueHandler is {???}
+    } 
+    entity Location is {???} //handler LocationHandler is {???}
+}

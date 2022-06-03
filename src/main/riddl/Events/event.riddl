@@ -1,0 +1,47 @@
+context Event is {
+    type EventInfo is {
+        eventName: String,
+        venue: VenueId,
+        location: LocationId,
+        startDateTime: DateTime,
+        endDateTime: DateTime,
+        sponsoringOrg: OrganizationType,
+        participatingOrgs: OrganizationType*,
+        supportingOrgs: OrganizationType*,
+        isPrivate: Boolean,
+        stores: StoreId* //TODO: Do we want the association of Event<->Store here or on Store?
+    }
+    
+    entity Event is {
+        option is aggregate
+        state Scheduled is {
+            eventId: EventId,
+            eventInfo: EventInfo
+        } handler ScheduledEventHandler is {???}
+        state InProgress is {
+            //eventId: EventId,
+            eventInfo: EventInfo
+            //score, period, etc...
+        } handler InProgressEventHandler is {???}
+        state Past is {
+            //eventId: EventId,
+            eventInfo: EventInfo
+            //finalScore
+        } handler PastEventHandler is {???}
+        state Cancelled is {
+            //eventId: EventId,
+            eventInfo: EventInfo
+            //reason
+        } handler CancelledEventHandler is {???}
+        //also consider postponed, delayed, resheduled
+    }
+
+    // entity Game is {
+    //     state PendingGame is {???} handler PendingGameHandler is {???}
+    //     state InProgressEvent is {???} handler InProgressGameHandler is {???}
+    //     state PastEvent is {???} handler PastGameHandler is {???}
+    //     state CancelledEvent is {???} handler CancelledGameHandler is {???}
+    //     state PostponedGame is {???} handler PostponedGameHandler is {???}
+    //     state DelayedGame is {???} handler DelayedGameHandler is {???}
+    // }
+}
