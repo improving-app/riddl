@@ -1,0 +1,3 @@
+BaseOrganizations are the root of the organizational hierarchy, are the financially responsible organization for the entire organizational structure, and do not have relationships with other BaseOrganizations. There is exactly one BaseOrganization for each organizational structure. Each organization, including the BaseOrganization, must have at least one Admin. Admins for the BaseOrganization have "super user" privileges across the entire organization. BaseOrganizations embody the superset of all members in the broader organizational definition (BaseOrganization and all SubOrganizations). For a more detailed treatment please refer to the description for the Organization Bounded Context.
+
+//TODO: PROVIDE LINK TO ORGANIZATION.MD
