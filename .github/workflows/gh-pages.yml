@@ -7,8 +7,6 @@ on:
     paths:
       - src/main/riddl/**
 
-# Allows you to run this from the Actions tab
-workflow_dispatch:
 
 jobs:
   make-gh-pages:
@@ -27,7 +25,7 @@ jobs:
           extended: true
 
       - name: Generate Hugo From RIDDL
-        uses: reactific/riddl-actions
+        uses: reactific/riddl-actions@v0.1.0
         with:
           command-line: hugo -i src/main/riddl/ImprovingApp.riddl -o target/hugo -p "Improving App" -b https://docs.improving.app
 
