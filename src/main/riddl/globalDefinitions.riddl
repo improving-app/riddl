@@ -12,9 +12,9 @@ type Address is {
     postalCode: PostalCode
 }
 
-type ResponsibleOrgId is Id(ResponsibleOrganization)
-type OrganizationId is Id( Organization )
-type OrganizationType is one of {ResponsibleOrgId, OrganizationId}
+type BaseOrganizationId is Id(BaseOrganization)
+type SubOrganizationId is Id( SubOrganization )
+type OrganizationType is one of {BaseOrganizationId, SubOrganizationId}
 type VenueId is Id( Venue )
 type LocationId is Id( Location )
 type EventId is Id( Event )

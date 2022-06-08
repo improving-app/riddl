@@ -11,7 +11,7 @@ context Vendor is {
         storeOpen: DateTime,
         storeClose: DateTime,
         associatedEvent: EventId,
-        sponsoringOrg: OrganizationId,
+        sponsoringOrg: OrganizationType,
         vendor: VendorId
     }
     type VendorInfo is {

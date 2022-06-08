@@ -1,7 +1,13 @@
 context VenueContext is {
     entity Venue is {
         option is aggregate
-        state Available is {???} handler AvailableVenueHandler is {???}
+        state Available is {
+            venueId: VenueId,
+            orgId: BaseOrganizationId, //Venues are defined by BaseOrgs. venueId and orgId make a composite key
+            name: String,
+            address: Address,
+            isAvailable: Boolean
+        } handler AvailableVenueHandler is {???}
     } 
     entity Location is {???} //handler LocationHandler is {???}
 }
