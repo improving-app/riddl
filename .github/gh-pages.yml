@@ -1,0 +1,43 @@
+name: github pages
+
+on:
+  push:
+    branches:
+      - main  # Set a branch to deploy
+  pull_request:
+    branches:
+      - main
+
+# Allows you to run this from the Actions tab
+workflow_dispatch:
+
+jobs:
+  make-gh-pages:
+    name: Generate GH Pages From RIDDL Sources
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true  # Fetch Hugo themes (true OR recursive)
+          fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: '0.100.2'
+          extended: true
+
+      - name: Generate Hugo From RIDDL
+        uses: reactific/riddl-actions
+        with:
+          command-line: hugo -i src/main/riddl/ImprovingApp.riddl -o target/hugo -p "Improving App" -b https://docs.improving.app
+
+      - name: Generate HTML From Hugo
+        run: cd target/hugo ; hugo --minify -D -v --printMemoryUsage
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./target/riddl/public
