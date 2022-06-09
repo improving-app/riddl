@@ -62,7 +62,7 @@ context OrganizationContext is {
     type UpdateMemberInfo is command {memberId: MemberId, memberInfo: MemberInfo}
     type MemberInfoUpdated is event {memberId: MemberId}
     type AddOrganizaitonToMember is command {memberId: MemberId, orgId: OrganizationType}
-    type OrganizatinoAddedToMember is event {memberId: MemberId, orgId: OrganizationType}
+    type OrganizationAddedToMember is event {memberId: MemberId, orgId: OrganizationType}
     type RemoveOrganizationFromMember is command {memberId: MemberId, orgId: OrganizationType}
     type OrganizationRemovedFromMember is event {memberId: MemberId, orgId: OrganizationType}
     type EstablishMemberRelationship is command {member1Id: MemberId, member2Id: MemberId}
