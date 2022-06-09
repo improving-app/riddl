@@ -7,8 +7,6 @@ on:
     paths:
       - src/main/riddl/**
 
-# Allows you to run this from the Actions tab
-workflow_dispatch:
 
 jobs:
   make-gh-pages:
