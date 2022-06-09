@@ -27,7 +27,8 @@ jobs:
       - name: Generate Hugo From RIDDL
         uses: reactific/riddl-actions@v0.3.2
         with:
-          command-line: from src/main/riddl/ImprovingApp.conf
+          command: from 
+          opt1: src/main/riddl/ImprovingApp.conf
 
       - name: Generate HTML From Hugo
         run: cd target/hugo ; hugo --minify -D -v --printMemoryUsage
