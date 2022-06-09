@@ -1,4 +1,4 @@
-ImprovingApp is a platform that is intended to unify the various commerce and calendaring activities for complex
+The Improving App is a platform that is intended to unify the various commerce and calendaring activities for complex
 organizations such as high schools. We find that often these organizations have many pressing needs that take 
 priority over these "minor" details. Events and the vending that happens at them often bring sorely needed revenue 
 into the organization, are neglected and become subject to conflict and infighting, have high organizational 

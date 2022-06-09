@@ -1,6 +1,8 @@
 name: github pages
 
 on:
+  workflow_dispatch:
+
   push:
     branches:
       - main  # Set a branch to deploy
@@ -21,21 +23,26 @@ jobs:
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v2
         with:
-          hugo-version: '0.100.2'
+          hugo-version: 'latest'
           extended: true
 
+      - name: Show Hugo on PATH
+        run: 'which hugo'
+        
       - name: Generate Hugo From RIDDL
-        uses: reactific/riddl-actions@v0.3.4
+        uses: reactific/riddl-actions@v0.3.5
         with:
           command: from 
           opt1: src/main/riddl/ImprovingApp.conf
+          opt2: -H
+          opt3: /github/home/runner/actions_hugo/bin/hugo
 
       - name: Generate HTML From Hugo
         run: cd target/hugo ; hugo --minify -D -v --printMemoryUsage
 
-      - name: Deploy
+      - name: Deploy RIDDL Generated Documentation
         uses: peaceiris/actions-gh-pages@v3
         if: github.ref == 'refs/heads/main'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./target/riddl/public
+          publish_dir: ./target/hugo/public
