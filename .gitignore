@@ -6,3 +6,4 @@
 .bsp/
 project/
 /.idea/
+target/

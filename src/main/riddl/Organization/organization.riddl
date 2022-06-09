@@ -8,19 +8,10 @@ context OrganizationContext is {
         isPrivate: Boolean
         //calendar: Calendar
     }
-    type BillingAccount: String
-    type PaymentAccount: String
-    
+        
     //Member Details
     type MemberId is Id( Member )
-    type Student: String
-    type FacultyStaff: String
-    type Vendor: String
-    type Sponsor: String
-    type General: String
-    type Alumni: String
-    type Parent: String
-    type MemberType is one of { Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent }
+    type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent}
     type MemberInfo is {
         handle: String,
         avitar: URL, //thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content.
@@ -38,13 +29,13 @@ context OrganizationContext is {
     type OrganizationInfoUpdated is event {orgId: OrganizationType}
     type UpdateBaseOrganzationURL is command {orgId: BaseOrganizationId, url: URL}
     type BaseOrganizationURLUpdated is event {orgId: BaseOrganizationId}
-    type AddBaseOrgBillingAccount is command {orgId: BaseOrganizationId, billingAccount: BillingAccount}
+    type AddBaseOrgBillingAccount is command {orgId: BaseOrganizationId, billingAccount: BillingAccountId?, paymentAccount: PaymentAccountId?}
     type BaseOrgBillingAccountAdded is event {orgId: BaseOrganizationId}
-    type ReplaceBaseOrgBillingAccount is command {orgId: BaseOrganizationId, billingAccount: BillingAccount}
+    type ReplaceBaseOrgBillingAccount is command {orgId: BaseOrganizationId, billingAccount: BillingAccountId}
     type BaseOrgBillingAccountReplaced is event {orgId: BaseOrganizationId}
-    type AddBaseOrgPaymentAccount is command {orgId: BaseOrganizationId, paymentAccount: PaymentAccount}
+    type AddBaseOrgPaymentAccount is command {orgId: BaseOrganizationId, paymentAccount: PaymentAccountId}
     type BaseOrgPaymentAccountAdded is event {orgId: BaseOrganizationId}
-    type ReplaceBaseOrgPaymentAccount is command {orgId: BaseOrganizationId, paymentAccount: PaymentAccount}
+    type ReplaceBaseOrgPaymentAccount is command {orgId: BaseOrganizationId, paymentAccount: PaymentAccountId}
     type BaseOrgPaymentAccountReplaced is event {orgId: BaseOrganizationId}
     type AssignNewParentOrg is command {orgId: SubOrganizationId, parentOrg: OrganizationType}
     type NewParentOrgAssigned is event {orgId: SubOrganizationId}
@@ -83,32 +74,32 @@ context OrganizationContext is {
             oid: BaseOrganizationId,
             orgDetails: OrganizationInfo,
             url: URL,
-            billingAccount: BillingAccount,
-            paymentAccount: PaymentAccount
+            billingAccount: BillingAccountId,
+            paymentAccount: PaymentAccountId
         } handler DraftBaseOrganizationHandler is {???}
         
         state Active is {
             oid: BaseOrganizationId,
             orgDetails: OrganizationInfo,
             url: URL,
-            billingAccount: BillingAccount,
-            paymentAccount: PaymentAccount
+            billingAccount: BillingAccountId,
+            paymentAccount: PaymentAccountId
         } handler ActiveBaseOrganization is {???}
 
         state Inactive is {
             oid: BaseOrganizationId,
             orgDetails: OrganizationInfo,
             url: URL,
-            billingAccount: BillingAccount,
-            paymentAccount: PaymentAccount
+            billingAccount: BillingAccountId,
+            paymentAccount: PaymentAccountId
         } handler InactiveBaseOrganization is {???}
 
         state Suspended is {
             oid: BaseOrganizationId,
             orgDetails: OrganizationInfo,
             url: URL,
-            billingAccount: BillingAccount,
-            paymentAccount: PaymentAccount
+            billingAccount: BillingAccountId,
+            paymentAccount: PaymentAccountId
         } handler SuspendedBaseOrganization is {???}
 
         state Terminated is {
@@ -129,11 +120,15 @@ context OrganizationContext is {
             parentOrganization: OrganizationType
         } handler ActiveOrganizationHanlder is {???}
 
-        state InactiveSubOrganization is {
+        type subOrgInfo is {
             oid: SubOrganizationId,
             orgDetails: OrganizationInfo,
             parentOrganization: OrganizationType
-        } handler InactiveOrganizationHanlder is {???}
+        }
+        state InactiveSubOrganization is {
+            soi: subOrgInfo
+        }
+        handler InactiveOrganizationHanlder is {???}
 
         state SuspendedSubOrganization is {
             oid: SubOrganizationId,
@@ -144,7 +139,7 @@ context OrganizationContext is {
         state TerminatedSubOrganization is {
             oid: SubOrganizationId
         } handler TerminatedOrganizationHanlder is {???}
-    }described in file "src/main/riddl/Organization/subOrganization.md"
+    } described in file "src/main/riddl/Organization/subOrganization.md"
     
     entity Member is {
         option is aggregate
@@ -176,5 +171,9 @@ context OrganizationContext is {
         handler TerminagedMemberHandler is {???}
     }
 
-    entity Guest is {???}
+    type Guest is {???} //move to order domain
 } 
+
+//TODO: collapse Organization to a single entity
+//TODO: Member moves to its own bounded context
+//TODO: rethink definition of commands/events based on the above

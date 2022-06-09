@@ -4,13 +4,16 @@
 // It merely includes the subodmains and bounded contexts that make up the full domain.
 domain ImprovingApp is {
     include "globalDefinitions"
+    include "Accounting/accounting"
     include "Calendars/calendar"
-    include "Events/event"
-    include "Vendors/vendor"
-    include "Inventory/inventory"
     include "Commerce/commerce"
+    include "Events/event"
+    include "Inventory/inventory"
+    include "Members/members"
     include "Organization/organization"
+    include "Vendors/vendor"
     include "Venues/venue"
+    
     
     // context Account is {
     //     entity BillingAccount is {???}

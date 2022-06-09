@@ -1,0 +1,4 @@
+context accounting is {
+    entity BillingAccount is {???}
+    entity PaymentAccount is {???}
+}
