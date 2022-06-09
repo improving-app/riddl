@@ -25,10 +25,12 @@ jobs:
           extended: true
 
       - name: Generate Hugo From RIDDL
-        uses: reactific/riddl-actions@v0.3.4
+        uses: reactific/riddl-actions@v0.3.5
         with:
           command: from 
           opt1: src/main/riddl/ImprovingApp.conf
+          opt2: -H
+          opt3: /home/runner/actions_hugo/bin/hugo
 
       - name: Generate HTML From Hugo
         run: cd target/hugo ; hugo --minify -D -v --printMemoryUsage
@@ -38,4 +40,4 @@ jobs:
         if: github.ref == 'refs/heads/main'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./target/riddl/public
+          publish_dir: ./target/hugo/public
