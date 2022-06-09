@@ -4,7 +4,6 @@ context OrganizationContext is {
         name: String, //i.e. Provo High School. Must be unique within the organizational structure.
         shortName: String?, //i.e. PHS
         address: Address?, //required for BaseOrg. Optional for all other organizations.
-        childOrganizations: OrganizationId*,
         isPrivate: Boolean, //defaults to true
         url: URL?,
         billingAccount: BillingAccountId?, //Required for BaseOrg. Optional for all other organizations.
@@ -15,20 +14,8 @@ context OrganizationContext is {
         
     type EstablishOrganization is command {baseInfo: OrganizationInfo, parentOrg: OrganizationId?} briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
     type OrganizationEstablished is event {orgId: OrganizationId}
-    type EditOrganizationInfo is command {orgId: OrganizationId, newInfo: OrganizationInfo}
+    type EditOrganizationInfo is command {orgId: OrganizationId, newInfo: OrganizationInfo} briefly "Only provide the values of the elements of the OrganizationInfo type you wish to change. For example, if you wish to define a new parentOrg, only provide the parentOrg attribute with the ID of the new parent. Whatever values you provide overwrite what was previously there. The absence of an attribute means leave this value as is. If an empty value to an attribute is provided, the value will be overwritten with an empty value."
     type OrganizationInfoUpdated is event {orgId: OrganizationId}
-    type UpdateBaseOrganzationURL is command {orgId: OrganizationId, url: URL}
-    type BaseOrganizationURLUpdated is event {orgId: OrganizationId}
-    type AddBaseOrgBillingAccount is command {orgId: OrganizationId, billingAccount: BillingAccountId?, paymentAccount: PaymentAccountId?}
-    type BaseOrgBillingAccountAdded is event {orgId: OrganizationId}
-    type ReplaceBaseOrgBillingAccount is command {orgId: OrganizationId, billingAccount: BillingAccountId}
-    type BaseOrgBillingAccountReplaced is event {orgId: OrganizationId}
-    type AddBaseOrgPaymentAccount is command {orgId: OrganizationId, paymentAccount: PaymentAccountId}
-    type BaseOrgPaymentAccountAdded is event {orgId: OrganizationId}
-    type ReplaceBaseOrgPaymentAccount is command {orgId: OrganizationId, paymentAccount: PaymentAccountId}
-    type BaseOrgPaymentAccountReplaced is event {orgId: OrganizationId}
-    type AssignNewParentOrg is command {orgId: OrganizationId, parentOrg: OrganizationId}
-    type NewParentOrgAssigned is event {orgId: OrganizationId}
     type ActivateOrganization is command {orgId: OrganizationId}
     type OrganizationActivated is event {orgId: OrganizationId} 
     type InactivateOrganization is command {orgId: OrganizationId}
