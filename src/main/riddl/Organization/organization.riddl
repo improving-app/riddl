@@ -113,7 +113,7 @@ context OrganizationContext is {
         state Terminated is {
             oid: BaseOrganizationId
         } handler TerminatedBaseOrganization is {???}
-    }described in file "/Users/jameslovell/projects/improving-app-riddl/src/main/riddl/Organization/baseOrganization.md"
+    }described in file "src/main/riddl/Organization/baseOrganization.md"
 
     entity SubOrganization is {
         state DraftSubOrganization is {
@@ -143,7 +143,7 @@ context OrganizationContext is {
         state TerminatedSubOrganization is {
             oid: SubOrganizationId
         } handler TerminatedOrganizationHanlder is {???}
-    }described in file "/Users/jameslovell/projects/improving-app-riddl/src/main/riddl/Organization/subOrganization.md"
+    }described in file "src/main/riddl/Organization/subOrganization.md"
     
     entity Member is {
         option is aggregate
