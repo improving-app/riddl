@@ -1,1 +1,59 @@
-context Members is {???}
+context Members is {
+    //Member Details
+    type MemberId is Id( Member )
+    type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent}
+    type MemberInfo is {
+        handle: String,
+        avitar: URL, //thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content.
+        firstName: String,
+        lastName: String,
+        mobileNumber: MobileNumber,
+        organizations: OrganizationType+, 
+        relatedMembers: String, //Primary use case is parent/student. I am sure there are others. Might be a better way to document such a relationship.
+        memberType: MemberType
+    }
+
+    type RegisterMember is command {memberInfo: MemberInfo, type: MemberType, associatedOrg: OrganizationType?} briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional."
+    type RegisterMemberList is command {memberList: MemberInfo*, type: MemberType, associatedOrg: OrganizationType} briefly "RegisterMemberList creates multiple members with a single call. The limitation is you can only define a single MemberType in each call, and all new Members must be assigned to an Organization (typically a BaseOrg)."
+    type MemberRegistered is event {memberId: MemberId} briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
+    type UpdateMemberInfo is command {memberId: MemberId, memberInfo: MemberInfo} briefly "Only provide the values of the elements of the MemberInfo type you wish to change. For example, if you wish to add an Organization to the Member, only provide the organizations attribute, and provide a list of organizations the member should belong to, including the new member. Whatever values you provide overwrite what was previously there. The absence of an attribute means leave this value as is. If an empty value to an attribute is provided, the value will be overwritten with an empty value."
+    type MemberInfoUpdated is event {memberId: MemberId}
+    type ActivateMember is command {memberId: MemberId}
+    type MemberActivated is event {memberId: MemberId}
+    type InactivateMember is command {memberId: MemberId}
+    type MemberInactivated is event {memberId: MemberId}
+    type SuspendMember is command {memberId: MemberId}
+    type MemberSuspended is event {memberId: MemberId}
+    type TerminateMember is command {memberId: MemberId}
+    type MemberTerminated is event {memberId: MemberId}
+
+    entity Member is {
+        option is aggregate
+        state Active is {
+            memberId: MemberId,
+            memberInfo: MemberInfo
+        } 
+        handler ActiveMemberHandler is {???}
+        state Guest is {
+            memberId: MemberId
+            //Guest Info
+        } //Anonymous User
+        handlerGuestMemberHandler is {???}
+        state Inactive is {
+            memberId: MemberId,
+            memberInfo: MemberInfo 
+        } //An inactive user is one who has not used the application in a period of time (1 year?).
+        handler InactiveMemberHandler is {???}
+        
+        state Suspended is {
+            memberId: MemberId,
+            memberInfo: MemberInfo
+        } //A suspended member is one who is not able to use the application due to misuse, non-payment, or a host of other reasons, but may be reinstated at some point and we want to retain their data.
+        handler SuspendedMemberHandler is {???}
+
+        state Terminated is { 
+            memberId: MemberId
+        } //A terminated member is one who exercises their right to be forgotten.
+        handler TerminagedMemberHandler is {???}
+    }
+}

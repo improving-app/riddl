@@ -9,20 +9,6 @@ context OrganizationContext is {
         //calendar: Calendar
     }
         
-    //Member Details
-    type MemberId is Id( Member )
-    type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent}
-    type MemberInfo is {
-        handle: String,
-        avitar: URL, //thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content.
-        firstName: String,
-        lastName: String,
-        mobileNumber: MobileNumber,
-        organizations: OrganizationType+, 
-        relatedMembers: String, //Primary use case is parent/student. I am sure there are others. Might be a better way to document such a relationship.
-        memberType: MemberType
-    }
-
     type EstablishOrganization is command {baseInfo: OrganizationInfo, parentOrg: OrganizationType?} briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
     type OrganizationEstablished is event {orgId: OrganizationType}
     type EditOrganizationInfo is command {orgId: OrganizationType, newInfo: OrganizationInfo}
@@ -47,28 +33,7 @@ context OrganizationContext is {
     type OrganizationSuspended is event {orgId: OrganizationType}
     type TerminateOrganization is command {orgId: OrganizationType}
     type OrganizationTerminated is event {orgId: OrganizationType}
-    type RegisterMember is command {memberInfo: MemberInfo, type: MemberType, associatedOrg: OrganizationType?}
-    type RegisterMemberList is command {memberList: MemberInfo*, type: MemberType, associatedOrg: OrganizationType?}
-    type MemberRegistered is event {memberId: MemberId}
-    type UpdateMemberInfo is command {memberId: MemberId, memberInfo: MemberInfo}
-    type MemberInfoUpdated is event {memberId: MemberId}
-    type AddOrganizaitonToMember is command {memberId: MemberId, orgId: OrganizationType}
-    type OrganizationAddedToMember is event {memberId: MemberId, orgId: OrganizationType}
-    type RemoveOrganizationFromMember is command {memberId: MemberId, orgId: OrganizationType}
-    type OrganizationRemovedFromMember is event {memberId: MemberId, orgId: OrganizationType}
-    type EstablishMemberRelationship is command {member1Id: MemberId, member2Id: MemberId}
-    type MemberRelationshipEstablished is event {member1Id: MemberId, member2Id: MemberId}
-    type UpdateMemberType is command {memberId: MemberId, newType: MemberType}
-    type MemberTypeUpdated is event {memberId: MemberId, newType: MemberType}
-    type ActivateMember is command {memberId: MemberId}
-    type MemberActivated is event {memberId: MemberId}
-    type InactivateMember is command {memberId: MemberId}
-    type MemberInactivated is event {memberId: MemberId}
-    type SuspendMember is command {memberId: MemberId}
-    type MemberSuspended is event {memberId: MemberId}
-    type TerminateMember is command {memberId: MemberId}
-    type MemberTerminated is event {memberId: MemberId}
-
+    
     entity BaseOrganization is {
         state Draft is {
             oid: BaseOrganizationId,
@@ -141,35 +106,7 @@ context OrganizationContext is {
         } handler TerminatedOrganizationHanlder is {???}
     } described in file "src/main/riddl/Organization/subOrganization.md"
     
-    entity Member is {
-        option is aggregate
-        state Active is {
-            memberId: MemberId,
-            memberInfo: MemberInfo
-        } 
-        handler ActiveMemberHandler is {???}
-        state Guest is {
-            memberId: MemberId
-            //Guest Info
-        } //Anonymous User
-        handlerGuestMemberHandler is {???}
-        state Inactive is {
-            memberId: MemberId,
-            memberInfo: MemberInfo 
-        } //An inactive user is one who has not used the application in a period of time (1 year?).
-        handler InactiveMemberHandler is {???}
-        
-        state Suspended is {
-            memberId: MemberId,
-            memberInfo: MemberInfo
-        } //A suspended member is one who is not able to use the application due to misuse, non-payment, or a host of other reasons, but may be reinstated at some point and we want to retain their data.
-        handler SuspendedMemberHandler is {???}
-
-        state Terminated is { 
-            memberId: MemberId
-        } //A terminated member is one who exercises their right to be forgotten.
-        handler TerminagedMemberHandler is {???}
-    }
+    
 
     type Guest is {???} //move to order domain
 } 
