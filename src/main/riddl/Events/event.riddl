@@ -5,9 +5,9 @@ context Event is {
         location: LocationId,
         startDateTime: DateTime,
         endDateTime: DateTime,
-        sponsoringOrg: OrganizationType,
-        participatingOrgs: OrganizationType*,
-        supportingOrgs: OrganizationType*,
+        sponsoringOrg: OrganizationId,
+        participatingOrgs: OrganizationId*,
+        supportingOrgs: OrganizationId*,
         isPrivate: Boolean,
         stores: StoreId* //TODO: Do we want the association of Event<->Store here or on Store?
     }

@@ -1,116 +1,71 @@
 context OrganizationContext is {
     //Organization Details        
     type OrganizationInfo is {
-        name: String, //i.e. Provo High School
-        shortName: String, //i.e. PHS
-        address: Address,
-        childOrganizations: SubOrganizationId*,
-        isPrivate: Boolean
+        name: String, //i.e. Provo High School. Must be unique within the organizational structure.
+        shortName: String?, //i.e. PHS
+        address: Address?, //required for BaseOrg. Optional for all other organizations.
+        childOrganizations: OrganizationId*,
+        isPrivate: Boolean, //defaults to true
+        url: URL?,
+        billingAccount: BillingAccountId?, //Required for BaseOrg. Optional for all other organizations.
+        paymentAccount: PaymentAccountId?,
+        parentOrg: OrganizationId? //BaseOrganizations do not have a parent. All other organizations must have a parent. The BaseOrganization (only one per organizaitonal structure) is the financially responsible party. As such it MUST have a BillingAccount defined.
         //calendar: Calendar
     }
         
-    type EstablishOrganization is command {baseInfo: OrganizationInfo, parentOrg: OrganizationType?} briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
-    type OrganizationEstablished is event {orgId: OrganizationType}
-    type EditOrganizationInfo is command {orgId: OrganizationType, newInfo: OrganizationInfo}
-    type OrganizationInfoUpdated is event {orgId: OrganizationType}
-    type UpdateBaseOrganzationURL is command {orgId: BaseOrganizationId, url: URL}
-    type BaseOrganizationURLUpdated is event {orgId: BaseOrganizationId}
-    type AddBaseOrgBillingAccount is command {orgId: BaseOrganizationId, billingAccount: BillingAccountId?, paymentAccount: PaymentAccountId?}
-    type BaseOrgBillingAccountAdded is event {orgId: BaseOrganizationId}
-    type ReplaceBaseOrgBillingAccount is command {orgId: BaseOrganizationId, billingAccount: BillingAccountId}
-    type BaseOrgBillingAccountReplaced is event {orgId: BaseOrganizationId}
-    type AddBaseOrgPaymentAccount is command {orgId: BaseOrganizationId, paymentAccount: PaymentAccountId}
-    type BaseOrgPaymentAccountAdded is event {orgId: BaseOrganizationId}
-    type ReplaceBaseOrgPaymentAccount is command {orgId: BaseOrganizationId, paymentAccount: PaymentAccountId}
-    type BaseOrgPaymentAccountReplaced is event {orgId: BaseOrganizationId}
-    type AssignNewParentOrg is command {orgId: SubOrganizationId, parentOrg: OrganizationType}
-    type NewParentOrgAssigned is event {orgId: SubOrganizationId}
-    type ActivateOrganization is command {orgId: OrganizationType}
-    type OrganizationActivated is event {orgId: OrganizationType} 
-    type InactivateOrganization is command {orgId: OrganizationType}
-    type OrganizationInactivated is event {orgId: OrganizationType}
-    type SuspendOrganization is command {orgId: OrganizationType}
-    type OrganizationSuspended is event {orgId: OrganizationType}
-    type TerminateOrganization is command {orgId: OrganizationType}
-    type OrganizationTerminated is event {orgId: OrganizationType}
+    type EstablishOrganization is command {baseInfo: OrganizationInfo, parentOrg: OrganizationId?} briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
+    type OrganizationEstablished is event {orgId: OrganizationId}
+    type EditOrganizationInfo is command {orgId: OrganizationId, newInfo: OrganizationInfo}
+    type OrganizationInfoUpdated is event {orgId: OrganizationId}
+    type UpdateBaseOrganzationURL is command {orgId: OrganizationId, url: URL}
+    type BaseOrganizationURLUpdated is event {orgId: OrganizationId}
+    type AddBaseOrgBillingAccount is command {orgId: OrganizationId, billingAccount: BillingAccountId?, paymentAccount: PaymentAccountId?}
+    type BaseOrgBillingAccountAdded is event {orgId: OrganizationId}
+    type ReplaceBaseOrgBillingAccount is command {orgId: OrganizationId, billingAccount: BillingAccountId}
+    type BaseOrgBillingAccountReplaced is event {orgId: OrganizationId}
+    type AddBaseOrgPaymentAccount is command {orgId: OrganizationId, paymentAccount: PaymentAccountId}
+    type BaseOrgPaymentAccountAdded is event {orgId: OrganizationId}
+    type ReplaceBaseOrgPaymentAccount is command {orgId: OrganizationId, paymentAccount: PaymentAccountId}
+    type BaseOrgPaymentAccountReplaced is event {orgId: OrganizationId}
+    type AssignNewParentOrg is command {orgId: OrganizationId, parentOrg: OrganizationId}
+    type NewParentOrgAssigned is event {orgId: OrganizationId}
+    type ActivateOrganization is command {orgId: OrganizationId}
+    type OrganizationActivated is event {orgId: OrganizationId} 
+    type InactivateOrganization is command {orgId: OrganizationId}
+    type OrganizationInactivated is event {orgId: OrganizationId}
+    type SuspendOrganization is command {orgId: OrganizationId}
+    type OrganizationSuspended is event {orgId: OrganizationId}
+    type TerminateOrganization is command {orgId: OrganizationId}
+    type OrganizationTerminated is event {orgId: OrganizationId}
     
-    entity BaseOrganization is {
+    entity Organization is {
         state Draft is {
-            oid: BaseOrganizationId,
-            orgDetails: OrganizationInfo,
-            url: URL,
-            billingAccount: BillingAccountId,
-            paymentAccount: PaymentAccountId
-        } handler DraftBaseOrganizationHandler is {???}
+            oid: OrganizationId,
+            orgDetails: OrganizationInfo
+        } handler DraftOrganizationHandler is {???}
         
         state Active is {
-            oid: BaseOrganizationId,
-            orgDetails: OrganizationInfo,
-            url: URL,
-            billingAccount: BillingAccountId,
-            paymentAccount: PaymentAccountId
-        } handler ActiveBaseOrganization is {???}
+            oid: OrganizationId,
+            orgDetails: OrganizationInfo
+        } handler ActiveOrganization is {???}
 
         state Inactive is {
-            oid: BaseOrganizationId,
-            orgDetails: OrganizationInfo,
-            url: URL,
-            billingAccount: BillingAccountId,
-            paymentAccount: PaymentAccountId
-        } handler InactiveBaseOrganization is {???}
+            oid: OrganizationId,
+            orgDetails: OrganizationInfo
+        } handler InactiveOrganization is {???}
 
         state Suspended is {
-            oid: BaseOrganizationId,
-            orgDetails: OrganizationInfo,
-            url: URL,
-            billingAccount: BillingAccountId,
-            paymentAccount: PaymentAccountId
-        } handler SuspendedBaseOrganization is {???}
+            oid: OrganizationId,
+            orgDetails: OrganizationInfo
+        } handler SuspendedOrganization is {???}
 
         state Terminated is {
-            oid: BaseOrganizationId
-        } handler TerminatedBaseOrganization is {???}
-    }described in file "src/main/riddl/Organization/baseOrganization.md"
-
-    entity SubOrganization is {
-        state DraftSubOrganization is {
-            oid: SubOrganizationId,
-            orgDetails: OrganizationInfo,
-            parentOrganization: OrganizationType
-        } handler DraftOrganizationHanlder is {???}
-        
-        state ActiveSubOrganization is {
-            oid: SubOrganizationId,
-            orgDetails: OrganizationInfo,
-            parentOrganization: OrganizationType
-        } handler ActiveOrganizationHanlder is {???}
-
-        type subOrgInfo is {
-            oid: SubOrganizationId,
-            orgDetails: OrganizationInfo,
-            parentOrganization: OrganizationType
-        }
-        state InactiveSubOrganization is {
-            soi: subOrgInfo
-        }
-        handler InactiveOrganizationHanlder is {???}
-
-        state SuspendedSubOrganization is {
-            oid: SubOrganizationId,
-            orgDetails: OrganizationInfo,
-            parentOrganization: OrganizationType
-        } handler SuspendedOrganizationHanlder is {???}
-
-        state TerminatedSubOrganization is {
-            oid: SubOrganizationId
-        } handler TerminatedOrganizationHanlder is {???}
-    } described in file "src/main/riddl/Organization/subOrganization.md"
+            oid: OrganizationId,
+            name: String
+        } handler TerminatedOrganization is {???}
+    }described in file "src/main/riddl/Organization/organization.md"
     
-    
-
-    type Guest is {???} //move to order domain
+    type Guest is {???} //TODO: move to order domain
 } 
 
-//TODO: collapse Organization to a single entity
-//TODO: Member moves to its own bounded context
 //TODO: rethink definition of commands/events based on the above

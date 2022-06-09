@@ -15,9 +15,10 @@ type Address is {
 }
 
 // Identifiers
-type BaseOrganizationId is Id (BaseOrganization)
-type SubOrganizationId is Id (SubOrganization)
-type OrganizationType is one of {BaseOrganizationId, SubOrganizationId}
+// type BaseOrganizationId is Id (BaseOrganization)
+// type SubOrganizationId is Id (SubOrganization)
+// type OrganizationType is one of {BaseOrganizationId, SubOrganizationId}
+type OrganizationId Id (Organization)
 type VenueId is Id (Venue)
 type LocationId is Id (Location)
 type EventId is Id (Event)
