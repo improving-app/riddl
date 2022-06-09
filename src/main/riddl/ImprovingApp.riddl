@@ -1,3 +1,7 @@
+// (c) 2022 Improving Inc. All Rights Reserved. 
+
+// This file is the top level RIDDL definition file for the Improving Application. 
+// It merely includes the subodmains and bounded contexts that make up the full domain.
 domain ImprovingApp is {
     include "globalDefinitions"
     include "Calendars/calendar"
