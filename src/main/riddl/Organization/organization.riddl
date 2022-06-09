@@ -57,13 +57,14 @@ context OrganizationContext is {
     type TerminateOrganization is command {orgId: OrganizationType}
     type OrganizationTerminated is event {orgId: OrganizationType}
     type RegisterMember is command {memberInfo: MemberInfo, type: MemberType, associatedOrg: OrganizationType?}
+    type RegisterMemberList is command {memberList: MemberInfo*, type: MemberType, associatedOrg: OrganizationType?}
     type MemberRegistered is event {memberId: MemberId}
     type UpdateMemberInfo is command {memberId: MemberId, memberInfo: MemberInfo}
     type MemberInfoUpdated is event {memberId: MemberId}
-    type AddMemberToOrganization is command {memberId: MemberId, orgId: OrganizationType}
-    type MemberAddedToOrganization is event {memberId: MemberId, orgId: OrganizationType}
-    type RemoveMemberFromOrganization is command {memberId: MemberId, orgId: OrganizationType}
-    type MemberRemovedFromOrganization is event {memberId: MemberId, orgId: OrganizationType}
+    type AddOrganizaitonToMember is command {memberId: MemberId, orgId: OrganizationType}
+    type OrganizatinoAddedToMember is event {memberId: MemberId, orgId: OrganizationType}
+    type RemoveOrganizationFromMember is command {memberId: MemberId, orgId: OrganizationType}
+    type OrganizationRemovedFromMember is event {memberId: MemberId, orgId: OrganizationType}
     type EstablishMemberRelationship is command {member1Id: MemberId, member2Id: MemberId}
     type MemberRelationshipEstablished is event {member1Id: MemberId, member2Id: MemberId}
     type UpdateMemberType is command {memberId: MemberId, newType: MemberType}
