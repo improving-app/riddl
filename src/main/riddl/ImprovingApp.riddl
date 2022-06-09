@@ -19,4 +19,4 @@ domain ImprovingApp is {
     //     entity Invoice is {???}
     //     entity Statement is {???} //a detailed accounting of a payment
     // }
-} described in file "/Users/jameslovell/projects/improving-app-riddl/src/main/riddl/ImprovingApp.md" 
+} described in file "src/main/riddl/ImprovingApp.md"
