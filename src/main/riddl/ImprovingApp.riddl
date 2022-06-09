@@ -1,3 +1,7 @@
+// (c) 2022 Improving Inc. All Rights Reserved. 
+
+// This file is the top level RIDDL definition file for the Improving Application. 
+// It merely includes the subodmains and bounded contexts that make up the full domain.
 domain ImprovingApp is {
     include "globalDefinitions"
     include "Calendars/calendar"
@@ -15,4 +19,4 @@ domain ImprovingApp is {
     //     entity Invoice is {???}
     //     entity Statement is {???} //a detailed accounting of a payment
     // }
-} described in file "/Users/jameslovell/projects/improving-app-riddl/src/main/riddl/ImprovingApp.md" 
+} described in file "src/main/riddl/ImprovingApp.md"
