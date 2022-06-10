@@ -30,7 +30,7 @@ jobs:
         run: 'which hugo'
         
       - name: Generate Hugo From RIDDL
-        uses: reactific/riddl-actions/riddlc@v0.4
+        uses: reactific/riddl-actions/riddlc@v0.4.0
         with:
           command: from 
           opt1: src/main/riddl/ImprovingApp.conf
