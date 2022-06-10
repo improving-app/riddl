@@ -11,7 +11,7 @@ context Vendor is {
         storeOpen: DateTime,
         storeClose: DateTime,
         associatedEvent: EventId,
-        sponsoringOrg: OrganizationType,
+        sponsoringOrg: OrganizationId,
         vendor: VendorId
     }
     type VendorInfo is {
@@ -29,7 +29,7 @@ context Vendor is {
         description: String,
         price: Number,
         cost: Number,
-        organization: OrganizationType
+        organization: OrganizationId
     }
     
     entity Vendor is {

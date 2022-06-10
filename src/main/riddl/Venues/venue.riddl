@@ -3,7 +3,7 @@ context VenueContext is {
         option is aggregate
         state Available is {
             venueId: VenueId,
-            orgId: BaseOrganizationId, //Venues are defined by BaseOrgs. venueId and orgId make a composite key
+            orgId: OrganizationId, //Venues are defined by BaseOrgs. venueId and orgId make a composite key
             name: String,
             address: Address,
             isAvailable: Boolean
