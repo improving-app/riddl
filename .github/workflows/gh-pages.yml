@@ -39,7 +39,7 @@ jobs:
 
       - name: Show riddlc output
         run: |
-          echo "Output tree dump:"
+          echo "riddlc hugo output tree:"
           tree target/hugo
 
       - name: Generate HTML From Hugo
