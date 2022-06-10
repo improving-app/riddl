@@ -30,12 +30,12 @@ jobs:
         run: 'which hugo'
         
       - name: Generate Hugo From RIDDL
-        uses: reactific/riddl-actions@v0.3.6
+        uses: reactific/riddl-actions/riddlc@v0.4
         with:
           command: from 
           opt1: src/main/riddl/ImprovingApp.conf
           opt2: -H
-          opt3: /github/home/runner/actions_hugo/bin/hugo
+          opt3: home/runner/actions_hugo/bin/hugo
 
       - name: Generate HTML From Hugo
         run: cd target/hugo ; hugo --minify -D -v --printMemoryUsage
