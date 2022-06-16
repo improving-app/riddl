@@ -2,7 +2,7 @@ context Vendor is {
     type StoreId is Id( Store )
     type CatalogId is Id( Catalog )
     type CategoryId is Id( Category )
-    type ProductId is Id( Product )
+    type ProductId is Id( Vendor.Product )
     type VendorId is Id( Vendor )
     
     type StoreInfo is {

@@ -14,12 +14,9 @@ domain ImprovingApp is {
     include "Vendors/vendor"
     include "Venues/venue"
     
-    
-    // context Account is {
-    //     entity BillingAccount is {???}
-    //     entity PaymentAccount is {???}
-    //     entity Payment is {???}
-    //     entity Invoice is {???}
-    //     entity Statement is {???} //a detailed accounting of a payment
-    // }
+    plant OrganizationPlant is {
+        pipe OrganizationEventPipe is {
+            transmit ImprovingApp.Organization.Organization.OrganizationEvent
+        }
+    }
 } described in file "src/main/riddl/ImprovingApp.md"

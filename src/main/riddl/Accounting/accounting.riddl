@@ -1,4 +1,7 @@
 context accounting is {
     entity BillingAccount is {???}
-    entity PaymentAccount is {???}
+    entity DistributionAccount is {???}
+    entity FundsDistribution is {???}
+    entity Invoice is {???}
+    entity Statement is {???} //a detailed accounting of a payment
 }

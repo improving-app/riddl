@@ -9,7 +9,7 @@ type Address is {
     line1: String,
     line2: String,
     city: String,
-    province: String,
+    stateProvince: String,
     country: String,
     postalCode: PostalCode
 }
@@ -23,4 +23,4 @@ type VenueId is Id (Venue)
 type LocationId is Id (Location)
 type EventId is Id (Event)
 type BillingAccountId is Id (BillingAccount)
-type PaymentAccountId is Id (PaymentAccount)
+type DistributionAccountId is Id (DistributionAccount)

@@ -1,6 +1,6 @@
 domain InventoryDomain is {
     context ProductInventory is {
-        entity ProductInventory is {
+        entity Product is {
             state ActiveState is {???} handler AvailableProductHandler is {???}
             state EmptyState is {???} handler EmptyStateHandler is {???}
         }
