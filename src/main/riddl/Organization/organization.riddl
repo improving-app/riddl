@@ -7,6 +7,9 @@ context OrganizationContext is {
         address: Address?, //required for BaseOrg. Optional for all other organizations.
         isPrivate: Boolean, //defaults to true
         url: URL?,
+        logo: URL,
+        //color scheme
+        //move billing and distribution to accounting domain - which referenced back to organization
         billingAccount: BillingAccountId?, //Required for BaseOrg. Optional for all other organizations.
         distributionAccount: DistributionAccountId?,
         parentOrg: OrganizationId? //BaseOrganizations do not have a parent. All other organizations must have a parent. The BaseOrganization (only one per organizational structure) is the financially responsible party. As such it MUST have a BillingAccount defined. BaseOrg remains in Draft state until defined.
