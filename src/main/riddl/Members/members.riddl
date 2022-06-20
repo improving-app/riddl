@@ -1,31 +1,44 @@
 context Members is {
     //Member Details
     type MemberId is Id( Member )
-    type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent}
+    type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
+    type MembersToAdd is mapping from MemberId to MemberInfo
+    type NotificationPreference is any of {email, sms}
+    type MemberState is any of {active, inactive, suspended, terminated}
     type MemberInfo is {
         handle: String,
         avatar: URL, //thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content.
         firstName: String,
         lastName: String,
-        mobileNumber: MobileNumber,
+        mobileNumber: MobileNumber?,
+        emailAddress: EmailAddress?,
+        notificationPreference: NotificationPreference,
+        notificationOptIn: Boolean, //true indicates they allow notifications
         organizations: OrganizationId+, //Members must belong to at least one Organization?
         relatedMembers: String, //Primary use case is parent/student. I am sure there are others. Might be a better way to document such a relationship.
         memberType: MemberType
     }
+    type MemberMetaInfo is {
+        createdOn: Date,
+        createdBy: MemberId,
+        lastModifiedOn: Date,
+        lastModifiedBy: MemberId, 
+        state: MemberState
+    }
 
-    type RegisterMember is command {memberInfo: MemberInfo, associatedOrg: OrganizationId?} briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional."
-    type RegisterMemberList is command {memberList: MemberInfo*, associatedOrg: OrganizationId} briefly "RegisterMemberList creates multiple members with a single call. The limitation is you can only define a single MemberType in each call, and all new Members must be assigned to an Organization (typically a BaseOrg)."
-    type MemberRegistered is event {memberId: MemberId} briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
-    type UpdateMemberInfo is command {memberId: MemberId, memberInfo: MemberInfo} briefly "Only provide the values of the elements of the MemberInfo type you wish to change. For example, if you wish to add an Organization to the Member, only provide the organizations attribute, and provide a list of organizations the member should belong to, including the new organization. Whatever values you provide overwrite what was previously there. The absence of an attribute means leave this value as is. If an empty value to an attribute is provided, the value will be overwritten with an empty value."
-    type MemberInfoUpdated is event {memberId: MemberId}
-    type ActivateMember is command {memberId: MemberId}
-    type MemberActivated is event {memberId: MemberId}
-    type InactivateMember is command {memberId: MemberId}
-    type MemberInactivated is event {memberId: MemberId}
-    type SuspendMember is command {memberId: MemberId}
-    type MemberSuspended is event {memberId: MemberId}
-    type TerminateMember is command {memberId: MemberId}
-    type MemberTerminated is event {memberId: MemberId}
+    type RegisterMember is command {memberToAdd: MembersToAdd, registeringMember: MemberId} briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional."
+    type RegisterMemberList is command {memberList: MembersToAdd+, registeringMember: MemberId} briefly "RegisterMemberList creates multiple members with a single call. The limitation is you can only define a single MemberType in each call, and all new Members must be assigned to an Organization (typically a BaseOrg)."
+    type MemberRegistered is event {memberId: MemberId, memberInfo: MemberInfo, memberMeta: MemberMetaInfo} briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
+    type UpdateMemberInfo is command {memberId: MemberId, memberInfo: MemberInfo} briefly "All member info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full MemberInfo object back."
+    type MemberInfoUpdated is event {memberId: MemberId, memberInfo: MemberInfo, memberMeta: MemberMetaInfo}
+    type ActivateMember is command {memberId: MemberId, actingMember: MemberId}
+    type MemberActivated is event {memberId: MemberId, memberMeta: MemberMetaInfo}
+    type InactivateMember is command {memberId: MemberId, actingMember: MemberId}
+    type MemberInactivated is event {memberId: MemberId, memberMeta: MemberMetaInfo}
+    type SuspendMember is command {memberId: MemberId, actingMember: MemberId}
+    type MemberSuspended is event {memberId: MemberId, memberMeta: MemberMetaInfo}
+    type TerminateMember is command {memberId: MemberId, actingMember: MemberId}
+    type MemberTerminated is event {memberId: MemberId, memberMeta: MemberMetaInfo}
 
     entity Member is {
         option is aggregate
@@ -34,11 +47,6 @@ context Members is {
             memberInfo: MemberInfo
         } 
         handler ActiveMemberHandler is {???}
-        state Guest is {
-            memberId: MemberId
-            //Guest Info
-        } //Anonymous User
-        handlerGuestMemberHandler is {???}
         state Inactive is {
             memberId: MemberId,
             memberInfo: MemberInfo 
@@ -56,4 +64,6 @@ context Members is {
         } //A terminated member is one who exercises their right to be forgotten.
         handler TerminagedMemberHandler is {???}
     }
+
+    entity Guest is {???}
 }
