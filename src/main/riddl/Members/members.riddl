@@ -14,7 +14,7 @@ context Members is {
         emailAddress: EmailAddress?,
         notificationPreference: NotificationPreference,
         notificationOptIn: Boolean, //true indicates they allow notifications
-        organizations: OrganizationId+, //Members must belong to at least one Organization?
+        organizations: OrganizationId*, //Members must belong to at least one Organization?
         relatedMembers: String, //Primary use case is parent/student. I am sure there are others. Might be a better way to document such a relationship.
         memberType: MemberType
     }
