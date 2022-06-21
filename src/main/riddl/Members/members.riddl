@@ -3,8 +3,8 @@ context Members is {
     type MemberId is Id( Member )
     type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
     type MembersToAdd is mapping from MemberId to MemberInfo
-    type NotificationPreference is any of {email, sms}
-    type MemberState is any of {active, inactive, suspended, terminated}
+    type NotificationPreference is any of {Email, SMS}
+    type MemberState is any of {Active, Inactive, Suspended, Terminated}
     type MemberInfo is {
         handle: String,
         avatar: URL, //thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content.
