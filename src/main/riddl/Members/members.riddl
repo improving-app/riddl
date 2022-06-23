@@ -2,7 +2,7 @@ context Members is {
     //Member Details
     type MemberId is Id( Member )
     type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
-    type MembersToAdd is mapping from MemberId to MemberInfo
+    type MemberMap is mapping from MemberId to MemberInfo
     type NotificationPreference is any of {email, sms}
     type MemberState is any of {active, inactive, suspended, terminated}
     type MemberInfo is {
@@ -16,7 +16,7 @@ context Members is {
         notificationOptIn: Boolean, //true indicates they allow notifications
         organizations: OrganizationId+, //Members must belong to at least one Organization?
         relatedMembers: String, //Primary use case is parent/student. I am sure there are others. Might be a better way to document such a relationship.
-        memberType: MemberType
+        memberType: MemberType+
     }
     type MemberMetaInfo is {
         createdOn: Date,
@@ -26,8 +26,8 @@ context Members is {
         state: MemberState
     }
 
-    type RegisterMember is command {memberToAdd: MembersToAdd, registeringMember: MemberId} briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional."
-    type RegisterMemberList is command {memberList: MembersToAdd+, registeringMember: MemberId} briefly "RegisterMemberList creates multiple members with a single call. The limitation is you can only define a single MemberType in each call, and all new Members must be assigned to an Organization (typically a BaseOrg)."
+    type RegisterMember is command {memberToAdd: MembersMap, registeringMember: MemberId} briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional."
+    type RegisterMemberList is command {memberList: MemberMap+, registeringMember: MemberId} briefly "RegisterMemberList creates multiple members with a single call. The limitation is you can only define a single MemberType in each call, and all new Members must be assigned to an Organization (typically a BaseOrg)."
     type MemberRegistered is event {memberId: MemberId, memberInfo: MemberInfo, memberMeta: MemberMetaInfo} briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
     type UpdateMemberInfo is command {memberId: MemberId, memberInfo: MemberInfo} briefly "All member info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full MemberInfo object back."
     type MemberInfoUpdated is event {memberId: MemberId, memberInfo: MemberInfo, memberMeta: MemberMetaInfo}
@@ -39,6 +39,8 @@ context Members is {
     type MemberSuspended is event {memberId: MemberId, memberMeta: MemberMetaInfo}
     type TerminateMember is command {memberId: MemberId, actingMember: MemberId}
     type MemberTerminated is event {memberId: MemberId, memberMeta: MemberMetaInfo}
+    type GetMemberInfo is query {memberId: MemberId}
+    type MemberInfo is response {memberId: MemberId, memberInfo: MemberInfo, memberMeta: MemberMetaInfo}
 
     entity Member is {
         option is aggregate
