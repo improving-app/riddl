@@ -16,6 +16,7 @@ Additionally, in a high school setting, the following member types are supported
 * General - the default member type
 * Alumni - A member who at one time was a student or Faculty/Staff member at the organization
 * Parent - A member who has legal guardianship over an active student at the organization
+* Fan - A member who is no otherwise associated to the organization but wants to support it.
 
 Organizational membership is necessary to view details of private organizations or events that are private to the sponsoring organization. User type may further restrict details that are visible within the organzaiton.
 
