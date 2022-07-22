@@ -1,0 +1,183 @@
+context GatewayOrganizationContext is {
+    //Organization Details
+    type Organization is {orgInfo: OrganizationInfo, orgMetaInfo: OrganizationMetaInfo}
+    type OrganizationMap is mapping from OrganizationId to Organization
+    type OrganizationInfoMap is mapping from OrganizationId to OrganizationInfo
+    type OrganizationState is any of {Draft, Active, Inactive, Suspended, Terminated}
+    type OrganizationInfo is {
+        name: String, //i.e. Provo High School. Must be unique within the organizational structure.
+        shortName: String?, //i.e. PHS. Must be unique within the organizational structure.
+        address: Address?, //required for BaseOrg. Optional for all other organizations.
+        isPrivate: Boolean, //defaults to true
+        url: URL?,
+        logo: URL,
+        parentOrg: OrganizationId? //BaseOrganizations do not have a parent. All other organizations must have a parent. The BaseOrganization (only one per organizational structure) is the financially responsible party. As such it MUST have a BillingAccount defined. BaseOrg remains in Draft state until defined.
+    }
+
+    type OrganizationMetaInfo is {
+        createdOn: DateTime,
+        createdBy: MemberId,
+        lastUpdated: DateTime,
+        lastUpdatedBy: MemberId, //this may also be a system user. i.e. they are two months late on payment so the system determines to suspend the organization.
+        currentState: OrganizationState
+    }
+
+    type EstablishOrganization is command {orgInfo: OrganizationInfo}
+    type OrganizationEstablished is event {organization: OrganizationMap}
+    type EditOrganizationInfo is command {newOrgInfo: OrganizationInfoMap}
+    type OrganizationInfoUpdated is event {organization: OrganizationMap}
+    type ChangeOrganizationsStates is command {orgIds: OrganizationId+, newState: OrganizationState}
+    type OrganizationStateChanged is event {organizations: OrganizationMap+}
+    type OrganizationEvent is one of {OrganizationEstablished, OrganizationInfoUpdated, ChangeOrganizationState}
+    type FetchOrganizations is command {orgIds: OrganizationId+, orgState: OrganizationState?}
+    type OrganizationsData is event {organizations: OrganizationMap+}
+
+    entity OrganizationEntity is {
+        options (event sourced, available)
+
+        state Draft is OrganizationMap
+        //handler
+        state Active is OrganizationMap
+        //handler
+        state Inactive is OrganizationMap
+        //handler
+        state Suspended is OrganizationMap
+        //handler
+        state Terminated is OrganizationMap
+        //handler
+    }
+}
+
+context GatewayMemberContext is {
+    type Member is {memberInfo: MemberInfo, memberMetaInfo: MemberMetaInfo}
+    type MemberMap is mapping from MemberId to Member
+    type MemberInfoMap is mapping from MemberId to MemberInfo
+    type MemberId is Id( Member )
+    type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
+
+    type NotificationPreference is any of {email, sms}
+    type MemberState is any of {active, inactive, suspended, terminated}
+    type MemberInfo is {
+        handle: String,
+        avatar: URL, //thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content.
+        firstName: String,
+        lastName: String,
+        mobileNumber: MobileNumber?,
+        emailAddress: EmailAddress?,
+        notificationPreference: NotificationPreference,
+        notificationOptIn: Boolean, //true indicates they allow notifications
+        organizations: OrganizationId*, //Members must belong to at least one Organization?
+        relatedMembers: String, //Primary use case is parent/student. I am sure there are others. Might be a better way to document such a relationship.
+        memberType: MemberType+
+    }
+    type MemberMetaInfo is {
+        createdOn: Date,
+        createdBy: MemberId,
+        lastModifiedOn: Date,
+        lastModifiedBy: MemberId,
+        memberState: MemberState
+    }
+
+    type RegisterMember is command {membersInfo: MemberInfo, registeringMember: MemberId} //briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional."
+    type MemberRegistered is event {members: MemberMap, registeringMember: MemberId} //briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
+    type UpdateMemberInfo is command {memberMap: MemberInfoMap} //briefly "All member info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full MemberInfo object back."
+    type MemberInfoUpdated is event {member: MemberMap}
+    type UpdateMemberState is command {memberId: MemberId, newState: MemberState}
+    type MemberStateUpdated is event {member: MemberMap}
+    type GetMembers is query {memberIds: MemberId+}
+    type GetMembersByOrg is query {orgId: OrgId}
+    type MembersData is result {members: memberMap+}
+
+    entity MemberEntity is {
+        option is aggregate
+        state Active is MemberMap
+        //handler
+        state Inactive is MemberMap
+        //handler
+        state Suspended is MemberMap
+        //handler
+        state Terminated is {
+            memberId: MemberId
+        } //A terminated member is one who exercises their right to be forgotten.
+        //handler
+    }
+}
+
+context GatewayLocationContext is {
+    type Location is {locationInfo: LocationInfo, locationMetaInfo: LocationMetaInfo}
+    type LocationMap is mapping from LocationId to Location
+    type LocationInfoMap is mapping from LocationId to LocationInfo
+
+    type LocationInfo is {
+      orgId: OrganizationId,
+      name: String,
+      address: Address,
+      isAvailable: Boolean
+    }
+
+    type LocationMetaInfo is {
+      createdOn: Date,
+      lastModifiedOn: Date,
+    }
+
+    type EstablishLocation is command {locationInfo: LocationInfo}
+    type LocationEstablished is event {location: LocationMap}
+    type EditLocationInfo is command {newLocationInfo: locationInfoMap}
+    type LocationInfoUpdated is event {location: locationMap}
+    type FetchLocations is command {locationId: LocationId+}
+    type FetchLocationsByOrganization is command {orgId: OrganizationId}
+    type LocationsData is event {Location: LocationMap+}
+
+    entity LocationEntity is LocationMap
+    //handler
+}
+
+context GatewayEventContext is {
+    type Event is {eventInfo: EventInfo, eventMetaInfo: EventMetaInfo}
+    type EventMap is mapping from EventId to Event
+    type EventInfoMap is mapping from EventId to EventInfo
+    type EventId is Id( Event )
+    type EventState is any of {Scheduled, InProgress, Past, Cancelled}
+
+    type EventInfo is {
+        eventName: String,
+        location: LocationId,
+        startDateTime: DateTime,
+        endDateTime: DateTime,
+        sponsoringOrg: OrganizationId,
+        participatingOrgs: OrganizationId*,
+        supportingOrgs: OrganizationId*,
+        isPrivate: Boolean,
+    }
+
+    type EventMetaInfo is {
+        createdOn: Date,
+        lastModifiedOn: Date,
+        currentState: EventState
+    }
+
+    type EstablishEvent is command {eventInfo: EventInfo}
+    type EventEstablished is event {event: EventMap}
+    type EditEventInfo is command {newOrgInfo: EventInfoMap}
+    type EventInfoUpdated is event {Event: EventMap}
+    type ChangeEventState is command {orgId: EventId, newState: EventState}
+    type EventStateChanged is event {Event: EventMap}
+    type FetchEvents is command {eventId: EventId+}
+    type FetchEventsBySponsoringOrganizations is command {orgId: OrganizationId+, eventState: EventState?}
+    type FetchEventsByParticipatingOrganizations is command {orgId: OrganizationId+, eventState: EventState?}
+    type FetchEventsBySupportingOrganizations is command {orgId: OrganizationId+, eventState: EventState?}
+    type EventsData is event {Event: EventMap+}
+
+    entity EventEntity is {
+        option is aggregate
+        state Scheduled is EventMap
+        // handler
+        state InProgress is EventMap
+        // handler
+        state Past is EventMap
+        // handler
+        state Cancelled is EventMap
+        // handler
+        //also consider postponed, delayed, resheduled
+    }
+}
