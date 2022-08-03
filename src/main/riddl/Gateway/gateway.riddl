@@ -1,17 +1,93 @@
 context GatewayOrganizationContext is {
+  function establishOrganization is {
+    requires { command: EstablishOrganization }
+    yields { event: OrganizationEstablished }
 
+  function editOrganization is {
+    requires { command: EditOrganizationInfo }
+    yields { event: OrganizationInfoUpdated }
+
+  function changeOrganizationState is {
+    requires { command: ChangeOrganizationsStates }
+    yields { event: OrganizationStateChanged }
+
+  function fetchOrganizations is {
+    requires { command: FetchOrganizations }
+    yields { event: OrganizationsData }
 }
 
 context GatewayMemberContext is {
+  function registerMember is {
+    requires { command: RegisterMember }
+    yields { event: MemberRegistered }
 
+  function updateMemberInfo is {
+    requires { command: UpdateMemberInfo }
+    yields { event: MemberInfoUpdated }
+
+  function updateMemberState is {
+    requires { command: UpdateMemberState }
+    yields { event: MemberStateUpdated }
+
+  function getMembers is {
+    requires { command: GetMembers }
+    yields { event: MembersData }
+
+  function getMembersByOrg is {
+    requires { command: GetMembersByOrg }
+    yields { event: MembersData }
 }
 
 context GatewayLocationContext is {
+  function establishLocation is {
+    requires { command: EstablishLocation }
+    yields { event: LocationEstablished }
 
+  function editLocationInfo is {
+    requires { command: EditLocationInfo }
+    yields { event: LocationInfoUpdated }
 
+  function fetchLocations is {
+    requires { command: FetchLocations }
+    yields { event: LocationsData }
 
+  function fetchLocationsByOrganization is {
+    requires { command: FetchLocationsByOrganization }
+    yields { event: LocationsData }
 }
 
 context GatewayEventContext is {
+  function establishEvent is {
+    requires { command: EstablishEvent }
+    yields { event: EventEstablished }
 
+
+  function editEventInfo is {
+    requires { command: EditEventInfo }
+    yields { event: EventInfoUpdated }
+
+
+  function changeEventState is {
+    requires { command: ChangeEventState }
+    yields { event: EventStateChanged }
+
+
+  function fetchEvents is {
+    requires { command: FetchEvents }
+    yields { event: EventsData }
+
+
+  function fetchEventsBySponsoringOrganizations is {
+    requires { command: FetchEventsBySponsoringOrganizations }
+    yields { event: EventsData }
+
+
+  function fetchEventsByParticipatingOrganizations is {
+    requires { command: FetchEventsByParticipatingOrganizations }
+    yields { event: EventsData }
+
+
+  function fetchEventsBySupportingOrganizations is {
+    requires { command: FetchEventsBySupportingOrganizations }
+    yields { event: EventsData }
 }
