@@ -1,0 +1,41 @@
+context LocationGateway is {
+  type LocationMap is mapping from LocationId to Location
+  type LocationInfoMap is mapping from LocationId to LocationInfo
+	type Location is {locationId: LocationId, locationInfo: LocationInfo, locationMetaInfo: LocationMetaInfo}
+
+  type LocationInfo is {
+    orgId: OrganizationId,
+    name: String,
+    address: Address,
+    isAvailable: Boolean
+  }
+
+  type LocationMetaInfo is {
+    createdOn: Date,
+    lastModifiedOn: Date,
+  }
+
+  type EstablishLocation is command {locationInfo: LocationInfo}
+  type LocationEstablished is event {location: Location}
+  type EditLocationInfo is command {locationId: LocationId, newLocationInfo: locationInfo}
+  type LocationInfoUpdated is event {location: location}
+  type FetchLocations is command {locationId: LocationId+}
+  type FetchLocationsByOrganization is command {orgId: OrganizationId}
+  type LocationsData is event {Location: Location+}
+
+  function establishLocation is {
+    requires { command: EstablishLocation }
+    yields { event: LocationEstablished }
+
+  function editLocationInfo is {
+    requires { command: EditLocationInfo }
+    yields { event: LocationInfoUpdated }
+
+  function fetchLocations is {
+    requires { command: FetchLocations }
+    yields { event: LocationsData }
+
+  function fetchLocationsByOrganization is {
+    requires { command: FetchLocationsByOrganization }
+    yields { event: LocationsData }
+}

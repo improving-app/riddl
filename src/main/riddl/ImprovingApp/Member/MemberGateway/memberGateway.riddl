@@ -1,0 +1,58 @@
+context MemberGateway is {
+	type Member is {memberId: MemberId, memberInfo: MemberInfo, memberMetaInfo: MemberMetaInfo}
+  type MemberId is Id( Member )
+  type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
+
+  type NotificationPreference is any of {email, sms}
+  type MemberState is any of {active, inactive, suspended, terminated}
+  type MemberInfo is {
+      handle: String,
+      avatar: URL, //thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content.
+      firstName: String,
+      lastName: String,
+      mobileNumber: MobileNumber?,
+      emailAddress: EmailAddress?,
+      notificationPreference: NotificationPreference,
+      notificationOptIn: Boolean, //true indicates they allow notifications
+      organizations: OrganizationId*, //Members must belong to at least one Organization?
+      relatedMembers: String, //Primary use case is parent/student. I am sure there are others. Might be a better way to document such a relationship.
+      memberType: MemberType+
+  }
+  type MemberMetaInfo is {
+      createdOn: Date,
+      createdBy: MemberId,
+      lastModifiedOn: Date,
+      lastModifiedBy: MemberId,
+      memberState: MemberState
+  }
+
+  type RegisterMember is command {membersInfo: MemberInfo, registeringMember: MemberId} //briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional."
+  type MemberRegistered is event {members: Member, registeringMember: MemberId} //briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
+  type UpdateMemberInfo is command {memberId: MemberId, memberMap: MemberInfo} //briefly "All member info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full MemberInfo object back."
+  type MemberInfoUpdated is event {member: Member}
+  type UpdateMemberState is command {memberId: MemberId, newState: MemberState}
+  type MemberStateUpdated is event {member: Member}
+  type GetMembers is query {memberIds: MemberId+}
+  type GetMembersByOrg is query {orgId: OrgId}
+  type MembersData is result {members: member+}
+
+  function registerMember is {
+    requires { command: RegisterMember }
+    yields { event: MemberRegistered }
+
+  function updateMemberInfo is {
+    requires { command: UpdateMemberInfo }
+    yields { event: MemberInfoUpdated }
+
+  function updateMemberState is {
+    requires { command: UpdateMemberState }
+    yields { event: MemberStateUpdated }
+
+  function getMembers is {
+    requires { command: GetMembers }
+    yields { event: MembersData }
+
+  function getMembersByOrg is {
+    requires { command: GetMembersByOrg }
+    yields { event: MembersData }
+}

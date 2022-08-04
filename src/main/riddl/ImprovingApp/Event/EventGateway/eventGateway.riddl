@@ -1,0 +1,71 @@
+context EventGateway is {
+  type EventMap is mapping from EventId to Event
+  type EventInfoMap is mapping from EventId to EventInfo
+	type Event is {eventId: EventId, eventInfo: EventInfo, eventMetaInfo: EventMetaInfo}
+  type EventId is Id( Event )
+  type EventState is any of {Scheduled, InProgress, Past, Cancelled}
+
+  type EventInfo is {
+      eventName: String,
+      location: LocationId,
+      startDateTime: DateTime,
+      endDateTime: DateTime,
+      sponsoringOrg: OrganizationId,
+      participatingOrgs: OrganizationId*,
+      supportingOrgs: OrganizationId*,
+      isPrivate: Boolean,
+      // stores: StoreId*  (eventually)
+  }
+
+  type EventMetaInfo is {
+      createdOn: Date,
+      lastModifiedOn: Date,
+      currentState: EventState
+  }
+
+  type EstablishEvent is command {eventInfo: EventInfo}
+  type EventEstablished is event {event: Event}
+  type EditEventInfo is command {eventId: EventId, newOrgInfo: EventInfo}
+  type EventInfoUpdated is event {Event: Event}
+  type ChangeEventState is command {orgId: EventId, newState: EventState}
+  type EventStateChanged is event {Event: Event}
+  type FetchEvents is command {eventId: EventId+}
+  type FetchEventsBySponsoringOrganizations is command {orgId: OrganizationId+, eventState: EventState?}
+  type FetchEventsByParticipatingOrganizations is command {orgId: OrganizationId+, eventState: EventState?}
+  type FetchEventsBySupportingOrganizations is command {orgId: OrganizationId+, eventState: EventState?}
+  type EventsData is event {Event: Event+}
+
+  function establishEvent is {
+    requires { command: EstablishEvent }
+    yields { event: EventEstablished }
+
+
+  function editEventInfo is {
+    requires { command: EditEventInfo }
+    yields { event: EventInfoUpdated }
+
+
+  function changeEventState is {
+    requires { command: ChangeEventState }
+    yields { event: EventStateChanged }
+
+
+  function fetchEvents is {
+    requires { command: FetchEvents }
+    yields { event: EventsData }
+
+
+  function fetchEventsBySponsoringOrganizations is {
+    requires { command: FetchEventsBySponsoringOrganizations }
+    yields { event: EventsData }
+
+
+  function fetchEventsByParticipatingOrganizations is {
+    requires { command: FetchEventsByParticipatingOrganizations }
+    yields { event: EventsData }
+
+
+  function fetchEventsBySupportingOrganizations is {
+    requires { command: FetchEventsBySupportingOrganizations }
+    yields { event: EventsData }
+}

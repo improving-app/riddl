@@ -1,0 +1,26 @@
+context VenueContext is {
+  type Location is {locationId: LocationId, locationInfo: LocationInfo, locationMetaInfo: LocationMetaInfo}
+
+  type LocationInfo is {
+    orgId: OrganizationId,
+    name: String,
+    address: Address,
+    isAvailable: Boolean
+  }
+
+  type LocationMetaInfo is {
+    createdOn: Date,
+    lastModifiedOn: Date,
+  }
+
+  type EstablishLocation is command {locationInfo: LocationInfo}
+  type LocationEstablished is event {location: Location}
+  type EditLocationInfo is command {locationId: LocationId, newLocationInfo: locationInfo}
+  type LocationInfoUpdated is event {location: location}
+  type FetchLocations is command {locationId: LocationId+}
+  type FetchLocationsByOrganization is command {orgId: OrganizationId}
+  type LocationsData is event {Location: Location+}
+
+  entity LocationEntity is Location
+  handler LocationHandler is {???}
+}

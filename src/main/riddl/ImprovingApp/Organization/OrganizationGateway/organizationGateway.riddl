@@ -1,0 +1,30 @@
+context OrganizationGateway is {
+  type OrganizationMap is mapping from OrganizationId to Organization
+  type OrganizationInfoMap is mapping from OrganizationId to OrganizationInfo
+
+  type EstablishOrganization is command {orgInfo: OrganizationInfo}
+  type OrganizationEstablished is event {organization: OrganizationMap}
+  type EditOrganizationInfo is command {newOrgInfo: OrganizationInfoMap}
+  type OrganizationInfoUpdated is event {organization: OrganizationMap}
+  type ChangeOrganizationsStates is command {orgIds: OrganizationId+, newState: OrganizationState}
+  type OrganizationStateChanged is event {organizations: OrganizationMap+}
+  type OrganizationEvent is one of {OrganizationEstablished, OrganizationInfoUpdated, ChangeOrganizationState}
+  type FetchOrganizations is command {orgIds: OrganizationId+, orgState: OrganizationState?}
+  type OrganizationsData is event {organizations: OrganizationMap+}
+
+  function establishOrganization is {
+    requires { command: EstablishOrganization }
+    yields { event: OrganizationEstablished }
+
+  function editOrganization is {
+    requires { command: EditOrganizationInfo }
+    yields { event: OrganizationInfoUpdated }
+
+  function changeOrganizationState is {
+    requires { command: ChangeOrganizationsStates }
+    yields { event: OrganizationStateChanged }
+
+  function fetchOrganizations is {
+    requires { command: FetchOrganizations }
+    yields { event: OrganizationsData }
+}
