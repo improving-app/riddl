@@ -11,8 +11,8 @@ context EventGateway is {
       startDateTime: DateTime,
       endDateTime: DateTime,
       sponsoringOrg: OrganizationId,
-      participatingOrgs: OrganizationId*,
-      supportingOrgs: OrganizationId*,
+      // participatingOrgs: OrganizationId*,
+      // supportingOrgs: OrganizationId*,
       isPrivate: Boolean,
       // stores: StoreId*  (eventually)
   }
