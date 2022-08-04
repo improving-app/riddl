@@ -1,27 +1,6 @@
 context OrganizationGateway is {
   type OrganizationMap is mapping from OrganizationId to Organization
   type OrganizationInfoMap is mapping from OrganizationId to OrganizationInfo
-	type Organization is {orgId: OrganizationId, orgInfo: OrganizationInfo, orgMetaInfo: OrganizationMetaInfo}
-	type OrganizationState is any of {Draft, Active, Inactive, Suspended, Terminated}
-	type OrganizationInfo is {
-	    name: String, //i.e. Provo High School. Must be unique within the organizational structure.
-	    shortName: String?, //i.e. PHS. Must be unique within the organizational structure.
-	    address: Address?, //required for BaseOrg. Optional for all other organizations.
-	    isPrivate: Boolean, //defaults to true
-	    url: URL?,
-	    logo: URL,
-	    parentOrg: OrganizationId? //BaseOrganizations do not have a parent. All other organizations must have a parent. The BaseOrganization (only one per organizational structure) is the financially responsible party. As such it MUST have a BillingAccount defined. BaseOrg remains in Draft state until defined.
-	    //color scheme
-	    //calendar: Calendar
-	}
-
-	type OrganizationMetaInfo is {
-	    createdOn: DateTime,
-	    createdBy: MemberId,
-	    lastUpdated: DateTime,
-	    lastUpdatedBy: MemberId, //this may also be a system user. i.e. they are two months late on payment so the system determines to suspend the organization.
-	    currentState: OrganizationState
-	}
 
   type EstablishOrganization is command {orgInfo: OrganizationInfo}
   type OrganizationEstablished is event {organization: OrganizationMap}
