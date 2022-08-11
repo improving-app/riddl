@@ -1,0 +1,5 @@
+context Relationships is {
+//from member.riddl
+    organizations: OrganizationId* described by "List of Organizations a member belongs to.",
+    //relatedMembers: String, //Primary use case is parent/student. I am sure there are others. Might be a better way to document such a relationship.
+}

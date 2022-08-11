@@ -1,70 +1,74 @@
 context Members is {
     //Member Details
-    type MemberId is Id( Member )
-    type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
-    type MemberMap is mapping from MemberId to MemberInfo
+    //type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
+    type MemberMap is mapping from MemberId to Info //gateway definition
     type NotificationPreference is any of {email, sms}
-    type MemberState is any of {active, inactive, suspended, terminated}
-    type MemberInfo is {
-        handle: String,
-        avatar: URL, //thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content.
+    type Status is any of {active, inactive, suspended, terminated}
+    type Info is {
+        handle: String described by "username. Must be unique.",
+        avatar: URL described by "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
         firstName: String,
         lastName: String,
         mobileNumber: MobileNumber?,
         emailAddress: EmailAddress?,
-        notificationPreference: NotificationPreference,
-        notificationOptIn: Boolean, //true indicates they allow notifications
-        organizations: OrganizationId*, //Members must belong to at least one Organization?
-        relatedMembers: String, //Primary use case is parent/student. I am sure there are others. Might be a better way to document such a relationship.
-        memberType: MemberType+
+        notificationPreference: NotificationPreference? described by "if this is set it is assumed that the user has opted in."
+        //memberType: MemberType+
     }
-    type MemberMetaInfo is {
+    type MetaInfo is {
         createdOn: Date,
         createdBy: MemberId,
         lastModifiedOn: Date,
         lastModifiedBy: MemberId, 
-        memberState: MemberState
+        memberStatus: Status
+    }
+    type InfoQuery is {
+        createdOn: Date?,
+        createdBy: MemberId?,
+        lastModifiedOn: Date?,
+        lastModifiedBy: MemberId?, 
+        memberStatus: Status?
     }
 
-    type RegisterMember is command {memberToAdd: MemberMap, registeringMember: MemberId} briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional."
-    type RegisterMemberList is command {memberList: MemberMap+, registeringMember: MemberId} briefly "RegisterMemberList creates multiple members with a single call. The limitation is you can only define a single MemberType in each call, and all new Members must be assigned to an Organization (typically a BaseOrg)."
-    type MemberRegistered is event {memberId: MemberId, memberInfo: MemberInfo, memberMeta: MemberMetaInfo} briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
-    type UpdateMemberInfo is command {memberMap:MemberMap, actingMember: MemberId} briefly "All member info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full MemberInfo object back."
-    type MemberInfoUpdated is event {memberId: MemberId, memberInfo: MemberInfo, memberMeta: MemberMetaInfo}
-    type ActivateMember is command {memberId: MemberId, actingMember: MemberId}
-    type MemberActivated is event {memberId: MemberId, memberMeta: MemberMetaInfo}
-    type InactivateMember is command {memberId: MemberId, actingMember: MemberId}
-    type MemberInactivated is event {memberId: MemberId, memberMeta: MemberMetaInfo}
-    type SuspendMember is command {memberId: MemberId, actingMember: MemberId}
-    type MemberSuspended is event {memberId: MemberId, memberMeta: MemberMetaInfo}
-    type TerminateMember is command {memberId: MemberId, actingMember: MemberId}
-    type MemberTerminated is event {memberId: MemberId, memberMeta: MemberMetaInfo}
+    type RegisterMember is command {memberId: MemberId, memberInfo: Info, registeringMember: MemberId} briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional."
+    type MemberRegistered is event {memberId: MemberId, memberInfo: Info, memberMeta: MetaInfo} briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
+    type RegisterMemberList is command {memberList: MemberMap, registeringMember: MemberId} briefly "RegisterMemberList creates multiple members with a single call. The limitation is you can only define a single MemberType in each call, and all new Members must be assigned to an Organization (typically a BaseOrg)."
+    type MemberListRegistered is event {memberList: MemberMap, registeringMember: MemberId}
+    type UpdateMemberInfo is command {memberId: MemberId, memberInfo: Info, actingMember: MemberId} briefly "All member info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full MemberInfo object back."
+    type MemberInfoUpdated is event {memberId: MemberId, memberInfo: Info, memberMeta: MetaInfo}
+    type UpdateMemberStatus is command {memberId: MemberId, actingMember: MemberId, newStatus: Status}
+    type MemberStatusUpdated is event {memberId: MemberId, memberMeta: MetaInfo}
     type GetMemberInfo is query {memberId: MemberId}
-    type MemberData is result {memberId: MemberId, memberInfo: MemberInfo, memberMeta: MemberMetaInfo}
+    type MemberData is result {memberId: MemberId, memberInfo: Info, memberMeta: MetaInfo}
+    type GetMembersByMetaInfo is query {queryData: InfoQuery}
+    type MemberListResult is result {members: MemberMap}
 
     entity Member is {
         option is aggregate
         state Active is {
             memberId: MemberId,
-            memberInfo: MemberInfo
+            memberInfo: Info,
+            metaInfo: MetaInfo
         } 
         handler ActiveMemberHandler is {???}
+        
         state Inactive is {
             memberId: MemberId,
-            memberInfo: MemberInfo 
+            memberInfo: Info,
+            metaInfo: MetaInfo 
         } //An inactive user is one who has not used the application in a period of time (1 year?).
         handler InactiveMemberHandler is {???}
         
         state Suspended is {
             memberId: MemberId,
-            memberInfo: MemberInfo
+            memberInfo: Info,
+            metaInfo: MetaInfo
         } //A suspended member is one who is not able to use the application due to misuse, non-payment, or a host of other reasons, but may be reinstated at some point and we want to retain their data.
         handler SuspendedMemberHandler is {???}
 
         state Terminated is { 
             memberId: MemberId
         } //A terminated member is one who exercises their right to be forgotten.
-        handler TerminagedMemberHandler is {???}
+        handler TerminatedMemberHandler is {???}
     }
 
     entity Guest is {???}
