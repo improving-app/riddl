@@ -9,4 +9,8 @@ context Relationships is {
     distributionContact: MemberId,
     billingAccount: BillingAccountId?, //Required for BaseOrg. Optional for all other organizations.
     distributionAccount: DistributionAccountId?
+//from event.riddl
+    stores: StoreId* //TODO: Do we want the association of Event<->Store here or on Store?
+    participatingOrgs: OrganizationId*,
+    supportingOrgs: OrganizationId*,
 }
