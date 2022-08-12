@@ -8,7 +8,7 @@ on:
       - main  # Set a branch to deploy
     paths:
       - src/main/riddl/**
-
+      -  .github/workflows/gh-pages.yml
 
 jobs:
   make-gh-pages:
@@ -30,7 +30,7 @@ jobs:
         run: 'which hugo'
         
       - name: Generate Hugo From RIDDL
-        uses: reactific/riddl-actions/riddlc@v0.4.1
+        uses: reactific/riddl-actions/riddlc@0.4.3
         with:
           command: from 
           opt1: src/main/riddl/ImprovingApp.conf
