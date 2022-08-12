@@ -1,6 +1,6 @@
 context OrganizationContext is {
     //Organization Details  
-    type OrganizationState is any of {Draft, Active, Suspended, Terminated}      
+    type OrganizationStatus is any of {Draft, Active, Suspended, Terminated}      
     type OrganizationInfo is {
         name: String, //i.e. Provo High School. Must be unique within the organizational structure.
         shortName: String?, //i.e. PHS. Must be unique within the organizational structure.
@@ -20,58 +20,105 @@ context OrganizationContext is {
         createdBy: MemberId,
         lastUpdated: DateTime,
         lastUpdatedBy: MemberId, //this may also be a system user. i.e. they are two months late on payment so the system determines to suspend the organization.
-        currentState: OrganizationState
+        currentState: OrganizationStatus
         //currentOwner: MemberId
     }
         
-    type EstablishOrganization is command {orgId: OrganizationId, orgInfo: OrganizationInfo} 
+    type EstablishOrganization is command {orgId: OrganizationId, orgInfo: OrganizationInfo, establishingMember: MemberId} 
         briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
     type OrganizationEstablished is event {orgId: OrganizationId, orgInfo: OrganizationInfo, orgMetaInfo: OrganizationMetaInfo}
-    type EditOrganizationInfo is command {orgId: OrganizationId, newInfo: OrganizationInfo} 
+    type EditOrganizationInfo is command {orgId: OrganizationId, newInfo: OrganizationInfo, editingMember: MemberId} 
         briefly "Only provide the values of the elements of the OrganizationInfo type you wish to change. For example, if you wish to define a new parentOrg, only provide the parentOrg attribute with the ID of the new parent. Whatever values you provide overwrite what was previously there. The absence of an attribute means leave this value as is. If an empty value to an attribute is provided, the value will be overwritten with an empty value."
     type OrganizationInfoUpdated is event {orgId: OrganizationId, orgInfo: OrganizationInfo}
-    type ActivateOrganization is command {orgId: OrganizationId}
-    type OrganizationActivated is event {orgId: OrganizationId, orgInfo: OrganizationInfo, orgMetaInfo: OrganizationMetaInfo} 
-    type InactivateOrganization is command {orgId: OrganizationId}
-    type OrganizationInactivated is event {orgId: OrganizationId, orgInfo: OrganizationInfo, orgMetaInfo: OrganizationMetaInfo}
-    type SuspendOrganization is command {orgId: OrganizationId}
-    type OrganizationSuspended is event {orgId: OrganizationId, orgInfo: OrganizationInfo, orgMetaInfo: OrganizationMetaInfo}
-    type TerminateOrganization is command {orgId: OrganizationId}
-    type OrganizationTerminated is event {orgId: OrganizationId, orgInfo: OrganizationInfo, orgMetaInfo: OrganizationMetaInfo}
-    type OrganizationEvent is one of {OrganizationEstablished, OrganizationInfoUpdated, OrganizationActivated, OrganizationInactivated, OrganizationSuspended, OrganizationTerminated}
+    type UpdateOrganizationStatus is command {orgId: OrganizationId, status: OrganizationStatus, updatingMember: MemberId}
+    type OrganizationStatusUpdated is event {orgId: OrganizationId, newStatus: OrganizationStatus}
+
+    type OrganizationEvent is one of {OrganizationEstablished, OrganizationInfoUpdated, OrganizationStatusUpdated}
     
     entity Organization is {
         options (event sourced, available)
+        
+        handler OrganizationHandler is { 
+            on command EstablishOrganization {
+                then morph entity Organization to state Organization.Draft
+                and set Draft.orgId to @EstablishOrganization.orgId
+                and set Draft.orgInfo to @EstablishOrganization.orgInfo
+                //and set Draft.orgMetaInfo to new OrganizationMetaInfo(createdOn="today()", createdBy = @EstablishOrganization.establishingMember, lastUpdated="today()", lastUpdatedBy=@EstablishOrganization.establishingMember)
+                and yield event OrganizationEstablished(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
+            }
+            //on any {then "error"}
+        }
+
         state Draft is {
-            oid: OrganizationId,
-            orgDetails: OrganizationInfo
-        } handler DraftOrganizationHandler is { ???
-            // on command EstablishOrganization {
-            //     when == (@EstablishOrganization.orgId, @OrganizationId)
-            //     then publish event OrganizationEstablished () to OrganizationEventPipe
-            // }
+            orgId: OrganizationId,
+            orgInfo: OrganizationInfo,
+            orgMetaInfo: OrganizationMetaInfo
+        } handler DraftOrganizationHandler is for state Draft { 
+            on command EstablishOrganization {
+                then "error"
+            }
+            on command EditOrganizationInfo { ???
+                // then set Draft.orgInfo to @EstablishOrganization.orgInfo
+                // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
+                //TODO: turn this into a function and call function here
+            }
+            on command UpdateOrganizationStatus { ???
+                // then set Draft.orgMetaInfo.status to @UpdateOrganizationStatus.status
+                // and set Draft.orgMetaInfo.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
+                // and set Draft.orgMetaInfo.lastUpdated to "today()"
+                // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
+                //TODO: turn this into a function and call function here
+            }
+            // on any {then "error"}
         } 
         
         state Active is {
             oid: OrganizationId,
             orgDetails: OrganizationInfo
-        } handler ActiveOrganization is {???}
-
-        state Inactive is {
-            oid: OrganizationId,
-            orgDetails: OrganizationInfo
-        } handler InactiveOrganization is {???}
+        } handler ActiveOrganization is for state Active {
+            on command EstablishOrganization {
+                then "error"
+            }
+            on command EditOrganizationInfo { ???
+                // then set Draft.orgInfo to @EstablishOrganization.orgInfo
+                // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
+                //TODO: turn this into a function and call function here
+            }
+            on command UpdateOrganizationStatus { ???
+                // then set Draft.orgMetaInfo.status to @UpdateOrganizationStatus.status
+                // and set Draft.orgMetaInfo.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
+                // and set Draft.orgMetaInfo.lastUpdated to "today()"
+                // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
+                //TODO: turn this into a function and call function here
+            }
+            // on any {then "error"}
+        }
 
         state Suspended is {
             oid: OrganizationId,
             orgDetails: OrganizationInfo
-        } handler SuspendedOrganization is {???}
+        } handler SuspendedOrganization is for state Suspended {
+            on command EstablishOrganization {
+                    then "error"
+                }
+                on command EditOrganizationInfo { ???
+                    //then "error"
+                }
+                on command UpdateOrganizationStatus { ???
+                    // then set Draft.orgMetaInfo.status to @UpdateOrganizationStatus.status
+                    // and set Draft.orgMetaInfo.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
+                    // and set Draft.orgMetaInfo.lastUpdated to "today()"
+                    // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
+                    //TODO: turn this into a function and call function here
+                }
+                // on any {then "error"}
+            }
 
         state Terminated is {
             oid: OrganizationId,
             name: String
-        } handler TerminatedOrganization is {???}
+        } handler TerminatedOrganization is for state Terminated {???
+            // on any {then "error"}
+        }
     }
-    
-    type Guest is {???} //TODO: move to order domain
 } described in file "src/main/riddl/Organization/organization.md"

@@ -44,6 +44,16 @@ context Members is {
 
     entity Member is {
         option is aggregate
+
+        handler MemberHandler is {
+            on command RegisterMember {
+                then morph entity Member to state Member.Active
+                and set Active.memberId to @RegisterMember.memberId
+                and set Active.memberInfo to @RegisterMember.memberInfo
+            }
+
+        }
+
         state Active is {
             memberId: MemberId,
             memberInfo: Info,
