@@ -8,7 +8,7 @@ on:
       - main  # Set a branch to deploy
     paths:
       - src/main/riddl/**
-
+      -  .github/workflows/gh-pages.yml
 
 jobs:
   make-gh-pages:
