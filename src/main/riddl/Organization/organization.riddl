@@ -1,6 +1,6 @@
 context OrganizationContext is {
     //Organization Details  
-    type OrganizationStates is any of {Draft, Active, Inactive, Suspended, Terminated}      
+    type OrganizationState is any of {Draft, Active, Suspended, Terminated}      
     type OrganizationInfo is {
         name: String, //i.e. Provo High School. Must be unique within the organizational structure.
         shortName: String?, //i.e. PHS. Must be unique within the organizational structure.
@@ -10,9 +10,9 @@ context OrganizationContext is {
         logo: URL,
         //color scheme
         //move billing and distribution to accounting domain - which referenced back to organization
-        billingAccount: BillingAccountId?, //Required for BaseOrg. Optional for all other organizations.
-        distributionAccount: DistributionAccountId?,
-        parentOrg: OrganizationId? //BaseOrganizations do not have a parent. All other organizations must have a parent. The BaseOrganization (only one per organizational structure) is the financially responsible party. As such it MUST have a BillingAccount defined. BaseOrg remains in Draft state until defined.
+        parentOrg: OrganizationId?, //BaseOrganizations do not have a parent. All other organizations must have a parent. The BaseOrganization (only one per organizational structure) is the financially responsible party. As such it MUST have a BillingAccount defined. BaseOrg remains in Draft state until defined.
+        childOrgs: OrganizationId*
+        //primaryContact: MemberId,
         //calendar: Calendar
     }
     type OrganizationMetaInfo is {
@@ -20,7 +20,8 @@ context OrganizationContext is {
         createdBy: MemberId,
         lastUpdated: DateTime,
         lastUpdatedBy: MemberId, //this may also be a system user. i.e. they are two months late on payment so the system determines to suspend the organization.
-        currentState: OrganizationStates
+        currentState: OrganizationState
+        //currentOwner: MemberId
     }
         
     type EstablishOrganization is command {orgId: OrganizationId, orgInfo: OrganizationInfo} 
