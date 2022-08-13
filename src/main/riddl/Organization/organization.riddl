@@ -117,8 +117,8 @@ context OrganizationContext is {
         state Terminated is {
             oid: OrganizationId,
             name: String
-        } handler TerminatedOrganization is for state Terminated {???
-            // on any {then "error"}
+        } handler TerminatedOrganization is for state Terminated {
+            on any {then "error"}
         }
     }
 } described in file "src/main/riddl/Organization/organization.md"

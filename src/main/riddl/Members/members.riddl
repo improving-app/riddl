@@ -2,8 +2,8 @@ context Members is {
     //Member Details
     //type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
     type MemberMap is mapping from MemberId to Info //gateway definition
-    type NotificationPreference is any of {email, sms}
-    type Status is any of {active, suspended}
+    type NotificationPreference is any of { Email, SMS }
+    type Status is any of { Active, Suspended }
     type Info is {
         handle: String described by "username. Must be unique.",
         avatar: URL described by "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
