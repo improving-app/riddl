@@ -38,8 +38,6 @@ context Event is {
 
     type ScheduleEvent is command {???}
     type EventScheduled is event {???}
-    type DelayEvent is command {???}
-    type EventDelayed is event {???}
     type CancelEvent is command {???}
     type EventCancelled is event{???}
     type RescheduleEvent is command {???}
