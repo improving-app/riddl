@@ -29,12 +29,12 @@ context Members is {
         memberStatus: Status?
     }
 
-    type RegisterMember is command {memberId: MemberId, memberInfo: Info, registeringMember: MemberId} briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional."
-    type MemberRegistered is event {memberId: MemberId, memberInfo: Info, memberMeta: MetaInfo} briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
-    type RegisterMemberList is command {memberList: MemberMap, registeringMember: MemberId} briefly "RegisterMemberList creates multiple members with a single call. The limitation is you can only define a single MemberType in each call, and all new Members must be assigned to an Organization (typically a BaseOrg)."
-    type MemberListRegistered is event {memberList: MemberMap, registeringMember: MemberId}
-    type UpdateMemberInfo is command {memberId: MemberId, memberInfo: Info, actingMember: MemberId} briefly "All member info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full MemberInfo object back."
-    type MemberInfoUpdated is event {memberId: MemberId, memberInfo: Info, memberMeta: MetaInfo}
+    command RegisterMember is {memberId: MemberId, memberInfo: Info, registeringMember: MemberId} briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional."
+    event  MemberRegistered is {memberId: MemberId, memberInfo: Info, memberMeta: MetaInfo} briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
+    command RegisterMemberList is {memberList: MemberMap, registeringMember: MemberId} briefly "RegisterMemberList creates multiple members with a single call. The limitation is you can only define a single MemberType in each call, and all new Members must be assigned to an Organization (typically a BaseOrg)."
+    event MemberListRegistered is {memberList: MemberMap, registeringMember: MemberId}
+    command UpdateMemberInfo is  {memberId: MemberId, memberInfo: Info, actingMember: MemberId} briefly "All member info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full MemberInfo object back."
+    event MemberInfoUpdated is  {memberId: MemberId, memberInfo: Info, memberMeta: MetaInfo}
     type UpdateMemberStatus is command {memberId: MemberId, actingMember: MemberId, newStatus: Status}
     type MemberStatusUpdated is event {memberId: MemberId, memberMeta: MetaInfo}
     type GetMemberData is query {memberId: MemberId}
@@ -66,20 +66,20 @@ context Members is {
                 //and set Active.metaInfo.lastModifiedOn to "today"
                 //and publish event MemberInfoUpdated(memberId = @Active.memberId, memberInfo = @Active.memberInfo, memberMeta = @Active.memberMeta) to 
             }
-            on command UpdateMemberStatus {
+            on command UpdateMemberStatus { ???
                 //then set Active.metaInfo.memberStatus to @UpdateMemberStatus.newStatus
                 //and set Active.metaInfo.lastModifiedBy to @UpdateMemberInfo.actingMember
                 //and set Active.metaInfo.lastModifiedOn to "today"
                 //and publish event MemberStatusUpdated(memberId = @Active.memberId, memberMeta = @Active.memberMeta) to 
             }
-            on query GetMemberData {}
+            on query GetMemberData {  ??? }
         }
 
         state Terminated is { 
             memberId: MemberId
         } //A terminated member is one who exercises their right to be forgotten.
-        handler TerminatedMemberHandler is { ???
-            //on all throw error 
+        handler TerminatedMemberHandler is {
+            on other { then error "Terminated members cannot process messages" }
         }
     }
 
