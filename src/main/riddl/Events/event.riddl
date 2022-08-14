@@ -1,4 +1,28 @@
 context Event is {
+    // plant EventPlant is {
+    //     pipe EventPipe is {???}
+    // }
+    /*
+    source LiveUpdates is {
+        outlet Updates is type LiveUpdate
+    } explained as "This is a source for things that happen as an event progresses"
+    type LiveUpdate is mapping from String to String //i.e. "Score" -> "12 to 10", "attendance" -> "523", ...
+    */
+
+    type EventSpecificDetails is one of {FootballGame, BasketballGame, Play, Concert, FundRaiser}
+    type EventResults is mapping from String to String //i.e. "Score" -> "12 to 10", "attendance" -> "523", ...
+    type FootballGame is {???
+        //homeTeam: OrgID,
+        //visitingTeam: String, || OrgID,
+    }
+    type BasketballGame is {???}
+    type Play is {???}
+    type Concert is {???}
+    type FundRaiser is {???}
+    type EventType is {
+        details: EventSpecificDetails,
+        finalResults: EventResults
+    }
     type EventInfo is {
         eventName: String,
         description: String,
@@ -8,8 +32,26 @@ context Event is {
         location: LocationId,
         startDateTime: DateTime,
         endDateTime: DateTime,
-        isPrivate: Boolean
+        isPrivate: Boolean,
+        eventType: EventType
     }
+
+    type ScheduleEvent is command {???}
+    type EventScheduled is event {???}
+    type DelayEvent is command {???}
+    type EventDelayed is event {???}
+    type CancelEvent is command {???}
+    type EventCancelled is event{???}
+    type RescheduleEvent is command {???}
+    type EventRescheduled is event{???}
+    type DelayEvent is command {???}
+    type EventDelayed is event{???}
+    type StartEvent is command{???}
+    type EventStarted is event {???}
+    type EndEvent is command {???}
+    type EventEnded is event {???}
+    type AddLiveUpdate is command{???}
+    type LiveUpdateAdded is event {???}
     
     entity Event is {
         option is aggregate
@@ -18,21 +60,21 @@ context Event is {
             eventInfo: EventInfo
         } handler ScheduledEventHandler is {???}
         state InProgress is {
-            //eventId: EventId,
+            eventId: EventId,
             eventInfo: EventInfo
             //score, period, etc...
         } handler InProgressEventHandler is {???}
         state Past is {
-            //eventId: EventId,
+            eventId: EventId,
             eventInfo: EventInfo
             //finalScore
         } handler PastEventHandler is {???}
         state Cancelled is {
-            //eventId: EventId,
+            eventId: EventId,
             eventInfo: EventInfo
             //reason
         } handler CancelledEventHandler is {???}
-        //also consider postponed, delayed, resheduled
+        //also consider postponed, delayed
     }
 
     // entity Game is {

@@ -51,7 +51,6 @@ context Members is {
                 and set Active.memberId to @RegisterMember.memberId
                 and set Active.memberInfo to @RegisterMember.memberInfo
             }
-
         }
 
         state Active is {
@@ -75,6 +74,8 @@ context Members is {
             on query GetMemberData {}
         }
 
+        state Suspended is {???}
+        
         state Terminated is { 
             memberId: MemberId
         } //A terminated member is one who exercises their right to be forgotten.

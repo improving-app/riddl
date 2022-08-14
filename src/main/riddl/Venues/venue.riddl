@@ -1,6 +1,5 @@
 context VenueContext is {
     entity Venue is {
-        option is aggregate
         state Available is {
             venueId: VenueId,
             orgId: OrganizationId, //Venues are defined by BaseOrgs. venueId and orgId make a composite key
@@ -9,5 +8,50 @@ context VenueContext is {
             isAvailable: Boolean
         } handler AvailableVenueHandler is {???}
     } 
-    entity Location is {???} //handler LocationHandler is {???}
+    entity Location is {
+        type ReserveLocation is command {???}
+        type LocationReserved is event {???}
+        type CancelReservation is command {???}
+        type ReservationCancelled is event {???}
+        type GetReservationInfo is query {???}
+        type ReservationInfoResult is result { reservationId: ReservationId, info: ReservationInfo}
+        type GetLocationInfo is query {locationId: LocationId}
+        type LocationInfoResult is result {locationId: LocationId, info: LocationInfo}
+
+        type LocationInfo is {
+            name: String,
+            description: String,
+            directions: String, //how do you find this location
+            latLong: LatLong,
+            url: URL?,
+            capacity: Integer?,
+            accessible: Boolean, //is this location handicapped accessible
+            amenities: String*
+        }
+        state LocationState is {
+            locationId: LocationId,
+            locationInfo: LocationInfo,
+            reservations: ReservationId*
+        }
+        handler LocationHandler is {???}
+    } 
+
+    entity Reservation is {
+        type ReservationInfo is {
+            startTime: DateTime,
+            endTime: DateTime,
+            forOrg: OrganizationId
+        }
+
+        type CreateReservation is command{???}
+        type ReservationCreated is event{???}
+        type DeleteReservation is command{???}
+        type ReservationDeleted is event{???}
+
+        state ReservationState is {
+            reservationId: ReservationId,
+            info: ReservationInfo
+        }
+        handler ReservationHandler is {???}
+    }
 }
