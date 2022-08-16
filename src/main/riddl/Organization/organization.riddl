@@ -10,8 +10,15 @@ context OrganizationContext is {
         logo: URL,
         //color scheme
         //move billing and distribution to accounting domain - which referenced back to organization
-        parentOrg: OrganizationId?, //BaseOrganizations do not have a parent. All other organizations must have a parent. The BaseOrganization (only one per organizational structure) is the financially responsible party. As such it MUST have a BillingAccount defined. BaseOrg remains in Draft state until defined.
-        childOrgs: OrganizationId*
+        parent: OrganizationId?, //BaseOrganizations do not have a parent. All other organizations must have a parent. The BaseOrganization (only one per organizational structure) is the financially responsible party. As such it MUST have a BillingAccount defined. BaseOrg remains in Draft state until defined.
+        children: OrganizationId*,
+        members: MemberId*,
+        owners: MemberId+,
+        primaryContacts: MemberId+,
+        billingContacts: MemberId*,
+        distributionContacts: MemberId*,
+        billingAccount: BillingAccountId?, //Required for BaseOrg. Optional for all other organizations.
+        distributionAccount: DistributionAccountId?
         //primaryContact: MemberId,
         //calendar: Calendar
     }
@@ -24,14 +31,19 @@ context OrganizationContext is {
         //currentOwner: MemberId
     }
         
-    type EstablishOrganization is command {orgId: OrganizationId, orgInfo: OrganizationInfo, establishingMember: MemberId} 
+    command EstablishOrganization is {orgId: OrganizationId, orgInfo: OrganizationInfo, establishingMember: MemberId} 
         briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
-    type OrganizationEstablished is event {orgId: OrganizationId, orgInfo: OrganizationInfo, orgMetaInfo: OrganizationMetaInfo}
-    type EditOrganizationInfo is command {orgId: OrganizationId, newInfo: OrganizationInfo, editingMember: MemberId} 
+    event OrganizationEstablished is {orgId: OrganizationId, orgInfo: OrganizationInfo, orgMetaInfo: OrganizationMetaInfo}
+    command EditOrganizationInfo is {orgId: OrganizationId, newInfo: OrganizationInfo, editingMember: MemberId} 
         briefly "Only provide the values of the elements of the OrganizationInfo type you wish to change. For example, if you wish to define a new parentOrg, only provide the parentOrg attribute with the ID of the new parent. Whatever values you provide overwrite what was previously there. The absence of an attribute means leave this value as is. If an empty value to an attribute is provided, the value will be overwritten with an empty value."
-    type OrganizationInfoUpdated is event {orgId: OrganizationId, orgInfo: OrganizationInfo}
-    type UpdateOrganizationStatus is command {orgId: OrganizationId, status: OrganizationStatus, updatingMember: MemberId}
-    type OrganizationStatusUpdated is event {orgId: OrganizationId, newStatus: OrganizationStatus}
+    event OrganizationInfoUpdated is {orgId: OrganizationId, orgInfo: OrganizationInfo}
+    command AddMembersToOrganization is {orgId: OrganizationId, members: MemberId+}
+    event MembersAddedToOrganization is {orgId: OrganizationId, members: MemberId+}
+    command UpdateOrganizationStatus is {orgId: OrganizationId, status: OrganizationStatus, updatingMember: MemberId}
+    event OrganizationStatusUpdated is {orgId: OrganizationId, newStatus: OrganizationStatus}
+    query FindOrganizationsByMember is {???}
+    query FindOrganizationsByOwner is {???}
+    //TODO: What query/responses do we need to capture?
 
     type OrganizationEvent is one of {OrganizationEstablished, OrganizationInfoUpdated, OrganizationStatusUpdated}
     
@@ -91,7 +103,7 @@ context OrganizationContext is {
                 // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
                 //TODO: turn this into a function and call function here
             }
-            on other { then error "No other commands allowed in Active state" }
+            on other { then error "No other commands allowed in Active state" }//TODO: We need to consider queries
         }
 
         state Suspended is {
@@ -101,8 +113,8 @@ context OrganizationContext is {
             on command EstablishOrganization {
                 then error "Organization already established"
             }
-            on command EditOrganizationInfo { ???
-                //then "error"
+            on command EditOrganizationInfo { 
+                then error "Move organization to the Active status in order to edit OrganizationInfo."
             }
             on command UpdateOrganizationStatus { ???
                 // then set Draft.orgMetaInfo.status to @UpdateOrganizationStatus.status
@@ -120,5 +132,36 @@ context OrganizationContext is {
         } handler TerminatedOrganization is for state Terminated {
             on other {then error "No commands allowed in Terminated state"}
         }
+    }
+
+    projection OrganizationViews is {
+        orgId: OrganizationId, 
+        owners: MemberId+, 
+        members: MemberId*,
+        parent: OrganizationId?,
+        children: OrganizationId*
+    } 
+    handler OrganizationViewsHandler is for OrganizationViews{
+        on event OrganizationEstablished {
+            then set orgId to @orgId
+            and set owners to @orgInfo.owners
+            and set members to @orgInfo.members
+            and set parent to @orgInfo.parent
+            and set children to @orgInfo.children
+
+        }
+        on event OrganizationInfoUpdated {
+            then set owners to @orgInfo.owners
+            and set members to @orgInfo.members
+            and set parent to @orgInfo.parent
+            and set children to @orgInfo.children
+        }
+        on event MembersAddedToOrganization {
+            then insert @members to members
+        }
+        on event OwnerAddedToOrganization {???}
+        on event OrganizationAddedToOrganization {???}
+        on query FindOrganizationsByMember {???}
+        on query FindOrganizationsByOwner {???}
     }
 } described in file "src/main/riddl/Organization/organization.md"

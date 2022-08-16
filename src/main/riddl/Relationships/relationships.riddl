@@ -1,14 +1,43 @@
 context Relationships is {
 //from member.riddl
-    organizations: OrganizationId* described by "List of Organizations a member belongs to.",
+    entity OrganizationRelationships is {
+        state OrganizationRelationships is {
+            orgId: OrganizationId,
+            members: MemberId*
+            owners: MemberId+,
+            primaryContacts: MemberId+,
+            billingContacts: MemberId*,
+            distributionContacts: MemberId*,
+            billingAccount: BillingAccountId?, //Required for BaseOrg. Optional for all other organizations.
+            distributionAccount: DistributionAccountId?
+        }
+    }
+    projection OrganizationViews is {
+        //which organizations does a member own
+        contains {
+            orgId: OrganizationId, 
+            owners: MemberId+, 
+            members: MemberId*,
+            subOrganizations: OrganizationId*
+        }
+    } handler OrganizationViewsHandler is {
+        on event MemberAddedToOrganization {???}
+        on event OwnerAddedToOrganization {???}
+        on event OrganizationAddedToOrganization {???}
+        on query FindOrganizationsByMember {???}
+        on query FindOrganizationsByOwner {???}
+    }
+    
+    entity MemberRelationships is {
+        state MemberRelationships is {
+            memberId: MemberId,
+            organizations: OrganizationId*
+        }
+    }
+    
     //relatedMembers: String, //Primary use case is parent/student. I am sure there are others. Might be a better way to document such a relationship.
 //from organization.riddl
-    organizationOwner: MemberId,
-    primaryContact: MemberId,
-    billingContact: MemberId,
-    distributionContact: MemberId,
-    billingAccount: BillingAccountId?, //Required for BaseOrg. Optional for all other organizations.
-    distributionAccount: DistributionAccountId?
+    
 //from event.riddl
     eventStores: StoreId* //TODO: Do we want the association of Event<->Store here or on Store?
     participatingOrgs: OrganizationId*,

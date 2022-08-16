@@ -9,14 +9,17 @@ context VenueContext is {
         } handler AvailableVenueHandler is {???}
     } 
     entity Location is {
-        type ReserveLocation is command {???}
-        type LocationReserved is event {???}
-        type CancelReservation is command {???}
-        type ReservationCancelled is event {???}
-        type GetReservationInfo is query {???}
-        type ReservationInfoResult is result { reservationId: ReservationId, info: ReservationInfo}
-        type GetLocationInfo is query {locationId: LocationId}
-        type LocationInfoResult is result {locationId: LocationId, info: LocationInfo}
+        command ReserveLocation is {locationId: LocationId, org: OrganizationId, start: DateTime, end: DateTime}
+        event LocationReserved is {locationId: LocationId, reservationId: ReservationId, org: OrganizationId, start: DateTime, end: DateTime}
+        command CancelReservation is {reservationId: ReservationId}
+        event ReservationCancelled is {reservationId: ReservationId}
+        query GetLocationInfo is {locationId: LocationId}
+        result LocationInfoResult is {locationId: LocationId, info: LocationInfo}
+        query GetUpcomingReservations is {locationId: LocationId}
+        query GetUpcomingReservationsInRange is {locationId: LocationId, start: Date, end: Date}
+        result UpcomingReservations is {locationId: LocationId, reservations: ReservationId*}
+        query FindAvailableLocationsInRange is {locationId: LocationId, start: Date, end: Date}
+        query FindAvailableLocationsInRangeWithAmenities is {locationId: LocationId, start: Date, end: Date, desiredAmenities: String*}
 
         type LocationInfo is {
             name: String,
@@ -26,14 +29,22 @@ context VenueContext is {
             url: URL?,
             capacity: Integer?,
             accessible: Boolean, //is this location handicapped accessible
-            amenities: String*
+            amenities: String* //TODO: We may need amenities to be searchable - i.e. I need to find a Location that is handicaped accessible and has a kitchen
         }
         state LocationState is {
             locationId: LocationId,
             locationInfo: LocationInfo,
             reservations: ReservationId*
         }
-        handler LocationHandler is {???}
+        handler LocationHandler is {
+            on command ReserveLocation {???}
+            on command CancelReservation {???}
+            on query GetLocationInfo {???}
+            on query GetUpcomingReservations {???}
+            on query GetUpcomingReservationsInRange {???}
+            on query FindAvailableLocationsInRange {???}
+            on query FindAvailableLocationsInRangeWithAmenities {???}
+        }
     } 
 
     entity Reservation is {
@@ -43,15 +54,21 @@ context VenueContext is {
             forOrg: OrganizationId
         }
 
-        type CreateReservation is command{???}
-        type ReservationCreated is event{???}
-        type DeleteReservation is command{???}
-        type ReservationDeleted is event{???}
+        command CreateReservation is {}
+        event ReservationCreated is {reservationId: ReservationId, info: ReservationInfo}
+        command DeleteReservation is {reservationId: ReservationId}
+        event ReservationDeleted is {reservationId: ReservationId}
+        query GetReservationInfo is {reservationId: ReservationId}
+        result ReservationInfoResult is {reservationId: ReservationId, info: ReservationInfo}
 
         state ReservationState is {
             reservationId: ReservationId,
             info: ReservationInfo
         }
-        handler ReservationHandler is {???}
+        handler ReservationHandler is {
+            on command CreateReservation {???}
+            on command DeleteReservation {???}
+            on query GetReservationInfo {???}
+        }
     }
 }

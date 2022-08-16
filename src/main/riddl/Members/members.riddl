@@ -33,20 +33,26 @@ context Members is {
     event  MemberRegistered is {memberId: MemberId, memberInfo: Info, memberMeta: MetaInfo} briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
     command RegisterMemberList is {memberList: MemberMap, registeringMember: MemberId} briefly "RegisterMemberList creates multiple members with a single call. The limitation is you can only define a single MemberType in each call, and all new Members must be assigned to an Organization (typically a BaseOrg)."
     event MemberListRegistered is {memberList: MemberMap, registeringMember: MemberId}
-    command UpdateMemberInfo is  {memberId: MemberId, memberInfo: Info, actingMember: MemberId} briefly "All member info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full MemberInfo object back."
-    event MemberInfoUpdated is  {memberId: MemberId, memberInfo: Info, memberMeta: MetaInfo}
-    type UpdateMemberStatus is command {memberId: MemberId, actingMember: MemberId, newStatus: Status}
-    type MemberStatusUpdated is event {memberId: MemberId, memberMeta: MetaInfo}
-    type GetMemberData is query {memberId: MemberId}
-    type MemberData is result {memberId: MemberId, memberInfo: Info, memberMeta: MetaInfo}
-    type GetMembersByMetaInfo is query {queryData: MetaInfoQuery}
-    type MemberListResult is result {members: MemberMap}
+    command UpdateMemberInfo is {memberId: MemberId, memberInfo: Info, actingMember: MemberId} briefly "All member info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full MemberInfo object back."
+    event MemberInfoUpdated is {memberId: MemberId, memberInfo: Info, memberMeta: MetaInfo}
+    command UpdateMemberStatus is {memberId: MemberId, actingMember: MemberId, newStatus: Status}
+    event MemberStatusUpdated is {memberId: MemberId, memberMeta: MetaInfo}
+    query GetMemberData is {memberId: MemberId}
+    result MemberData is {memberId: MemberId, memberInfo: Info, memberMeta: MetaInfo}
+    query GetMembersByMetaInfo is {queryData: MetaInfoQuery}
+    result MemberListResult is {members: MemberMap}
 
     entity Member is {
         option is aggregate
 
         handler MemberHandler is {
             on command RegisterMember {
+                then morph entity Member to state Member.Active
+                and set Active.memberId to @RegisterMember.memberId
+                and set Active.memberInfo to @RegisterMember.memberInfo
+            }
+            on command RegisterMemberList {
+                //TODO: list operations on the following:
                 then morph entity Member to state Member.Active
                 and set Active.memberId to @RegisterMember.memberId
                 and set Active.memberInfo to @RegisterMember.memberInfo
@@ -58,7 +64,7 @@ context Members is {
             memberInfo: Info,
             metaInfo: MetaInfo
         } 
-        handler ActiveMemberHandler /*for state Active */ is {
+        handler ActiveMemberHandler /*for state Active*/ is {
             on command UpdateMemberInfo {
                 then set Active.memberInfo to @UpdateMemberInfo.memberInfo 
                 //and set Active.metaInfo.lastModifiedBy to @UpdateMemberInfo.actingMember
@@ -74,8 +80,6 @@ context Members is {
             on query GetMemberData {  ??? }
         }
 
-        state Suspended is {???}
-        
         state Terminated is { 
             memberId: MemberId
         } //A terminated member is one who exercises their right to be forgotten.
@@ -83,6 +87,4 @@ context Members is {
             on other { then error "Terminated members cannot process messages" }
         }
     }
-
-    entity Guest is {???}
 }
