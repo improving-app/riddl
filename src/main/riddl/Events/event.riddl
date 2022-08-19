@@ -1,8 +1,8 @@
-context Event is {
+context EventContext is {
     // plant EventPlant is {
     //     pipe EventPipe is {???}
     // }
-    
+
     source LiveUpdates is {
         outlet Updates is type LiveUpdate from Event
     } explained as "This is a source for things that happen as an event progresses"
@@ -11,7 +11,7 @@ context Event is {
 
     /*
     type EventSpecificDetails is one of {FootballGame, BasketballGame, Play, Concert, FundRaiser}
-    
+
     type FootballGame is {???
         //homeTeam: OrgID,
         //visitingTeam: String, || OrgID,
@@ -69,14 +69,14 @@ context Event is {
     
     entity Event is {
         option is aggregate
-        
+
         handler EventHandler is {
             on command ScheduleEvent {
                 then morph entity Event to state Scheduled //(
-                    // eventId = @ScheduleEvent.eventId, 
-                    // eventInfo = @ScheduleEvent.info, 
+                    // eventId = @ScheduleEvent.eventId,
+                    // eventInfo = @ScheduleEvent.info,
                     // eventMetaInfo = new EventMetaInfo(
-                    //     scheduledBy = @ScheduleEvent.schedulingMember, 
+                    //     scheduledBy = @ScheduleEvent.schedulingMember,
                     //     scheduledOn = today(),
                     //     lastModifiedBy = @ScheduleEvent.schedulingMember,
                     //     lastModifiedOn = today(),
@@ -86,12 +86,12 @@ context Event is {
             }
             on other {then error "You must first create an event using ScheduleEvent command."}
         }
-        
+
         state Scheduled is {
             eventId: EventId,
             eventInfo: EventInfo,
             eventMetaInfo: EventMetaInfo
-        } handler ScheduledEventHandler is for state Scheduled {
+        } handler ScheduledEventHandler for state Scheduled is {
             on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
             on command ChangeEventInfo{
                 then set Scheduled.eventInfo to @ChangeEventInfo.info

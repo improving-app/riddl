@@ -1,4 +1,4 @@
-context Members is {
+context MembersContext is {
     //Member Details
     //type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
     type MemberMap is mapping from MemberId to Info //gateway definition

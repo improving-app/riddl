@@ -65,7 +65,9 @@ context OrganizationContext is {
             orgId: OrganizationId,
             orgInfo: OrganizationInfo,
             orgMetaInfo: OrganizationMetaInfo
-        } handler DraftOrganizationHandler is for state Draft { 
+        }
+
+        handler DraftOrganizationHandler for state Draft is {
             on command EstablishOrganization {
                 then error "Organization already established"
             }
@@ -87,7 +89,9 @@ context OrganizationContext is {
         state Active is {
             oid: OrganizationId,
             orgDetails: OrganizationInfo
-        } handler ActiveOrganization is for state Active {
+        }
+
+        handler ActiveOrganization for state Active is {
             on command EstablishOrganization {
                then error "Organization already established"
             }
@@ -109,7 +113,9 @@ context OrganizationContext is {
         state Suspended is {
             oid: OrganizationId,
             orgDetails: OrganizationInfo
-        } handler SuspendedOrganization is for state Suspended {
+        }
+
+        handler SuspendedOrganization for state Suspended is {
             on command EstablishOrganization {
                 then error "Organization already established"
             }
@@ -129,7 +135,8 @@ context OrganizationContext is {
         state Terminated is {
             oid: OrganizationId,
             name: String
-        } handler TerminatedOrganization is for state Terminated {
+        }
+        handler TerminatedOrganization for state Terminated is {
             on other {then error "No commands allowed in Terminated state"}
         }
     }
@@ -141,7 +148,8 @@ context OrganizationContext is {
         parent: OrganizationId?,
         children: OrganizationId*
     } 
-    handler OrganizationViewsHandler is for OrganizationViews{
+    handler OrganizationViewsHandler for projection OrganizationViews is {
+
         on event OrganizationEstablished {
             then set orgId to @orgId
             and set owners to @orgInfo.owners
@@ -157,7 +165,7 @@ context OrganizationContext is {
             and set children to @orgInfo.children
         }
         on event MembersAddedToOrganization {
-            then insert @members to members
+            then append @members to ^^OrganizationViews.members
         }
         on event OwnerAddedToOrganization {???}
         on event OrganizationAddedToOrganization {???}

@@ -14,10 +14,4 @@ domain ImprovingApp is {
     include "Organization/organization"
     include "Vendors/vendor"
     include "Venues/venue"
-    
-    plant OrganizationPlant is {
-        pipe OrganizationEventPipe is {
-            transmit ImprovingApp.Organization.Organization.OrganizationEvent
-        }
-    }
 } described in file "src/main/riddl/ImprovingApp.md"
