@@ -1,10 +1,10 @@
-context OrganizationContext is {
+context Organization is {
     //Organization Details  
     type Status is any of {Draft, Active, Suspended, Terminated}  
     type Contacts is {
         primaryContacts: MemberId+,
         billingContacts: MemberId*,
-        distributionContacts: MemberId*,
+        distributionContacts: MemberId*
     }
     type Accounts is {
         billingAccount: BillingAccountId?, //Required for BaseOrg. Optional for all other organizations.
@@ -32,33 +32,33 @@ context OrganizationContext is {
         createdBy: MemberId,
         lastUpdated: DateTime,
         lastUpdatedBy: MemberId, //this may also be a system user. i.e. they are two months late on payment so the system determines to suspend the organization.
-        currentStatus: Status
+        currentStatus: Organization.Status
         //currentOwner: MemberId
     }
         
-    command EstablishOrganization is {orgId: OrganizationId, info: Info, establishingMember: MemberId} 
+    command EstablishOrganization is {orgId: OrganizationId, info: Organization.Info, establishingMember: MemberId} 
         briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
-    event OrganizationEstablished is {orgId: OrganizationId, info: Info, meta: MetaInfo}
-    command EditOrganizationInfo is {orgId: OrganizationId, newInfo: Info, editingMember: MemberId} 
+    event OrganizationEstablished is {orgId: OrganizationId, info: Organization.Info, meta: Organization.MetaInfo}
+    command EditOrganizationInfo is {orgId: OrganizationId, newInfo: Organization.Info, editingMember: MemberId} 
         briefly "Only provide the values of the elements of the OrganizationInfo type you wish to change. For example, if you wish to define a new parentOrg, only provide the parentOrg attribute with the ID of the new parent. Whatever values you provide overwrite what was previously there. The absence of an attribute means leave this value as is. If an empty value to an attribute is provided, the value will be overwritten with an empty value."
-    event OrganizationInfoUpdated is {orgId: OrganizationId, info: Info}
+    event OrganizationInfoUpdated is {orgId: OrganizationId, info: Organization.Info}
     command AddMembersToOrganization is {orgId: OrganizationId, members: MemberId+}
     event MembersAddedToOrganization is {orgId: OrganizationId, members: MemberId+}
     command AddOwnersToOrganization is {orgId: OrganizationId, owners: MemberId+}
     event OwnersAddedToOrganization is {orgId: OrganizationId, owners: MemberId+}
-    command UpdateOrganizationStatus is {orgId: OrganizationId, status: Status, updatingMember: MemberId}
-    event OrganizationStatusUpdated is {orgId: OrganizationId, newStatus: Status}
+    command UpdateOrganizationStatus is {orgId: OrganizationId, status: Organization.Status, updatingMember: MemberId}
+    event OrganizationStatusUpdated is {orgId: OrganizationId, newStatus: Organization.Status}
     command UpdateOrganizationContacts is {orgId: OrganizationId, contacts: Contacts}
-    event OrganizationContactsUpdated is {orgId: OrganizationId, info: Info, meta: MetaInfo}
+    event OrganizationContactsUpdated is {orgId: OrganizationId, info: Organization.Info, meta: Organization.MetaInfo}
     command UpdateOrganizationAccounts is {orgId: OrganizationId, accounts: Accounts}
-    event OrganizationAccountsUpdated is {orgId: OrganizationId, info: Info, meta: MetaInfo}
+    event OrganizationAccountsUpdated is {orgId: OrganizationId, info: Organization.Info, meta: Organization.MetaInfo}
 
     query FindOrganizationsByMember is {member: MemberId} briefly "Get a list of organizations that a member belongs to."
     result OrganizationListByMember is {member: MemberId, organizations: OrganizationId*}
     query FindOrganizationsByOwner is {owner: MemberId} briefly "Get a list of organizations that are owned by a member."
     result OrganizationListByOwner is {owner: MemberId, organizations: OrganizationId*}
     query GetOrganizationInfo is {orgId: OrganizationId}
-    result OrganizationInfo is {orgId: OrganizationId, info: Info}
+    result OrganizationInfo is {orgId: OrganizationId, info: Organization.Info}
     
    type OrganizationEvent is one of {OrganizationEstablished, OrganizationInfoUpdated, OrganizationStatusUpdated}
     
@@ -78,9 +78,9 @@ context OrganizationContext is {
 
         state Draft is {
             orgId: OrganizationId,
-            info: OrganizationInfo,
-            meta: OrganizationMetaInfo
-        } handler DraftOrganizationHandler is for state Draft { 
+            info: Organization.Info,
+            meta: Organization.MetaInfo
+        } handler DraftOrganizationHandler is /*for state Draft*/ { 
             on command EstablishOrganization {
                 then error "Organization already established"
             }
@@ -101,8 +101,8 @@ context OrganizationContext is {
         
         state Active is {
             oid: OrganizationId,
-            orgDetails: Info
-        } handler ActiveOrganization is for state Active {
+            orgDetails: Organization.Info
+        } handler ActiveOrganization is /*for state Active*/ {
             on command EstablishOrganization {
                then error "Organization already established"
             }
@@ -123,8 +123,8 @@ context OrganizationContext is {
 
         state Suspended is {
             oid: OrganizationId,
-            orgDetails: Info
-        } handler SuspendedOrganization is for state Suspended {
+            orgDetails: Organization.Info
+        } handler SuspendedOrganization is /*for state Suspended*/ {
             on command EstablishOrganization {
                 then error "Organization already established"
             }
@@ -144,7 +144,7 @@ context OrganizationContext is {
         state Terminated is {
             oid: OrganizationId,
             name: String
-        } handler TerminatedOrganization is for state Terminated {
+        } handler TerminatedOrganization is /*for state Terminated*/ {
             on other {then error "No commands allowed in Terminated state"}
         }
     }
@@ -156,7 +156,7 @@ context OrganizationContext is {
         parent: OrganizationId?,
         children: OrganizationId*
     } 
-    handler OrganizationViewsHandler is for OrganizationViews{
+    handler OrganizationViewsHandler is /*for OrganizationViews*/ {
         on event OrganizationEstablished {
             then set orgId to @orgId
             and set owners to @orgInfo.owners
@@ -171,11 +171,11 @@ context OrganizationContext is {
             and set parent to @orgInfo.parent
             and set children to @orgInfo.children
         }
-        on event MembersAddedToOrganization {
-            then insert @members to members
+        on event MembersAddedToOrganization {???
+            //then insert @members to members
         }
-        on event OwnersAddedToOrganization {
-            then insert @owners to owners
+        on event OwnersAddedToOrganization {???
+            //then insert @owners to owners
         }
         on event OrganizationAddedToOrganization {???}
         on query FindOrganizationsByMember {???}

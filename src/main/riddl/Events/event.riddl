@@ -91,7 +91,7 @@ context Event is {
             eventId: EventId,
             eventInfo: EventInfo,
             eventMetaInfo: EventMetaInfo
-        } handler ScheduledEventHandler is for state Scheduled {
+        } handler ScheduledEventHandler is /*for state Scheduled*/ {
             on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
             on command ChangeEventInfo{
                 then set Scheduled.eventInfo to @ChangeEventInfo.info
