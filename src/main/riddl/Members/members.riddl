@@ -29,16 +29,16 @@ context Members is {
         memberStatus: Status?
     }
 
-    command RegisterMember is {memberId: MemberId, memberInfo: Info, registeringMember: MemberId} briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional."
-    event  MemberRegistered is {memberId: MemberId, memberInfo: Info, memberMeta: MetaInfo} briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
+    command RegisterMember is {memberId: MemberId, info: Info, registeringMember: MemberId} briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional."
+    event  MemberRegistered is {memberId: MemberId, info: Info, meta: MetaInfo} briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
     command RegisterMemberList is {memberList: MemberMap, registeringMember: MemberId} briefly "RegisterMemberList creates multiple members with a single call. The limitation is you can only define a single MemberType in each call, and all new Members must be assigned to an Organization (typically a BaseOrg)."
     event MemberListRegistered is {memberList: MemberMap, registeringMember: MemberId}
-    command UpdateMemberInfo is {memberId: MemberId, memberInfo: Info, actingMember: MemberId} briefly "All member info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full MemberInfo object back."
-    event MemberInfoUpdated is {memberId: MemberId, memberInfo: Info, memberMeta: MetaInfo}
+    command UpdateMemberInfo is {memberId: MemberId, info: Info, actingMember: MemberId} briefly "All member info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full MemberInfo object back."
+    event MemberInfoUpdated is {memberId: MemberId, info: Info, meta: MetaInfo}
     command UpdateMemberStatus is {memberId: MemberId, actingMember: MemberId, newStatus: Status}
-    event MemberStatusUpdated is {memberId: MemberId, memberMeta: MetaInfo}
+    event MemberStatusUpdated is {memberId: MemberId, meta: MetaInfo}
     query GetMemberData is {memberId: MemberId}
-    result MemberData is {memberId: MemberId, memberInfo: Info, memberMeta: MetaInfo}
+    result MemberData is {memberId: MemberId, info: Info, meta: MetaInfo}
     query GetMembersByMetaInfo is {queryData: MetaInfoQuery}
     result MemberListResult is {members: MemberMap}
 
@@ -49,24 +49,24 @@ context Members is {
             on command RegisterMember {
                 then morph entity Member to state Member.Active
                 and set Active.memberId to @RegisterMember.memberId
-                and set Active.memberInfo to @RegisterMember.memberInfo
+                and set Active.info to @RegisterMember.info
             }
             on command RegisterMemberList {
                 //TODO: list operations on the following:
                 then morph entity Member to state Member.Active
-                and set Active.memberId to @RegisterMember.memberId
-                and set Active.memberInfo to @RegisterMember.memberInfo
+                and set Active.memberId to @RegisterMember.MemberList.memberId
+                and set Active.info to @RegisterMember.MemberList.info
             }
         }
 
         state Active is {
             memberId: MemberId,
-            memberInfo: Info,
-            metaInfo: MetaInfo
+            info: Info,
+            meta: MetaInfo
         } 
-        handler ActiveMemberHandler /*for state Active*/ is {
+        handler ActiveMemberHandler is for state Active {
             on command UpdateMemberInfo {
-                then set Active.memberInfo to @UpdateMemberInfo.memberInfo 
+                then set memberInfo to @memberInfo 
                 //and set Active.metaInfo.lastModifiedBy to @UpdateMemberInfo.actingMember
                 //and set Active.metaInfo.lastModifiedOn to "today"
                 //and publish event MemberInfoUpdated(memberId = @Active.memberId, memberInfo = @Active.memberInfo, memberMeta = @Active.memberMeta) to 

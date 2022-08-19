@@ -1,7 +1,16 @@
 context OrganizationContext is {
     //Organization Details  
-    type OrganizationStatus is any of {Draft, Active, Suspended, Terminated}      
-    type OrganizationInfo is {
+    type Status is any of {Draft, Active, Suspended, Terminated}  
+    type Contacts is {
+        primaryContacts: MemberId+,
+        billingContacts: MemberId*,
+        distributionContacts: MemberId*,
+    }
+    type Accounts is {
+        billingAccount: BillingAccountId?, //Required for BaseOrg. Optional for all other organizations.
+        distributionAccount: DistributionAccountId?
+    }    
+    type Info is {
         name: String, //i.e. Provo High School. Must be unique within the organizational structure.
         shortName: String?, //i.e. PHS. Must be unique within the organizational structure.
         address: Address?, //required for BaseOrg. Optional for all other organizations.
@@ -14,38 +23,44 @@ context OrganizationContext is {
         children: OrganizationId*,
         members: MemberId*,
         owners: MemberId+,
-        primaryContacts: MemberId+,
-        billingContacts: MemberId*,
-        distributionContacts: MemberId*,
-        billingAccount: BillingAccountId?, //Required for BaseOrg. Optional for all other organizations.
-        distributionAccount: DistributionAccountId?
-        //primaryContact: MemberId,
+        contacts: Contacts,
+        accounts: Accounts
         //calendar: Calendar
     }
-    type OrganizationMetaInfo is {
+    type MetaInfo is {
         createdOn: DateTime,
         createdBy: MemberId,
         lastUpdated: DateTime,
         lastUpdatedBy: MemberId, //this may also be a system user. i.e. they are two months late on payment so the system determines to suspend the organization.
-        currentState: OrganizationStatus
+        currentStatus: Status
         //currentOwner: MemberId
     }
         
-    command EstablishOrganization is {orgId: OrganizationId, orgInfo: OrganizationInfo, establishingMember: MemberId} 
+    command EstablishOrganization is {orgId: OrganizationId, info: Info, establishingMember: MemberId} 
         briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
-    event OrganizationEstablished is {orgId: OrganizationId, orgInfo: OrganizationInfo, orgMetaInfo: OrganizationMetaInfo}
-    command EditOrganizationInfo is {orgId: OrganizationId, newInfo: OrganizationInfo, editingMember: MemberId} 
+    event OrganizationEstablished is {orgId: OrganizationId, info: Info, meta: MetaInfo}
+    command EditOrganizationInfo is {orgId: OrganizationId, newInfo: Info, editingMember: MemberId} 
         briefly "Only provide the values of the elements of the OrganizationInfo type you wish to change. For example, if you wish to define a new parentOrg, only provide the parentOrg attribute with the ID of the new parent. Whatever values you provide overwrite what was previously there. The absence of an attribute means leave this value as is. If an empty value to an attribute is provided, the value will be overwritten with an empty value."
-    event OrganizationInfoUpdated is {orgId: OrganizationId, orgInfo: OrganizationInfo}
+    event OrganizationInfoUpdated is {orgId: OrganizationId, info: Info}
     command AddMembersToOrganization is {orgId: OrganizationId, members: MemberId+}
     event MembersAddedToOrganization is {orgId: OrganizationId, members: MemberId+}
-    command UpdateOrganizationStatus is {orgId: OrganizationId, status: OrganizationStatus, updatingMember: MemberId}
-    event OrganizationStatusUpdated is {orgId: OrganizationId, newStatus: OrganizationStatus}
-    query FindOrganizationsByMember is {???}
-    query FindOrganizationsByOwner is {???}
-    //TODO: What query/responses do we need to capture?
+    command AddOwnersToOrganization is {orgId: OrganizationId, owners: MemberId+}
+    event OwnersAddedToOrganization is {orgId: OrganizationId, owners: MemberId+}
+    command UpdateOrganizationStatus is {orgId: OrganizationId, status: Status, updatingMember: MemberId}
+    event OrganizationStatusUpdated is {orgId: OrganizationId, newStatus: Status}
+    command UpdateOrganizationContacts is {orgId: OrganizationId, contacts: Contacts}
+    event OrganizationContactsUpdated is {orgId: OrganizationId, info: Info, meta: MetaInfo}
+    command UpdateOrganizationAccounts is {orgId: OrganizationId, accounts: Accounts}
+    event OrganizationAccountsUpdated is {orgId: OrganizationId, info: Info, meta: MetaInfo}
 
-    type OrganizationEvent is one of {OrganizationEstablished, OrganizationInfoUpdated, OrganizationStatusUpdated}
+    query FindOrganizationsByMember is {member: MemberId} briefly "Get a list of organizations that a member belongs to."
+    result OrganizationListByMember is {member: MemberId, organizations: OrganizationId*}
+    query FindOrganizationsByOwner is {owner: MemberId} briefly "Get a list of organizations that are owned by a member."
+    result OrganizationListByOwner is {owner: MemberId, organizations: OrganizationId*}
+    query GetOrganizationInfo is {orgId: OrganizationId}
+    result OrganizationInfo is {orgId: OrganizationId, info: Info}
+    
+   type OrganizationEvent is one of {OrganizationEstablished, OrganizationInfoUpdated, OrganizationStatusUpdated}
     
     entity Organization is {
         options (event sourced, available)
@@ -54,17 +69,17 @@ context OrganizationContext is {
             on command EstablishOrganization {
                 then morph entity Organization to state Organization.Draft
                 and set Draft.orgId to @EstablishOrganization.orgId
-                and set Draft.orgInfo to @EstablishOrganization.orgInfo
+                and set Draft.info to @EstablishOrganization.info
                 //and set Draft.orgMetaInfo to new OrganizationMetaInfo(createdOn="today()", createdBy = @EstablishOrganization.establishingMember, lastUpdated="today()", lastUpdatedBy=@EstablishOrganization.establishingMember)
-                and yield event OrganizationEstablished(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
+                and yield event OrganizationEstablished(orgId=@Draft.orgId, info=@Draft.nfo, meta=@Draft.meta)
             }
             on other { then error "Only EstablishOrganization command is allowed in the empty state"}
         }
 
         state Draft is {
             orgId: OrganizationId,
-            orgInfo: OrganizationInfo,
-            orgMetaInfo: OrganizationMetaInfo
+            info: OrganizationInfo,
+            meta: OrganizationMetaInfo
         } handler DraftOrganizationHandler is for state Draft { 
             on command EstablishOrganization {
                 then error "Organization already established"
@@ -86,7 +101,7 @@ context OrganizationContext is {
         
         state Active is {
             oid: OrganizationId,
-            orgDetails: OrganizationInfo
+            orgDetails: Info
         } handler ActiveOrganization is for state Active {
             on command EstablishOrganization {
                then error "Organization already established"
@@ -108,7 +123,7 @@ context OrganizationContext is {
 
         state Suspended is {
             oid: OrganizationId,
-            orgDetails: OrganizationInfo
+            orgDetails: Info
         } handler SuspendedOrganization is for state Suspended {
             on command EstablishOrganization {
                 then error "Organization already established"
@@ -159,7 +174,9 @@ context OrganizationContext is {
         on event MembersAddedToOrganization {
             then insert @members to members
         }
-        on event OwnerAddedToOrganization {???}
+        on event OwnersAddedToOrganization {
+            then insert @owners to owners
+        }
         on event OrganizationAddedToOrganization {???}
         on query FindOrganizationsByMember {???}
         on query FindOrganizationsByOwner {???}
