@@ -1,7 +1,7 @@
-context Members is {
+context MembersContext is {
     //Member Details
     //type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
-    type MemberMap is mapping from MemberId to Members.Info //gateway definition
+    type MemberMap is mapping from MemberId to MembersContext.Info //gateway definition
     type NotificationPreference is any of { Email, SMS }
     type Status is any of { Active, Suspended }
     type Info is {
@@ -19,27 +19,27 @@ context Members is {
         createdBy: MemberId,
         lastModifiedOn: Date,
         lastModifiedBy: MemberId, 
-        memberStatus: Members.Status
+        memberStatus: MembersContext.Status
     }
     type MetaInfoQuery is {
         createdOn: Date?,
         createdBy: MemberId?,
         lastModifiedOn: Date?,
         lastModifiedBy: MemberId?, 
-        memberStatus: Members.Status?
+        memberStatus: MembersContext.Status?
     }
 
-    command RegisterMember is {memberId: MemberId, info: Members.Info, registeringMember: MemberId} briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional."
-    event  MemberRegistered is {memberId: MemberId, info: Members.Info, meta: Members.MetaInfo} briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
+    command RegisterMember is {memberId: MemberId, info: MembersContext.Info, registeringMember: MemberId} briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional."
+    event  MemberRegistered is {memberId: MemberId, info: MembersContext.Info, meta: MembersContext.MetaInfo} briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
     command RegisterMemberList is {memberList: MemberMap, registeringMember: MemberId} briefly "RegisterMemberList creates multiple members with a single call. The limitation is you can only define a single MemberType in each call, and all new Members must be assigned to an Organization (typically a BaseOrg)."
     event MemberListRegistered is {memberList: MemberMap, registeringMember: MemberId}
-    command UpdateMemberInfo is {memberId: MemberId, info: Members.Info, actingMember: MemberId} briefly "All member info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full MemberInfo object back."
-    event MemberInfoUpdated is {memberId: MemberId, info: Members.Info, meta: Members.MetaInfo}
-    command UpdateMemberStatus is {memberId: MemberId, actingMember: MemberId, newStatus: Members.Status}
-    event MemberStatusUpdated is {memberId: MemberId, meta: Members.MetaInfo}
+    command UpdateMemberInfo is {memberId: MemberId, info: MembersContext.Info, actingMember: MemberId} briefly "All member info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full MemberInfo object back."
+    event MemberInfoUpdated is {memberId: MemberId, info: MembersContext.Info, meta: MembersContext.MetaInfo}
+    command UpdateMemberStatus is {memberId: MemberId, actingMember: MemberId, newStatus: MembersContext.Status}
+    event MemberStatusUpdated is {memberId: MemberId, meta: MembersContext.MetaInfo}
     query GetMemberData is {memberId: MemberId}
-    result MemberData is {memberId: MemberId, info: Members.Info, meta: Members.MetaInfo}
-    query GetMembersByMetaInfo is {queryData: Members.MetaInfoQuery}
+    result MemberData is {memberId: MemberId, info: MembersContext.Info, meta: MembersContext.MetaInfo}
+    query GetMembersByMetaInfo is {queryData: MembersContext.MetaInfoQuery}
     result MemberListResult is {members: MemberMap}
 
     entity Member is {
@@ -54,21 +54,22 @@ context Members is {
             on command RegisterMemberList {
                 //TODO: list operations on the following:
                 then morph entity Member to state Member.Active
-                //and set Active.memberId to @RegisterMember.MemberList.memberId
-                //and set Active.info to @RegisterMember.MemberList.info
+                //TODO: How do you reference members of a mapping?
+                //and set Active.memberId to @RegisterMemberList.MemberList.memberId
+                //and set Active.info to @RegisterMemberList.MemberList.info
             }
         }
 
         state Active is {
             memberId: MemberId,
-            info: Members.Info,
-            meta: Members.MetaInfo
+            info: MembersContext.Info,
+            meta: MembersContext.MetaInfo
         } 
-        handler ActiveMemberHandler is /*for state Active*/ {
-            on command UpdateMemberInfo {???
-                //then set memberInfo to @memberInfo 
-                //and set Active.metaInfo.lastModifiedBy to @UpdateMemberInfo.actingMember
-                //and set Active.metaInfo.lastModifiedOn to "today"
+        handler ActiveMemberHandler for state Active is {
+            on command UpdateMemberInfo {
+                then set Active.info to @UpdateMemberInfo.info 
+                and set Active.meta.lastModifiedBy to @UpdateMemberInfo.actingMember
+                //and set Active.meta.lastModifiedOn to "today"
                 //and publish event MemberInfoUpdated(memberId = @Active.memberId, memberInfo = @Active.memberInfo, memberMeta = @Active.memberMeta) to 
             }
             on command UpdateMemberStatus { ???

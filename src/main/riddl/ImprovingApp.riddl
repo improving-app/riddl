@@ -17,7 +17,7 @@ domain ImprovingApp is {
     
     plant OrganizationPlant is {
         pipe OrganizationEventPipe is {
-            transmit ImprovingApp.Organization.OrganizationEvent
+            transmit ^^OrganizationContext.OrganizationEvent
         }
     }
 } described in file "src/main/riddl/ImprovingApp.md"
