@@ -1,4 +1,4 @@
-context accounting is {
+context AccountingContext is {
     entity BillingAccount is {???}
     entity DistributionAccount is {???}
     entity FundsDistribution is {???}

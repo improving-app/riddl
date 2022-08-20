@@ -1,4 +1,4 @@
-context Event is {
+context EventContext is {
     // plant EventPlant is {
     //     pipe EventPipe is {???}
     // }
@@ -73,10 +73,10 @@ context Event is {
         handler EventHandler is {
             on command ScheduleEvent {
                 then morph entity Event to state Scheduled //(
-                    // eventId = @ScheduleEvent.eventId, 
-                    // eventInfo = @ScheduleEvent.info, 
+                    // eventId = @ScheduleEvent.eventId,
+                    // eventInfo = @ScheduleEvent.info,
                     // eventMetaInfo = new EventMetaInfo(
-                    //     scheduledBy = @ScheduleEvent.schedulingMember, 
+                    //     scheduledBy = @ScheduleEvent.schedulingMember,
                     //     scheduledOn = today(),
                     //     lastModifiedBy = @ScheduleEvent.schedulingMember,
                     //     lastModifiedOn = today(),
