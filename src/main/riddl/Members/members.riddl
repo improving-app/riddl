@@ -62,21 +62,21 @@ context MembersContext is {
 
         state Active is {
             memberId: MemberId,
-            info: MembersContext.Info,
-            meta: MembersContext.MetaInfo
+            info: ^^^.Info,
+            meta: ^^^.MetaInfo
         } 
         handler ActiveMemberHandler for state Active is {
             on command UpdateMemberInfo {
                 then set Active.info to @UpdateMemberInfo.info 
-                and set ^^^Active.meta.lastModifiedBy to @UpdateMemberInfo.actingMember
-                //and set Active.meta.lastModifiedOn to "today"
-                //and publish event MemberInfoUpdated(memberId = @Active.memberId, memberInfo = @Active.memberInfo, memberMeta = @Active.memberMeta) to 
+                and set ^^Active.meta.lastModifiedBy to @UpdateMemberInfo.actingMember
+                and set ^^Active.meta.lastModifiedOn to today()
+                and yield event MemberInfoUpdated(memberId = @Active.memberId, info = @Active.memberInfo, meta = @Active.memberMeta)
             }
-            on command UpdateMemberStatus { ???
-                //then set Active.metaInfo.memberStatus to @UpdateMemberStatus.newStatus
-                //and set Active.metaInfo.lastModifiedBy to @UpdateMemberInfo.actingMember
-                //and set Active.metaInfo.lastModifiedOn to "today"
-                //and publish event MemberStatusUpdated(memberId = @Active.memberId, memberMeta = @Active.memberMeta) to 
+            on command UpdateMemberStatus {
+                then set ^^Active.meta.memberStatus to @UpdateMemberStatus.newStatus
+                and set ^^Active.meta.lastModifiedBy to @UpdateMemberInfo.actingMember
+                and set ^^Active.meta.lastModifiedOn to today()
+                and yield event MemberStatusUpdated(memberId = @Active.memberId, meta = @Active.memberMeta)
             }
             on query GetMemberData {  ??? }
         }
