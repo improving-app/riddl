@@ -81,7 +81,7 @@ context OrganizationContext is {
             info: OrganizationContext.Info,
             meta: OrganizationContext.MetaInfo
         } 
-        handler DraftOrganizationHandler for state Draft is { 
+        handler DraftOrganizationHandler for state ^Draft is {
 
             on command EstablishOrganization {
                 then error "Organization already established"
@@ -106,7 +106,7 @@ context OrganizationContext is {
 
             orgDetails: OrganizationContext.Info
         } 
-        handler ActiveOrganization for state Active is {
+        handler ActiveOrganization for state ^Active is {
             on command EstablishOrganization {
                then error "Organization already established"
             }
@@ -129,7 +129,7 @@ context OrganizationContext is {
             oid: OrganizationId,
             orgDetails: OrganizationContext.Info
         } 
-        handler SuspendedOrganization for state Suspended {
+        handler SuspendedOrganization for state ^Suspended {
 
             on command EstablishOrganization {
                 then error "Organization already established"
@@ -152,7 +152,7 @@ context OrganizationContext is {
             name: String
 
         } 
-        handler TerminatedOrganization for state Terminated is {
+        handler TerminatedOrganization for state ^Terminated is {
             on other {then error "No commands allowed in Terminated state"}
         }
     }

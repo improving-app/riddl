@@ -65,7 +65,7 @@ context MembersContext is {
             info: ^^^.Info,
             meta: ^^^.MetaInfo
         } 
-        handler ActiveMemberHandler for state Active is {
+        handler ActiveMemberHandler for state ^Active is {
             on command UpdateMemberInfo {
                 then set Active.info to @UpdateMemberInfo.info 
                 and set ^^Active.meta.lastModifiedBy to @UpdateMemberInfo.actingMember
