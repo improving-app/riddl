@@ -36,14 +36,14 @@ context OrganizationContext is {
         //currentOwner: MemberId
     }
 
-    command EstablishOrganization is {
-        orgId: OrganizationId briefly "The unique Id of the organization to create",
-        info: OrganizationContext.Info briefly "The information about the organization",
-        establishingMember: MemberId briefly "Id of the member who is creating the organization"
-    } brief "The command to create a new organization" described by {
-      | If parentOrg is not defined you are creating a BaseOrganization.
-      | If it is, you are creating a SubOrganization.
+    command EstablishOrganization is {orgId: OrganizationId, info: OrganizationContext.Info, establishingMember: MemberId}
+        briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
+        described as {
+        | This is the creation command for an Organization. A unique OrganizationId and the
+        | basic info for an organization must be provided. If the OrganizationId is not unique,
+        | a new organization will not be created and an error will result.
     }
+
     event OrganizationEstablished is {orgId: OrganizationId, info: OrganizationContext.Info, meta: OrganizationContext.MetaInfo}
     command EditOrganizationInfo is {orgId: OrganizationId, newInfo: OrganizationContext.Info, editingMember: MemberId}
         briefly "Only provide the values of the elements of the OrganizationInfo type you wish to change. For example, if you wish to define a new parentOrg, only provide the parentOrg attribute with the ID of the new parent. Whatever values you provide overwrite what was previously there. The absence of an attribute means leave this value as is. If an empty value to an attribute is provided, the value will be overwritten with an empty value."
