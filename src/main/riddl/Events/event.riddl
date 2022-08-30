@@ -2,7 +2,7 @@ context EventContext is {
     // plant EventPlant is {
     //     pipe EventPipe is {???}
     // }
-    
+
     source LiveUpdates is {
         outlet Updates is type LiveUpdate from Event
     } explained as "This is a source for things that happen as an event progresses"
@@ -11,7 +11,7 @@ context EventContext is {
 
     /*
     type EventSpecificDetails is one of {FootballGame, BasketballGame, Play, Concert, FundRaiser}
-    
+
     type FootballGame is {???
         //homeTeam: OrgID,
         //visitingTeam: String, || OrgID,
@@ -69,7 +69,7 @@ context EventContext is {
     
     entity Event is {
         option is aggregate
-        
+
         handler EventHandler is {
             on command ScheduleEvent {
                 then morph entity Event to state Scheduled //(
@@ -86,7 +86,7 @@ context EventContext is {
             }
             on other {then error "You must first create an event using ScheduleEvent command."}
         }
-        
+
         state Scheduled is {
             eventId: EventId,
             eventInfo: EventInfo,
@@ -94,7 +94,7 @@ context EventContext is {
         } handler ScheduledEventHandler for state Scheduled is {
             on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
             on command ChangeEventInfo{
-                then set Scheduled.eventInfo to @ChangeEventInfo.info
+                then set ^^Scheduled.eventInfo to @^^^ChangeEventInfo.info
                 // and set Scheduled.metaInfo.lastModifiedBy to @ChangeEventInfo.cancellingMember
                 // and set Scheduled.metaInfo.lastModifiedOn to today()
             }

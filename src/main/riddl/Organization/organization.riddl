@@ -1,6 +1,6 @@
 context OrganizationContext is {
-    //Organization Details  
-    type Status is any of {Draft, Active, Suspended, Terminated}  
+    //Organization Details
+    type Status is any of {Draft, Active, Suspended, Terminated}
     type Contacts is {
         primaryContacts: MemberId+,
         billingContacts: MemberId*,
@@ -9,7 +9,7 @@ context OrganizationContext is {
     type Accounts is {
         billingAccount: BillingAccountId?, //Required for BaseOrg. Optional for all other organizations.
         distributionAccount: DistributionAccountId?
-    }    
+    }
     type Info is {
         name: String, //i.e. Provo High School. Must be unique within the organizational structure.
         shortName: String?, //i.e. PHS. Must be unique within the organizational structure.
@@ -35,12 +35,30 @@ context OrganizationContext is {
         currentStatus: OrganizationContext.Status
         //currentOwner: MemberId
     }
-        
-    command EstablishOrganization is {orgId: OrganizationId, info: OrganizationContext.Info, establishingMember: MemberId} 
+
+    command EstablishOrganization is {orgId: OrganizationId, info: OrganizationContext.Info, establishingMember: MemberId}
         briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
+        described as {
+        | This is the creation command for an Organization. A unique OrganizationId and the
+        | basic info for an organization must be provided. If the OrganizationId is not unique,
+        | a new organization will not be created and an error will result.
+    }
+
     event OrganizationEstablished is {orgId: OrganizationId, info: OrganizationContext.Info, meta: OrganizationContext.MetaInfo}
-    command EditOrganizationInfo is {orgId: OrganizationId, newInfo: OrganizationContext.Info, editingMember: MemberId} 
-        briefly "Only provide the values of the elements of the OrganizationInfo type you wish to change. For example, if you wish to define a new parentOrg, only provide the parentOrg attribute with the ID of the new parent. Whatever values you provide overwrite what was previously there. The absence of an attribute means leave this value as is. If an empty value to an attribute is provided, the value will be overwritten with an empty value."
+    command EditOrganizationInfo is {
+        orgId: OrganizationId briefly "The unique Id of the organization to create",
+        newInfo: OrganizationContext.Info briefly "The information about the organization",
+        editingMember: MemberId briefly "Id of the member who is creating the organization"
+    } briefly "A command to edit the values of an Organization's Info "
+    described by {
+      | Only provide the values of the elements of the OrganizationInfo type you
+      | wish to change. For example, if you wish to define a new parentOrg, only
+      | provide the parentOrg attribute with the ID of the new parent. Whatever
+      | values you provide overwrite what was previously there. The absence of
+      | an attribute means leave that value as is. If an empty value to an
+      | attribute is provided, the value will be overwritten with an empty
+      | value.
+    }
     event OrganizationInfoUpdated is {orgId: OrganizationId, info: OrganizationContext.Info}
     command AddMembersToOrganization is {orgId: OrganizationId, members: MemberId+}
     event MembersAddedToOrganization is {orgId: OrganizationId, members: MemberId+}
@@ -59,13 +77,13 @@ context OrganizationContext is {
     result OrganizationListByOwner is {owner: MemberId, organizations: OrganizationId*}
     query GetOrganizationInfo is {orgId: OrganizationId}
     result OrganizationInfo is {orgId: OrganizationId, info: OrganizationContext.Info}
-    
+
    type OrganizationEvent is one of {OrganizationEstablished, OrganizationInfoUpdated, OrganizationStatusUpdated}
-    
+
     entity Organization is {
         options (event sourced, available)
-        
-        handler OrganizationHandler is { 
+
+        handler OrganizationHandler is {
             on command EstablishOrganization {
                 then morph entity Organization to state Organization.Draft
                 and set Draft.orgId to @EstablishOrganization.orgId
@@ -78,33 +96,34 @@ context OrganizationContext is {
 
         state Draft is {
             orgId: OrganizationId,
-            info: OrganizationContext.Info,
-            meta: OrganizationContext.MetaInfo
-        } 
-        handler DraftOrganizationHandler for state Draft is { 
+            info: ^^^.Info,
+            meta: ^^^.MetaInfo
+        }
+        handler DraftOrganizationHandler for state ^Draft is {
+
             on command EstablishOrganization {
                 then error "Organization already established"
             }
-            on command EditOrganizationInfo { ???
-                // then set Draft.orgInfo to @EstablishOrganization.orgInfo
+            on command EditOrganizationInfo {
+                then set Draft.info to @EstablishOrganization.info
                 // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
                 //TODO: turn this into a function and call function here
             }
-            on command UpdateOrganizationStatus { ???
-                // then set Draft.orgMetaInfo.status to @UpdateOrganizationStatus.status
+            on command UpdateOrganizationStatus {
+                then set ^^.Draft.meta.currentStatus to @UpdateOrganizationStatus.status
                 // and set Draft.orgMetaInfo.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
                 // and set Draft.orgMetaInfo.lastUpdated to "today()"
                 // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
                 //TODO: turn this into a function and call function here
             }
-            on other { then error "No other commands allowed in Draft state"}
-        } 
-        
+            on other { then error "No other commands allowed in Draft state" }
+        }
+
         state Active is {
             oid: OrganizationId,
             orgDetails: OrganizationContext.Info
-        } 
-        handler ActiveOrganization for state Active is {
+        }
+        handler ActiveOrganization for state ^Active is {
             on command EstablishOrganization {
                then error "Organization already established"
             }
@@ -126,12 +145,13 @@ context OrganizationContext is {
         state Suspended is {
             oid: OrganizationId,
             orgDetails: OrganizationContext.Info
-        } 
-        handler SuspendedOrganization for state Suspended {
+        }
+        handler SuspendedOrganization for state ^Suspended {
+
             on command EstablishOrganization {
                 then error "Organization already established"
             }
-            on command EditOrganizationInfo { 
+            on command EditOrganizationInfo {
                 then error "Move organization to the Active status in order to edit OrganizationInfo."
             }
             on command UpdateOrganizationStatus { ???
@@ -147,41 +167,41 @@ context OrganizationContext is {
         state Terminated is {
             oid: OrganizationId,
             name: String
-        } 
-        handler TerminatedOrganization for state Terminated is {
+
+        }
+        handler TerminatedOrganization for state ^Terminated is {
             on other {then error "No commands allowed in Terminated state"}
         }
     }
 
     projection OrganizationViews is {
-        orgId: OrganizationId, 
-        owners: MemberId+, 
+        orgId: OrganizationId,
+        owners: MemberId+,
         members: MemberId*,
         parent: OrganizationId?,
         children: OrganizationId*
-    } 
-    handler OrganizationViewsHandler for projection OrganizationViews is {
-        on event OrganizationEstablished {
-            then set orgId to @orgId
-            and set owners to @orgInfo.owners
-            and set members to @orgInfo.members
-            and set parent to @orgInfo.parent
-            and set children to @orgInfo.children
+    }
 
+    handler OrganizationViewsHandler for projection OrganizationViews is {
+        on event OrganizationEstablished {???
+            //then set ^^.OrganizationViews.orgId to @OrganizationContext.OrganizationEstablished.orgId
+            //and set ^^.OrganizationViews.owners to @OrganizationContext.OrganizationEstablished.info.owners
+            //and set ^^.OrganizationViews.members to @OrganizationContext.OrganizationEstablished.info.members
+            //and set ^^.OrganizationViews.parent to @OrganizationContext.OrganizationEstablished.info.parent
+            //and set ^^.OrganizationViews.children to @OrganizationContext.OrganizationEstablished.info.children
         }
-        on event OrganizationInfoUpdated {
-            then set owners to @orgInfo.owners
-            and set members to @orgInfo.members
-            and set parent to @orgInfo.parent
-            and set children to @orgInfo.children
+        on event OrganizationInfoUpdated {???
+            //then set ^^.OrganizationViews.owners to @OrganizationInfoUpdated.info.owners
+            //and set ^^.OrganizationViews.members to @OrganizationInfoUpdated.info.members
+            //and set ^^.OrganizationViews.parent to @^^^OrganizationInfoUpdated.info.parent
+            //and set ^^.OrganizationViews.children to @^^^OrganizationInfoUpdated.info.children
         }
         on event MembersAddedToOrganization {
-            then append @members to ^^OrganizationViews.members
+            then append @MembersAddedToOrganization.members to OrganizationViews.members
         }
         on event OwnersAddedToOrganization {
-            then append @owners to ^^OrganizationViews.owners
+            then append @^^^OwnersAddedToOrganization.owners to OrganizationViews.owners
         }
-        on event OrganizationAddedToOrganization {???}
         on query FindOrganizationsByMember {???}
         on query FindOrganizationsByOwner {???}
     }
