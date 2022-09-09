@@ -30,12 +30,11 @@ jobs:
         run: 'which hugo'
         
       - name: Generate Hugo From RIDDL
-        uses: reactific/riddl-actions/riddlc@0.13.1
+        uses: reactific/riddl-actions/riddlc@0.13.3.a
         with:
           command: from 
           opt1: src/main/riddl/ImprovingApp.conf
-          opt2: -H
-          opt3: /home/runner/actions_hugo/bin/hugo
+          opt2: hugo
 
       - name: Show riddlc output
         run: |
