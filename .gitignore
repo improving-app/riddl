@@ -4,6 +4,6 @@
 .metals
 .vscode
 .bsp/
-project/
-/.idea/
+/.idea/**
 target/
+/src/main/riddl/static/images/logo.png
