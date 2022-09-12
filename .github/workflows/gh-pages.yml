@@ -9,6 +9,8 @@ on:
     paths:
       - src/main/riddl/**
       -  .github/workflows/gh-pages.yml
+  pull_request:
+    branches: [main]
 
 jobs:
   make-gh-pages:
