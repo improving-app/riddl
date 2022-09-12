@@ -1,15 +1,17 @@
 context OrganizationContext is {
     //Organization Details
-    type Status is any of {Draft, Active, Suspended, Terminated}
+    type Status is any of {Draft, Active, Suspended, Terminated} briefly "Internal status of an Organization."
     type Contacts is {
         primaryContacts: MemberId+,
         billingContacts: MemberId*,
         distributionContacts: MemberId*
-    }
+    } briefly "The contacts for a given organization."
+    described in file "src/main/riddl/Organization/organizationContacts.md"
     type Accounts is {
         billingAccount: BillingAccountId?, //Required for BaseOrg. Optional for all other organizations.
-        distributionAccount: DistributionAccountId?
-    }
+        distributionAccount: DistributionAccountId? //Required for BaseOrg. Optional for all other organizations.
+    } briefly "Accounts are used to move money between Improving.App and an organization, or between suborganizations defined within an organization."
+    described in file "src/main/riddl/Accounting/accounts.md"
     type Info is {
         name: String, //i.e. Provo High School. Must be unique within the organizational structure.
         shortName: String?, //i.e. PHS. Must be unique within the organizational structure.
@@ -18,7 +20,6 @@ context OrganizationContext is {
         url: URL?,
         logo: URL,
         //color scheme
-        //move billing and distribution to accounting domain - which referenced back to organization
         parent: OrganizationId?, //BaseOrganizations do not have a parent. All other organizations must have a parent. The BaseOrganization (only one per organizational structure) is the financially responsible party. As such it MUST have a BillingAccount defined. BaseOrg remains in Draft state until defined.
         children: OrganizationId*,
         members: MemberId*,
@@ -26,7 +27,7 @@ context OrganizationContext is {
         contacts: Contacts,
         accounts: Accounts
         //calendar: Calendar
-    }
+    } briefly "Essential information about an organization that is expected to evolve over time."
     type MetaInfo is {
         createdOn: DateTime,
         createdBy: MemberId,
@@ -34,7 +35,7 @@ context OrganizationContext is {
         lastUpdatedBy: MemberId, //this may also be a system user. i.e. they are two months late on payment so the system determines to suspend the organization.
         currentStatus: OrganizationContext.Status
         //currentOwner: MemberId
-    }
+    } briefly "Meta data kept about an organization that the user does not directly modify. Instead the system updates this info as a Member Owner updates details in the Info type."
 
     command EstablishOrganization is {orgId: OrganizationId, info: OrganizationContext.Info, establishingMember: MemberId}
         briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
