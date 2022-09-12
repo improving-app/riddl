@@ -81,7 +81,7 @@ context OrganizationContext is {
    type OrganizationEvent is one of {OrganizationEstablished, OrganizationInfoUpdated, OrganizationStatusUpdated}
 
     entity Organization is {
-        options (event sourced, available)
+        options (event-sourced, available)
 
         handler OrganizationHandler is {
             on command EstablishOrganization {
@@ -175,10 +175,10 @@ context OrganizationContext is {
     }
 
     projection OrganizationViews is {
-        orgId: OrganizationId,
-        owners: MemberId+,
-        members: MemberId*,
-        parent: OrganizationId?,
+        orgId: OrganizationId
+        owners: MemberId+
+        members: MemberId*
+        parent: OrganizationId?
         children: OrganizationId*
     }
 
