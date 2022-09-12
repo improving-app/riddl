@@ -9,6 +9,8 @@ on:
     paths:
       - src/main/riddl/**
       -  .github/workflows/gh-pages.yml
+  pull_request:
+    branches: [main]
 
 jobs:
   make-gh-pages:
@@ -28,14 +30,13 @@ jobs:
 
       - name: Show Hugo on PATH
         run: 'which hugo'
-        
+
       - name: Generate Hugo From RIDDL
-        uses: reactific/riddl-actions/riddlc@0.12.0
+        uses: reactific/riddl-actions/riddlc@0.14.1
         with:
-          command: from 
+          command: from
           opt1: src/main/riddl/ImprovingApp.conf
-          opt2: -H
-          opt3: /home/runner/actions_hugo/bin/hugo
+          opt2: hugo
 
       - name: Show riddlc output
         run: |
