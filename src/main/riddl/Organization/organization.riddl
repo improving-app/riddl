@@ -13,54 +13,49 @@ context OrganizationContext is {
     } briefly "Accounts are used to move money between Improving.App and an organization, or between suborganizations defined within an organization."
     described in file "src/main/riddl/Accounting/accounts.md"
     type Info is {
-        name: String, //i.e. Provo High School. Must be unique within the organizational structure.
-        shortName: String?, //i.e. PHS. Must be unique within the organizational structure.
-        address: Address?, //required for BaseOrg. Optional for all other organizations.
-        isPrivate: Boolean, //defaults to true
+        name: String briefly "i.e. Provo High School. Must be unique within the organizational structure.",
+        shortName: String? briefly "i.e. PHS. Must be unique within the organizational structure.",
+        address: Address? briefly "Required for BaseOrg. Optional for all other organizations.",
+        isPrivate: Boolean briefly "defaults to true",
         url: URL?,
         logo: URL,
         //color scheme
-        parent: OrganizationId?, //BaseOrganizations do not have a parent. All other organizations must have a parent. The BaseOrganization (only one per organizational structure) is the financially responsible party. As such it MUST have a BillingAccount defined. BaseOrg remains in Draft state until defined.
-        children: OrganizationId*,
-        members: MemberId*,
-        owners: MemberId+,
-        contacts: Contacts,
-        accounts: Accounts
+        parent: OrganizationId? briefly "BaseOrganizations do not have a parent. All other organizations must have a parent. The BaseOrganization (only one per organizational structure) is the financially responsible party. As such it MUST have a BillingAccount defined. BaseOrg remains in Draft state until fully defined.",
+        children: OrganizationId* briefly "If an organization has a parent it is a child organization. A school may be the parent to the football team. The football team may have child organizations of Varsity, Junior Varsity, and Freshman football teams.",
+        members: MemberId* briefly "An organization is composed of members. Membership in an organization generally gives visibility and access to events, especially for private organizaitons. Only members of an organizaton can be Owners or Admins of that organization.",
+        owners: MemberId+ briefly "Every organization must have at least one Owner. Owners are the first and default Admin for the organzations they own.",
+        contacts: Contacts briefly "There are three kinds of contacts: Primary Contacts, Billing Contacts, and Distribution Contacts." described in file "src/main/riddl/Organization/organizationContacts.md", 
+        accounts: Accounts briefly "There are two kinds of accounts: Billing Accounts, and Distribution Accounts." described in file "src/main/riddl/Accounting/accounts.md"
         //calendar: Calendar
     } briefly "Essential information about an organization that is expected to evolve over time."
     type MetaInfo is {
-        createdOn: DateTime,
-        createdBy: MemberId,
-        lastUpdated: DateTime,
-        lastUpdatedBy: MemberId, //this may also be a system user. i.e. they are two months late on payment so the system determines to suspend the organization.
-        currentStatus: OrganizationContext.Status
+        createdOn: TimeStamp briefly "The Date/Time this organization was created.",
+        createdBy: MemberId briefly "The member who created this organization",
+        lastUpdated: TimeStamp briefly "The Date/Time this organization was last modified.",
+        lastUpdatedBy: MemberId briefly "The member who last modified this organization. This may also be a system user. i.e. they are two months late on payment so the system determines to suspend the organization.",
+        currentStatus: OrganizationContext.Status briefly "The current state of this organization. Valid states include Draft, Active, Suspended, and Terminated"
         //currentOwner: MemberId
     } briefly "Meta data kept about an organization that the user does not directly modify. Instead the system updates this info as a Member Owner updates details in the Info type."
 
-    command EstablishOrganization is {orgId: OrganizationId, info: OrganizationContext.Info, establishingMember: MemberId}
-        briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
-        described as {
-        | This is the creation command for an Organization. A unique OrganizationId and the
-        | basic info for an organization must be provided. If the OrganizationId is not unique,
-        | a new organization will not be created and an error will result.
-    }
+    command EstablishOrganization is {
+        orgId: OrganizationId briefly "A unique identifier for this organization. This must be provided by the calling client.", 
+        info: OrganizationContext.Info briefly "Details about an organization required for it to exist. See OrganizationContext.Organization.Info for details.", 
+        establishingMember: MemberId briefly "The Id of the Member who is issuing the create command."
+    } briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
+    described in file "src/main/riddl/Organization/establishOrganization.md"
 
-    event OrganizationEstablished is {orgId: OrganizationId, info: OrganizationContext.Info, meta: OrganizationContext.MetaInfo}
+    event OrganizationEstablished is {
+        orgId: OrganizationId, 
+        info: OrganizationContext.Info, 
+        meta: OrganizationContext.MetaInfo
+    }
     command EditOrganizationInfo is {
         orgId: OrganizationId briefly "The unique Id of the organization to create",
         newInfo: OrganizationContext.Info briefly "The information about the organization",
         editingMember: MemberId briefly "Id of the member who is creating the organization"
     } briefly "A command to edit the values of an Organization's Info "
-    described by {
-      | Only provide the values of the elements of the OrganizationInfo type you
-      | wish to change. For example, if you wish to define a new parentOrg, only
-      | provide the parentOrg attribute with the ID of the new parent. Whatever
-      | values you provide overwrite what was previously there. The absence of
-      | an attribute means leave that value as is. If an empty value to an
-      | attribute is provided, the value will be overwritten with an empty
-      | value.
-    }
-    event OrganizationInfoUpdated is {orgId: OrganizationId, info: OrganizationContext.Info}
+    described in file "src/main/riddl/Organization/editOrganizationInfo.md"
+    event OrganizationInfoUpdated is {orgId: OrganizationId, info: OrganizationContext.Info, meta: OrganizationContext.MetaInfo}
     command AddMembersToOrganization is {orgId: OrganizationId, members: MemberId+}
     event MembersAddedToOrganization is {orgId: OrganizationId, members: MemberId+}
     command AddOwnersToOrganization is {orgId: OrganizationId, owners: MemberId+}
@@ -79,7 +74,7 @@ context OrganizationContext is {
     query GetOrganizationInfo is {orgId: OrganizationId}
     result OrganizationInfo is {orgId: OrganizationId, info: OrganizationContext.Info}
 
-   type OrganizationEvent is one of {OrganizationEstablished, OrganizationInfoUpdated, OrganizationStatusUpdated}
+   type PublicOrganizationEvent is one of {OrganizationEstablished, OrganizationInfoUpdated, OrganizationStatusUpdated}
 
     entity Organization is {
         options (event-sourced, available)
@@ -89,7 +84,7 @@ context OrganizationContext is {
                 then morph entity Organization to state Organization.Draft
                 and set Draft.orgId to @EstablishOrganization.orgId
                 and set Draft.info to @EstablishOrganization.info
-                //and set Draft.orgMetaInfo to new OrganizationMetaInfo(createdOn="today()", createdBy = @EstablishOrganization.establishingMember, lastUpdated="today()", lastUpdatedBy=@EstablishOrganization.establishingMember)
+                // TODO: and set Draft.meta to ^^^^MetaInfo(createdOn=now(), createdBy = @EstablishOrganization.establishingMember, lastUpdated=now(), lastUpdatedBy=@EstablishOrganization.establishingMember, currentStatus=Status.Draft)
                 and yield event OrganizationEstablished(orgId=@Draft.orgId, info=@Draft.nfo, meta=@Draft.meta)
             }
             on other { then error "Only EstablishOrganization command is allowed in the empty state"}
@@ -112,10 +107,10 @@ context OrganizationContext is {
             }
             on command UpdateOrganizationStatus {
                 then set ^^.Draft.meta.currentStatus to @UpdateOrganizationStatus.status
-                // and set Draft.orgMetaInfo.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
-                // and set Draft.orgMetaInfo.lastUpdated to "today()"
-                // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
-                //TODO: turn this into a function and call function here
+                and set ^^.Draft.meta.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
+                // TODO: and set ^^.Draft.meta.lastUpdated to now()
+                and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, info=@Draft.info, meta=@Draft.meta)
+                // TODO: turn this into a function and call function here
             }
             on other { then error "No other commands allowed in Draft state" }
         }
@@ -206,4 +201,8 @@ context OrganizationContext is {
         on query FindOrganizationsByMember {???}
         on query FindOrganizationsByOwner {???}
     }
+    
+    source OrganizationEvents is {
+        outlet Events is type PublicOrganizationEvent from Organization
+    } explained as "This is a source for Organization Events"
 } described in file "src/main/riddl/Organization/organization.md"
