@@ -1,0 +1,25 @@
+name: Validate RIDDL
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set Up JDK 17
+      uses: actions/setup-java@v2
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    - name: Validate RIDDL
+      uses: reactific/riddl-actions/riddlc@master
+      with:
+        command: "from"
+        arg1: "src/main/riddl/ImprovingApp.conf"
+        arg2: "validate"
