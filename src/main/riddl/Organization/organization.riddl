@@ -1,3 +1,9 @@
+domain Organization is {
+
+story EstablishOrganization is {
+  
+}
+
 context OrganizationContext is {
     //Organization Details
     type Status is any of {Draft, Active, Suspended, Terminated}
@@ -206,3 +212,5 @@ context OrganizationContext is {
         on query FindOrganizationsByOwner {???}
     }
 } described in file "src/main/riddl/Organization/organization.md"
+
+}

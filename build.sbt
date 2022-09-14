@@ -7,8 +7,6 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.2.9" % "test"
 )
 enablePlugins(RiddlSbtPlugin)
-riddlcOptions := Seq(
-  "--verbose",
-  "from", "src/main/riddl/ImprovingApp.conf", "hugo"
-)
+riddlcOptions :=
+  Seq("--verbose", "from", "src/main/riddl/ImprovingApp.conf", "hugo")
 riddlcMinVersion := "0.14.0"
