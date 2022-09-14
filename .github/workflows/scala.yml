@@ -24,6 +24,10 @@ jobs:
       with:
         hugo-version: 'latest'
         extended: true
+    - name: Get RIDDL.info
+      uses: reactific/riddl-actions/riddlc@0.14.1
+      with:
+        command: info
     - name: Coursier Caching
       uses: coursier/cache-action@v6
     - name: Build & Run Tests
