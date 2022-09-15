@@ -24,7 +24,7 @@ context OrganizationContext is {
         children: OrganizationId* briefly "If an organization has a parent it is a child organization. A school may be the parent to the football team. The football team may have child organizations of Varsity, Junior Varsity, and Freshman football teams.",
         members: MemberId* briefly "An organization is composed of members. Membership in an organization generally gives visibility and access to events, especially for private organizaitons. Only members of an organizaton can be Owners or Admins of that organization.",
         owners: MemberId+ briefly "Every organization must have at least one Owner. Owners are the first and default Admin for the organzations they own.",
-        contacts: Contacts briefly "There are three kinds of contacts: Primary Contacts, Billing Contacts, and Distribution Contacts." described in file "src/main/riddl/Organization/organizationContacts.md", 
+        contacts: Contacts briefly "There are three kinds of contacts: Primary Contacts, Billing Contacts, and Distribution Contacts." described in file "src/main/riddl/Organization/organizationContacts.md",
         accounts: Accounts briefly "There are two kinds of accounts: Billing Accounts, and Distribution Accounts." described in file "src/main/riddl/Accounting/accounts.md"
         //calendar: Calendar
     } briefly "Essential information about an organization that is expected to evolve over time."
@@ -38,15 +38,15 @@ context OrganizationContext is {
     } briefly "Meta data kept about an organization that the user does not directly modify. Instead the system updates this info as a Member Owner updates details in the Info type."
 
     command EstablishOrganization is {
-        orgId: OrganizationId briefly "A unique identifier for this organization. This must be provided by the calling client.", 
-        info: OrganizationContext.Info briefly "Details about an organization required for it to exist. See OrganizationContext.Organization.Info for details.", 
+        orgId: OrganizationId briefly "A unique identifier for this organization. This must be provided by the calling client.",
+        info: OrganizationContext.Info briefly "Details about an organization required for it to exist. See OrganizationContext.Organization.Info for details.",
         establishingMember: MemberId briefly "The Id of the Member who is issuing the create command."
     } briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
     described in file "src/main/riddl/Organization/establishOrganization.md"
 
     event OrganizationEstablished is {
-        orgId: OrganizationId, 
-        info: OrganizationContext.Info, 
+        orgId: OrganizationId,
+        info: OrganizationContext.Info,
         meta: OrganizationContext.MetaInfo
     }
     command EditOrganizationInfo is {
@@ -56,7 +56,13 @@ context OrganizationContext is {
     } briefly "A command to edit the values of an Organization's Info "
     described in file "src/main/riddl/Organization/editOrganizationInfo.md"
     event OrganizationInfoUpdated is {orgId: OrganizationId, info: OrganizationContext.Info, meta: OrganizationContext.MetaInfo}
-    command AddMembersToOrganization is {orgId: OrganizationId, members: MemberId+}
+
+    command AddMembersToOrganization is {
+      orgId: OrganizationId,
+      members: MemberId+
+      // TODO: orgId: OrganizationId briefly @orgId,
+      // TODO: members: MemberId+ briefly @membersList
+     }
     event MembersAddedToOrganization is {orgId: OrganizationId, members: MemberId+}
     command AddOwnersToOrganization is {orgId: OrganizationId, owners: MemberId+}
     event OwnersAddedToOrganization is {orgId: OrganizationId, owners: MemberId+}
@@ -75,6 +81,7 @@ context OrganizationContext is {
     result OrganizationInfo is {orgId: OrganizationId, info: OrganizationContext.Info}
 
    type PublicOrganizationEvent is one of {OrganizationEstablished, OrganizationInfoUpdated, OrganizationStatusUpdated}
+   // TODO: James to add all event types
 
     entity Organization is {
         options (event-sourced, available)
@@ -201,7 +208,7 @@ context OrganizationContext is {
         on query FindOrganizationsByMember {???}
         on query FindOrganizationsByOwner {???}
     }
-    
+
     source OrganizationEvents is {
         outlet Events is type PublicOrganizationEvent from Organization
     } explained as "This is a source for Organization Events"
