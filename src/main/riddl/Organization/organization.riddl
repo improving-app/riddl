@@ -7,7 +7,7 @@ story EstablishOrganization is {
   author reid is { ??? }
   case primary is {
     title: "Creating An Organization"
-    scope OrganizationDomain briefly
+    scope domain OrganizationDomain briefly
       "This domain is the smallest encapsulating domain that contains everything referenced"
     uses context OrganizationContext briefly "This bounded context contains components used in the story"
     uses entity Organization briefly "This is what gets created"
