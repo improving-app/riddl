@@ -19,7 +19,7 @@ story EstablishOrganization is {
       concurrently {
         step 3 from entity Organization to projection OrganizationViews briefly "add new organization"
         step 4 from entity Organization to role Owner briefly "organization added"
-        step 5 from entity Organization to role
+      }
     }
   }
 }
