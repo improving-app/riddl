@@ -1,10 +1,11 @@
 domain OrganizationDomain is {
 
 story EstablishOrganization is {
-  role "Member"
+  role Owner is "a person"
   capability is "establish an organization"
   benefit is "I can conduct business as that organization"
   author reid is { ??? }
+  term Organization is "An organizational unit, incorporated or not. "
   case primary is {
     title: "Creating An Organization"
     scope domain OrganizationDomain briefly
@@ -13,11 +14,12 @@ story EstablishOrganization is {
     uses entity Organization briefly "This is what gets created"
     uses projection OrganizationViews briefly "This is how you find them"
     interactions are {
-      step 1 from actor Member to context OrganizationContext briefly "initial invocation"
+      step 1 from role Owner to context OrganizationContext briefly "initial invocation"
       step 2 from context OrganizationContext to entity Organization "send creation message"
       concurrently {
         step 3 from entity Organization to projection OrganizationViews briefly "add new organization"
-        step 4 from entity Organization to actor Member briefly "organization added"
+        step 4 from entity Organization to role Owner briefly "organization added"
+        step 5 from entity Organization to role
     }
   }
 }
