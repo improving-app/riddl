@@ -1,7 +1,23 @@
-domain Organization is {
+domain OrganizationDomain is {
 
 story EstablishOrganization is {
-  
+  role "Member"
+  capability is "establish an organization"
+  benefit is "I can conduct business as that organization"
+  author reid is { ??? }
+  design primary is {
+    title: "Creating An Organization"
+    context OrganizationDomain for domain OrganizationDomain is {
+      actor Member briefly "This is the role who initiates the interaction"
+      container Organization for context OrganizationContext is {
+        component Organization is entity Organization briefly "This is what gets created"
+        component View is projection OrganizationViews briefly "This is how you find them"
+      } briefly "This bounded context contains components used in the story"
+      interaction Initiate is {
+        step 1 from actor Member to  container Organization briefly ""
+      }
+    } briefly "This domain is the smallest encapsulating domain that contains everything referenced"
+  }
 }
 
 context OrganizationContext is {
