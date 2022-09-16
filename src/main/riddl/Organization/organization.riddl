@@ -25,133 +25,56 @@ story EstablishOrganization is {
 }
 
 context OrganizationContext is {
-    //Organization Details
-    type Status is any of {Draft, Active, Suspended, Terminated}
-    type Contacts is {
-        primaryContacts: MemberId+,
-        billingContacts: MemberId*,
-        distributionContacts: MemberId*
-    }
-    type Accounts is {
-        billingAccount: BillingAccountId?, //Required for BaseOrg. Optional for all other organizations.
-        distributionAccount: DistributionAccountId?
-    }
-    type Info is {
-        name: String, //i.e. Provo High School. Must be unique within the organizational structure.
-        shortName: String?, //i.e. PHS. Must be unique within the organizational structure.
-        address: Address?, //required for BaseOrg. Optional for all other organizations.
-        isPrivate: Boolean, //defaults to true
-        url: URL?,
-        logo: URL,
-        //color scheme
-        //move billing and distribution to accounting domain - which referenced back to organization
-        parent: OrganizationId?, //BaseOrganizations do not have a parent. All other organizations must have a parent. The BaseOrganization (only one per organizational structure) is the financially responsible party. As such it MUST have a BillingAccount defined. BaseOrg remains in Draft state until defined.
-        children: OrganizationId*,
-        members: MemberId*,
-        owners: MemberId+,
-        contacts: Contacts,
-        accounts: Accounts
-        //calendar: Calendar
-    }
-    type MetaInfo is {
-        createdOn: DateTime,
-        createdBy: MemberId,
-        lastUpdated: DateTime,
-        lastUpdatedBy: MemberId, //this may also be a system user. i.e. they are two months late on payment so the system determines to suspend the organization.
-        currentStatus: OrganizationContext.Status
-        //currentOwner: MemberId
-    }
-
-    command EstablishOrganization is {orgId: OrganizationId, info: OrganizationContext.Info, establishingMember: MemberId}
-        briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
-        described as {
-        | This is the creation command for an Organization. A unique OrganizationId and the
-        | basic info for an organization must be provided. If the OrganizationId is not unique,
-        | a new organization will not be created and an error will result.
-    }
-
-    event OrganizationEstablished is {orgId: OrganizationId, info: OrganizationContext.Info, meta: OrganizationContext.MetaInfo}
-    command EditOrganizationInfo is {
-        orgId: OrganizationId briefly "The unique Id of the organization to create",
-        newInfo: OrganizationContext.Info briefly "The information about the organization",
-        editingMember: MemberId briefly "Id of the member who is creating the organization"
-    } briefly "A command to edit the values of an Organization's Info "
-    described by {
-      | Only provide the values of the elements of the OrganizationInfo type you
-      | wish to change. For example, if you wish to define a new parentOrg, only
-      | provide the parentOrg attribute with the ID of the new parent. Whatever
-      | values you provide overwrite what was previously there. The absence of
-      | an attribute means leave that value as is. If an empty value to an
-      | attribute is provided, the value will be overwritten with an empty
-      | value.
-    }
-    event OrganizationInfoUpdated is {orgId: OrganizationId, info: OrganizationContext.Info}
-    command AddMembersToOrganization is {orgId: OrganizationId, members: MemberId+}
-    event MembersAddedToOrganization is {orgId: OrganizationId, members: MemberId+}
-    command AddOwnersToOrganization is {orgId: OrganizationId, owners: MemberId+}
-    event OwnersAddedToOrganization is {orgId: OrganizationId, owners: MemberId+}
-    command UpdateOrganizationStatus is {orgId: OrganizationId, status: OrganizationContext.Status, updatingMember: MemberId}
-    event OrganizationStatusUpdated is {orgId: OrganizationId, newStatus: OrganizationContext.Status}
-    command UpdateOrganizationContacts is {orgId: OrganizationId, contacts: Contacts}
-    event OrganizationContactsUpdated is {orgId: OrganizationId, info: OrganizationContext.Info, meta: OrganizationContext.MetaInfo}
-    command UpdateOrganizationAccounts is {orgId: OrganizationId, accounts: Accounts}
-    event OrganizationAccountsUpdated is {orgId: OrganizationId, info: OrganizationContext.Info, meta: OrganizationContext.MetaInfo}
-
-    query FindOrganizationsByMember is {member: MemberId} briefly "Get a list of organizations that a member belongs to."
-    result OrganizationListByMember is {member: MemberId, organizations: OrganizationId*}
-    query FindOrganizationsByOwner is {owner: MemberId} briefly "Get a list of organizations that are owned by a member."
-    result OrganizationListByOwner is {owner: MemberId, organizations: OrganizationId*}
-    query GetOrganizationInfo is {orgId: OrganizationId}
-    result OrganizationInfo is {orgId: OrganizationId, info: OrganizationContext.Info}
-
-   type OrganizationEvent is one of {OrganizationEstablished, OrganizationInfoUpdated, OrganizationStatusUpdated}
+    include "organizationTypeDefinitions"
+    include "organizationMessages"
+    include "organizationProjections"
+    include "organizationSources"
 
     entity Organization is {
         options (event-sourced, available)
 
         handler OrganizationHandler is {
-            on command EstablishOrganization {
-                then morph entity Organization to state Organization.Draft
-                and set Draft.orgId to @EstablishOrganization.orgId
-                and set Draft.info to @EstablishOrganization.info
-                //and set Draft.orgMetaInfo to new OrganizationMetaInfo(createdOn="today()", createdBy = @EstablishOrganization.establishingMember, lastUpdated="today()", lastUpdatedBy=@EstablishOrganization.establishingMember)
-                and yield event OrganizationEstablished(orgId=@Draft.orgId, info=@Draft.nfo, meta=@Draft.meta)
-            }
-            on other { then error "Only EstablishOrganization command is allowed in the empty state"}
+        on command EstablishOrganization {
+            then morph entity Organization to state Organization.Draft
+            and set Draft.orgId to @EstablishOrganization.orgId
+            and set Draft.info to @EstablishOrganization.info
+            // TODO: and set Draft.meta to ^^^^MetaInfo(createdOn=now(), createdBy = @EstablishOrganization.establishingMember, lastUpdated=now(), lastUpdatedBy=@EstablishOrganization.establishingMember, currentStatus=Status.Draft)
+            and yield event OrganizationEstablished(orgId=@Draft.orgId, info=@Draft.nfo, meta=@Draft.meta)
+        }
+        on other { then error "Only EstablishOrganization command is allowed in the empty state"}
         }
 
         state Draft is {
-            orgId: OrganizationId,
-            info: ^^^.Info,
-            meta: ^^^.MetaInfo
+        orgId: OrganizationId,
+        info: ^^^.Info,
+        meta: ^^^.MetaInfo
         }
         handler DraftOrganizationHandler for state ^Draft is {
-
-            on command EstablishOrganization {
-                then error "Organization already established"
-            }
-            on command EditOrganizationInfo {
-                then set Draft.info to @EstablishOrganization.info
-                // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
-                //TODO: turn this into a function and call function here
-            }
-            on command UpdateOrganizationStatus {
-                then set ^^.Draft.meta.currentStatus to @UpdateOrganizationStatus.status
-                // and set Draft.orgMetaInfo.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
-                // and set Draft.orgMetaInfo.lastUpdated to "today()"
-                // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
-                //TODO: turn this into a function and call function here
-            }
-            on other { then error "No other commands allowed in Draft state" }
+        on command EstablishOrganization {
+            then error "Organization already established"
+        }
+        on command EditOrganizationInfo {
+            then set Draft.info to @EstablishOrganization.info
+            // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
+            //TODO: turn this into a function and call function here
+        }
+        on command UpdateOrganizationStatus {
+            then set ^^.Draft.meta.currentStatus to @UpdateOrganizationStatus.status
+            and set ^^.Draft.meta.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
+            // TODO: and set ^^.Draft.meta.lastUpdated to now()
+            and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, info=@Draft.info, meta=@Draft.meta)
+            // TODO: turn this into a function and call function here
+        }
+        on other { then error "No other commands allowed in Draft state" }
         }
 
         state Active is {
-            oid: OrganizationId,
-            orgDetails: OrganizationContext.Info
+        oid: OrganizationId,
+        orgDetails: OrganizationContext.Info
         }
         handler ActiveOrganization for state ^Active is {
             on command EstablishOrganization {
-               then error "Organization already established"
+                then error "Organization already established"
             }
             on command EditOrganizationInfo { ???
                 // then set Draft.orgInfo to @EstablishOrganization.orgInfo
@@ -173,63 +96,29 @@ context OrganizationContext is {
             orgDetails: OrganizationContext.Info
         }
         handler SuspendedOrganization for state ^Suspended {
-
-            on command EstablishOrganization {
-                then error "Organization already established"
-            }
-            on command EditOrganizationInfo {
-                then error "Move organization to the Active status in order to edit OrganizationInfo."
-            }
-            on command UpdateOrganizationStatus { ???
-                // then set Draft.orgMetaInfo.status to @UpdateOrganizationStatus.status
-                // and set Draft.orgMetaInfo.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
-                // and set Draft.orgMetaInfo.lastUpdated to "today()"
-                // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
-                //TODO: turn this into a function and call function here
-            }
-            on other { then error "No other commands allowed in Suspended state"}
+        on command EstablishOrganization {
+            then error "Organization already established"
+        }
+        on command EditOrganizationInfo {
+            then error "Move organization to the Active status in order to edit OrganizationInfo."
+        }
+        on command UpdateOrganizationStatus { ???
+            // then set Draft.orgMetaInfo.status to @UpdateOrganizationStatus.status
+            // and set Draft.orgMetaInfo.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
+            // and set Draft.orgMetaInfo.lastUpdated to "today()"
+            // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
+            //TODO: turn this into a function and call function here
+        }
+        on other { then error "No other commands allowed in Suspended state"}
         }
 
         state Terminated is {
             oid: OrganizationId,
             name: String
-
         }
         handler TerminatedOrganization for state ^Terminated is {
             on other {then error "No commands allowed in Terminated state"}
         }
-    }
-
-    projection OrganizationViews is {
-        orgId: OrganizationId
-        owners: MemberId+
-        members: MemberId*
-        parent: OrganizationId?
-        children: OrganizationId*
-    }
-
-    handler OrganizationViewsHandler for projection OrganizationViews is {
-        on event OrganizationEstablished {???
-            //then set ^^.OrganizationViews.orgId to @OrganizationContext.OrganizationEstablished.orgId
-            //and set ^^.OrganizationViews.owners to @OrganizationContext.OrganizationEstablished.info.owners
-            //and set ^^.OrganizationViews.members to @OrganizationContext.OrganizationEstablished.info.members
-            //and set ^^.OrganizationViews.parent to @OrganizationContext.OrganizationEstablished.info.parent
-            //and set ^^.OrganizationViews.children to @OrganizationContext.OrganizationEstablished.info.children
-        }
-        on event OrganizationInfoUpdated {???
-            //then set ^^.OrganizationViews.owners to @OrganizationInfoUpdated.info.owners
-            //and set ^^.OrganizationViews.members to @OrganizationInfoUpdated.info.members
-            //and set ^^.OrganizationViews.parent to @^^^OrganizationInfoUpdated.info.parent
-            //and set ^^.OrganizationViews.children to @^^^OrganizationInfoUpdated.info.children
-        }
-        on event MembersAddedToOrganization {
-            then append @MembersAddedToOrganization.members to OrganizationViews.members
-        }
-        on event OwnersAddedToOrganization {
-            then append @^^^OwnersAddedToOrganization.owners to OrganizationViews.owners
-        }
-        on query FindOrganizationsByMember {???}
-        on query FindOrganizationsByOwner {???}
     }
 } described in file "src/main/riddl/Organization/organization.md"
 

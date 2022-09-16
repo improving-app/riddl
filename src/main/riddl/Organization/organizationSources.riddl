@@ -1,0 +1,13 @@
+type PublicOrganizationEvent is one of {
+    OrganizationEstablished,
+    OrganizationInfoUpdated,
+    OrganizationStatusUpdated,
+    MembersAddedToOrganization,
+    OwnersAddedToOrganization,
+    OrganizationContactsUpdated,
+    OrganizationAccountsUpdated
+}
+
+source OrganizationEvents is {
+    outlet Events is type PublicOrganizationEvent from Organization
+} explained as "This is a source for Organization Events"

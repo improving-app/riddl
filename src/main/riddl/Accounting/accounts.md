@@ -1,0 +1,3 @@
+Accounts are used for moving money between Improving.App and an Organization or between sub organizations within a larger organization. There are two different kinds of accounts:
+1. Billing Account - This account is used to collect money from an organization
+2. Distribution Account - This account is used to allocate money to an organization. For example, the concessions stand at a football game is a store. Improving.App is the payment provider and collects the funds from purchases made at the store. After the store closes the accounts and inventory are reconciled and proceeds are distributed back to the organization sponsoring the store. The distribution account is where those funds are deposited.
