@@ -1,29 +1,3 @@
-domain OrganizationDomain is {
-
-story EstablishOrganization is {
-  role Owner is "a person"
-  capability is "establish an organization"
-  benefit is "I can conduct business as that organization"
-  author reid is { ??? }
-  term Organization is "An organizational unit, incorporated or not. "
-  case primary is {
-    title: "Creating An Organization"
-    scope domain OrganizationDomain briefly
-      "This domain is the smallest encapsulating domain that contains everything referenced"
-    uses context OrganizationContext briefly "This bounded context contains components used in the story"
-    uses entity Organization briefly "This is what gets created"
-    uses projection OrganizationViews briefly "This is how you find them"
-    interactions are {
-      step 1 from role Owner to context OrganizationContext briefly "initial invocation"
-      step 2 from context OrganizationContext to entity Organization "send creation message"
-      concurrently {
-        step 3 from entity Organization to projection OrganizationViews briefly "add new organization"
-        step 4 from entity Organization to role Owner briefly "organization added"
-      }
-    }
-  }
-}
-
 context OrganizationContext is {
     include "organizationTypeDefinitions"
     include "organizationMessages"
@@ -121,5 +95,3 @@ context OrganizationContext is {
         }
     }
 } described in file "src/main/riddl/Organization/organization.md"
-
-}
