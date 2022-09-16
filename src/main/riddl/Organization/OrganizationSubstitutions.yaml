@@ -1,0 +1,5 @@
+orgId: "A unique identifier for the organization being acted on."
+info: "Accepted attributes describing an organization."
+meta: "System maintained values about an organization."
+memberList: "A list of members to be added to an organization."
+actingMember: "The member ID performing this action."
