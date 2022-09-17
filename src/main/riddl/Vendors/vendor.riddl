@@ -34,67 +34,103 @@ context Vendor is {
     
     entity Vendor is {
         state Draft is {
-            vendorId: VendorId,
-            vendorInfo: VendorInfo
-        } handler DraftVendor is {???}
+            fields {
+                vendorId: VendorId,
+                vendorInfo: VendorInfo
+            }
+            handler DraftVendor is {???}
+        } 
         state Active is {
-            vendorId: VendorId,
-            vendorInfo: VendorInfo
-        } handler ActiveVendorHandler is {???}
+            fields {
+                vendorId: VendorId,
+                vendorInfo: VendorInfo  
+            }
+            handler ActiveVendorHandler is {???}
+        } 
         state Inactive is {
-            vendorId: VendorId,
-            vendorInfo: VendorInfo
-        } handler InactiveVendor is {???}
+            fields {
+                vendorId: VendorId,
+                vendorInfo: VendorInfo
+            }
+            handler InactiveVendor is {???}
+        } 
         state Suspended is {
-            vendorId: VendorId,
-            vendorInfo: VendorInfo
-        } handler SuspendedVendorHandler is {???}
+            fields {
+                vendorId: VendorId,
+                vendorInfo: VendorInfo
+            }
+            handler SuspendedVendorHandler is {???}
+        } 
         state Terminated is {
-            vendorId: VendorId
-        } handler TerminatedVendor is {???}
+            fields {
+                vendorId: VendorId
+            }
+            handler TerminatedVendor is {???}
+        } 
     }
 
     entity Store is {
         state Staged is {
-            storeId: StoreId,
-            storeInfo: StoreInfo
-        } handler StagedStoreHandler is {???}
+            fields {
+                storeId: StoreId,
+                storeInfo: StoreInfo
+            }
+            handler StagedStoreHandler is {???}
+        } 
         state Open is {
-            storeId: StoreId,
-            storeInfo: StoreInfo
-        } handler OpenStoreHandler is {???}
+            fields {
+                storeId: StoreId,
+                storeInfo: StoreInfo
+            }
+            handler OpenStoreHandler is {???}
+        } 
         state Closed is {
-            storeId: StoreId,
-            storeInfo: StoreInfo
-        } handler ClosedStoreHandler is {???}
+            fields {
+                storeId: StoreId,
+                storeInfo: StoreInfo
+            }
+            handler ClosedStoreHandler is {???}
+        } 
     }
 
     entity Catalog is {
         state Catalog is {
-            catalogId: CatalogId,
-            name: String,
-            products: ProductId+
-        } handler CatalogHandler is {???}
+            fields {
+                catalogId: CatalogId,
+                name: String,
+                products: ProductId+
+            }
+            handler CatalogHandler is {???}
+        } 
     } 
     entity Category is {
         state Category is {
-            categoryId: CategoryId,
-            name: String,
-            products: ProductId+
-        } handler CategoryHandler is {???}
+            fields {
+                categoryId: CategoryId,
+                name: String,
+                products: ProductId+
+            }
+            handler CategoryHandler is {???}
+        } 
     } 
     entity Product is {
         state Active is {
-            sku: String,
-            productInfo: ProductInfo
-            //kits i.e. combo meal - future scope
-            //condiments - catsup, mustard, jalapenos, etc. - future scope
-        } handler ActiveProductHandler is {???}
+            fields {
+                sku: String,
+                productInfo: ProductInfo
+                //kits i.e. combo meal - future scope
+                //condiments - catsup, mustard, jalapenos, etc. - future scope
+            }
+            handler ActiveProductHandler is {???}
+        } 
         state Inactive is {
-            sku: String,
-            productInfo: ProductInfo
-            //kits i.e. combo meal
-            //condiments - catsup, mustard, jalapenos, etc.
-        } handler InactiveProductHandler is {???}
+            fields {
+                sku: String,
+                productInfo: ProductInfo
+                //kits i.e. combo meal
+                //condiments - catsup, mustard, jalapenos, etc.
+            }
+            handler InactiveProductHandler is {???}
+        } 
     }
 }

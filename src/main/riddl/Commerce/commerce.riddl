@@ -41,11 +41,14 @@ context Commerce is {
     
     entity Payment is {
         state Payment is {
-            paymentId: PaymentId,
-            orderId: OrderId,
-            amount: Number,
-            dateProcessed: DateTime
-        } handler PaymentHandler is {???}
+            fields {
+                paymentId: PaymentId,
+                orderId: OrderId,
+                amount: Number,
+                dateProcessed: DateTime
+            }
+            handler PaymentHandler is {???}
+        } 
     }
     entity Cart is {???} //develop as a future feature - Persistant Cart - Training exercise
     
