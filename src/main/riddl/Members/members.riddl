@@ -63,8 +63,8 @@ context MembersContext is {
         state Active is {
             fields {
                 memberId: MemberId,
-                info: ^^^.Info,
-                meta: ^^^.MetaInfo
+                info: MembersContext.Info,
+                meta: MembersContext.MetaInfo
             }
             handler ActiveMemberHandler {
                 on command UpdateMemberInfo {

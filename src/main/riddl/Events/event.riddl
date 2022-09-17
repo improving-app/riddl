@@ -95,8 +95,8 @@ context EventContext is {
             }
             handler ScheduledEventHandler {
                 on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
-                on command ChangeEventInfo{
-                    then set ^^Scheduled.eventInfo to @^^^ChangeEventInfo.info
+                on command ChangeEventInfo{ ???
+                    //then set ^^Scheduled.eventInfo to @^^^ChangeEventInfo.info
                     // and set Scheduled.metaInfo.lastModifiedBy to @ChangeEventInfo.cancellingMember
                     // and set Scheduled.metaInfo.lastModifiedOn to today()
                 }

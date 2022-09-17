@@ -21,8 +21,8 @@ context OrganizationContext is {
         state Draft is {
             fields {
                 orgId: OrganizationId,
-                info: ^^^.Info,
-                meta: ^^^.MetaInfo
+                info: OrganizationContext.Info,
+                meta: OrganizationContext.MetaInfo
             }
             handler DraftOrganizationHandler is {
                 on command EstablishOrganization {

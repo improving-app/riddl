@@ -1,12 +1,12 @@
 projection OrganizationViews is {
     fields {
-        orgId: OrganizationId
-        owners: MemberId+
-        members: MemberId*
-        parent: OrganizationId?
+        orgId: OrganizationId,
+        owners: MemberId+,
+        members: MemberId*,
+        parent: OrganizationId?,
         children: OrganizationId*
     }
-    handler OrganizationViewsHandler for projection OrganizationViews is {
+    handler OrganizationViewsHandler is {
         on event OrganizationEstablished {???
             //then set ^^.OrganizationViews.orgId to @OrganizationContext.OrganizationEstablished.orgId
             //and set ^^.OrganizationViews.owners to @OrganizationContext.OrganizationEstablished.info.owners
