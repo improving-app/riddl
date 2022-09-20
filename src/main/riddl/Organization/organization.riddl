@@ -34,8 +34,8 @@ context OrganizationContext is {
                     //TODO: turn this into a function and call function here
                 }
                 on command UpdateOrganizationStatus {
-                    then set ^^.Draft.meta.currentStatus to @UpdateOrganizationStatus.status
-                    and set ^^.Draft.meta.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
+                    then set Draft.meta.currentStatus to @UpdateOrganizationStatus.status
+                    and set Draft.meta.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
                     // TODO: and set ^^.Draft.meta.lastUpdated to now()
                     and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, info=@Draft.info, meta=@Draft.meta)
                     // TODO: turn this into a function and call function here
@@ -43,7 +43,7 @@ context OrganizationContext is {
                 on other { then error "No other commands allowed in Draft state" }
             }
         }
-        
+
 
         state Active is {
             fields {
@@ -69,7 +69,7 @@ context OrganizationContext is {
                 on other { then error "No other commands allowed in Active state" }//TODO: We need to consider queries
             }
         }
-        
+
         state Suspended is {
             fields {
                 oid: OrganizationId,
@@ -92,7 +92,7 @@ context OrganizationContext is {
                 on other { then error "No other commands allowed in Suspended state"}
             }
         }
-        
+
         state Terminated is {
             fields {
                 oid: OrganizationId,

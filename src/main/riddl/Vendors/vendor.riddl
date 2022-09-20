@@ -3,8 +3,8 @@ context Vendor is {
     type CatalogId is Id( Catalog )
     type CategoryId is Id( Category )
     type ProductId is Id( Vendor.Product )
-    type VendorId is Id( Vendor )
-    
+    type VendorId is Id( Vendor.Vendor )
+
     type StoreInfo is {
         storeName: String,
         catalogId: CatalogId,
@@ -31,7 +31,7 @@ context Vendor is {
         cost: Number,
         organization: OrganizationId
     }
-    
+
     entity Vendor is {
         state Draft is {
             fields {
@@ -39,34 +39,34 @@ context Vendor is {
                 vendorInfo: VendorInfo
             }
             handler DraftVendor is {???}
-        } 
+        }
         state Active is {
             fields {
                 vendorId: VendorId,
-                vendorInfo: VendorInfo  
+                vendorInfo: VendorInfo
             }
             handler ActiveVendorHandler is {???}
-        } 
+        }
         state Inactive is {
             fields {
                 vendorId: VendorId,
                 vendorInfo: VendorInfo
             }
             handler InactiveVendor is {???}
-        } 
+        }
         state Suspended is {
             fields {
                 vendorId: VendorId,
                 vendorInfo: VendorInfo
             }
             handler SuspendedVendorHandler is {???}
-        } 
+        }
         state Terminated is {
             fields {
                 vendorId: VendorId
             }
             handler TerminatedVendor is {???}
-        } 
+        }
     }
 
     entity Store is {
@@ -76,21 +76,21 @@ context Vendor is {
                 storeInfo: StoreInfo
             }
             handler StagedStoreHandler is {???}
-        } 
+        }
         state Open is {
             fields {
                 storeId: StoreId,
                 storeInfo: StoreInfo
             }
             handler OpenStoreHandler is {???}
-        } 
+        }
         state Closed is {
             fields {
                 storeId: StoreId,
                 storeInfo: StoreInfo
             }
             handler ClosedStoreHandler is {???}
-        } 
+        }
     }
 
     entity Catalog is {
@@ -101,8 +101,8 @@ context Vendor is {
                 products: ProductId+
             }
             handler CatalogHandler is {???}
-        } 
-    } 
+        }
+    }
     entity Category is {
         state Category is {
             fields {
@@ -111,8 +111,8 @@ context Vendor is {
                 products: ProductId+
             }
             handler CategoryHandler is {???}
-        } 
-    } 
+        }
+    }
     entity Product is {
         state Active is {
             fields {
@@ -122,7 +122,7 @@ context Vendor is {
                 //condiments - catsup, mustard, jalapenos, etc. - future scope
             }
             handler ActiveProductHandler is {???}
-        } 
+        }
         state Inactive is {
             fields {
                 sku: String,
@@ -131,6 +131,6 @@ context Vendor is {
                 //condiments - catsup, mustard, jalapenos, etc.
             }
             handler InactiveProductHandler is {???}
-        } 
+        }
     }
 }

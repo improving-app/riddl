@@ -18,14 +18,14 @@ context MembersContext is {
         createdOn: Date,
         createdBy: MemberId,
         lastModifiedOn: Date,
-        lastModifiedBy: MemberId, 
+        lastModifiedBy: MemberId,
         memberStatus: MembersContext.Status
     }
     type MetaInfoQuery is {
         createdOn: Date?,
         createdBy: MemberId?,
         lastModifiedOn: Date?,
-        lastModifiedBy: MemberId?, 
+        lastModifiedBy: MemberId?,
         memberStatus: MembersContext.Status?
     }
 
@@ -68,23 +68,23 @@ context MembersContext is {
             }
             handler ActiveMemberHandler {
                 on command UpdateMemberInfo {
-                    then set Active.info to @UpdateMemberInfo.info 
-                    and set ^^Active.meta.lastModifiedBy to @UpdateMemberInfo.actingMember
-                    and set ^^Active.meta.lastModifiedOn to today()
+                    then set ^^.Active.info to @UpdateMemberInfo.info
+                    and set ^^.Active.meta.lastModifiedBy to @UpdateMemberInfo.actingMember
+                    and set ^^.Active.meta.lastModifiedOn to today()
                     and yield event MemberInfoUpdated(memberId = @Active.memberId, info = @Active.memberInfo, meta = @Active.memberMeta)
                 }
                 on command UpdateMemberStatus {
-                    then set ^^Active.meta.memberStatus to @UpdateMemberStatus.newStatus
-                    and set ^^Active.meta.lastModifiedBy to @UpdateMemberInfo.actingMember
-                    and set ^^Active.meta.lastModifiedOn to today()
+                    then set Active.meta.memberStatus to @UpdateMemberStatus.newStatus
+                    and set Active.meta.lastModifiedBy to @UpdateMemberInfo.actingMember
+                    and set Active.meta.lastModifiedOn to today()
                     and yield event MemberStatusUpdated(memberId = @Active.memberId, meta = @Active.memberMeta)
                 }
                 on query GetMemberData {  ??? }
             }
-        } 
-        
+        }
 
-        state Terminated is { 
+
+        state Terminated is {
             fields {
                 memberId: MemberId
             }
@@ -92,6 +92,6 @@ context MembersContext is {
                 on other { then error "Terminated members cannot process messages" }
             }
         } //A terminated member is one who exercises their right to be forgotten.
-        
+
     }
 }
