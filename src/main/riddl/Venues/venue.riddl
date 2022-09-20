@@ -1,12 +1,15 @@
 context VenueContext is {
     entity Venue is {
         state Available is {
-            venueId: VenueId,
-            orgId: OrganizationId, //Venues are defined by BaseOrgs. venueId and orgId make a composite key
-            name: String,
-            address: Address,
-            isAvailable: Boolean
-        } handler AvailableVenueHandler is {???}
+            fields {
+                venueId: VenueId,
+                orgId: OrganizationId, //Venues are defined by BaseOrgs. venueId and orgId make a composite key
+                name: String,
+                address: Address,
+                isAvailable: Boolean
+            }
+            handler AvailableVenueHandler is {???}
+        } 
     } 
     entity Location is {
         command ReserveLocation is {locationId: LocationId, org: OrganizationId, start: DateTime, end: DateTime}
@@ -32,19 +35,22 @@ context VenueContext is {
             amenities: String* //TODO: We may need amenities to be searchable - i.e. I need to find a Location that is handicaped accessible and has a kitchen
         }
         state LocationState is {
-            locationId: LocationId,
-            locationInfo: LocationInfo,
-            reservations: ReservationId*
+            fields {
+                locationId: LocationId,
+                locationInfo: LocationInfo,
+                reservations: ReservationId*
+            }
+            handler LocationHandler is {
+                on command ReserveLocation {???}
+                on command CancelReservation {???}
+                on query GetLocationInfo {???}
+                on query GetUpcomingReservations {???}
+                on query GetUpcomingReservationsInRange {???}
+                on query FindAvailableLocationsInRange {???}
+                on query FindAvailableLocationsInRangeWithAmenities {???}
+            }
         }
-        handler LocationHandler is {
-            on command ReserveLocation {???}
-            on command CancelReservation {???}
-            on query GetLocationInfo {???}
-            on query GetUpcomingReservations {???}
-            on query GetUpcomingReservationsInRange {???}
-            on query FindAvailableLocationsInRange {???}
-            on query FindAvailableLocationsInRangeWithAmenities {???}
-        }
+        
     } 
 
     entity Reservation is {
@@ -62,13 +68,15 @@ context VenueContext is {
         result ReservationInfoResult is {reservationId: ReservationId, info: ReservationInfo}
 
         state ReservationState is {
-            reservationId: ReservationId,
-            info: ReservationInfo
-        }
-        handler ReservationHandler is {
-            on command CreateReservation {???}
-            on command DeleteReservation {???}
-            on query GetReservationInfo {???}
+            fields {
+                reservationId: ReservationId,
+                info: ReservationInfo
+            }
+            handler ReservationHandler is {
+                on command CreateReservation {???}
+                on command DeleteReservation {???}
+                on query GetReservationInfo {???}
+            }
         }
     }
 }

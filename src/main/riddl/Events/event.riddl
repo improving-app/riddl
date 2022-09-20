@@ -3,9 +3,9 @@ context EventContext is {
     //     pipe EventPipe is {???}
     // }
 
-    source LiveUpdates is {
-        outlet Updates is type LiveUpdate from Event
-    } explained as "This is a source for things that happen as an event progresses"
+    // source LiveUpdates is {
+    //     outlet Updates is type LiveUpdate from Event
+    // } explained as "This is a source for things that happen as an event progresses"
     type LiveUpdate is mapping from String to String//i.e. "Score" -> "12 to 10", "attendance" -> "523", ...
     type EventResults is mapping from String to String //i.e. "Score" -> "12 to 10", "attendance" -> "523", ...
 
@@ -88,89 +88,104 @@ context EventContext is {
         }
 
         state Scheduled is {
-            eventId: EventId,
-            eventInfo: EventInfo,
-            eventMetaInfo: EventMetaInfo
-        } handler ScheduledEventHandler for state Scheduled is {
-            on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
-            on command ChangeEventInfo{
-                then set ^^Scheduled.eventInfo to @^^^ChangeEventInfo.info
-                // and set Scheduled.metaInfo.lastModifiedBy to @ChangeEventInfo.cancellingMember
-                // and set Scheduled.metaInfo.lastModifiedOn to today()
+            fields {
+                eventId: EventId,
+                eventInfo: EventInfo,
+                eventMetaInfo: EventMetaInfo
             }
-            on command CancelEvent{
-                then morph entity Event to state Event.Cancelled
-                // and set Cancelled.metaInfo.status to Cancelled
-                // and set Cancelled.metaInfo.lastModifiedBy to @CancelEvent.cancellingMember
-                // and set Cancelled.metaInfo.lastModifiedOn to today()
-            }
-            on command RescheduleEvent{???}
-            on command DelayEvent{???}
-            on command StartEvent{???}
-            on command EndEvent{???}
-            on command AddLiveUpdate{???}
+            handler ScheduledEventHandler {
+                on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
+                on command ChangeEventInfo{ ???
+                    //then set ^^Scheduled.eventInfo to @^^^ChangeEventInfo.info
+                    // and set Scheduled.metaInfo.lastModifiedBy to @ChangeEventInfo.cancellingMember
+                    // and set Scheduled.metaInfo.lastModifiedOn to today()
+                }
+                on command CancelEvent{
+                    then morph entity Event to state Event.Cancelled
+                    // and set Cancelled.metaInfo.status to Cancelled
+                    // and set Cancelled.metaInfo.lastModifiedBy to @CancelEvent.cancellingMember
+                    // and set Cancelled.metaInfo.lastModifiedOn to today()
+                }
+                on command RescheduleEvent{???}
+                on command DelayEvent{???}
+                on command StartEvent{???}
+                on command EndEvent{???}
+                on command AddLiveUpdate{???}
+            } 
         }
         state InProgress is {
-            eventId: EventId,
-            eventInfo: EventInfo,
-            eventMetaInfo: EventMetaInfo
+            fields{
+                eventId: EventId,
+                eventInfo: EventInfo,
+                eventMetaInfo: EventMetaInfo
+            }
+            handler InProgressEventHandler is {
+                on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
+                on command ChangeEventInfo{???}
+                on command CancelEvent{???}
+                on command RescheduleEvent{???}
+                on command DelayEvent{???}
+                on command StartEvent{???}
+                on command EndEvent{???}
+                on command AddLiveUpdate{???}
+            }
             //score, period, etc...
-        } handler InProgressEventHandler is {
-            on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
-            on command ChangeEventInfo{???}
-            on command CancelEvent{???}
-            on command RescheduleEvent{???}
-            on command DelayEvent{???}
-            on command StartEvent{???}
-            on command EndEvent{???}
-            on command AddLiveUpdate{???}
-        }
+        } 
         state Delayed is {
-            eventId: EventId,
-            eventInfo: EventInfo,
-            reason: String,
-            eventMetaInfo: EventMetaInfo
-            //finalScore
-        } handler DelayedEventHandler is {
-            on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
-            on command ChangeEventInfo{???}
-            on command CancelEvent{???}
-            on command RescheduleEvent{???}
-            on command DelayEvent{???}
-            on command StartEvent{???}
-            on command EndEvent{???}
-            on command AddLiveUpdate{???}
-        }
+            fields {
+                eventId: EventId,
+                eventInfo: EventInfo,
+                reason: String,
+                eventMetaInfo: EventMetaInfo
+                //finalScore
+            }
+            handler DelayedEventHandler is {
+                on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
+                on command ChangeEventInfo{???}
+                on command CancelEvent{???}
+                on command RescheduleEvent{???}
+                on command DelayEvent{???}
+                on command StartEvent{???}
+                on command EndEvent{???}
+                on command AddLiveUpdate{???}
+            }
+        } 
         state Past is {
-            eventId: EventId,
-            eventInfo: EventInfo,
-            eventMetaInfo: EventMetaInfo
-            //finalScore
-        } handler PastEventHandler is {
-            on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
-            on command ChangeEventInfo{???}
-            on command CancelEvent{???}
-            on command RescheduleEvent{???}
-            on command DelayEvent{???}
-            on command StartEvent{???}
-            on command EndEvent{???}
-            on command AddLiveUpdate{???}
-        }
+            fields {
+                eventId: EventId,
+                eventInfo: EventInfo,
+                eventMetaInfo: EventMetaInfo
+                //finalScore
+            }
+            handler PastEventHandler is {
+                on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
+                on command ChangeEventInfo{???}
+                on command CancelEvent{???}
+                on command RescheduleEvent{???}
+                on command DelayEvent{???}
+                on command StartEvent{???}
+                on command EndEvent{???}
+                on command AddLiveUpdate{???}
+            }
+        } 
         state Cancelled is {
-            eventId: EventId,
-            eventInfo: EventInfo,
-            eventMetaInfo: EventMetaInfo
-            //reason
-        } handler CancelledEventHandler is {
-            on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
-            on command ChangeEventInfo{???}
-            on command CancelEvent{???}
-            on command RescheduleEvent{???}
-            on command DelayEvent{???}
-            on command StartEvent{???}
-            on command EndEvent{???}
-            on command AddLiveUpdate{???}
-        }
+            fields {
+                eventId: EventId,
+                eventInfo: EventInfo,
+                eventMetaInfo: EventMetaInfo
+                //reason
+            }
+            handler CancelledEventHandler is {
+                on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
+                on command ChangeEventInfo{???}
+                on command CancelEvent{???}
+                on command RescheduleEvent{???}
+                on command DelayEvent{???}
+                on command StartEvent{???}
+                on command EndEvent{???}
+                on command AddLiveUpdate{???}
+            }
+        } 
         //also consider postponed, delayed
     }
 
