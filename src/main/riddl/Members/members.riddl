@@ -18,14 +18,14 @@ context MembersContext is {
         createdOn: Date,
         createdBy: MemberId,
         lastModifiedOn: Date,
-        lastModifiedBy: MemberId, 
+        lastModifiedBy: MemberId,
         memberStatus: MembersContext.Status
     }
     type MetaInfoQuery is {
         createdOn: Date?,
         createdBy: MemberId?,
         lastModifiedOn: Date?,
-        lastModifiedBy: MemberId?, 
+        lastModifiedBy: MemberId?,
         memberStatus: MembersContext.Status?
     }
 
@@ -61,31 +61,37 @@ context MembersContext is {
         }
 
         state Active is {
-            memberId: MemberId,
-            info: ^^^.Info,
-            meta: ^^^.MetaInfo
-        } 
-        handler ActiveMemberHandler for state ^Active is {
-            on command UpdateMemberInfo {
-                then set Active.info to @UpdateMemberInfo.info 
-                and set ^^Active.meta.lastModifiedBy to @UpdateMemberInfo.actingMember
-                and set ^^Active.meta.lastModifiedOn to today()
-                and yield event MemberInfoUpdated(memberId = @Active.memberId, info = @Active.memberInfo, meta = @Active.memberMeta)
+            fields {
+                memberId: MemberId,
+                info: MembersContext.Info,
+                meta: MembersContext.MetaInfo
             }
-            on command UpdateMemberStatus {
-                then set ^^Active.meta.memberStatus to @UpdateMemberStatus.newStatus
-                and set ^^Active.meta.lastModifiedBy to @UpdateMemberInfo.actingMember
-                and set ^^Active.meta.lastModifiedOn to today()
-                and yield event MemberStatusUpdated(memberId = @Active.memberId, meta = @Active.memberMeta)
+            handler ActiveMemberHandler {
+                on command UpdateMemberInfo {
+                    then set ^^.Active.info to @UpdateMemberInfo.info
+                    and set ^^.Active.meta.lastModifiedBy to @UpdateMemberInfo.actingMember
+                    and set ^^.Active.meta.lastModifiedOn to today()
+                    and yield event MemberInfoUpdated(memberId = @Active.memberId, info = @Active.memberInfo, meta = @Active.memberMeta)
+                }
+                on command UpdateMemberStatus {
+                    then set Active.meta.memberStatus to @UpdateMemberStatus.newStatus
+                    and set Active.meta.lastModifiedBy to @UpdateMemberInfo.actingMember
+                    and set Active.meta.lastModifiedOn to today()
+                    and yield event MemberStatusUpdated(memberId = @Active.memberId, meta = @Active.memberMeta)
+                }
+                on query GetMemberData {  ??? }
             }
-            on query GetMemberData {  ??? }
         }
 
-        state Terminated is { 
-            memberId: MemberId
+
+        state Terminated is {
+            fields {
+                memberId: MemberId
+            }
+            handler TerminatedMemberHandler is {
+                on other { then error "Terminated members cannot process messages" }
+            }
         } //A terminated member is one who exercises their right to be forgotten.
-        handler TerminatedMemberHandler is {
-            on other { then error "Terminated members cannot process messages" }
-        }
+
     }
 }

@@ -19,79 +19,88 @@ context OrganizationContext is {
         }
 
         state Draft is {
-        orgId: OrganizationId,
-        info: ^^^.Info,
-        meta: ^^^.MetaInfo
-        }
-        handler DraftOrganizationHandler for state ^Draft is {
-        on command EstablishOrganization {
-            then error "Organization already established"
-        }
-        on command EditOrganizationInfo {
-            then set Draft.info to @EstablishOrganization.info
-            // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
-            //TODO: turn this into a function and call function here
-        }
-        on command UpdateOrganizationStatus {
-            then set ^^.Draft.meta.currentStatus to @UpdateOrganizationStatus.status
-            and set ^^.Draft.meta.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
-            // TODO: and set ^^.Draft.meta.lastUpdated to now()
-            and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, info=@Draft.info, meta=@Draft.meta)
-            // TODO: turn this into a function and call function here
-        }
-        on other { then error "No other commands allowed in Draft state" }
+            fields {
+                orgId: OrganizationId,
+                info: OrganizationContext.Info,
+                meta: OrganizationContext.MetaInfo
+            }
+            handler DraftOrganizationHandler is {
+                on command EstablishOrganization {
+                    then error "Organization already established"
+                }
+                on command EditOrganizationInfo {
+                    then set Draft.info to @EstablishOrganization.info
+                    // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
+                    //TODO: turn this into a function and call function here
+                }
+                on command UpdateOrganizationStatus {
+                    then set Draft.meta.currentStatus to @UpdateOrganizationStatus.status
+                    and set Draft.meta.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
+                    // TODO: and set ^^.Draft.meta.lastUpdated to now()
+                    and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, info=@Draft.info, meta=@Draft.meta)
+                    // TODO: turn this into a function and call function here
+                }
+                on other { then error "No other commands allowed in Draft state" }
+            }
         }
 
+
         state Active is {
-        oid: OrganizationId,
-        orgDetails: OrganizationContext.Info
-        }
-        handler ActiveOrganization for state ^Active is {
-            on command EstablishOrganization {
-                then error "Organization already established"
+            fields {
+                oid: OrganizationId,
+                orgDetails: OrganizationContext.Info
             }
-            on command EditOrganizationInfo { ???
-                // then set Draft.orgInfo to @EstablishOrganization.orgInfo
-                // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
-                //TODO: turn this into a function and call function here
+            handler ActiveOrganization is {
+                on command EstablishOrganization {
+                    then error "Organization already established"
+                }
+                on command EditOrganizationInfo { ???
+                    // then set Draft.orgInfo to @EstablishOrganization.orgInfo
+                    // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
+                    //TODO: turn this into a function and call function here
+                }
+                on command UpdateOrganizationStatus { ???
+                    // then set Draft.orgMetaInfo.status to @UpdateOrganizationStatus.status
+                    // and set Draft.orgMetaInfo.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
+                    // and set Draft.orgMetaInfo.lastUpdated to "today()"
+                    // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
+                    //TODO: turn this into a function and call function here
+                }
+                on other { then error "No other commands allowed in Active state" }//TODO: We need to consider queries
             }
-            on command UpdateOrganizationStatus { ???
-                // then set Draft.orgMetaInfo.status to @UpdateOrganizationStatus.status
-                // and set Draft.orgMetaInfo.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
-                // and set Draft.orgMetaInfo.lastUpdated to "today()"
-                // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
-                //TODO: turn this into a function and call function here
-            }
-            on other { then error "No other commands allowed in Active state" }//TODO: We need to consider queries
         }
 
         state Suspended is {
-            oid: OrganizationId,
-            orgDetails: OrganizationContext.Info
-        }
-        handler SuspendedOrganization for state ^Suspended {
-        on command EstablishOrganization {
-            then error "Organization already established"
-        }
-        on command EditOrganizationInfo {
-            then error "Move organization to the Active status in order to edit OrganizationInfo."
-        }
-        on command UpdateOrganizationStatus { ???
-            // then set Draft.orgMetaInfo.status to @UpdateOrganizationStatus.status
-            // and set Draft.orgMetaInfo.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
-            // and set Draft.orgMetaInfo.lastUpdated to "today()"
-            // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
-            //TODO: turn this into a function and call function here
-        }
-        on other { then error "No other commands allowed in Suspended state"}
+            fields {
+                oid: OrganizationId,
+                orgDetails: OrganizationContext.Info
+            }
+            handler SuspendedOrganization is {
+                on command EstablishOrganization {
+                    then error "Organization already established"
+                }
+                on command EditOrganizationInfo {
+                    then error "Move organization to the Active status in order to edit OrganizationInfo."
+                }
+                on command UpdateOrganizationStatus { ???
+                    // then set Draft.orgMetaInfo.status to @UpdateOrganizationStatus.status
+                    // and set Draft.orgMetaInfo.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
+                    // and set Draft.orgMetaInfo.lastUpdated to "today()"
+                    // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
+                    //TODO: turn this into a function and call function here
+                }
+                on other { then error "No other commands allowed in Suspended state"}
+            }
         }
 
         state Terminated is {
-            oid: OrganizationId,
-            name: String
-        }
-        handler TerminatedOrganization for state ^Terminated is {
-            on other {then error "No commands allowed in Terminated state"}
+            fields {
+                oid: OrganizationId,
+                name: String
+            }
+            handler TerminatedOrganization is {
+                on other {then error "No commands allowed in Terminated state"}
+            }
         }
     }
 } described in file "src/main/riddl/Organization/organization.md"

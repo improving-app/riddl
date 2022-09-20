@@ -1,31 +1,32 @@
 projection OrganizationViews is {
-    orgId: OrganizationId
-    owners: MemberId+
-    members: MemberId*
-    parent: OrganizationId?
-    children: OrganizationId*
-}
-
-handler OrganizationViewsHandler for projection OrganizationViews is {
-    on event OrganizationEstablished {???
-        //then set ^^.OrganizationViews.orgId to @OrganizationContext.OrganizationEstablished.orgId
-        //and set ^^.OrganizationViews.owners to @OrganizationContext.OrganizationEstablished.info.owners
-        //and set ^^.OrganizationViews.members to @OrganizationContext.OrganizationEstablished.info.members
-        //and set ^^.OrganizationViews.parent to @OrganizationContext.OrganizationEstablished.info.parent
-        //and set ^^.OrganizationViews.children to @OrganizationContext.OrganizationEstablished.info.children
+    fields {
+        orgId: OrganizationId,
+        owners: MemberId+,
+        members: MemberId*,
+        parent: OrganizationId?,
+        children: OrganizationId*
     }
-    on event OrganizationInfoUpdated {???
-        //then set ^^.OrganizationViews.owners to @OrganizationInfoUpdated.info.owners
-        //and set ^^.OrganizationViews.members to @OrganizationInfoUpdated.info.members
-        //and set ^^.OrganizationViews.parent to @^^^OrganizationInfoUpdated.info.parent
-        //and set ^^.OrganizationViews.children to @^^^OrganizationInfoUpdated.info.children
+    handler OrganizationViewsHandler is {
+        on event OrganizationEstablished {???
+            //then set ^^.OrganizationViews.orgId to @OrganizationContext.OrganizationEstablished.orgId
+            //and set ^^.OrganizationViews.owners to @OrganizationContext.OrganizationEstablished.info.owners
+            //and set ^^.OrganizationViews.members to @OrganizationContext.OrganizationEstablished.info.members
+            //and set ^^.OrganizationViews.parent to @OrganizationContext.OrganizationEstablished.info.parent
+            //and set ^^.OrganizationViews.children to @OrganizationContext.OrganizationEstablished.info.children
+        }
+        on event OrganizationInfoUpdated {???
+            //then set ^^.OrganizationViews.owners to @OrganizationInfoUpdated.info.owners
+            //and set ^^.OrganizationViews.members to @OrganizationInfoUpdated.info.members
+            //and set ^^.OrganizationViews.parent to @^^^OrganizationInfoUpdated.info.parent
+            //and set ^^.OrganizationViews.children to @^^^OrganizationInfoUpdated.info.children
+        }
+        on event MembersAddedToOrganization {
+            then append @MembersAddedToOrganization.members to OrganizationViews.members
+        }
+        on event OwnersAddedToOrganization {
+            then append @^^^OwnersAddedToOrganization.owners to OrganizationViews.owners
+        }
+        on query FindOrganizationsByMember {???}
+        on query FindOrganizationsByOwner {???}
     }
-    on event MembersAddedToOrganization {
-        then append @MembersAddedToOrganization.members to OrganizationViews.members
-    }
-    on event OwnersAddedToOrganization {
-        then append @^^^OwnersAddedToOrganization.owners to OrganizationViews.owners
-    }
-    on query FindOrganizationsByMember {???}
-    on query FindOrganizationsByOwner {???}
 }
