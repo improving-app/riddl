@@ -12,7 +12,8 @@ context OrganizationContext is {
             then morph entity Organization to state Organization.Draft
             and set Draft.orgId to @EstablishOrganization.orgId
             and set Draft.info to @EstablishOrganization.info
-            // TODO: and set Draft.meta to ^^^^MetaInfo(createdOn=now(), createdBy = @EstablishOrganization.establishingMember, lastUpdated=now(), lastUpdatedBy=@EstablishOrganization.establishingMember, currentStatus=Status.Draft)
+            // TODO: need a way to set values 
+            // and set Draft.meta to OrganizationContext.MetaInfo(createdOn=now(), createdBy = @EstablishOrganization.establishingMember, lastUpdated=now(), lastUpdatedBy=@EstablishOrganization.establishingMember)
             and yield event OrganizationEstablished(orgId=@Draft.orgId, info=@Draft.nfo, meta=@Draft.meta)
         }
         on other { then error "Only EstablishOrganization command is allowed in the empty state"}
@@ -30,15 +31,13 @@ context OrganizationContext is {
                 }
                 on command EditOrganizationInfo {
                     then set Draft.info to @EstablishOrganization.info
-                    // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
-                    //TODO: turn this into a function and call function here
+                    and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, info=@Draft.orgInfo, meta=@Draft.orgMetaInfo)
                 }
                 on command UpdateOrganizationStatus {
                     then set Draft.meta.currentStatus to @UpdateOrganizationStatus.status
                     and set Draft.meta.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
-                    // TODO: and set ^^.Draft.meta.lastUpdated to now()
+                    and set Draft.meta.lastUpdated to now()
                     and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, info=@Draft.info, meta=@Draft.meta)
-                    // TODO: turn this into a function and call function here
                 }
                 on other { then error "No other commands allowed in Draft state" }
             }
@@ -48,23 +47,24 @@ context OrganizationContext is {
         state Active is {
             fields {
                 oid: OrganizationId,
-                orgDetails: OrganizationContext.Info
+                orgInfo: OrganizationContext.Info,
+                orgMeta: OrganizationContext.MetaInfo
             }
             handler ActiveOrganization is {
                 on command EstablishOrganization {
                     then error "Organization already established"
                 }
-                on command EditOrganizationInfo { ???
-                    // then set Draft.orgInfo to @EstablishOrganization.orgInfo
-                    // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
-                    //TODO: turn this into a function and call function here
+                on command EditOrganizationInfo { 
+                    then set Active.orgInfo to @EditOrganizationInfo.newInfo
+                    and set Active.orgMeta.lastUpdatedBy to @EditOrganizationInfo.editingMember
+                    and set Active.orgMeta.lastUpdated to now()
+                    and yield event OrganizationInfoUpdated(orgId=@Active.oid, info=@Active.orgInfo, meta=@Active.orgMeta)
                 }
-                on command UpdateOrganizationStatus { ???
-                    // then set Draft.orgMetaInfo.status to @UpdateOrganizationStatus.status
-                    // and set Draft.orgMetaInfo.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
-                    // and set Draft.orgMetaInfo.lastUpdated to "today()"
-                    // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
-                    //TODO: turn this into a function and call function here
+                on command UpdateOrganizationStatus { 
+                    then set Active.orgMeta.currentStatus to @UpdateOrganizationStatus.status
+                    and set Active.orgMeta.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
+                    and set Active.orgMeta.lastUpdated to now()
+                    and yield event OrganizationInfoUpdated(orgId=@Active.oid, info=@Active.orgInfo, meta=@Active.orgMeta)
                 }
                 on other { then error "No other commands allowed in Active state" }//TODO: We need to consider queries
             }
@@ -73,7 +73,8 @@ context OrganizationContext is {
         state Suspended is {
             fields {
                 oid: OrganizationId,
-                orgDetails: OrganizationContext.Info
+                orgInfo: OrganizationContext.Info,
+                orgMeta: OrganizationContext.MetaInfo
             }
             handler SuspendedOrganization is {
                 on command EstablishOrganization {
@@ -82,11 +83,11 @@ context OrganizationContext is {
                 on command EditOrganizationInfo {
                     then error "Move organization to the Active status in order to edit OrganizationInfo."
                 }
-                on command UpdateOrganizationStatus { ???
-                    // then set Draft.orgMetaInfo.status to @UpdateOrganizationStatus.status
-                    // and set Draft.orgMetaInfo.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
-                    // and set Draft.orgMetaInfo.lastUpdated to "today()"
-                    // and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, orgInfo=@Draft.orgInfo, orgMetaInfo=@Draft.orgMetaInfo)
+                on command UpdateOrganizationStatus { 
+                    then set Suspended.orgMeta.currentStatus to @UpdateOrganizationStatus.status
+                    and set Suspended.orgMeta.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
+                    and set Suspended.orgMeta.lastUpdated to now()
+                    and yield event OrganizationInfoUpdated(orgId=@Suspended.oid, info=@Suspended.orgInfo, meta=@Suspended.orgMeta)
                     //TODO: turn this into a function and call function here
                 }
                 on other { then error "No other commands allowed in Suspended state"}
