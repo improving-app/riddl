@@ -8,15 +8,15 @@ context OrganizationContext is {
         options (event-sourced, available)
 
         handler OrganizationHandler is {
-        on command EstablishOrganization {
-            then morph entity Organization to state Organization.Draft
-            and set Draft.orgId to @EstablishOrganization.orgId
-            and set Draft.info to @EstablishOrganization.info
-            // TODO: need a way to set values 
-            // and set Draft.meta to OrganizationContext.MetaInfo(createdOn=now(), createdBy = @EstablishOrganization.establishingMember, lastUpdated=now(), lastUpdatedBy=@EstablishOrganization.establishingMember)
-            and yield event OrganizationEstablished(orgId=@Draft.orgId, info=@Draft.nfo, meta=@Draft.meta)
-        }
-        on other { then error "Only EstablishOrganization command is allowed in the empty state"}
+            on command EstablishOrganization {
+                then morph entity Organization to state Organization.Draft
+                and set Draft.orgId to @EstablishOrganization.orgId
+                and set Draft.info to @EstablishOrganization.info
+                // TODO: need a way to set values 
+                // and set Draft.meta to OrganizationContext.MetaInfo(createdOn=now(), createdBy = @EstablishOrganization.establishingMember, lastUpdated=now(), lastUpdatedBy=@EstablishOrganization.establishingMember)
+                and yield event OrganizationEstablished(orgId=@Draft.orgId, info=@Draft.nfo, meta=@Draft.meta)
+            }
+            on other { then error "Only EstablishOrganization command is allowed in the empty state"}
         }
 
         state Draft is {
@@ -103,5 +103,6 @@ context OrganizationContext is {
                 on other {then error "No commands allowed in Terminated state"}
             }
         }
+        //function SetMeta is 
     }
 } described in file "src/main/riddl/Organization/organization.md"
