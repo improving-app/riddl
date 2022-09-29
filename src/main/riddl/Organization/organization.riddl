@@ -24,6 +24,11 @@ context OrganizationContext is {
             fields {
                 orgId: OrganizationId,
                 info: OrganizationContext.Info,
+                parent: OrganizationContext.Parent,
+                members: OrganizationContext.MemberList,
+                owners: OrganizationContext.OwnerList,
+                contacts: OrganizationContext.ContactList,
+                // accounts: OrganizationContext.AccountList,
                 meta: OrganizationContext.MetaInfo
             }
             handler DraftOrganizationHandler is {
@@ -49,6 +54,11 @@ context OrganizationContext is {
             fields {
                 oid: OrganizationId,
                 orgInfo: OrganizationContext.Info,
+                parent: OrganizationContext.Parent,
+                members: OrganizationContext.MemberList,
+                owners: OrganizationContext.OwnerList,
+                contacts: OrganizationContext.ContactList,
+                // accounts: OrganizationContext.AccountList,
                 orgMeta: OrganizationContext.MetaInfo
             }
             handler ActiveOrganization is {
@@ -56,14 +66,15 @@ context OrganizationContext is {
                     then error "Organization already established"
                 }
                 on command EditOrganizationInfo { 
-                    example HappyPath is {
+                    example Success is {
                         then set Active.orgInfo to @EditOrganizationInfo.newInfo
                         and set Active.orgMeta.lastUpdatedBy to @EditOrganizationInfo.editingMember
                         and set Active.orgMeta.lastUpdated to now()
                         and yield event OrganizationInfoUpdated(orgId=@Active.oid, info=@Active.orgInfo, meta=@Active.orgMeta)
                     }
-                    example SadPath is {
-                        then "be sad"
+                    example NotAuthorized is {
+                        when "editingMember is not Authorized"
+                        then error "EditingMember is not authorized to make this change."
                     }
                 }
                 on command UpdateOrganizationStatus { 
@@ -80,6 +91,11 @@ context OrganizationContext is {
             fields {
                 oid: OrganizationId,
                 orgInfo: OrganizationContext.Info,
+                parent: OrganizationContext.Parent,
+                members: OrganizationContext.MemberList,
+                owners: OrganizationContext.OwnerList,
+                contacts: OrganizationContext.ContactList,
+                // accounts: OrganizationContext.AccountList,
                 orgMeta: OrganizationContext.MetaInfo
             }
             handler SuspendedOrganization is {

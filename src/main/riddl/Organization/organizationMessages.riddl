@@ -29,10 +29,18 @@ event OrganizationInfoUpdated is {
   info: OrganizationContext.Info,
   meta: OrganizationContext.MetaInfo
 }
-
+command UpdateParent is {
+  orgId: OrganizationId,
+  newParent: OrganizationId
+}
+event ParentUpdated is {
+  orgId: OrganizationId,
+  newParent: OrganizationId,
+  meta: OrganizationContext.MetaInfo
+}
 command AddMembersToOrganization is {
   orgId: OrganizationId,
-  members: MemberId+,
+  membersToAdd: MemberId+,
   updatingMember: MemberId
   // TODO: orgId: OrganizationId briefly @orgId,
   // TODO: members: MemberId+ briefly @membersList
@@ -40,17 +48,47 @@ command AddMembersToOrganization is {
 // TODO: Should members be a list of the all members (including new), or should it be only the new members (relevant for #2 and 4 above)
 event MembersAddedToOrganization is {
   orgId: OrganizationId,
-  info: OrganizationContext.Info,
+  newMembers: MemberId+,
   meta: OrganizationContext.MetaInfo
+}
+command RemoveMembersFromOrganization is {
+  orgId: OrganizationId,
+  membersToRemove: MemberId+,
+  updatingMember: MemberId
+}
+event MembersRemovedFromOrganization is {
+  orgId: OrganizationId,
+  removedMembers: MemberId+,
+  updatingMember: MemberId
 }
 command AddOwnersToOrganization is {
   orgId: OrganizationId, 
-  members: MemberId+,
+  ownersToAdd: MemberId+,
   updatingMember: MemberId
 }
 event OwnersAddedToOrganization is {
   orgId: OrganizationId,
-  info: OrganizationContext.Info,
+  newOwners: MemberId+,
+  meta: OrganizationContext.MetaInfo
+}
+command RemoveOwnersFromOrganization is {
+  orgId: OrganizationId, 
+  ownersToRemove: MemberId+,
+  updatingMember: MemberId
+}
+event OwnersRemovedFromOrganization is {
+  orgId: OrganizationId,
+  removedOwners: MemberId+,
+  meta: OrganizationContext.MetaInfo
+}
+command UpdateOrganizationContacts is {
+  orgId: OrganizationId, 
+  contacts: Contacts,
+  updatingMember: MemberId
+}
+event OrganizationContactsUpdated is {
+  orgId: OrganizationId, 
+  contacts: Contacts,  
   meta: OrganizationContext.MetaInfo
 }
 command UpdateOrganizationStatus is {
@@ -61,15 +99,6 @@ command UpdateOrganizationStatus is {
 event OrganizationStatusUpdated is {
   orgId: OrganizationId, 
   newStatus: OrganizationContext.Status
-}
-command UpdateOrganizationContacts is {
-  orgId: OrganizationId, 
-  contacts: Contacts
-}
-event OrganizationContactsUpdated is {
-  orgId: OrganizationId, 
-  info: OrganizationContext.Info,  
-  meta: OrganizationContext.MetaInfo
 }
 command UpdateOrganizationAccounts is {
   orgId: OrganizationId, 
