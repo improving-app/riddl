@@ -361,9 +361,6 @@ context OrganizationContext is {
                 on command EstablishOrganization {
                     then error "Organization already established"
                 }
-                on command EditOrganizationInfo {
-                    then error "Move organization to the Active status in order to edit OrganizationInfo."
-                }
                 on command UpdateOrganizationStatus { 
                     then set Suspended.orgMeta.currentStatus to @UpdateOrganizationStatus.status
                     and set Suspended.orgMeta.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
@@ -371,49 +368,7 @@ context OrganizationContext is {
                     and yield event OrganizationInfoUpdated(orgId=@Suspended.oid, info=@Suspended.orgInfo, meta=@Suspended.orgMeta)
                     //TODO: turn this into a function and call function here
                 }
-                on command UpdateParent {
-                    example NotAuthorized is {
-                        when "editingMember is not Authorized"
-                        then error "EditingMember is not authorized to make this change."
-                    }
-                }
-                on command AddMembersToOrganization {
-                    example NotAuthorized is {
-                        when "editingMember is not Authorized"
-                        then error "EditingMember is not authorized to make this change."
-                    }
-                }
-                on command RemoveMembersFromOrganization {
-                    example NotAuthorized is {
-                        when "editingMember is not Authorized"
-                        then error "EditingMember is not authorized to make this change."
-                    }
-                }
-                on command AddOwnersToOrganization {
-                    example NotAuthorized is {
-                        when "editingMember is not Authorized"
-                        then error "EditingMember is not authorized to make this change."
-                    }
-                }
-                on command RemoveOwnersFromOrganization {
-                    example NotAuthorized is {
-                        when "editingMember is not Authorized"
-                        then error "EditingMember is not authorized to make this change."
-                    }
-                }
-                on command UpdateOrganizationContacts {
-                    example NotAuthorized is {
-                        when "editingMember is not Authorized"
-                        then error "EditingMember is not authorized to make this change."
-                    }
-                }
-                on command UpdateOrganizationAccounts {
-                    example NotAuthorized is {
-                        when "editingMember is not Authorized"
-                        then error "EditingMember is not authorized to make this change."
-                    }
-                }
-                on other { then error "No other commands allowed in Suspended state"}
+                on other { then error "Move organization to the Active state in order to edit details about organization."}
             }
         }
 
