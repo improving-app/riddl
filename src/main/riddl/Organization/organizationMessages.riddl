@@ -2,6 +2,10 @@ command EstablishOrganization is {
   // TODO: Reid, do we need orgId in the creation message? Or can this be handled by the default handler for the entity?
   orgId: OrganizationId briefly "A unique identifier for this organization. This must be provided by the calling client.",
   info: OrganizationContext.Info briefly "Details about an organization required for it to exist. See OrganizationContext.Organization.Info for details.",
+  parent: Parent,
+  members: MemberList,
+  owners: OwnerList,
+  contacts: ContactList,
   establishingMember: MemberId briefly "The Id of the Member who is issuing the create command."
 } briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
 described in file "src/main/riddl/Organization/establishOrganization.md"
@@ -9,6 +13,10 @@ described in file "src/main/riddl/Organization/establishOrganization.md"
 event OrganizationEstablished is {
   orgId: OrganizationId,
   info: OrganizationContext.Info,
+  parent: Parent,
+  members: MemberList,
+  owners: OwnerList,
+  contacts: ContactList,
   meta: OrganizationContext.MetaInfo
 }
 

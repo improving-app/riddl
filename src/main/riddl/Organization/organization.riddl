@@ -13,9 +13,21 @@ context OrganizationContext is {
                 then morph entity Organization to state Organization.Draft
                 and set Draft.orgId to @EstablishOrganization.orgId
                 and set Draft.info to @EstablishOrganization.info
+                and set Draft.parent to @EstablishOrganization.parent
+                and set Draft.members to @EstablishOrganization.members
+                and set Draft.owners to @EstablishOrganization.owners
+                and set Draft.contacts to @EstablishOrganization.contacts
                 // TODO: need a way to set values 
                 // and set Draft.meta to OrganizationContext.MetaInfo(createdOn=now(), createdBy = @EstablishOrganization.establishingMember, lastUpdated=now(), lastUpdatedBy=@EstablishOrganization.establishingMember)
-                and yield event OrganizationEstablished(orgId=@Draft.orgId, info=@Draft.nfo, meta=@Draft.meta)
+                and yield event OrganizationEstablished(
+                    orgId=@Draft.orgId, 
+                    info=@Draft.info, 
+                    parent=@Draft.parent, 
+                    members=@Draft.members, 
+                    owners=@Draft.owners, 
+                    contacts=@Draft.contacts, 
+                    meta=@Draft.meta
+                )
             }
             on other { then error "Only EstablishOrganization command is allowed in the empty state"}
         }
