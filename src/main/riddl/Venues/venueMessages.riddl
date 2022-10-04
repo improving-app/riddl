@@ -5,14 +5,13 @@ command EstablishVenue is {
   establishingMember: MemberId briefly "The Id of the Member who is issuing the create command.",
   owner: MemberId? briefly "Used in the case that establishingMember is not the owner"
 } briefly "Creates a Venue with all top-level fields, potentially without Locations"
-described in file "src/main/riddl/Venue/establishVenue.md"
-
+described in file "src/main/riddl/Venues/establishVenue.md"
 event VenueEstablished is {
   venueId: VenueId,
   info: VenueContext.Info,
   locations: LocationId*,
   establishingMember: MemberId?,
-  owner: MemberId?
+  owner: MemberId?,
   meta: VenueContext.MetaInfo
 }
 
@@ -21,8 +20,6 @@ command EditVenueInfo is {
   newInfo: UpdateInfo briefly "The information about the venue",
   editingMember: MemberId briefly "Id of the member who is creating the venue"
 } briefly "A command to edit the values of an Venue's Info "
-described in file "src/main/riddl/Venue/editVenueInfo.md"
-
 event VenueInfoUpdated is {
   venueId: VenueId,
   info: VenueContext.Info,
@@ -45,4 +42,12 @@ query GetVenueNextAvailability is {
 result VenueAvailabilityCalendar is {
 	venueId: VenueId,
 	schedule: LocationSchedule*
+}
+
+query GetVenueOverview is {
+	venueId: VenueId
+}
+result VenueOverview is {
+  venueInfo: VenueContext.Info,
+  capacityOverview: VenueContext.CapacityOverview
 }

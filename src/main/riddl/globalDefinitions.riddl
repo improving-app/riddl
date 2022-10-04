@@ -1,5 +1,9 @@
 // Copyright (c) 2022 Improving Inc.
 
+type TimeRange is {
+		start: TimeStamp,
+		end: TimeStamp
+}
 
 // Contact Information
 type MobileNumber is Pattern("\(([0-9]{3})\)([0-9]{3})-([0-9]{4})") described as "North American Phone Number standard"
@@ -30,7 +34,7 @@ type Contact is {
 type OrganizationId is Id (^OrganizationContext.Organization)
 type VenueId is Id (^VenueContext.Venue)
 type LocationId is Id (^VenueContext.Location)
-type Reservation is Id (^VenueContext.Reservation)
+type ReservationIds is Id (^VenueContext.Reservation)
 type EventId is Id (^EventContext.Event)
 type BillingAccountId is Id (^AccountingContext.BillingAccount)
 type DistributionAccountId is Id (^AccountingContext.DistributionAccount)

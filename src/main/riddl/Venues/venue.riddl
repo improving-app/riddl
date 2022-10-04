@@ -1,6 +1,8 @@
 context VenueContext is {
     include "venueTypeDefinitions"
     include "venueMessages"
+    include "Locations/location"
+    include "Reservations/reservation"
 
     entity Venue is {
         options (event-sourced, available)
@@ -19,7 +21,7 @@ context VenueContext is {
                   createdBy = @EstablishVenue.establishingMember,
                   lastUpdated=now(),
                   lastUpdatedBy=@EstablishOrganization.establishingMember,
-                  currentOwner = when "@EstablishVenue.owner.isEmpty" then @EstablishVenue.establishingMember else @EstablishVenue.owner,
+                  currentOwner = when @EstablishVenue.owner.isEmpty then @EstablishVenue.establishingMember else @EstablishVenue.owner,
                   currentStatus = VenueContext.Status.Draft)"
                 and "yield event VenueEstablished(
                     venueId=@Draft.venueId,
@@ -33,54 +35,55 @@ context VenueContext is {
             on other { then error "Only EstablishVenue command is allowed in the default state"}
         }
 
-    state Draft {
-          fields {
-              venueId: VenueId,
-              venueInfo: VenueInfo,
-              locations: LocationId*
-          }
-          handler DraftVenue is {
-              on command EstablishVenue {
-                  then error "Venue already established"
-              }
+		    state Draft is {
+		        fields {
+		            venueId: VenueId,
+		            venueInfo: VenueInfo,
+		            locations: LocationId*
+		        }
+		        handler DraftVenue is {
+		            on command EstablishVenue {
+		                then error "Venue already established"
+		            }
+				        on command EditVenueInfo {
+				            then "set Draft info fields to EditVenueInfo.info"
+				            and "yield event VenueInfoUpdated"
+				        }
+		        }
+		    }
+
+		    state Open is {
+		        fields {
+		            venueId: VenueId,
+		            venueInfo: VenueInfo,
+		            locations: LocationId+ briefly "Venues must have at least 1 location to be considered Available"
+		        }
+		        handler OpenVenue is {
+		            on command EstablishVenue {
+		                then error "Venue already established"
+		            }
 			        on command EditVenueInfo {
-			            then "set Draft info fields to EditVenueInfo.info"
+			            then "set Open info fields to EditVenueInfo.info"
 			            and "yield event VenueInfoUpdated"
 			        }
-          }
-    }
+		        }
+		    }
 
-    state Open is {
-        fields {
-            venueId: VenueId,
-            venueInfo: VenueInfo,
-            locations: LocationId+ briefly "Venues must have at least 1 location to be considered Available",
-        }
-        handler OpenVenue is {
-            on command EstablishVenue {
-                then error "Venue already established"
-            }
-        }
-        on command EditVenueInfo {
-            then "set Open info fields to EditVenueInfo.info"
-            and "yield event VenueInfoUpdated"
-        }
-    }
-
-    state Closed is {
-        fields {
-            venueId: VenueId,
-            orgId: OrganizationId,
-            locations: LocationId*,
-        }
-        handler ClosedVenue is {
-            on command EstablishVenue {
-                then error "Venue already established"
-            }
-        }
-        on command EditVenueInfo {
-            then "set Closed info fields to EditVenueInfo.info"
-            and "yield event VenueInfoUpdated"
-        }
+		    state Closed is {
+		        fields {
+		            venueId: VenueId,
+		            orgId: OrganizationId,
+		            locations: LocationId*
+		        }
+		        handler ClosedVenue is {
+		            on command EstablishVenue {
+		                then error "Venue already established"
+		            }
+				        on command EditVenueInfo {
+				            then "set Closed info fields to EditVenueInfo.info"
+				            and "yield event VenueInfoUpdated"
+				        }
+		        }
+		    }
     }
 }

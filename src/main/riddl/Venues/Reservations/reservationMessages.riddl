@@ -12,7 +12,7 @@ event ReservationEstablished is {
   info: VenueContext.Info,
   locations: LocationId*,
   establishingMember: MemberId?,
-  owner: MemberId?
+  owner: MemberId?,
   meta: VenueContext.MetaInfo
 }
 
