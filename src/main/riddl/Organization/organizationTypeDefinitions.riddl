@@ -29,6 +29,12 @@ type UpdateInfo is {
     url: URL?,
     logo: URL?
     //color scheme
+    parent: OrganizationId? briefly "BaseOrganizations do not have a parent. All other organizations must have a parent. The BaseOrganization (only one per organizational structure) is the financially responsible party. As such it MUST have a BillingAccount defined. BaseOrg remains in Draft state until fully defined.",
+    children: OrganizationId* briefly "If an organization has a parent it is a child organization. A school may be the parent to the football team. The football team may have child organizations of Varsity, Junior Varsity, and Freshman football teams.",
+    members: MemberId* briefly "An organization is composed of members. Membership in an organization generally gives visibility and access to events, especially for private organizaitons. Only members of an organizaton can be Owners or Admins of that organization.",
+    owners: MemberId+ briefly "Every organization must have at least one Owner. Owners are the first and default Admin for the organzations they own.",
+    contacts: Contacts briefly "There are three kinds of contacts: Primary Contacts, Billing Contacts, and Distribution Contacts." described in file "organizationContacts.md",
+    accounts: Accounts briefly "There are two kinds of accounts: Billing Accounts, and Distribution Accounts." described in file "../Accounting/accounts.md"
     //calendar: Calendar
     //memberRestrictions: ??? briefly "what member types are allowed to join this organization"
 } briefly "Essential information about an organization that is expected to evolve over time."
