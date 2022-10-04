@@ -103,4 +103,7 @@ context OrganizationContext is {
             }
         }
     }
-} described in file "src/main/riddl/Organization/organization.md"
+} described in file "organization.md"
+
+include "organizationStories"
+
