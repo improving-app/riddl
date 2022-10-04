@@ -1,0 +1,36 @@
+context LocationContext is {
+    include "locationTypeDefinitions"
+    include "locationMessages"
+
+    entity Location is {
+        type LocationInfo is {
+            name: String,
+            description: String,
+            directions: String,
+            latLong: LatLong,
+            url: URL?,
+            capacity: Integer?,
+            accessible: Boolean,
+            amenities: String*,
+            entrances: Address+,
+            reservations: ReservationId*
+        }
+        state LocationState is {
+            fields {
+                locationId: LocationId,
+                locationInfo: LocationInfo,
+                reservations: ReservationId*
+            }
+            handler LocationHandler is {
+                on command ReserveLocation {???}
+                on command CancelReservation {???}
+                on query GetLocationInfo {???}
+                on query GetUpcomingReservations {???}
+                on query GetUpcomingReservationsInRange {???}
+                on query FindAvailableLocationsInRange {???}
+                on query FindAvailableLocationsInRangeWithAmenities {???}
+            }
+        }
+
+    }
+}

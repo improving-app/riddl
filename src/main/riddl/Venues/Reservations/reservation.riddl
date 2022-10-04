@@ -1,0 +1,24 @@
+context LocationContext is {
+    include "reservationTypeDefinitions"
+    include "reservationMessages"
+
+    entity Reservation is {
+        type ReservationInfo is {
+            startTime: DateTime,
+            endTime: DateTime,
+            forOrg: OrganizationId
+        }
+
+        state ReservationState is {
+            fields {
+                reservationId: ReservationId,
+                info: ReservationInfo
+            }
+            handler ReservationHandler is {
+                on command CreateReservation {???}
+                on command DeleteReservation {???}
+                on query GetReservationInfo {???}
+            }
+        }
+    }
+}

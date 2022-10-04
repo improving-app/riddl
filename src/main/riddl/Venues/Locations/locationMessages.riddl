@@ -1,0 +1,30 @@
+command EstablishLocation is {
+  locationId: LocationId briefly "A unique identifier for this Location. This must be provided by the calling client.",
+  name: String,
+  description: String,
+  directions: String,
+  latLong: LatLong,
+  url: URL?,
+  capacity: Integer?,
+  accessible: Boolean,
+  amenities: String*,
+  entrances: Address+,
+  reservations: ReservationId*
+} briefly "Creates a Location with all top-level fields, potentially without Locations"
+
+event LocationEstablished is {
+  locationId: LocationId,
+  locationInfo: LocationContext.Info
+}
+
+command ReserveLocation is {locationId: LocationId, org: OrganizationId, start: DateTime, end: DateTime}
+event LocationReserved is {locationId: LocationId, reservationId: ReservationId, org: OrganizationId, start: DateTime, end: DateTime}
+command CancelReservation is {reservationId: ReservationId}
+event ReservationCancelled is {reservationId: ReservationId}
+query GetLocationInfo is {locationId: LocationId}
+result LocationInfoResult is {locationId: LocationId, info: LocationInfo}
+query GetUpcomingReservations is {locationId: LocationId}
+query GetUpcomingReservationsInRange is {locationId: LocationId, start: Date, end: Date}
+result UpcomingReservations is {locationId: LocationId, reservations: ReservationId*}
+query FindAvailableLocationsInRange is {locationId: LocationId, start: Date, end: Date}
+query FindAvailableLocationsInRangeWithAmenities is {locationId: LocationId, start: Date, end: Date, desiredAmenities: String*}

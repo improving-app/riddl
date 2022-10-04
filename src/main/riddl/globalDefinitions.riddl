@@ -30,6 +30,7 @@ type Contact is {
 type OrganizationId is Id (^OrganizationContext.Organization)
 type VenueId is Id (^VenueContext.Venue)
 type LocationId is Id (^VenueContext.Location)
+type Reservation is Id (^VenueContext.Reservation)
 type EventId is Id (^EventContext.Event)
 type BillingAccountId is Id (^AccountingContext.BillingAccount)
 type DistributionAccountId is Id (^AccountingContext.DistributionAccount)

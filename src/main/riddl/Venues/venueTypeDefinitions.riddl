@@ -1,7 +1,4 @@
 type Status is any of {Draft, Open, Closed} briefly "Internal status of a Venue."
-type Availability is any of {Booked, Available} briefly "Availability status of a Venue.
-In future we would like to include OnHold in Availability, but it would need to query a projection
-that includes the state of the booking (whether only a deposit has been submitted or all required financial data for reservations)"
 
 type Info is {
 	orgId: OrganizationId briefly "Venues are defined by BaseOrgs. venueId and orgId make a composite key",
@@ -20,7 +17,7 @@ type MetaInfo is {
   createdBy: MemberId briefly "The member who created this venue",
   lastUpdated: TimeStamp briefly "The Date/Time this venue was last modified.",
   lastUpdatedBy: MemberId briefly "The member who last modified this venue. This may also be a system user. i.e. they are two months late on payment so the system determines to suspend the venue.",
-  currentStatus: InternalStatus,
+  currentStatus: VenueContext.Status,
   currentOwner: MemberId,
 } briefly "Meta data kept about an venue that the user does not directly modify. Instead the system updates this info as a Member Owner updates details in the Info type."
 
