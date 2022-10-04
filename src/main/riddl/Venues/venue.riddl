@@ -1,82 +1,86 @@
 context VenueContext is {
+    include "venueTypeDefinitions"
+    include "venueMessages"
+
     entity Venue is {
-        state Available is {
-            fields {
-                venueId: VenueId,
-                orgId: OrganizationId, //Venues are defined by BaseOrgs. venueId and orgId make a composite key
-                name: String,
-                address: Address,
-                isAvailable: Boolean
-            }
-            handler AvailableVenueHandler is {???}
-        } 
-    } 
-    entity Location is {
-        command ReserveLocation is {locationId: LocationId, org: OrganizationId, start: DateTime, end: DateTime}
-        event LocationReserved is {locationId: LocationId, reservationId: ReservationId, org: OrganizationId, start: DateTime, end: DateTime}
-        command CancelReservation is {reservationId: ReservationId}
-        event ReservationCancelled is {reservationId: ReservationId}
-        query GetLocationInfo is {locationId: LocationId}
-        result LocationInfoResult is {locationId: LocationId, info: LocationInfo}
-        query GetUpcomingReservations is {locationId: LocationId}
-        query GetUpcomingReservationsInRange is {locationId: LocationId, start: Date, end: Date}
-        result UpcomingReservations is {locationId: LocationId, reservations: ReservationId*}
-        query FindAvailableLocationsInRange is {locationId: LocationId, start: Date, end: Date}
-        query FindAvailableLocationsInRangeWithAmenities is {locationId: LocationId, start: Date, end: Date, desiredAmenities: String*}
+        options (event-sourced, available)
 
-        type LocationInfo is {
-            name: String,
-            description: String,
-            directions: String, //how do you find this location
-            latLong: LatLong,
-            url: URL?,
-            capacity: Integer?,
-            accessible: Boolean, //is this location handicapped accessible
-            amenities: String* //TODO: We may need amenities to be searchable - i.e. I need to find a Location that is handicaped accessible and has a kitchen
-        }
-        state LocationState is {
-            fields {
-                locationId: LocationId,
-                locationInfo: LocationInfo,
-                reservations: ReservationId*
+        handler VenueHandler is {
+            on command EstablishVenue {
+                then morph entity Venue to state Venue.Draft
+                and "set copy orgId from the command to the Draft fields"
+                and "set copy name from the command to the Draft fields"
+                and "set copy address from the command to the Draft fields"
+                and "set copy isAvailable from the command to the Draft fields"
+                and "set copy locations from the command to the Draft fields"
+                and "set copy owner from the command to the Draft fields"
+                and "set VenueContext.MetaInfo(
+                  createdOn=now(),
+                  createdBy = @EstablishVenue.establishingMember,
+                  lastUpdated=now(),
+                  lastUpdatedBy=@EstablishOrganization.establishingMember,
+                  currentOwner = when "@EstablishVenue.owner.isEmpty" then @EstablishVenue.establishingMember else @EstablishVenue.owner,
+                  currentStatus = VenueContext.Status.Draft)"
+                and "yield event VenueEstablished(
+                    venueId=@Draft.venueId,
+                    orgId=@Draft.orgId,
+                    name=@Draft.name,
+                    address=@Draft.address,
+                    isAvailable=@Draft.isAvailable,
+                    locations=@Draft.locations
+                )"
             }
-            handler LocationHandler is {
-                on command ReserveLocation {???}
-                on command CancelReservation {???}
-                on query GetLocationInfo {???}
-                on query GetUpcomingReservations {???}
-                on query GetUpcomingReservationsInRange {???}
-                on query FindAvailableLocationsInRange {???}
-                on query FindAvailableLocationsInRangeWithAmenities {???}
-            }
-        }
-        
-    } 
-
-    entity Reservation is {
-        type ReservationInfo is {
-            startTime: DateTime,
-            endTime: DateTime,
-            forOrg: OrganizationId
+            on other { then error "Only EstablishVenue command is allowed in the default state"}
         }
 
-        command CreateReservation is {}
-        event ReservationCreated is {reservationId: ReservationId, info: ReservationInfo}
-        command DeleteReservation is {reservationId: ReservationId}
-        event ReservationDeleted is {reservationId: ReservationId}
-        query GetReservationInfo is {reservationId: ReservationId}
-        result ReservationInfoResult is {reservationId: ReservationId, info: ReservationInfo}
+    state Draft {
+          fields {
+              venueId: VenueId,
+              venueInfo: VenueInfo,
+              locations: LocationId*
+          }
+          handler DraftVenue is {
+              on command EstablishVenue {
+                  then error "Venue already established"
+              }
+			        on command EditVenueInfo {
+			            then "set Draft info fields to EditVenueInfo.info"
+			            and "yield event VenueInfoUpdated"
+			        }
+          }
+    }
 
-        state ReservationState is {
-            fields {
-                reservationId: ReservationId,
-                info: ReservationInfo
+    state Open is {
+        fields {
+            venueId: VenueId,
+            venueInfo: VenueInfo,
+            locations: LocationId+ briefly "Venues must have at least 1 location to be considered Available",
+        }
+        handler OpenVenue is {
+            on command EstablishVenue {
+                then error "Venue already established"
             }
-            handler ReservationHandler is {
-                on command CreateReservation {???}
-                on command DeleteReservation {???}
-                on query GetReservationInfo {???}
+        }
+        on command EditVenueInfo {
+            then "set Open info fields to EditVenueInfo.info"
+            and "yield event VenueInfoUpdated"
+        }
+    }
+
+    state Closed is {
+        fields {
+            venueId: VenueId,
+            orgId: OrganizationId,
+            locations: LocationId*,
+        }
+        handler ClosedVenue is {
+            on command EstablishVenue {
+                then error "Venue already established"
             }
+        }
+        on command EditVenueInfo {
+            then "set Closed info fields to EditVenueInfo.info"
+            and "yield event VenueInfoUpdated"
         }
     }
 }

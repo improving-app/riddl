@@ -1,0 +1,48 @@
+command EstablishVenue is {
+  venueId: VenueId briefly "A unique identifier for this Venue. This must be provided by the calling client.",
+  info: VenueContext.Info briefly "Details about a venue required for it to exist. See VenueContext.VenueInfo for details.",
+  locations: LocationId*,
+  establishingMember: MemberId briefly "The Id of the Member who is issuing the create command.",
+  owner: MemberId? briefly "Used in the case that establishingMember is not the owner"
+} briefly "Creates a Venue with all top-level fields, potentially without Locations"
+described in file "src/main/riddl/Venue/establishVenue.md"
+
+event VenueEstablished is {
+  venueId: VenueId,
+  info: VenueContext.Info,
+  locations: LocationId*,
+  establishingMember: MemberId?,
+  owner: MemberId?
+  meta: VenueContext.MetaInfo
+}
+
+command EditVenueInfo is {
+  venueId: VenueId briefly "The unique Id of the venue to create",
+  newInfo: UpdateInfo briefly "The information about the venue",
+  editingMember: MemberId briefly "Id of the member who is creating the venue"
+} briefly "A command to edit the values of an Venue's Info "
+described in file "src/main/riddl/Venue/editVenueInfo.md"
+
+event VenueInfoUpdated is {
+  venueId: VenueId,
+  info: VenueContext.Info,
+  meta: VenueContext.MetaInfo
+}
+
+query GetVenueAvailabilityCalendar is {
+	venueId: VenueId,
+	range: TimeRange+
+}
+result VenueAvailabilityCalendar is {
+	venueId: VenueId,
+	schedule: LocationSchedule*
+}
+
+query GetVenueNextAvailability is {
+	venueId: VenueId,
+	maxCount: Integer
+}
+result VenueAvailabilityCalendar is {
+	venueId: VenueId,
+	schedule: LocationSchedule*
+}
