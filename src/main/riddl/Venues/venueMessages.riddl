@@ -26,18 +26,19 @@ event VenueInfoUpdated is {
   meta: VenueContext.MetaInfo
 }
 
-query GetVenueAvailabilityCalendar is {
+query GetVenueReservations is {
 	venueId: VenueId,
 	range: TimeRange+
 }
-result VenueAvailabilityCalendar is {
+result VenueReservations is {
 	venueId: VenueId,
-	schedule: LocationSchedule*
+	schedule: ReservationId*
 }
 
-query GetVenueNextAvailability is {
+query GetNextVenueAvailability is {
 	venueId: VenueId,
-	maxCount: Integer
+	maxCount: Integer,
+	startDate: TimeStamp? briefly "used as start date of query when present instead of now-TimeStamp"
 }
 result VenueAvailabilityCalendar is {
 	venueId: VenueId,
