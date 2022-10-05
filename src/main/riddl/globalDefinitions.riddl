@@ -1,8 +1,8 @@
 // Copyright (c) 2022 Improving Inc.
 
 type TimeRange is {
-		start: TimeStamp,
-		end: TimeStamp
+		start: DateTime,
+		end: DateTime
 }
 
 // Contact Information

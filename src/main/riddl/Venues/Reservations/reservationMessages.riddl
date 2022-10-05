@@ -1,24 +1,36 @@
 command EstablishReservation is {
-  venueId: VenueId briefly "A unique identifier for this Venue. This must be provided by the calling client.",
-  info: VenueContext.Info briefly "Details about a venue required for it to exist. See VenueContext.VenueInfo for details.",
-  locations: LocationId*,
+  reservationId: ReservationId briefly "A unique identifier for this Reservation. This must be provided by the calling client.",
+  info: ReservationContext.Info briefly "Details about a Reservation required for it to exist. See ReservationContext.Info for details.",
   establishingMember: MemberId briefly "The Id of the Member who is issuing the create command.",
   owner: MemberId? briefly "Used in the case that establishingMember is not the owner"
-} briefly "Creates a Venue with all top-level fields, potentially without Locations"
-described in file "src/main/riddl/Venue/establishVenue.md"
+} briefly "Creates a Reservation"
 
 event ReservationEstablished is {
-  venueId: VenueId,
-  info: VenueContext.Info,
-  locations: LocationId*,
-  establishingMember: MemberId?,
-  owner: MemberId?,
-  meta: VenueContext.MetaInfo
+  reservationId: ReservationId,
+  info: ReservationContext.Info,
+  meta: ReservationContext.MetaInfo
 }
 
-command CreateReservation is {}
-event ReservationCreated is {reservationId: ReservationId, info: ReservationInfo}
+command EditReservationInfo is {
+  venueId: VenueId briefly "The unique Id of the reservation to create",
+  newInfo: ReservationContext.UpdateInfo briefly "The information about the reservation",
+  editingMember: MemberId briefly "Id of the member who is creating the reservation"
+} briefly "A command to edit the values of an Reservation's Info "
+event ReservationInfoUpdated is {
+  reservationId: ReservationId,
+  info: ReservationContext.Info,
+  meta: ReservationContext.MetaInfo
+}
+
+command UpdateReservationStatus is {
+  reservationId: ReservationId,
+  status: ReservationContext.Status,
+  updatingMember: MemberId
+}
+event ReservationStatusUpdated is {
+  reservationId: ReservationId,
+  newStatus: ReservationContext.Status
+}
+
 command DeleteReservation is {reservationId: ReservationId}
 event ReservationDeleted is {reservationId: ReservationId}
-query GetReservationInfo is {reservationId: ReservationId}
-result ReservationInfoResult is {reservationId: ReservationId, info: ReservationInfo}

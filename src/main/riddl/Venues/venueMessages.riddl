@@ -1,6 +1,6 @@
 command EstablishVenue is {
   venueId: VenueId briefly "A unique identifier for this Venue. This must be provided by the calling client.",
-  info: VenueContext.Info briefly "Details about a venue required for it to exist. See VenueContext.VenueInfo for details.",
+  info: VenueContext.Info briefly "Details about a venue required for it to exist. See VenueContext.Info for details.",
   locations: LocationId*,
   establishingMember: MemberId briefly "The Id of the Member who is issuing the create command.",
   owner: MemberId? briefly "Used in the case that establishingMember is not the owner"
@@ -10,20 +10,28 @@ event VenueEstablished is {
   venueId: VenueId,
   info: VenueContext.Info,
   locations: LocationId*,
-  establishingMember: MemberId?,
-  owner: MemberId?,
   meta: VenueContext.MetaInfo
 }
 
 command EditVenueInfo is {
   venueId: VenueId briefly "The unique Id of the venue to create",
-  newInfo: UpdateInfo briefly "The information about the venue",
+  newInfo: VenueContext.UpdateInfo briefly "The information about the venue",
   editingMember: MemberId briefly "Id of the member who is creating the venue"
 } briefly "A command to edit the values of an Venue's Info "
 event VenueInfoUpdated is {
   venueId: VenueId,
   info: VenueContext.Info,
   meta: VenueContext.MetaInfo
+}
+
+command UpdateVenueStatus is {
+  venueId: VenueId,
+  status: VenueContext.Status,
+  updatingMember: MemberId
+}
+event VenueStatusUpdated is {
+  venueId: VenueId,
+  newStatus: VenueContext.Status
 }
 
 query GetVenueReservations is {
@@ -38,7 +46,7 @@ result VenueReservations is {
 query GetNextVenueAvailability is {
 	venueId: VenueId,
 	maxCount: Integer,
-	startDate: TimeStamp? briefly "used as start date of query when present instead of now-TimeStamp"
+	startDate: DateTime? briefly "used as start date of query when present instead of now-TimeStamp"
 }
 result VenueAvailabilityCalendar is {
 	venueId: VenueId,

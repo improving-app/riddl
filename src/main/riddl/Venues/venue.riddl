@@ -1,8 +1,6 @@
 context VenueContext is {
     include "venueTypeDefinitions"
     include "venueMessages"
-    include "Locations/location"
-    include "Reservations/reservation"
 
     entity Venue is {
         options (event-sourced, available)
@@ -10,26 +8,22 @@ context VenueContext is {
         handler VenueHandler is {
             on command EstablishVenue {
                 then morph entity Venue to state Venue.Draft
-                and "set copy orgId from the command to the Draft fields"
-                and "set copy name from the command to the Draft fields"
-                and "set copy address from the command to the Draft fields"
-                and "set copy isAvailable from the command to the Draft fields"
+                and "set copy venueId from the command to the Draft fields"
+                and "set copy info from the command to the Draft fields"
                 and "set copy locations from the command to the Draft fields"
                 and "set copy owner from the command to the Draft fields"
                 and "set VenueContext.MetaInfo(
                   createdOn=now(),
                   createdBy = @EstablishVenue.establishingMember,
                   lastUpdated=now(),
-                  lastUpdatedBy=@EstablishOrganization.establishingMember,
+                  lastUpdatedBy=@EstablishVenue.establishingMember,
                   currentOwner = when @EstablishVenue.owner.isEmpty then @EstablishVenue.establishingMember else @EstablishVenue.owner,
                   currentStatus = VenueContext.Status.Draft)"
                 and "yield event VenueEstablished(
-                    venueId=@Draft.venueId,
-                    orgId=@Draft.orgId,
-                    name=@Draft.name,
-                    address=@Draft.address,
-                    isAvailable=@Draft.isAvailable,
-                    locations=@Draft.locations
+                    venueId = @Draft.venueId,
+                    info = @Draft.info,
+                    locations = @Draft.locations,
+                    meta = @Draft.meta
                 )"
             }
             on other { then error "Only EstablishVenue command is allowed in the default state"}
@@ -39,7 +33,8 @@ context VenueContext is {
 		        fields {
 		            venueId: VenueId,
 		            venueInfo: VenueInfo,
-		            locations: LocationId*
+		            locations: LocationId*,
+		            venueMeta: VenueContext.MetaInfo
 		        }
 		        handler DraftVenue is {
 		            on command EstablishVenue {
@@ -49,14 +44,22 @@ context VenueContext is {
 				            then "set Draft info fields to EditVenueInfo.info"
 				            and "yield event VenueInfoUpdated"
 				        }
-		        }
-		    }
+				        on command UpdateVenueStatus {
+		                // then morph entity Venue to state @UpdateVenueStatus.status
+		                then set Draft.meta.currentStatus to @UpdateVenueStatus.status
+		                and set Draft.meta.lastUpdatedBy to @UpdateVenueStatus.updatingMember
+		                and set Draft.meta.lastUpdated to now()
+		                and yield event UpdateVenueStatus(venueId=@Draft.orgId, info=@Draft.info, meta=@Draft.meta)
+		            }
+			      }
+	      }
 
 		    state Open is {
 		        fields {
 		            venueId: VenueId,
 		            venueInfo: VenueInfo,
-		            locations: LocationId+ briefly "Venues must have at least 1 location to be considered Available"
+		            locations: LocationId+ briefly "Venues must have at least 1 location to be considered Available",
+		            venueMeta: VenueContext.MetaInfo
 		        }
 		        handler OpenVenue is {
 		            on command EstablishVenue {
@@ -66,6 +69,13 @@ context VenueContext is {
 			            then "set Open info fields to EditVenueInfo.info"
 			            and "yield event VenueInfoUpdated"
 			        }
+			        on command UpdateVenueStatus {
+	                // then morph entity Venue to state @UpdateVenueStatus.status
+	                then set Open.meta.currentStatus to @UpdateVenueStatus.status
+	                and set Open.meta.lastUpdatedBy to @UpdateVenueStatus.updatingMember
+	                and set Open.meta.lastUpdated to now()
+	                and yield event UpdateVenueStatus(venueId=@Open.orgId, info=@Open.info, meta=@Open.meta)
+	            }
 		        }
 		    }
 
@@ -73,7 +83,8 @@ context VenueContext is {
 		        fields {
 		            venueId: VenueId,
 		            orgId: OrganizationId,
-		            locations: LocationId*
+		            locations: LocationId*,
+		            venueMeta: VenueContext.MetaInfo
 		        }
 		        handler ClosedVenue is {
 		            on command EstablishVenue {
@@ -83,6 +94,13 @@ context VenueContext is {
 				            then "set Closed info fields to EditVenueInfo.info"
 				            and "yield event VenueInfoUpdated"
 				        }
+				        on command UpdateVenueStatus {
+		                // then morph entity Venue to state @UpdateVenueStatus.status
+		                then set Closed.meta.currentStatus to @UpdateVenueStatus.status
+		                and set Closed.meta.lastUpdatedBy to @UpdateVenueStatus.updatingMember
+		                and set Closed.meta.lastUpdated to now()
+		                and yield event UpdateVenueStatus(venueId=@Closed.orgId, info=@Closed.info, meta=@Closed.meta)
+		            }
 		        }
 		    }
     }

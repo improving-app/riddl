@@ -1,24 +1,134 @@
-context LocationContext is {
+context ReservationContext is {
     include "reservationTypeDefinitions"
     include "reservationMessages"
 
     entity Reservation is {
-        type ReservationInfo is {
-            startTime: DateTime,
-            endTime: DateTime,
-            forOrg: OrganizationId
-        }
+        options (event-sourced, available)
 
-        state ReservationState is {
-            fields {
-                reservationId: ReservationId,
-                info: ReservationInfo
-            }
-            handler ReservationHandler is {
-                on command CreateReservation {???}
-                on command DeleteReservation {???}
-                on query GetReservationInfo {???}
-            }
-        }
-    }
+		    handler ReservationHandler is {
+		        on command EstablishReservation {
+		            then morph entity Reservation to state Reservation.Draft
+		            and "set copy reservationId from the command to the Draft fields"
+		            and "set copy info from the command to the Draft fields"
+		            and "set ReservationContext.MetaInfo(
+		              createdOn = now(),
+		              createdBy = @EstablishReservation.establishingMember,
+		              lastUpdated = now(),
+		              lastUpdatedBy = @EstablishReservation.establishingMember,
+		              currentOwner = @EstablishReservation.establishingMember,
+		              currentStatus = ReservationContext.Status.Draft)"
+		            and "yield event ReservationEstablished(
+		                reservationId = @Draft.reservationId,
+		                info = @Draft.info,
+		                meta = @Draft.meta
+		            )"
+		        }
+		        on other { then error "Only EstablishVenue command is allowed in the default state"}
+		    }
+
+		    state Draft is {
+		        fields {
+		            reservationId: ReservationId,
+		            reservationInfo: ReservationInfo,
+		            reservationMeta: ReservationContext.MetaInfo
+		        }
+		        handler DraftReservation is {
+		            on command EstablishReservation {
+		                then error "Reservation already established"
+		            }
+		            on command EditReservationInfo {
+		                then "set Draft info fields to EditReservationInfo.info"
+		                and "yield event ReservationInfoUpdated"
+		            }
+		            on command UpdateReservationStatus {
+		                // then morph entity Reservation to state @UpdateReservationStatus.status
+		                then set Draft.meta.currentStatus to @UpdateReservationStatus.status
+		                and set Draft.meta.lastUpdatedBy to @UpdateReservationStatus.updatingMember
+		                and set Draft.meta.lastUpdated to now()
+		                and yield event UpdateReservationStatus(reservationId=@Draft.orgId, info=@Draft.info, meta=@Draft.meta)
+		            }
+		        }
+		    }
+
+		    state OnHold is {
+		        fields {
+		            reservationId: ReservationId,
+		            reservationInfo: ReservationInfo,
+		            reservationMeta: ReservationContext.MetaInfo
+		        }
+		        handler OnHoldReservation is {
+		            on command EstablishReservation {
+		                then error "Reservation already established"
+		            }
+		            on command EditReservationInfo {
+		                then "set OnHold info fields to EditReservationInfo.info"
+		                and "yield event ReservationInfoUpdated"
+		            }
+		            on command UpdateReservationStatus {
+		                // then morph entity Reservation to state @UpdateReservationStatus.status
+		                then set OnHold.meta.currentStatus to @UpdateReservationStatus.status
+		                and set OnHold.meta.lastUpdatedBy to @UpdateReservationStatus.updatingMember
+		                and set OnHold.meta.lastUpdated to now()
+		                and yield event UpdateReservationStatus(reservationId=@OnHold.orgId, info=@OnHold.info, meta=@OnHold.meta)
+		            }
+		        }
+		    }
+
+		    state Reserved is {
+		        fields {
+		            reservationId: ReservationId,
+		            reservationInfo: ReservationInfo,
+		            reservationMeta: ReservationContext.MetaInfo
+		        }
+		        handler ReservedReservation is {
+		            on command EstablishReservation {
+		                then error "Reservation already established"
+		            }
+		            on command EditReservationInfo {
+		                then error "Reservation is in Reserved state, editing info not allows"
+		            }
+		            on command UpdateReservationStatus {
+		                // then morph entity Reservation to state @UpdateReservationStatus.status
+		                then set Reserved.meta.currentStatus to @UpdateReservationStatus.status
+		                and set Reserved.meta.lastUpdatedBy to @UpdateReservationStatus.updatingMember
+		                and set Reserved.meta.lastUpdated to now()
+		                and yield event UpdateReservationStatus(reservationId=@Reserved.orgId, info=@Reserved.info, meta=@Reserved.meta)
+		            }
+		        }
+		    }
+
+		    state Active is {
+		        fields {
+		            reservationId: ReservationId,
+		            reservationInfo: ReservationInfo,
+		            reservationMeta: ReservationContext.MetaInfo
+		        }
+		        handler ActiveReservation is {
+		            on command EstablishReservation {
+		                then error "Reservation already established"
+		            }
+		            on command EditReservationInfo {
+		                then error "Reservation is in Active state, editing info not allowed"
+		            }
+		            on command UpdateReservationStatus {
+		                // then morph entity Reservation to state @UpdateReservationStatus.status
+		                then set Reserved.meta.currentStatus to @UpdateReservationStatus.status
+		                and set Reserved.meta.lastUpdatedBy to @UpdateReservationStatus.updatingMember
+		                and set Reserved.meta.lastUpdated to now()
+		                and yield event UpdateReservationStatus(reservationId=@Reserved.orgId, info=@Reserved.info, meta=@Reserved.meta)
+		            }
+		        }
+		    }
+
+		    state Past is {
+		        fields {
+		            reservationId: ReservationId,
+		            reservationInfo: ReservationInfo,
+		            reservationMeta: ReservationContext.MetaInfo
+		        }
+		        handler PastReservation is {
+		            on other {then error "No modification commands allowed in Past state"}
+		        }
+		    }
+		}
 }

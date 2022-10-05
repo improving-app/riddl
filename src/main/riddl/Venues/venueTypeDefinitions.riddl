@@ -12,7 +12,7 @@ type UpdateInfo is {
   address: Address?
 }
 
-type LocationSchedule is {
+type LocationSchedule is.met {
 	locationId: LocationId,
 	schedule: TimeRange+
 }

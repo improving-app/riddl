@@ -3,34 +3,78 @@ context LocationContext is {
     include "locationMessages"
 
     entity Location is {
-        type LocationInfo is {
-            name: String,
-            description: String,
-            directions: String,
-            latLong: LatLong,
-            url: URL?,
-            capacity: Integer?,
-            accessible: Boolean,
-            amenities: String*,
-            entrances: Address+,
-            reservations: ReservationId*
-        }
-        state LocationState is {
-            fields {
-                locationId: LocationId,
-                locationInfo: LocationInfo,
-                reservations: ReservationId*
-            }
-            handler LocationHandler is {
-                on command ReserveLocation {???}
-                on command CancelReservation {???}
-                on query GetLocationInfo {???}
-                on query GetUpcomingReservations {???}
-                on query GetUpcomingReservationsInRange {???}
-                on query FindAvailableLocationsInRange {???}
-                on query FindAvailableLocationsInRangeWithAmenities {???}
-            }
-        }
+        options (event-sourced, available)
 
+		    handler LocationHandler is {
+		        on command EstablishLocation {
+		            then morph entity Location to state Location.Draft
+		            and "set copy locationId from the command to the Draft fields"
+		            and "set copy info from the command to the Draft fields"
+		            and "set copy reservations from the command to the Draft fields"
+		            and "set LocationContext.MetaInfo(
+		              createdOn = now(),
+		              createdBy = @EstablishLocation.establishingMember,
+		              lastUpdated = now(),
+		              lastUpdatedBy = @EstablishLocation.establishingMember,
+		              currentOwner = @EstablishLocation.establishingMember,
+		              currentStatus = ReservationContext.Status.Draft)"
+		            and "yield event LocationEstablished(
+		                locationId = @Draft.locationId,
+		                info = @Draft.info,
+		                meta = @Draft.meta
+		            )"
+		        }
+		        on other { then error "Only EstablishVenue command is allowed in the default state"}
+		    }
+
+		    state Draft is {
+		        fields {
+		            locationId: LocationId,
+		            locationInfo: LocationInfo,
+		            reservations: ReservationsId*,
+		            locationMeta: LocationContext.MetaInfo
+		        }
+		        handler DraftReservation is {
+		            on command EstablishReservation {
+		                then error "Reservation already established"
+		            }
+		            on command EditReservationInfo {
+		                then "set Draft info fields to EditReservationInfo.info"
+		                and "yield event ReservationInfoUpdated"
+		            }
+		            on command UpdateReservationStatus {
+		                // then morph entity Reservation to state @UpdateReservationStatus.status
+		                then set Draft.meta.currentStatus to @UpdateReservationStatus.status
+		                and set Draft.meta.lastUpdatedBy to @UpdateReservationStatus.updatingMember
+		                and set Draft.meta.lastUpdated to now()
+		                and yield event UpdateReservationStatus(reservationId=@Draft.orgId, info=@Draft.info, meta=@Draft.meta)
+		            }
+		        }
+		    }
+
+		    state OnHold is {
+		        fields {
+		            locationId: LocationId,
+		            locationInfo: LocationInfo,
+		            reservations: ReservationsId*,
+		            locationMeta: LocationContext.MetaInfo
+		        }
+		        handler OnHoldReservation is {
+		            on command EstablishReservation {
+		                then error "Reservation already established"
+		            }
+		            on command EditReservationInfo {
+		                then "set OnHold info fields to EditReservationInfo.info"
+		                and "yield event ReservationInfoUpdated"
+		            }
+		            on command UpdateReservationStatus {
+		                // then morph entity Reservation to state @UpdateReservationStatus.status
+		                then set OnHold.meta.currentStatus to @UpdateReservationStatus.status
+		                and set OnHold.meta.lastUpdatedBy to @UpdateReservationStatus.updatingMember
+		                and set OnHold.meta.lastUpdated to now()
+		                and yield event UpdateReservationStatus(reservationId=@OnHold.orgId, info=@OnHold.info, meta=@OnHold.meta)
+		            }
+		        }
+		    }
     }
 }

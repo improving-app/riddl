@@ -14,11 +14,13 @@ command EstablishLocation is {
 
 event LocationEstablished is {
   locationId: LocationId,
-  locationInfo: LocationContext.Info
+  locationInfo: LocationContext.Info,
+  reservations: ReservationId*,
+  meta: LocationContext.MetaInfo
 }
 
-command ReserveLocation is {locationId: LocationId, org: OrganizationId, start: DateTime, end: DateTime}
-event LocationReserved is {locationId: LocationId, reservationId: ReservationId, org: OrganizationId, start: DateTime, end: DateTime}
+command ReserveLocation is {locationId: LocationId, reservationId: ReservationId}
+event LocationReserved is {locationId: LocationId, reservationId: ReservationId}
 command CancelReservation is {reservationId: ReservationId}
 event ReservationCancelled is {reservationId: ReservationId}
 query GetLocationInfo is {locationId: LocationId}

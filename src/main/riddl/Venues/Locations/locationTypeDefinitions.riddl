@@ -1,4 +1,5 @@
-type Status is any of {Draft, Open, Closed} briefly "Internal status of a Venue."
+type Status is any of {Draft, Open, Closed} briefly "Internal status of a Location."
+
 type Info is {
 	id: LocationId,
 	name: String,

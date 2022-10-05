@@ -1,8 +1,13 @@
-type Status is any of {Draft, OnHold, Reserved, Active Past} briefly "Internal status of a Venue."
+type Status is any of {Draft, OnHold, Reserved, Active, Past} briefly "Internal status of a Reservation."
+
 type Info is {
-    startTime: DateTime,
-    endTime: DateTime,
-    forOrg: OrganizationId
+    range: TimeRange,
+    forOrg: OrganizationId,
+}
+
+type UpdateInfo is {
+    range: TimeRange?,
+    forOrg: OrganizationId?
 }
 
 type MetaInfo is {
