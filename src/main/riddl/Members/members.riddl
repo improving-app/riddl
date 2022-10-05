@@ -60,8 +60,8 @@ context MembersContext is {
         handler MemberHandler is {
             on command RegisterMember {
                 then morph entity Member to state Member.Active
-                and set Active.memberId to @RegisterMember.memberId
-                and set Active.info to @RegisterMember.info
+                and set Member.Active.memberId to @RegisterMember.memberId
+                and set Member.Active.info to @RegisterMember.info
             }
             on command RegisterMemberList {
                 //TODO: list operations on the following:
