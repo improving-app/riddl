@@ -19,7 +19,6 @@ jobs:
         distribution: 'temurin'
     - name: Validate RIDDL
       uses: reactific/riddl/actions/get-riddlc@main
-      with:
-        command: "from"
-        opt1: "src/main/riddl/ImprovingApp.conf"
-        opt2: "validate"
+      run: |
+        riddlc from "src/main/riddl/ImprovingApp.conf" validate
+      shell: bash
