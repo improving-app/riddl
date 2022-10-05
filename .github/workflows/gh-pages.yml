@@ -31,17 +31,12 @@ jobs:
       - name: Show Hugo on PATH
         run: 'which hugo'
 
-      - name: Generate Hugo From RIDDL
-        uses: reactific/riddl-actions/riddlc@main
-        with:
-          command: from
-          opt1: src/main/riddl/ImprovingApp.conf
-          opt2: hugo
+      - name: Get the riddlc program
+        uses: reactific/riddl/actions/get-riddlc@main
 
-      - name: Show riddlc output
+      - name: Generate Hugo input from RIDDL source
         run: |
-          echo "riddlc hugo output tree:"
-          tree target/hugo
+          riddlc from "src/main/riddl/ImprovingApp.conf" hugo
 
       - name: Generate HTML From Hugo
         run: cd target/hugo ; hugo --minify -D -v --printMemoryUsage
