@@ -14,6 +14,16 @@ type UpdateInfo is {
   address: Address?
 }
 
+type LocationSchedule is {
+	locationId: LocationId,
+	schedule: TimeRange+
+}
+
+type CapacityOverview is {
+  minCapacity: Integer,
+  maxCapacity: Integer
+}
+
 type MetaInfo is {
   createdOn: TimeStamp briefly "The Date/Time this venue was created.",
   createdBy: MemberId briefly "The member who created this venue",
