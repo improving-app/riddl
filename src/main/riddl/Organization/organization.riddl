@@ -69,7 +69,7 @@ context OrganizationContext is {
                     // example NewMemberDoesNotMeetRestrictions is {
                     //     given "Member does not meet qualifictions to join organization"
                     //     then "Place rejected member in dead letter queue and process remaining members"
-                    //     and "Consider how to notify of partial success" // TODO: discuss how this might work 
+                    //     and "Consider how to notify of partial success" // TODO: discuss how this might work
                     // }
                     example PrivateOrganizationMembershipByNonAdmin is {
                         given "orgId is a private organization"
@@ -225,7 +225,7 @@ context OrganizationContext is {
                     example NewMemberDoesNotMeetRestrictions is {
                         given "Member does not meet qualifictions to join organization"
                         then "Place rejected member in dead letter queue and process remaining members"
-                        and "Consider how to notify of partial success" // TODO: discuss how this might work 
+                        and "Consider how to notify of partial success" // TODO: discuss how this might work
                     }
                     example PrivateOrganizationMembershipByNonAdmin is {
                         given "orgId is a private organization"
@@ -348,7 +348,7 @@ context OrganizationContext is {
                 on command EstablishOrganization {
                     then error "Organization already established"
                 }
-                on command UpdateOrganizationStatus { 
+                on command UpdateOrganizationStatus {
                     then "morph Organizaiton to the status provided in UpdateOrganiztionStatus"
                     and "update the meta info to reflect the change"
                     and "yield event OrganizationStatusUpdated"
@@ -366,8 +366,10 @@ context OrganizationContext is {
                 on other {then error "No commands allowed in Terminated state"}
             }
         }
-        //function SetMeta is 
     }
-} described in file "src/main/riddl/Organization/organization.md"
+} described in file "organization.md"
+
+include "organizationStories"
+
 
 include "organizationStories"

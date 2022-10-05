@@ -8,7 +8,7 @@ command EstablishOrganization is {
   contacts: ContactList,
   establishingMember: MemberId briefly "The Id of the Member who is issuing the create command."
 } briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
-described in file "src/main/riddl/Organization/establishOrganization.md"
+described in file "establishOrganization.md"
 
 event OrganizationEstablished is {
   orgId: OrganizationId,
@@ -25,7 +25,7 @@ command EditOrganizationInfo is {
   newInfo: OrganizationContext.UpdateInfo briefly "The information about the organization",
   editingMember: MemberId briefly "Id of the member who is creating the organization"
 } briefly "A command to edit the values of an Organization's Info "
-described in file "src/main/riddl/Organization/editOrganizationInfo.md"
+described in file "editOrganizationInfo.md"
 
 // TODO: Alex and I had a conversation on this block of commands. Several ideas came out that we should discuss:
 // 1. Should UpdateOrganizationInfo, AddMembersToOrganization, AddOwnersToOrganization, etc. all simply yield an OrganizationInfoUpdated event?
