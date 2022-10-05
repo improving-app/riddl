@@ -2,7 +2,7 @@ type Status is any of {Draft, OnHold, Reserved, Active, Past} briefly "Internal 
 
 type Info is {
     range: TimeRange,
-    forOrg: OrganizationId,
+    forOrg: OrganizationId
 }
 
 type UpdateInfo is {
@@ -15,6 +15,6 @@ type MetaInfo is {
   createdBy: MemberId briefly "The member who created this venue",
   lastUpdated: TimeStamp briefly "The Date/Time this venue was last modified.",
   lastUpdatedBy: MemberId briefly "The member who last modified this venue. This may also be a system user. i.e. they are two months late on payment so the system determines to suspend the venue.",
-  currentStatus: InternalStatus briefly "The current state of this venue. Valid states include Draft, Active, Suspended, and Terminated"
-  currentOwner: MemberId,
+  currentStatus: InternalStatus briefly "The current state of this venue. Valid states include Draft, Active, Suspended, and Terminated",
+  currentOwner: MemberId
 } briefly "Meta data kept about a reservation that the user does not directly modify. Instead the system updates this info as a Member Owner updates details in the Info type."
