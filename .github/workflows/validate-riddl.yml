@@ -17,8 +17,9 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-    - name: Validate RIDDL
+    - name: Get riddlc
       uses: reactific/riddl/actions/get-riddlc@main
+    - name: Validate improving-app model with riddlc
       run: |
         riddlc from "src/main/riddl/ImprovingApp.conf" validate
       shell: bash
