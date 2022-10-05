@@ -1,5 +1,4 @@
 context Relationships is {
-//from member.riddl
     entity OrganizationRelationships is {
         state OrganizationRelationships is {
             orgId: OrganizationId,
@@ -28,6 +27,7 @@ context Relationships is {
         on query FindOrganizationsByOwner {???}
     }
     
+    //from member.riddl
     entity MemberRelationships is {
         state MemberRelationships is {
             memberId: MemberId,

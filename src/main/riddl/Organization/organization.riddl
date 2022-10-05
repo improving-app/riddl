@@ -3,31 +3,16 @@ context OrganizationContext is {
     include "organizationMessages"
     include "organizationProjections"
     include "organizationSources"
-    include "organizationStories"
 
     entity Organization is {
         options (event-sourced, available)
 
         handler OrganizationHandler is {
             on command EstablishOrganization {
-                then morph entity Organization to state Organization.Draft
-                and set Draft.orgId to @EstablishOrganization.orgId
-                and set Draft.info to @EstablishOrganization.info
-                and set Draft.parent to @EstablishOrganization.parent
-                and set Draft.members to @EstablishOrganization.members
-                and set Draft.owners to @EstablishOrganization.owners
-                and set Draft.contacts to @EstablishOrganization.contacts
-                // TODO: need a way to set values 
-                // and set Draft.meta to OrganizationContext.MetaInfo(createdOn=now(), createdBy = @EstablishOrganization.establishingMember, lastUpdated=now(), lastUpdatedBy=@EstablishOrganization.establishingMember)
-                and yield event OrganizationEstablished(
-                    orgId=@Draft.orgId, 
-                    info=@Draft.info, 
-                    parent=@Draft.parent, 
-                    members=@Draft.members, 
-                    owners=@Draft.owners, 
-                    contacts=@Draft.contacts, 
-                    meta=@Draft.meta
-                )
+                then "morph Organizaiton to Draft state"
+                and "Copy fields from the command into Draft fields"
+                and "adjust meta fields to reflect the change set"
+                and "yield event OrganizationEstablished"
             }
             on other { then error "Only EstablishOrganization command is allowed in the default state"}
         }
@@ -36,10 +21,10 @@ context OrganizationContext is {
             fields {
                 orgId: OrganizationId,
                 info: OrganizationContext.Info,
-                parent: OrganizationContext.Parent,
-                members: OrganizationContext.MemberList,
-                owners: OrganizationContext.OwnerList,
-                contacts: OrganizationContext.ContactList,
+                parent: OrganizationId?,
+                members: MemberId+,
+                owners: MemberId+,
+                contacts: Contacts?,
                 // accounts: OrganizationContext.AccountList,
                 meta: OrganizationContext.MetaInfo
             }
@@ -48,14 +33,18 @@ context OrganizationContext is {
                     then error "Organization already established"
                 }
                 on command EditOrganizationInfo {
-                    then set Draft.info to @EstablishOrganization.info
-                    and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, info=@Draft.orgInfo, meta=@Draft.orgMetaInfo)
+                    then "Copy fields from EditOrganzationInfo into Draft info fields"
+                    and "adjust meta fields to reflect the change set"
+                    and "yield event OrganizationInfoUpdated"
                 }
                 on command UpdateParent {
                     example Success is {
-                        then set Draft.parent to @EstablishOrganization.parent
+                        then "Update the parent field with the value provided in UpdateParent"
+                        // TODO: should adjust this to reflect design pattern to provide children in a projection. The next two AND statements would be handled in the projection handler for ParentUpdated event
+                        and "remove orgId from the list of children in the 'old' parent"
+                        and "add orgId to the list of children in the 'new' parent"
                         and "set MetaInfo to capture change data"
-                        and yield event ParentUpdated(orgId=@Draft.orgId, newParent=@Draft.parent, meta=@Draft.meta)
+                        and "yield event ParentUpdated"
                     }
                     example NewParentMustBeWithinContainingRootOrg is {
                         given "newParent exists outside the bounds of the root organization that contains orgId"
@@ -76,11 +65,12 @@ context OrganizationContext is {
                         and "set MetaInfo to capture change data"
                         and "emit MembersAddedToOrganization event"
                     }
-                    example NewMemberDoesNotMeetRestrictions is {
-                        given "Member does not meet qualifictions to join organization"
-                        then "Place rejected member in dead letter queue and process remaining members"
-                        and "Consider how to notify of partial success" // TODO: discuss how this might work 
-                    }
+                    // Restrictions not implemented yet
+                    // example NewMemberDoesNotMeetRestrictions is {
+                    //     given "Member does not meet qualifictions to join organization"
+                    //     then "Place rejected member in dead letter queue and process remaining members"
+                    //     and "Consider how to notify of partial success" // TODO: discuss how this might work 
+                    // }
                     example PrivateOrganizationMembershipByNonAdmin is {
                         given "orgId is a private organization"
                         when "updatingMember is not an admin for orgId"
@@ -92,7 +82,7 @@ context OrganizationContext is {
                         and "Consider how to notify of partial success" // TODO: discuss how this might work
                     }
                     example NotAuthorized is {
-                        when "editingMember is not Authorized"
+                        when "editingMember is not Authorized to add members to this organization"
                         then error "EditingMember is not authorized to make this change."
                     }
                 }
@@ -103,7 +93,7 @@ context OrganizationContext is {
                         and "yield MembersRemovedFromOrganization()"// TODO
                     }
                     example NotAuthorized is {
-                        when "editingMember is not Authorized"
+                        when "editingMember is not Authorized to remove members from this organization"
                         then error "EditingMember is not authorized to make this change."
                     }
                 }
@@ -180,10 +170,9 @@ context OrganizationContext is {
                 // }
                 on command UpdateOrganizationStatus {
                     // then morph entity Organization to state @UpdateOrganizationStatus.status
-                    then set Draft.meta.currentStatus to @UpdateOrganizationStatus.status
-                    and set Draft.meta.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
-                    and set Draft.meta.lastUpdated to now()
-                    and yield event OrganizationInfoUpdated(orgId=@Draft.orgId, info=@Draft.info, meta=@Draft.meta)
+                    then "morph Organization to the state provided in UpdateOrganizationStatus"
+                    and "set MetaInfo to capture change data"
+                    and "yield event OrganizationInfoUpdated"
                 }
                 on other { then error "No other commands allowed in Draft state" }
             }
@@ -192,11 +181,11 @@ context OrganizationContext is {
         state Active is {
             fields {
                 oid: OrganizationId,
-                orgInfo: OrganizationContext.Info,
-                parent: OrganizationContext.Parent,
-                members: OrganizationContext.MemberList,
-                owners: OrganizationContext.OwnerList,
-                contacts: OrganizationContext.ContactList,
+                info: OrganizationContext.Info,
+                parent: OrganizationId?,
+                members: MemberId+,
+                owners: MemberId+,
+                contacts: Contacts?,
                 // accounts: OrganizationContext.AccountList,
                 orgMeta: OrganizationContext.MetaInfo
             }
@@ -205,14 +194,14 @@ context OrganizationContext is {
                     then error "Organization already established"
                 }
                 on command EditOrganizationInfo {
-                    then set Active.orgInfo to @EstablishOrganization.info
-                    and yield event OrganizationInfoUpdated(orgId=@Active.oid, info=@Active.orgInfo, meta=@Active.orgMeta)
+                    then "set Active organization fields according to the data provided in EdietOrganizationInfo"
+                    and "yield event OrganizationInfoUpdated"
                 }
                 on command UpdateParent {
                     example Success is {
-                        then set Active.parent to @EstablishOrganization.parent
+                        then "set Active Organization's parent to the orgId provided in UpdateParent"
                         and "set MetaInfo to capture change data"
-                        and yield event ParentUpdated(orgId=@Active.oid, newParent=@Active.parent, meta=@Active.orgMeta)
+                        and "yield event ParentUpdated"
                     }
                     example NewParentMustBeWithinContainingRootOrg is {
                         given "newParent exists outside the bounds of the root organization that contains orgId"
@@ -336,11 +325,9 @@ context OrganizationContext is {
                 //     }
                 // }
                 on command UpdateOrganizationStatus {
-                    // then morph entity Organization to state @UpdateOrganizationStatus.status
-                    then set Active.orgMeta.currentStatus to @UpdateOrganizationStatus.status
-                    and set Active.orgMeta.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
-                    and set Active.orgMeta.lastUpdated to now()
-                    and yield event OrganizationInfoUpdated(orgId=@Active.oid, info=@Active.orgInfo, meta=@Active.orgMeta)
+                    then "morph entity Organization to state provided in UpdateOrganizationStatus"
+                    and "set Meta data to reflect the change"
+                    and "yield event OrganizationStatusUpdated"
                 }
                 on other { then error "No other commands allowed in Active state" }
             }
@@ -349,11 +336,11 @@ context OrganizationContext is {
         state Suspended is {
             fields {
                 oid: OrganizationId,
-                orgInfo: OrganizationContext.Info,
-                parent: OrganizationContext.Parent,
-                members: OrganizationContext.MemberList,
-                owners: OrganizationContext.OwnerList,
-                contacts: OrganizationContext.ContactList,
+                info: OrganizationContext.Info,
+                parent: OrganizationId?,
+                members: MemberId+,
+                owners: MemberId+,
+                contacts: Contacts?,
                 // accounts: OrganizationContext.AccountList,
                 orgMeta: OrganizationContext.MetaInfo
             }
@@ -362,11 +349,9 @@ context OrganizationContext is {
                     then error "Organization already established"
                 }
                 on command UpdateOrganizationStatus { 
-                    then set Suspended.orgMeta.currentStatus to @UpdateOrganizationStatus.status
-                    and set Suspended.orgMeta.lastUpdatedBy to @UpdateOrganizationStatus.updatingMember
-                    and set Suspended.orgMeta.lastUpdated to now()
-                    and yield event OrganizationInfoUpdated(orgId=@Suspended.oid, info=@Suspended.orgInfo, meta=@Suspended.orgMeta)
-                    //TODO: turn this into a function and call function here
+                    then "morph Organizaiton to the status provided in UpdateOrganiztionStatus"
+                    and "update the meta info to reflect the change"
+                    and "yield event OrganizationStatusUpdated"
                 }
                 on other { then error "Move organization to the Active state in order to edit details about organization."}
             }
@@ -384,3 +369,5 @@ context OrganizationContext is {
         //function SetMeta is 
     }
 } described in file "src/main/riddl/Organization/organization.md"
+
+include "organizationStories"
