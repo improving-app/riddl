@@ -14,7 +14,12 @@ type UpdateInfo is {
   address: Address?
 }
 
-type LocationSchedule is {
+type VenueReservationsSchedule is {
+	locationId: LocationId,
+	reservations: ReservationId+
+}
+
+type VenueAvailabilitySchedule is {
 	locationId: LocationId,
 	schedule: TimeRange+
 }

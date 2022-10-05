@@ -15,6 +15,4 @@ domain ImprovingApp is {
     include "Tenant/tenant"
     include "Vendors/vendor"
     include "Venues/venue"
-    include "Venues/Locations/location"
-    include "Venues/Reservations/reservation"
 } described in file "ImprovingApp.md"
