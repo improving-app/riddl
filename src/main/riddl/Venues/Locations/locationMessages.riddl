@@ -19,14 +19,31 @@ event LocationEstablished is {
   meta: LocationContext.MetaInfo
 }
 
-command ReserveLocation is {locationId: LocationId, reservationId: ReservationId}
-event LocationReserved is {locationId: LocationId, reservationId: ReservationId}
-command CancelReservation is {reservationId: ReservationId}
-event ReservationCancelled is {reservationId: ReservationId}
-query GetLocationInfo is {locationId: LocationId}
-result LocationInfoResult is {locationId: LocationId, info: LocationInfo}
-query GetUpcomingReservations is {locationId: LocationId}
-query GetUpcomingReservationsInRange is {locationId: LocationId, start: Date, end: Date}
-result UpcomingReservations is {locationId: LocationId, reservations: ReservationId*}
+command AddLocationReservations is {
+  locationId: LocationId,
+  reservations: ReservationsId+
+}
+event VenueReservationsAdded is {
+  locationId: LocationId,
+  allReservations: ReservationId+
+}
+
+query GetUpcomingReservations is {
+  locationId: LocationId,
+  maxCount: Integer,
+	startDate: DateTime? briefly "Used as start date of query when present instead of now()"
+}
+result LocationReservations is {
+	venueId: LocationId,
+	schedule: ReservationId* briefly "All reservation that take place in the venue within
+																		the time range (for GetUpcomingReservations) or
+																		maxCount+startDate (for GetVenueReservations) provided"
+}
+
+query GetReservationsInRange is {
+	locationId: LocationId,
+	range: TimeRange+
+}
+
 query FindAvailableLocationsInRange is {locationId: LocationId, start: Date, end: Date}
 query FindAvailableLocationsInRangeWithAmenities is {locationId: LocationId, start: Date, end: Date, desiredAmenities: String*}

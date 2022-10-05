@@ -32,5 +32,14 @@ event ReservationStatusUpdated is {
   newStatus: ReservationContext.Status
 }
 
+command AddReservationAttendees is {
+  reservationId: ReservationId,
+  attendees: MemberId+
+}
+event ReservationAttendeesAdded is {
+  venueId: VenueId,
+  allAttendees: MemberId+
+}
+
 command DeleteReservation is {reservationId: ReservationId}
 event ReservationDeleted is {reservationId: ReservationId}

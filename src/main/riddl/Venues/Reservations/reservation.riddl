@@ -7,23 +7,12 @@ context ReservationContext is {
 
 		    handler ReservationHandler is {
 		        on command EstablishReservation {
-		            then morph entity Reservation to state Reservation.Draft
-		            and "set copy reservationId from the command to the Draft fields"
-		            and "set copy info from the command to the Draft fields"
-		            and "set ReservationContext.MetaInfo(
-		              createdOn = now(),
-		              createdBy = @EstablishReservation.establishingMember,
-		              lastUpdated = now(),
-		              lastUpdatedBy = @EstablishReservation.establishingMember,
-		              currentOwner = @EstablishReservation.establishingMember,
-		              currentStatus = ReservationContext.Status.Draft)"
-		            and "yield event ReservationEstablished(
-		                reservationId = @Draft.reservationId,
-		                info = @Draft.info,
-		                meta = @Draft.meta
-		            )"
+                then "morph Reservation to Draft state"
+                and "Copy fields from the command into Draft fields"
+                and "adjust meta fields to reflect the change set"
+                and "yield event ReservationEstablished"
 		        }
-		        on other { then error "Only EstablishVenue command is allowed in the default state"}
+		        on other { then error "Only EstablishReservation command is allowed in the default state"}
 		    }
 
 		    state Draft is {
@@ -42,12 +31,9 @@ context ReservationContext is {
 		                and "yield event ReservationInfoUpdated"
 		            }
 		            on command UpdateReservationStatus {
-		                // then morph entity Reservation to state @UpdateReservationStatus.status
-		                then set Draft.meta.currentStatus to @UpdateReservationStatus.status
-		                and set Draft.meta.lastUpdatedBy to @UpdateReservationStatus.updatingMember
-		                and set Draft.meta.lastUpdated to now()
-		                and yield event UpdateReservationStatus(reservationId=@Draft.orgId, info=@Draft.info, meta=@Draft.meta)
-		            }
+                    then "morph Reservation to the state provided in UpdateReservationStatus"
+                    and "set MetaInfo to capture change data"
+                    and "yield event ReservationStatusUpdated"		            }
 		        }
 		    }
 
@@ -66,12 +52,9 @@ context ReservationContext is {
 		                and "yield event ReservationInfoUpdated"
 		            }
 		            on command UpdateReservationStatus {
-		                // then morph entity Reservation to state @UpdateReservationStatus.status
-		                then set OnHold.meta.currentStatus to @UpdateReservationStatus.status
-		                and set OnHold.meta.lastUpdatedBy to @UpdateReservationStatus.updatingMember
-		                and set OnHold.meta.lastUpdated to now()
-		                and yield event UpdateReservationStatus(reservationId=@OnHold.orgId, info=@OnHold.info, meta=@OnHold.meta)
-		            }
+                    then "morph Reservation to the state provided in UpdateReservationStatus"
+                    and "set MetaInfo to capture change data"
+                    and "yield event ReservationStatusUpdated"			            }
 		        }
 		    }
 
@@ -90,12 +73,9 @@ context ReservationContext is {
 		                then error "Reservation is in Reserved state, editing info not allows"
 		            }
 		            on command UpdateReservationStatus {
-		                // then morph entity Reservation to state @UpdateReservationStatus.status
-		                then set Reserved.meta.currentStatus to @UpdateReservationStatus.status
-		                and set Reserved.meta.lastUpdatedBy to @UpdateReservationStatus.updatingMember
-		                and set Reserved.meta.lastUpdated to now()
-		                and yield event UpdateReservationStatus(reservationId=@Reserved.orgId, info=@Reserved.info, meta=@Reserved.meta)
-		            }
+                    then "morph Reservation to the state provided in UpdateReservationStatus"
+                    and "set MetaInfo to capture change data"
+                    and "yield event ReservationStatusUpdated"			            }
 		        }
 		    }
 
@@ -114,11 +94,9 @@ context ReservationContext is {
 		                then error "Reservation is in Active state, editing info not allowed"
 		            }
 		            on command UpdateReservationStatus {
-		                // then morph entity Reservation to state @UpdateReservationStatus.status
-		                then set Reserved.meta.currentStatus to @UpdateReservationStatus.status
-		                and set Reserved.meta.lastUpdatedBy to @UpdateReservationStatus.updatingMember
-		                and set Reserved.meta.lastUpdated to now()
-		                and yield event UpdateReservationStatus(reservationId=@Reserved.orgId, info=@Reserved.info, meta=@Reserved.meta)
+		                then "morph Reservation to the state provided in UpdateReservationStatus"
+                    and "set MetaInfo to capture change data"
+                    and "yield event ReservationInfoUpdated"
 		            }
 		        }
 		    }

@@ -5,7 +5,7 @@ command EstablishVenue is {
   establishingMember: MemberId briefly "The Id of the Member who is issuing the create command.",
   owner: MemberId? briefly "Used in the case that establishingMember is not the owner"
 } briefly "Creates a Venue with all top-level fields, potentially without Locations"
-described in file "src/main/riddl/Venues/establishVenue.md"
+described in file "establishVenue.md"
 event VenueEstablished is {
   venueId: VenueId,
   info: VenueContext.Info,
@@ -18,6 +18,7 @@ command EditVenueInfo is {
   newInfo: VenueContext.UpdateInfo briefly "The information about the venue",
   editingMember: MemberId briefly "Id of the member who is creating the venue"
 } briefly "A command to edit the values of an Venue's Info "
+described in file "editVenueInfo.md"
 event VenueInfoUpdated is {
   venueId: VenueId,
   info: VenueContext.Info,
@@ -34,13 +35,29 @@ event VenueStatusUpdated is {
   newStatus: VenueContext.Status
 }
 
+command AddVenueLocations is {
+  venueId: VenueId,
+  locations: LocationId+
+}
+event VenueLocationsAdded is {
+  venueId: VenueId,
+  allLocation: LocationId+
+}
+
+query GetUpcomingReservations is {
+	venueId: VenueId,
+	maxCount: Integer,
+	startDate: DateTime? briefly "Used as start date of query when present instead of now()."
+}
 query GetVenueReservations is {
 	venueId: VenueId,
-	range: TimeRange+
+	ranges: TimeRange+
 }
 result VenueReservations is {
 	venueId: VenueId,
-	schedule: ReservationId* briefly "All reservation that take place in the venue within the time range provided"
+	schedule: ReservationId* briefly "All reservation that take place in the venue within
+																		the time range (for GetUpcomingReservations) or
+																		maxCount+startDate (for GetVenueReservations) provided"
 }
 
 query GetNextVenueAvailability is {
