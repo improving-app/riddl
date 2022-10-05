@@ -1,0 +1,106 @@
+context VenueContext is {
+    include "venueTypeDefinitions"
+    include "venueMessages"
+
+    entity Venue is {
+        options (event-sourced, available)
+
+        handler VenueHandler is {
+            on command EstablishVenue {
+                then "morph Venue to Draft state"
+                and "Copy fields from the command into Draft fields"
+                and "adjust meta fields to reflect the change set"
+                and "yield event VenueEstablished"
+            }
+            on other { then error "Only EstablishVenue command is allowed in the default state"}
+        }
+
+		    state Draft is {
+		        fields {
+		            venueId: VenueId,
+		            venueInfo: VenueInfo,
+		            locations: LocationId*,
+		            venueMeta: VenueContext.MetaInfo
+		        }
+		        handler DraftVenue is {
+		            on command EstablishVenue {
+		                then error "Venue already established"
+		            }
+				        on command EditVenueInfo {
+				            then "set Draft info fields to EditVenueInfo.info"
+				            and "yield event VenueInfoUpdated"
+				        }
+				        on command UpdateVenueStatus {
+		                then "morph Venue to the state provided in UpdateVenueStatus"
+                    and "set MetaInfo to capture change data"
+                    and "yield event VenueInfoUpdated"
+		            }
+				        on command AddVenueLocations {
+		                then "add the LocationIds provided in this command to Venue.locations"
+                    and "set MetaInfo to capture change data"
+                    and "yield event VenueInfoUpdated"
+		            }
+			      }
+	      }
+
+		    state Open is {
+		        fields {
+		            venueId: VenueId,
+		            venueInfo: VenueInfo,
+		            locations: LocationId+ briefly "Venues must have at least 1 location to be considered Available",
+		            venueMeta: VenueContext.MetaInfo
+		        }
+		        handler OpenVenue is {
+		            on command EstablishVenue {
+		                then error "Venue already established"
+		            }
+				        on command EditVenueInfo {
+				            then "set Open info fields to EditVenueInfo.info"
+				            and "yield event VenueInfoUpdated"
+				        }
+				        on command UpdateVenueStatus {
+		                // then morph entity Venue to state @UpdateVenueStatus.status
+		                then set Open.meta.currentStatus to @UpdateVenueStatus.status
+		                and set Open.meta.lastUpdatedBy to @UpdateVenueStatus.updatingMember
+		                and set Open.meta.lastUpdated to now()
+		                and yield event UpdateVenueStatus(venueId=@Open.orgId, info=@Open.info, meta=@Open.meta)
+		            }
+				        on command AddVenueLocations {
+		                then "add the LocationIds provided in this command to Venue.locations"
+                    and "set MetaInfo to capture change data"
+                    and "yield event VenueInfoUpdated"
+		            }
+		        }
+		    }
+
+		    state Closed is {
+		        fields {
+		            venueId: VenueId,
+		            orgId: OrganizationId,
+		            locations: LocationId*,
+		            venueMeta: VenueContext.MetaInfo
+		        }
+		        handler ClosedVenue is {
+		            on command EstablishVenue {
+		                then error "Venue already established"
+		            }
+				        on command EditVenueInfo {
+				            then "set Closed info fields to EditVenueInfo.info"
+				            and "yield event VenueInfoUpdated"
+				        }
+				        on command UpdateVenueStatus {
+		                // then morph entity Venue to state @UpdateVenueStatus.status
+		                then set Closed.meta.currentStatus to @UpdateVenueStatus.status
+		                and set Closed.meta.lastUpdatedBy to @UpdateVenueStatus.updatingMember
+		                and set Closed.meta.lastUpdated to now()
+		                and yield event UpdateVenueStatus(venueId=@Closed.orgId, info=@Closed.info, meta=@Closed.meta)
+		            }
+				        on command AddVenueLocations {
+		                then "add the LocationIds provided in this command to Venue.locations"
+                    and "set MetaInfo to capture change data"
+                    and "yield event VenueInfoUpdated"
+		            }
+		        }
+		    }
+    }
+}

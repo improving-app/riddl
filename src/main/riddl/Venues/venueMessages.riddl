@@ -55,7 +55,7 @@ query GetVenueReservations is {
 }
 result VenueReservations is {
 	venueId: VenueId,
-	schedule: LocationReservationsSchedule* briefly "All reservation that take place in the venue within
+	schedule: VenueReservationsSchedule* briefly "All reservation that take place in the venue within
 																		the time range (for GetNextVenueReservations) or
 																		maxCount+startDate (for GetVenueReservations) provided"
 }
@@ -67,7 +67,7 @@ query GetNextVenueAvailability is {
 }
 result VenueAvailabilityCalendar is {
 	venueId: VenueId,
-	schedule: LocationAvailabilitySchedule* briefly "A list of location with time ranges indicating availability"
+	schedule: VenueAvailabilitySchedule* briefly "A list of location with time ranges indicating availability"
 }
 
 query GetVenueCapacityOverview is {

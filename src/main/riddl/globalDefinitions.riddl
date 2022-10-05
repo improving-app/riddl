@@ -1,8 +1,8 @@
 // Copyright (c) 2022 Improving Inc.
 
 type TimeRange is {
-		start: DateTime,
-		end: DateTime
+		start: TimeStamp,
+		end: TimeStamp
 }
 
 // Contact Information
@@ -32,9 +32,9 @@ type Contact is {
 // type SubOrganizationId is Id (SubOrganization)
 // type OrganizationType is one of {BaseOrganizationId, SubOrganizationId}
 type OrganizationId is Id (^OrganizationContext.Organization)
-type VenueId is Id (^VenueContext.Venue)
-type LocationId is Id (^VenueContext.Location)
-type ReservationIds is Id (^VenueContext.Reservation)
+type VenueId is Id (VenueContext.Venue)
+type LocationId is Id (VenueContext.Location)
+type ReservationId is Id (VenueContext.Reservation)
 type EventId is Id (^EventContext.Event)
 type BillingAccountId is Id (^AccountingContext.BillingAccount)
 type DistributionAccountId is Id (^AccountingContext.DistributionAccount)
