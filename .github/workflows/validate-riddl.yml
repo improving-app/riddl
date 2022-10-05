@@ -21,5 +21,7 @@ jobs:
       uses: reactific/riddl/actions/get-riddlc@main
     - name: Validate improving-app model with riddlc
       run: |
+        echo RIDDLC = "$RIDDLC"
+        which riddlc
         riddlc from "src/main/riddl/ImprovingApp.conf" validate
       shell: bash
