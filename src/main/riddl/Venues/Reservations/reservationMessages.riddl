@@ -41,5 +41,3 @@ event ReservationAttendeesAdded is {
   allAttendees: MemberId+
 }
 
-command DeleteReservation is {reservationId: ReservationId}
-event ReservationDeleted is {reservationId: ReservationId}

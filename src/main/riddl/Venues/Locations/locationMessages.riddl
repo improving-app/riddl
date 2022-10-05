@@ -23,26 +23,35 @@ command AddLocationReservations is {
   locationId: LocationId,
   reservations: ReservationsId+
 }
-event VenueReservationsAdded is {
+event LocationReservationsAdded is {
   locationId: LocationId,
   allReservations: ReservationId+
 }
 
-query GetUpcomingReservations is {
+query GetNextLocationReservations is {
   locationId: LocationId,
   maxCount: Integer,
 	startDate: DateTime? briefly "Used as start date of query when present instead of now()"
 }
+query GetLocationReservations is {
+	venueId: LocationId,
+	ranges: TimeRange+
+}
 result LocationReservations is {
 	venueId: LocationId,
-	schedule: ReservationId* briefly "All reservation that take place in the venue within
-																		the time range (for GetUpcomingReservations) or
-																		maxCount+startDate (for GetVenueReservations) provided"
+	schedule: ReservationId* briefly "All reservation that take place in the location within
+																		the time range (for GetNextLocationReservations) or
+																		maxCount+startDate (for GetLocationReservations) provided"
 }
 
-query GetReservationsInRange is {
+query GetNextLocationAvailability is {
 	locationId: LocationId,
-	range: TimeRange+
+	maxCount: Integer,
+	startDate: DateTime? briefly "Used as start date of query when present instead of now()"
+}
+result LocationAvailabilityCalendar is {
+	locationId: LocationId,
+	schedule: TimeRange* briefly "A list of time ranges indicating availability"
 }
 
 query FindAvailableLocationsInRange is {locationId: LocationId, start: Date, end: Date}

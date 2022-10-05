@@ -44,7 +44,7 @@ event VenueLocationsAdded is {
   allLocation: LocationId+
 }
 
-query GetUpcomingReservations is {
+query GetNextVenueReservations is {
 	venueId: VenueId,
 	maxCount: Integer,
 	startDate: DateTime? briefly "Used as start date of query when present instead of now()."
@@ -55,19 +55,19 @@ query GetVenueReservations is {
 }
 result VenueReservations is {
 	venueId: VenueId,
-	schedule: ReservationId* briefly "All reservation that take place in the venue within
-																		the time range (for GetUpcomingReservations) or
+	schedule: LocationReservationsSchedule* briefly "All reservation that take place in the venue within
+																		the time range (for GetNextVenueReservations) or
 																		maxCount+startDate (for GetVenueReservations) provided"
 }
 
 query GetNextVenueAvailability is {
 	venueId: VenueId,
 	maxCount: Integer,
-	startDate: DateTime? briefly "Used as start date of query when present instead of now-TimeStamp"
+	startDate: DateTime? briefly "Used as start date of query when present instead of now()"
 }
 result VenueAvailabilityCalendar is {
 	venueId: VenueId,
-	schedule: LocationSchedule* briefly "A list of location with time ranges indicating availability"
+	schedule: LocationAvailabilitySchedule* briefly "A list of location with time ranges indicating availability"
 }
 
 query GetVenueCapacityOverview is {

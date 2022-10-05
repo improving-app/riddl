@@ -13,7 +13,11 @@ type UpdateInfo is {
   address: Address?
 }
 
-type LocationSchedule is.met {
+type LocationReservationsSchedule is {
+	locationId: LocationId,
+	reservations: ReservationId+
+}
+type LocationAvailabilitySchedule is {
 	locationId: LocationId,
 	schedule: TimeRange+
 }
