@@ -3,7 +3,8 @@ type Status is any of {Draft, Open, Closed} briefly "Internal status of a Venue.
 type Info is {
 	orgId: OrganizationId briefly "Venues are defined by BaseOrgs. venueId and orgId make a composite key",
   name: String,
-  address: Address
+  address: Address,
+  isPrivate: Boolean briefly "Is this location accessible outside of the organization owning its venue?"
 }
 
 type UpdateInfo is {

@@ -2,7 +2,8 @@ type Status is any of {Draft, OnHold, Reserved, Active, Past} briefly "Internal 
 
 type Info is {
     range: TimeRange,
-    forOrg: OrganizationId
+    forOrg: OrganizationId,
+    isPrivate: Boolean briefly "Is this location accessible outside of the organization owning its venue?"
 }
 
 type UpdateInfo is {

@@ -30,6 +30,7 @@ context ReservationContext is {
 		        fields {
 		            reservationId: ReservationId,
 		            reservationInfo: ReservationInfo,
+		            attendees: MemberId*,
 		            reservationMeta: ReservationContext.MetaInfo
 		        }
 		        handler DraftReservation is {
@@ -78,6 +79,7 @@ context ReservationContext is {
 		        fields {
 		            reservationId: ReservationId,
 		            reservationInfo: ReservationInfo,
+		            attendees: MemberId*,
 		            reservationMeta: ReservationContext.MetaInfo
 		        }
 		        handler ReservedReservation is {
@@ -101,6 +103,7 @@ context ReservationContext is {
 		        fields {
 		            reservationId: ReservationId,
 		            reservationInfo: ReservationInfo,
+		            attendees: MemberId+,
 		            reservationMeta: ReservationContext.MetaInfo
 		        }
 		        handler ActiveReservation is {
