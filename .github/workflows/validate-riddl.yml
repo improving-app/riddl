@@ -18,7 +18,7 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
     - name: Validate RIDDL
-      uses: reactific/riddl-actions/riddlc@main
+      uses: reactific/riddl/actions/get-riddlc@main
       with:
         command: "from"
         opt1: "src/main/riddl/ImprovingApp.conf"

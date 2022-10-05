@@ -14,4 +14,4 @@ domain ImprovingApp is {
     include "Organization/organization"
     include "Vendors/vendor"
     include "Venues/venue"
-} described in file "src/main/riddl/ImprovingApp.md"
+} described in file "ImprovingApp.md"

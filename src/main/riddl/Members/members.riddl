@@ -5,13 +5,25 @@ context MembersContext is {
     type NotificationPreference is any of { Email, SMS }
     type Status is any of { Active, Suspended }
     type Info is {
-        handle: String described by "username. Must be unique.",
-        avatar: URL described by "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
+        handle: String briefly "username. Must be unique.",
+        avatar: URL briefly "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
         firstName: String,
         lastName: String,
         mobileNumber: MobileNumber?,
         emailAddress: EmailAddress?,
-        notificationPreference: NotificationPreference? described by "if this is set it is assumed that the user has opted in."
+        notificationPreference: NotificationPreference? briefly "if this is set it is assumed that the user has opted in.",
+        organizationMembership: OrganizationId* briefly "A list of organizations this member belongs to."
+        //memberType: MemberType+
+    }
+    type UpdateInfo is {
+        handle: String? briefly "username. Must be unique.",
+        avatar: URL? briefly "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
+        firstName: String?,
+        lastName: String?,
+        mobileNumber: MobileNumber?,
+        emailAddress: EmailAddress?,
+        notificationPreference: NotificationPreference? briefly "if this is set it is assumed that the user has opted in.",
+        organizationMembership: OrganizationId* briefly "A list of organizations this member belongs to."
         //memberType: MemberType+
     }
     type MetaInfo is {
@@ -31,9 +43,9 @@ context MembersContext is {
 
     command RegisterMember is {memberId: MemberId, info: MembersContext.Info, registeringMember: MemberId} briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional."
     event  MemberRegistered is {memberId: MemberId, info: MembersContext.Info, meta: MembersContext.MetaInfo} briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
-    command RegisterMemberList is {memberList: MemberMap, registeringMember: MemberId} briefly "RegisterMemberList creates multiple members with a single call. The limitation is you can only define a single MemberType in each call, and all new Members must be assigned to an Organization (typically a BaseOrg)."
+    command RegisterMemberList is {memberList: MemberMap, registeringMember: MemberId} briefly "RegisterMemberList creates multiple members with a single call. The limitation is you can only define a single MemberType in each call, and all new Members must be assigned to the same Organization (typically a BaseOrg)."
     event MemberListRegistered is {memberList: MemberMap, registeringMember: MemberId}
-    command UpdateMemberInfo is {memberId: MemberId, info: MembersContext.Info, actingMember: MemberId} briefly "All member info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full MemberInfo object back."
+    command UpdateMemberInfo is {memberId: MemberId, info: MembersContext.UpdateInfo, actingMember: MemberId} briefly "This command will overwrite the values of attributes provided in UpdateInfo. If an attribute is not referenced it will be left as is. If an attribute is referenced with no value, an empty value will replace what is currently stored. If an attribute is referenced with a value, the new value will overwrite what is stored."
     event MemberInfoUpdated is {memberId: MemberId, info: MembersContext.Info, meta: MembersContext.MetaInfo}
     command UpdateMemberStatus is {memberId: MemberId, actingMember: MemberId, newStatus: MembersContext.Status}
     event MemberStatusUpdated is {memberId: MemberId, meta: MembersContext.MetaInfo}
@@ -48,8 +60,8 @@ context MembersContext is {
         handler MemberHandler is {
             on command RegisterMember {
                 then morph entity Member to state Member.Active
-                and set Active.memberId to @RegisterMember.memberId
-                and set Active.info to @RegisterMember.info
+                and set Member.Active.memberId to @RegisterMember.memberId
+                and set Member.Active.info to @RegisterMember.info
             }
             on command RegisterMemberList {
                 //TODO: list operations on the following:
