@@ -8,7 +8,7 @@ context LocationContext is {
 		    handler LocationHandler is {
 		        on command EstablishLocation {
                 then "morph Location to Draft state"
-                and "Copy fields from the command into Draft fields"
+                and "Copy info field from the command into Draft.locationInfo field"
                 and "adjust meta fields to reflect the change set"
                 and "yield event LocationEstablished"
 		        }
@@ -18,8 +18,7 @@ context LocationContext is {
 		    state Draft is {
 		        fields {
 		            locationId: LocationId,
-		            locationInfo: LocationInfo,
-		            reservations: ReservationsId*,
+		            locationInfo: LocationContext.Info,
 		            locationMeta: LocationContext.MetaInfo
 		        }
 		        handler DraftLocation is {
@@ -41,8 +40,7 @@ context LocationContext is {
 		    state Open is {
 		        fields {
 		            locationId: LocationId,
-		            locationInfo: LocationInfo,
-		            reservations: ReservationsId*,
+		            locationInfo: LocationContext.Info,
 		            locationMeta: LocationContext.MetaInfo
 		        }
 		        handler OpenLocation is {
@@ -64,8 +62,7 @@ context LocationContext is {
 		    state Closed is {
 		        fields {
 		            locationId: LocationId,
-		            locationInfo: LocationInfo,
-		            reservations: ReservationsId*,
+		            locationInfo: LocationContext.Info,
 		            locationMeta: LocationContext.MetaInfo
 		        }
 		        handler ClosedLocation is {

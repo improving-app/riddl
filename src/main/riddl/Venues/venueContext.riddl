@@ -18,8 +18,7 @@ context VenueContext is {
 		    state Draft is {
 		        fields {
 		            venueId: VenueId,
-		            venueInfo: VenueInfo,
-		            locations: LocationId*,
+		            venueInfo: VenueContext.Info,
 		            venueMeta: VenueContext.MetaInfo
 		        }
 		        handler DraftVenue is {
@@ -46,8 +45,7 @@ context VenueContext is {
 		    state Open is {
 		        fields {
 		            venueId: VenueId,
-		            venueInfo: VenueInfo,
-		            locations: LocationId+ briefly "Venues must have at least 1 location to be considered Available",
+		            venueInfo: VenueContext.Info,
 		            venueMeta: VenueContext.MetaInfo
 		        }
 		        handler OpenVenue is {
@@ -59,11 +57,9 @@ context VenueContext is {
 				            and "yield event VenueInfoUpdated"
 				        }
 				        on command UpdateVenueStatus {
-		                // then morph entity Venue to state @UpdateVenueStatus.status
-		                then set Open.meta.currentStatus to @UpdateVenueStatus.status
-		                and set Open.meta.lastUpdatedBy to @UpdateVenueStatus.updatingMember
-		                and set Open.meta.lastUpdated to now()
-		                and yield event UpdateVenueStatus(venueId=@Open.orgId, info=@Open.info, meta=@Open.meta)
+		                then "morph Venue to the state provided in UpdateVenueStatus"
+                    and "set MetaInfo to capture change data"
+                    and "yield event VenueInfoUpdated"
 		            }
 				        on command AddVenueLocations {
 		                then "add the LocationIds provided in this command to Venue.locations"
@@ -77,7 +73,6 @@ context VenueContext is {
 		        fields {
 		            venueId: VenueId,
 		            orgId: OrganizationId,
-		            locations: LocationId*,
 		            venueMeta: VenueContext.MetaInfo
 		        }
 		        handler ClosedVenue is {
@@ -89,11 +84,9 @@ context VenueContext is {
 				            and "yield event VenueInfoUpdated"
 				        }
 				        on command UpdateVenueStatus {
-		                // then morph entity Venue to state @UpdateVenueStatus.status
-		                then set Closed.meta.currentStatus to @UpdateVenueStatus.status
-		                and set Closed.meta.lastUpdatedBy to @UpdateVenueStatus.updatingMember
-		                and set Closed.meta.lastUpdated to now()
-		                and yield event UpdateVenueStatus(venueId=@Closed.orgId, info=@Closed.info, meta=@Closed.meta)
+		                then "morph Venue to the state provided in UpdateVenueStatus"
+                    and "set MetaInfo to capture change data"
+                    and "yield event VenueInfoUpdated"
 		            }
 				        on command AddVenueLocations {
 		                then "add the LocationIds provided in this command to Venue.locations"

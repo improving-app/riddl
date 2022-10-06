@@ -1,10 +1,11 @@
-type Status is any of {Draft, Open, Closed} briefly "Internal status of a Venue."
+type Status is any of {Draft, Open, Closed} briefly "Internal status of a Venue. Venue must have >= 1 location to be considered Open or Closed"
 
 type Info is {
 	orgId: OrganizationId briefly "Venues are defined by BaseOrgs. venueId and orgId make a composite key",
   name: String,
   address: Address,
-  isPrivate: Boolean briefly "Is this location accessible outside of the organization owning its venue?"
+  isPrivate: Boolean briefly "Is this location accessible outside of the organization owning its venue?
+                              Note: would require a query connecting this value to a projection of all parents and children of orgId"
 }
 
 type UpdateInfo is {
@@ -19,7 +20,7 @@ type VenueReservationsSchedule is {
 }
 type VenueAvailabilitySchedule is {
 	locationId: LocationId,
-	schedule: TimeRange+
+	schedule: 'TimeRange'+
 }
 
 type CapacityOverview is {

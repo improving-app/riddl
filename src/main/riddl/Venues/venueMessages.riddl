@@ -1,7 +1,6 @@
 command EstablishVenue is {
   venueId: VenueId briefly "A unique identifier for this Venue. This must be provided by the calling client.",
   info: VenueContext.Info briefly "Details about a venue required for it to exist. See VenueContext.Info for details.",
-  locations: LocationId*,
   establishingMember: MemberId briefly "The Id of the Member who is issuing the create command.",
   owner: MemberId? briefly "Used in the case that establishingMember is not the owner"
 } briefly "Creates a Venue with all top-level fields, potentially without Locations"
@@ -9,7 +8,6 @@ described in file "establishVenue.md"
 event VenueEstablished is {
   venueId: VenueId,
   info: VenueContext.Info,
-  locations: LocationId*,
   meta: VenueContext.MetaInfo
 }
 
@@ -51,7 +49,7 @@ query GetNextVenueReservations is {
 }
 query GetVenueReservations is {
 	venueId: VenueId,
-	ranges: TimeRange+
+	range: 'TimeRange'+
 }
 result VenueReservations is {
 	venueId: VenueId,
@@ -63,7 +61,7 @@ result VenueReservations is {
 query GetNextVenueAvailability is {
 	venueId: VenueId,
 	maxCount: Integer,
-	startDate: DateTime? briefly "Used as start date of query when present instead of now()"
+	startDate: TimeStamp? briefly "Used as start date of query when present instead of now()"
 }
 result VenueAvailabilityCalendar is {
 	venueId: VenueId,

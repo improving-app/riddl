@@ -1,15 +1,6 @@
 command EstablishLocation is {
   locationId: LocationId briefly "A unique identifier for this Location. This must be provided by the calling client.",
-  name: String,
-  description: String,
-  directions: String,
-  latLong: LatLong,
-  url: URL?,
-  capacity: Integer?,
-  accessible: Boolean,
-  amenities: String*,
-  entrances: Address+,
-  reservations: ReservationId*
+  info: LocationContext.Info
 } briefly "Creates a Location with all top-level fields, potentially without Locations"
 
 event LocationEstablished is {
@@ -19,13 +10,25 @@ event LocationEstablished is {
   meta: LocationContext.MetaInfo
 }
 
-command AddLocationReservations is {
-  locationId: LocationId,
-  reservations: ReservationsId+
+command EditLocationInfo is {
+  locationId: LocationId briefly "The unique Id of the location to create",
+  newInfo: LocationContext.UpdateInfo briefly "The information about the location",
+  editingMember: MemberId briefly "Id of the member who is creating the location"
+} briefly "A command to edit the values of an Reservation's Info "
+event LocationInfoUpdated is {
+  reservationId: LocationId,
+  info: LocationContext.Info,
+  meta: LocationContext.MetaInfo
 }
-event LocationReservationsAdded is {
+
+command UpdateLocationStatus is {
   locationId: LocationId,
-  allReservations: ReservationId+
+  status: LocationContext.Status,
+  updatingMember: MemberId
+}
+event LocationStatusUpdated is {
+  reservationId: LocationId,
+  newStatus: LocationContext.Status
 }
 
 query GetNextLocationReservations is {
@@ -35,7 +38,7 @@ query GetNextLocationReservations is {
 }
 query GetLocationReservations is {
 	venueId: LocationId,
-	ranges: TimeRange+
+	ranges: 'TimeRange'+
 }
 result LocationReservations is {
 	venueId: LocationId,
@@ -51,7 +54,7 @@ query GetNextLocationAvailability is {
 }
 result LocationAvailabilityCalendar is {
 	locationId: LocationId,
-	schedule: TimeRange* briefly "A list of time ranges indicating availability"
+	schedule: 'TimeRange'* briefly "A list of time ranges indicating availability"
 }
 
 query FindAvailableLocationsInRange is {locationId: LocationId, start: Date, end: Date}

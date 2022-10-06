@@ -1,8 +1,8 @@
 command EstablishReservation is {
   reservationId: ReservationId briefly "A unique identifier for this Reservation. This must be provided by the calling client.",
   info: ReservationContext.Info briefly "Details about a Reservation required for it to exist. See ReservationContext.Info for details.",
-  establishingMember: MemberId briefly "The Id of the Member who is issuing the create command.",
-  owner: MemberId? briefly "Used in the case that establishingMember is not the owner"
+  reservingMember: MemberId briefly "The Id of the Member who is issuing the create command.",
+  owner: MemberId? briefly "Used in the case that reservingMember is not the owner"
 } briefly "Creates a Reservation"
 
 event ReservationEstablished is {
@@ -12,7 +12,7 @@ event ReservationEstablished is {
 }
 
 command EditReservationInfo is {
-  venueId: VenueId briefly "The unique Id of the reservation to create",
+  reservationId: ReservationId briefly "The unique Id of the reservation to create",
   newInfo: ReservationContext.UpdateInfo briefly "The information about the reservation",
   editingMember: MemberId briefly "Id of the member who is creating the reservation"
 } briefly "A command to edit the values of an Reservation's Info "
