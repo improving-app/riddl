@@ -21,7 +21,7 @@ type VenueReservationsSchedule is {
 
 type VenueAvailabilitySchedule is {
 	locationId: LocationId,
-	schedule: TimeRange+
+	schedule: 'TimeRange'+
 }
 
 type CapacityOverview is {

@@ -1,22 +1,20 @@
 type Status is any of {Draft, OnHold, Reserved, Active, Past} briefly "Internal status of a Reservation."
 
 type Info is {
-    range: TimeRange,
+    range: 'TimeRange',
+    title: String,
+    description: String,
+    location: LocationId,
     forOrg: OrganizationId,
 }
 
 type UpdateInfo is {
-    range: TimeRange?,
-    forOrg: OrganizationId?
-}
-
-type UpdateInfo is {
-    start: TimeStamp,
-    end: TimeStamp,
+    range: 'TimeRange'?,
     title: String?,
     description: String?,
     location: LocationId?,
-    forOrg: OrganizationId?
+    forOrg: OrganizationId?,
+    isPrivate: Boolean?
 }
 
 type MetaInfo is {
