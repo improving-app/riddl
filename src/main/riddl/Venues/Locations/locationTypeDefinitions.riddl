@@ -2,6 +2,7 @@ type Status is any of {Draft, Open, Closed} briefly "Internal status of a Locati
 
 type Info is {
 	id: LocationId,
+	venueId: VenueId,
 	name: String,
   description: String,
   directions: String briefly "How do you find this location?",

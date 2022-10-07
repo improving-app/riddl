@@ -1,6 +1,7 @@
 context VenueContext is {
     include "venueTypeDefinitions"
     include "venueMessages"
+    include "venueProjections"
 
     entity Venue is {
         options (event-sourced, available)

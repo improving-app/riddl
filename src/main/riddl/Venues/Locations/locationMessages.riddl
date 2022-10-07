@@ -31,31 +31,10 @@ event LocationStatusUpdated is {
   newStatus: LocationContext.Status
 }
 
-query GetNextLocationReservations is {
+query GetLocationVenue is {
+	locationId: LocationId
+}
+result LocationVenue is {
   locationId: LocationId,
-  maxCount: Integer,
-	startDate: DateTime? briefly "Used as start date of query when present instead of now()"
+  venueId: VenueId
 }
-query GetLocationReservations is {
-	venueId: LocationId,
-	ranges: 'TimeRange'+
-}
-result LocationReservations is {
-	venueId: LocationId,
-	schedule: ReservationId* briefly "All reservation that take place in the location within
-																		the time range (for GetNextLocationReservations) or
-																		maxCount+startDate (for GetLocationReservations) provided"
-}
-
-query GetNextLocationAvailability is {
-	locationId: LocationId,
-	maxCount: Integer,
-	startDate: DateTime? briefly "Used as start date of query when present instead of now()"
-}
-result LocationAvailabilityCalendar is {
-	locationId: LocationId,
-	schedule: 'TimeRange'* briefly "A list of time ranges indicating availability"
-}
-
-query FindAvailableLocationsInRange is {locationId: LocationId, start: Date, end: Date}
-query FindAvailableLocationsInRangeWithAmenities is {locationId: LocationId, start: Date, end: Date, desiredAmenities: String*}

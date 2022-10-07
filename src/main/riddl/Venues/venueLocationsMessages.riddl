@@ -1,0 +1,8 @@
+//based on venueId
+query GetLocationsForVenue {
+	venueId: VenueId
+}
+result LocationsForVenue {
+	venueId: VenueId,
+	location: LocationId+
+}

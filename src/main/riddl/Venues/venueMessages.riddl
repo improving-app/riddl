@@ -42,36 +42,17 @@ event VenueLocationsAdded is {
   allLocation: LocationId+
 }
 
-query GetNextVenueReservations is {
-	venueId: VenueId,
-	maxCount: Integer,
-	startDate: DateTime? briefly "Used as start date of query when present instead of now()."
-}
-query GetVenueReservations is {
-	venueId: VenueId,
-	range: 'TimeRange'+
-}
-result VenueReservations is {
-	venueId: VenueId,
-	schedule: VenueReservationsSchedule* briefly "All reservation that take place in the venue within
-																		the time range (for GetNextVenueReservations) or
-																		maxCount+startDate (for GetVenueReservations) provided"
-}
-
-query GetNextVenueAvailability is {
-	venueId: VenueId,
-	maxCount: Integer,
-	startDate: TimeStamp? briefly "Used as start date of query when present instead of now()"
-}
-result VenueAvailabilityCalendar is {
-	venueId: VenueId,
-	schedule: VenueAvailabilitySchedule* briefly "A list of location with time ranges indicating availability"
+query GetVenueInfo is {venueId: VenueId}
+result VenueInfo is {
+  venueId: VenueId,
+  info: VenueContext.Info
 }
 
 query GetVenueCapacityOverview is {
 	venueId: VenueId
 } briefly "This will operate on a projection that provides the min and max capacity across locations in venues"
 result VenueCapacityOverview is {
+	venueId: VenueId,
   venueInfo: VenueContext.Info,
-  capacityOverview: VenueContext.CapacityOverview
+  capacityOverview: CapacityOverview
 }

@@ -1,0 +1,43 @@
+projection VenueLocationsReservationsView is {
+    fields {
+        venueId: VenueId,
+        locationId: LocationId,
+        reservationId: ReservationId,
+        reservationStart: TimeStamp,
+        reservationEnd: TimeStamp
+    }
+    handler VenueLocationsReservationsViewHandler is {
+        on event ReservationEstablished {
+            then "set venueId to ReservationEstablished.VenueId"
+        }
+        on query GetVenueInfo {
+            given "GetVenueInfo.venueId exists in this projection"
+            then "yield VenueInfo"
+            else error "VenueId not found as requested"
+        }
+        on query GetNextVenueReservations {
+            given "GetNextVenueReservations.venueId exists in this projection with
+                    reservationStart > GetNextVenueReservations.startTime (or now() if not provided)"
+            then "yield VenueReservations with VenueReservationsSchedule objects containing all locations
+                  and their Ids given "GetNextVenueReservations.venueId exists in this projection with
+                  reservationStart > GetNextVenueReservations.startTime (or now() if not provided),
+                  limited by GetNextVenueReservations.maxCount"
+            else error "Venue requested not found with reservations after requested startTime (or now if not provided)"
+        }
+        on query GetVenueReservationsInRange {
+            given "GetVenueReservationsInRange.venueId exists in this projection with
+                    reservations within the time-ranges provided by GetVenueReservationsInRange.ranges"
+            then "yield VenueReservations with VenueReservationsSchedule objects containing all locations
+                  and their Ids within the time-ranges given by GetVenueReservationsInRange.ranges"
+            else error "Venue requested has no found reservations in requested time-ranges"
+        }
+        on query GetNextVenueAvailability {
+            given "GetNextVenueAvailability.venueId exists in this projection with
+                    reservations within the time-ranges provided by GetVenueReservationsInRange.ranges"
+            then "yield VenueAvailabilityCalendar with VenueReservationsSchedule objects containing all locations,
+                  and their Ids, and all time ranges available after GetNextVenueAvailability.startTime (or now() if
+                  not provided), limited by maxCount"
+            else error "Venue requested is always available after requested startTime (or now if not provided)"
+        }
+    }
+}
