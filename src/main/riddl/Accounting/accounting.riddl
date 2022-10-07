@@ -1,6 +1,10 @@
 context AccountingContext is {
-    entity BillingAccount is {???}
-    entity DistributionAccount is {???}
+    entity BillingAccount is {
+        type BillingContact: Contact
+    }
+    entity DistributionAccount is {
+        type DistributionContact: Contact
+    }
     entity FundsDistribution is {???}
     entity Invoice is {???}
     entity Statement is {???} //a detailed accounting of a payment
