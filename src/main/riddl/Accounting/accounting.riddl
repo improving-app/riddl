@@ -1,9 +1,15 @@
 context AccountingContext is {
     entity BillingAccount is {
         type BillingContact: Contact
+        //tenantId: TenantId
+        //query GetBillingAccountForTenant(tenantId: TenantId)
+        //response TenantBillingAccount(tenantId: TenantId, billingAccount: BillingAccountId)
     }
     entity DistributionAccount is {
         type DistributionContact: Contact
+        //tenantId: TenantId
+        //query GetDistributionAccountForTenant(tenantId: TenantId)
+        //response TenantDistributionAccount(tenantId: TenantId, distributionAccount: DistributionAccountId)
     }
     entity FundsDistribution is {???}
     entity Invoice is {???}
