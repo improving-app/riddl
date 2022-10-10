@@ -15,6 +15,13 @@ type Address is {
     country: String,
     postalCode: PostalCode
 }
+type Contact is {
+    firstName: String,
+    lastName: String,
+    emailAddress: EmailAddress,
+    phone: MobileNumber,
+    userName: String
+}
 
 // Identifiers
 // type BaseOrganizationId is Id (BaseOrganization)
@@ -28,3 +35,4 @@ type BillingAccountId is Id (^AccountingContext.BillingAccount)
 type DistributionAccountId is Id (^AccountingContext.DistributionAccount)
 type MemberId is Id(^MembersContext.Member)
 type ReservationId is Id(^VenueContext.Reservation)
+type TenantId is Id(ImprovingApp.TenantContext.Tenant)

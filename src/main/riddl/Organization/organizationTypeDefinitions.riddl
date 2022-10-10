@@ -44,4 +44,4 @@ type Parent: OrganizationId briefly "BaseOrganizations do not have a parent. All
 type MemberList: MemberId* briefly "An organization is composed of members. Membership in an organization generally gives visibility and access to events, especially for private organizaitons. Only members of an organizaton can be Owners or Admins of that organization."
 type OwnerList: MemberId* briefly "Every organization must have at least one Owner. Owners are the first and default Admin for the organzations they own."
 type ContactList: Contacts? briefly "There are three kinds of contacts: Primary Contacts, Billing Contacts, and Distribution Contacts." described in file "organizationContacts.md"
-type AccountList: Accounts? briefly "There are two kinds of accounts: Billing Accounts, and Distribution Accounts." described in file "../Accounting/accounts.md"
+// type AccountList: Accounts? briefly "There are two kinds of accounts: Billing Accounts, and Distribution Accounts." described in file "../Accounting/accounts.md"

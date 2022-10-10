@@ -12,6 +12,7 @@ domain ImprovingApp is {
     include "Inventory/inventory"
     include "Members/members"
     include "Organization/organization"
+    include "Tenant/tenant"
     include "Vendors/vendor"
     include "Venues/venue"
 } described in file "ImprovingApp.md"

@@ -27,3 +27,66 @@ story WritingABook is {
   }
   implemented by { ??? }
 } described as "A simple authoring story"
+
+//ImprovingApp stories
+// As the leader of an organization I would like to sign up to use ImprovingApp so that I can use its features in my organization. 
+
+// As ImprovingApp I would like organizations using the app to pay for their use
+
+// As a user of ImprovingApp I would like to receive proceeds from sales facilitated by ImprovingApp
+
+// As ImprovingApp I would like to know who to contact if there are concerns with use of ImprovingApp
+
+// As a leader of an organization using of improving app I would like to create organizations to track their membership, events, and sales activities. 
+
+// As a patron of my school I would like to know when events are happening
+
+// As an attendee of an event I would like to buy my ticket to the event online
+
+// As a purchaser of tickets I would like to purchase tickets for my group and distribute them to individuals of my group because they will be arriving at different times. 
+
+// As an attendee of an event I would like to buy my concessions online
+
+// As an attendee of an event I would like to save payment methods to make purchases easier. 
+
+// As a parent of a child attending an event I would like to put money on my child's account for them to purchase things. 
+
+// As an attendee of an event I would like the event program/roster accessible electronically
+
+// As an attendee of an event I would like to participate in fan games electronically. 
+
+// As an owner of a local business I would like to advertise to attendees of events. 
+
+// As the host of an event I would like to distribute the program electronically so there is less cost to produce it and less mess to clean up after the event. 
+
+// As an attendee of an event I would like to have directions to where the event is held
+
+// As the host of an event I would like to track attendance and gather demographic data regarding attendance so that I can learn better how to market my events
+
+// As the manager of a store I would like to track attendance and sales at events so that I can accouately predict inventory needs for future events
+
+// As the manager of a store I would like to list and price products I intend to sell
+
+// As a manager of a store I would like to track inventory so I don't oversell
+
+// As a manager of a store I would like to create promotions to encourage sales. 
+
+// As a manager of a store I would like to notify the MC of the event that I am open/have low inventory/putting things on sale. 
+
+// As a manager of a store I would like to view near real time reports about sales
+
+// As a manager of a store I would like to predict sales demands so I can accurately staff volunteers to run my store
+
+// As a store manager I would like to audit and account for proceeds from sales at an event
+
+// As a store manager I would like to cycle count inventory to understand/control loss
+
+// As a leader of an organization hosting an event I would like to fairly distribute proceeds from the event to participating organizations
+
+// As the leader of an organization I would like to make certain events private so I can protect members 
+
+// As a person using ImprovingApp I would like to know my data is safe and would like to exercise my right to be forgotten if I don't think my data is safe
+
+// As the owner of a venue/location I would like to make it available for organizations to schedule for events
+
+// As an organization that would like to scedule an event I would like to discover venue/location availability that would meet my needs.
