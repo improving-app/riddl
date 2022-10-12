@@ -4,8 +4,6 @@ As a Member attending an Event I would like to buy my concession Products online
 As a Vendor I would like to notify my Customer (Member) of Order status changes
 As a Vendor I would like to notify Inventory about product loss (dropped hamburger)
 
- comes to existence"
-
 //As a Member I would like to maintain my iAppCoins Account so that I can make purchases (funny money) (member has an iAppCoins Account)
 //As a Member I can deposit iAppCoins into my account so I can spend them within the app
 story DepositCoins is {
