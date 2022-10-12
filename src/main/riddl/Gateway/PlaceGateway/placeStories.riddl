@@ -1,0 +1,5 @@
+//Place Gateway Stories
+As a Tenant Owner I would like to create a Venue
+As a Tenant Owner I would like to create a Location within a Venue
+As the Owner of a Venue/Location I would like to make my Venue/Locations available for Organizations to Reserve for Events
+As an Organization Owner I would like to search for Location availability that would meet the needs for my Event (capacity and time)
