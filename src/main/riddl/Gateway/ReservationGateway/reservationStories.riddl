@@ -1,0 +1,4 @@
+//Reservation Gateway Stories
+As the Owner of an Event I would like to Reserve a Venue/Location to hold my Event at
+  - Pick a time/venue from a pick list of search results
+  - Pick the next available (easy button)

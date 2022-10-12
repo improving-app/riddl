@@ -1,0 +1,5 @@
+//Order Gateway Stories
+As a Member attending an Event I would like to buy my Ticket to the Event online
+As a Member attending an Event I would like to buy my concession Products online
+As a Vendor I would like to notify my Customer (Member) of Order status changes
+As a Vendor I would like to notify Inventory about product loss (dropped hamburger)
