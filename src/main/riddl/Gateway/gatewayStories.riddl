@@ -1,11 +1,7 @@
 //Member Stories (James)
 //As a person who would like to use the features of ImprovingApp I would like to register a new user account so that I can access those features
 story RegisterMember is {
-  //Move actor defintions into domain (not inside story definition)
-  actor Member is "The person that is being enrolled"
-  actor App is "The applicaiton the user is using to perform this action"
-  actor GatewayAPI is "The interface that accepts the request for processing by the backend"
-  capability is "Enroll the Member"
+capability is "Enroll the Member"
   benefit is "So Member can use ImprovingApp"
   author James is {
     name: "James Lovell"
@@ -93,7 +89,6 @@ As a Member I would like to receive Notification that a Product/Ticket has low s
 //Vendor Stories
 As an Owner of a Organization I want to create a Vendor to manage Stores at my Event
   - Vendor must create a Tenant, then an Org, then Vendor, then Store(s)
-
 
 
 

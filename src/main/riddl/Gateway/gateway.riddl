@@ -1,0 +1,4 @@
+domain GatewayAPI is {
+    include "actorDefinitions.riddl"
+    include "gatewayStories.riddl"
+}

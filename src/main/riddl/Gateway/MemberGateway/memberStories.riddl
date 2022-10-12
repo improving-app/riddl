@@ -1,0 +1,32 @@
+//Member Gateway Stories
+//As a person who would like to use the features of ImprovingApp I would like to register a new user account so that I can access those features
+story RegisterMember is {
+capability is "Enroll the Member"
+  benefit is "So Member can use ImprovingApp"
+  author James is {
+    name: "James Lovell"
+    email: "james.lovell@improving.com"
+  } 
+  case HappyPath is {
+    title: "Enroll a new Member"
+    scope domain {ImprovingApp} 
+    interaction is {
+      step from actor Member "EnrollMember" to actor App
+        briefly "initial invocation",
+      step from actor App send command Member.EnrollMember to actor GatewayAPI
+        briefly "send creation message",
+    //   step from actor GatewayAPI "Register Member" to entity ImprovingApp.MemberContext.Member
+    //     briefly "add new organization",
+    //   step from entity ImprovingApp.MemberContext.Member "MemberRegistered" to pipe ImprovingApp.MemberContext.MemberEvents
+    //     briefly "organization added"
+    //   step from pipe ImprovingApp.MemberContext.MemberEvents "MemberEnrolled" to actor App
+    }
+    //example Foo is {...}
+  }
+} briefly "A story about establishing an organization in Improving.app"
+  described as "This is the story of how an organization comes to existence"
+As a Member I would like to maintain my iAppCoins Account so that I can make purchases (funny money)
+As a user of ImprovingApp I can deposit iAppCoins into my account so I can spend them within the app
+As a Member I would like to check the balance of my iAppCoins Account to see if I have enough coin to make a purchase
+As a Member of ImprovingApp I would like to subscribe to Event Update Stream
+As a Member I would like to express interest in an Event that has not been Reserved
