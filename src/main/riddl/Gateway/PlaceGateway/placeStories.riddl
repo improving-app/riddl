@@ -1,5 +1,162 @@
-//Place Gateway Stories
-As a Tenant Owner I would like to create a Venue
-As a Tenant Owner I would like to create a Location within a Venue
-As the Owner of a Venue/Location I would like to make my Venue/Locations available for Organizations to Reserve for Events
-As an Organization Owner I would like to search for Location availability that would meet the needs for my Event (capacity and time)
+story CreateVenue is {
+  As actor Member wants to "create a Venue" so that "I can manage my Venue in ImprovingApp"
+	// capability is "Create a Venue"
+  // benefit is "So Members can create Venues in ImprovingApp"
+  author Alex is {
+    name: "Alex Weinstein"
+    email: "alex.weinstin@improving.com"
+  }
+  case HappyPath is {
+    title: "Create a new Venue"
+    scope domain {ImprovingApp}
+    interaction is {
+      step from actor Member "provide venue information" to actor App
+        briefly "initial invocation",
+      step from actor App send command Venue.CreateVenue to actor GatewayAPI
+        briefly "send creation message",
+    //  step from actor GatewayAPI "Create Venue" to entity ImprovingApp.VenueContext.Venues
+    //    briefly "add new venue",
+    //  step from entity ImprovingApp.VenueContext.Venue "VenueCreated" to pipe ImprovingApp.VenueContext.VenueEvents
+    //    briefly "venue added"
+    //  step from pipe ImprovingApp.VenueContext.VenueEvents "VenueEnrolled" to actor App
+    }
+    example Success is {
+    //  when Member provides Venue object to App
+    //  then App sends CreateVenue message to GatewayAPI
+    //  and GatewayAPI forwards message to VenueContext
+    //  and Venue is created
+    //  and VenueCreated message is returned from VenueContext to GatewayAPI
+    //  and GatewayAPI forwards message to App
+    //  and App displays success notification to Member
+    }
+  }
+} briefly "A story about creating a venue in Improving.app"
+  described as "This is the story of how a venue comes into existence"
+
+story CreateLocation is {
+  As actor Member wants to "create a Venue" so that "I can manage my Locations in ImprovingApp"
+  benefit is "So Members can create Locations for Venues in ImprovingApp"
+  author Alex is {
+    name: "Alex Weinstein"
+    email: "alex.weinstin@improving.com"
+  }
+  case HappyPath is {
+    title: "Create a new Location"
+    scope domain {ImprovingApp}
+    interaction is {
+      step from actor Member "Location information" to actor App
+        briefly "initial invocation",
+      step from actor App send command Location.CreateLocation to actor GatewayAPI
+        briefly "send creation message",
+    //  step from actor GatewayAPI "Create Location" to entity ImprovingApp.LocationContext.Locations
+    //    briefly "add new location",
+    //  step from entity ImprovingApp.LocationContext.Location "LocationCreated" to pipe ImprovingApp.LocationContext.LocationEvents
+    //    briefly "location added"
+    //  step from pipe ImprovingApp.LocationContext.LocationEvents "LocationCreated" to actor App
+    }
+    example Success is {
+    //  when Member provides Location object to App
+    //  then App sends CreateLocation message to GatewayAPI
+    //  and GatewayAPI forwards message to LocationContext
+    //  and Location is created
+    //  and LocationCreated message is returned from LocationContext to GatewayAPI
+    //  and GatewayAPI forwards message to App
+    //  and App displays success notification to Member
+    }
+  }
+} briefly "A story about creating a location in Improving.app"
+  described as "This is the story of how a location comes into existence"
+
+story UpdateLocationStatus is {
+  As actor Member wants to "update a Location's status" so that "I can manage my Location statuses in ImprovingApp"
+	//capability is "Make a Location Available for Reservation"
+  //benefit is "So Members can allow other Members to make Reservations in their Locations in ImprovingApp"
+  author Alex is {
+    name: "Alex Weinstein"
+    email: "alex.weinstin@improving.com"
+  }
+  case ToAvailableHappyPath is {
+    title: "Update Location Status to Available"
+    scope domain {ImprovingApp}
+    interaction is {
+      step from actor Member "presses button to update Location status to Available" to actor App
+        briefly "initial invocation",
+      step from actor App send command Location.UpdateLocationStatus to actor GatewayAPI
+        briefly "send update status message",
+    //  step from actor GatewayAPI "Update Location Status" to entity ImprovingApp.LocationContext.Locations
+    //    briefly "update location status",
+    //  step from entity ImprovingApp.LocationContext.Location "LocationStatusUpdated" to pipe ImprovingApp.LocationContext.LocationEvents
+    //    briefly "location status updated"
+    //  step from pipe ImprovingApp.LocationContext.LocationEvents "LocationStatusUpdated" to actor App
+    }
+    example Success is {
+    //  when Member requests for UpdateLocationStatus to App with Available as its parameter
+    //  then App sends UpdateLocationStatus message to GatewayAPI
+    //  and GatewayAPI forwards message to LocationContext
+    //  and Location is updated to Available status
+    //  and LocationStatusUpdated message is returned from LocationContext to GatewayAPI
+    //  and GatewayAPI forwards message to App
+    //  and App displays success notification to Member
+    }
+  }
+} briefly "A story about updating a location's status to Available in Improving.app"
+  described as "This is the story of how a location becomes available"
+
+story SearchAvailableLocations is {
+  As actor Member wants to "search for available Locations given specific parameters" so that "I can make a Reservation in an available Location in ImprovingApp"
+	// capability is "Search (parameterized) for a Location that is available for Reservation"
+  // benefit is "So Members can find Locations for making Reservations in ImprovingApp according to desired specifications"
+  author Alex is {
+    name: "Alex Weinstein"
+    email: "alex.weinstin@improving.com"
+  }
+  case TimeSearchHappyPath is {
+    title: "Search for available Locations according to time range parameters"
+    scope domain {ImprovingApp}
+    interaction is {
+      step from actor Member "searches for location availability with time based parameters" to actor App
+        briefly "initial invocation",
+      step from actor App send command Location.SearchAvailableLocations to actor GatewayAPI
+        briefly "send search message",
+    //  step from actor GatewayAPI "Search Available Locations" to entity ImprovingApp.LocationContext.Locations
+    //    briefly "search for available locations according to provided parameters",
+    //  step from entity ImprovingApp.LocationContext.Location "LocationSearchResults" to pipe ImprovingApp.LocationContext.LocationEvents
+    //    briefly "location search results"
+    //  step from pipe ImprovingApp.LocationContext.LocationEvents "LocationSearchResults" to actor App
+    }
+    example Success is {
+    //  when Member requests for SearchAvailableLocations to App with a time range or series of them as its parameter
+    //  then App sends SearchAvailableLocations message to GatewayAPI
+    //  and GatewayAPI forwards message to LocationContext
+    //  and Locations are found that are available
+    //  and LocationSearchResults message is returned from LocationContext to GatewayAPI
+    //  and GatewayAPI forwards message to App
+    //  and App displays success notification to Member
+    }
+  }
+  case CapacitySearchHappyPath is {
+    title: "Search for available Locations according to capacity parameters"
+    scope domain {ImprovingApp}
+    interaction is {
+      step from actor Member "SearchAvailableLocations" to actor App
+        briefly "initial invocation",
+      step from actor App send command Location.SearchAvailableLocations to actor GatewayAPI
+        briefly "send search message",
+    //  step from actor GatewayAPI "searches for location availability with capacity based parameters" to entity ImprovingApp.LocationContext.Locations
+    //    briefly "search for available locations according to provided parameters",
+    //  step from entity ImprovingApp.LocationContext.Location "LocationSearchResults" to pipe ImprovingApp.LocationContext.LocationEvents
+    //    briefly "location search results"
+    //  step from pipe ImprovingApp.LocationContext.LocationEvents "LocationSearchResults" to actor App
+    }
+    example Success is {
+    //  when Member requests SearchAvailableLocations to App with a maxCapacity as its parameter
+    //  then App sends SearchAvailableLocations message to GatewayAPI
+    //  and GatewayAPI forwards message to LocationContext
+    //  and Locations are found that are available
+    //  and LocationSearchResults message is returned from LocationContext to GatewayAPI
+    //  and GatewayAPI forwards message to App
+    //  and App displays success notification to Member
+    }
+  }
+} briefly "A story about searching for available locations in Improving.app"
+  described as "This is the story of how available locations are found according to user parameters"

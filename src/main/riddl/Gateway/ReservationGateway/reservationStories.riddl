@@ -1,4 +1,111 @@
 //Reservation Gateway Stories
-As the Owner of an Event I would like to Reserve a Venue/Location to hold my Event at
-  - Pick a time/venue from a pick list of search results
-  - Pick the next available (easy button)
+story CreateReservation is {
+  As actor Member wants to "create a Reservation" so that "I can manage my Reservations & book Events for them in ImprovingApp"
+  author Alex is {
+    name: "Alex Weinstein"
+    email: "alex.weinstin@improving.com"
+  }
+  case TimePickHappyPath is {
+    title: "Create a new Reservation by picking from a list, given time parameters"
+    scope domain {ImprovingApp}
+    interaction is {
+      step from actor Member "provide time range" to actor App
+        briefly "initial invocation",
+      step from actor App send command Reservation.FindReservationsAvailability to actor GatewayAPI
+        briefly "send availability query",
+    //  step from actor GatewayAPI "Find Availability for Reservations" to entity ImprovingApp.ReservationContext.Reservations
+    //    briefly "find available reservations given parameters",
+    //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationsAvailabilityResults" to pipe ImprovingApp.ReservationContext.ReservationEvents
+    //    briefly "return results of query"
+    //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationsAvailabilityResults" to actor App
+    //  step from actor Member "CreateReservation" to actor App
+    //    briefly "creation invocation",
+    //  step from actor App send command Reservation.CreateReservation to actor GatewayAPI
+    //    briefly "send creation message",
+    //  step from actor GatewayAPI "Create Reservation" to entity ImprovingApp.ReservationContext.Reservations
+    //    briefly "add new reservation",
+    //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationCreated" to pipe ImprovingApp.ReservationContext.ReservationEvents
+    //    briefly "reservation added"
+    //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationCreated" to actor App
+    }
+    example Success is {
+    //  when Member queries for FindReservationsAvailability while providing a time range to App
+    //  then App sends FindReservationsAvailability message to GatewayAPI
+    //  and GatewayAPI forwards message to ReservationContext
+    //  and availability is found for time range
+    //  and ReservationsAvailability message is returned from ReservationContext to GatewayAPI
+    //  and GatewayAPI forwards message to App
+    //  and App displays success list of available Locations to Member
+    //  and App sends CreateReservation message to GatewayAPI
+    //  and GatewayAPI forwards message to ReservationContext
+    //  and Reservation is created
+    //  and ReservationCreated message is returned from ReservationContext to GatewayAPI
+    //  and GatewayAPI forwards message to App
+    //  and App displays success notification to Member
+    }
+  }
+  case MaxCapacityPickHappyPath is {
+    title: "Create a new Reservation by picking from a list, given maxCapacity parameter"
+    scope domain {ImprovingApp}
+    interaction is {
+      step from actor Member "provide maxCapacity" to actor App
+        briefly "initial invocation",
+      step from actor App send command Reservation.FindReservationsAvailability to actor GatewayAPI
+        briefly "send availability query",
+    //  step from actor GatewayAPI "Find Availability for Reservations" to entity ImprovingApp.ReservationContext.Reservations
+    //    briefly "find available reservations given parameters",
+    //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationsAvailabilityResults" to pipe ImprovingApp.ReservationContext.ReservationEvents
+    //    briefly "return results of query"
+    //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationsAvailabilityResults" to actor App
+    //  step from actor Member "CreateReservation" to actor App
+    //    briefly "creation invocation",
+    //  step from actor App send command Reservation.CreateReservation to actor GatewayAPI
+    //    briefly "send creation message",
+    //  step from actor GatewayAPI "Create Reservation" to entity ImprovingApp.ReservationContext.Reservations
+    //    briefly "add new reservation",
+    //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationCreated" to pipe ImprovingApp.ReservationContext.ReservationEvents
+    //    briefly "reservation added"
+    //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationCreated" to actor App
+    }
+    example Success is {
+    //  when Member queries for FindReservationsAvailability while providing a maxCapacity to App
+    //  then App sends FindReservationsAvailability message to GatewayAPI
+    //  and GatewayAPI forwards message to ReservationContext
+    //  and availability is found for maxCapacity
+    //  and ReservationsAvailability message is returned from ReservationContext to GatewayAPI
+    //  and GatewayAPI forwards message to App
+    //  and App displays success list of available Locations to Member
+    //  and App sends CreateReservation message to GatewayAPI
+    //  and GatewayAPI forwards message to ReservationContext
+    //  and Reservation is created
+    //  and ReservationCreated message is returned from ReservationContext to GatewayAPI
+    //  and GatewayAPI forwards message to App
+    //  and App displays success notification to Member
+    }
+  }
+  case NextAvailableHappyPath is {
+    title: "Create a new Reservation automatically based on what is available next, parameterized by Reservation info"
+    scope domain {ImprovingApp}
+    interaction is {
+      step from actor Member "asks for next Reservation while providing ReservationInfo" to actor App
+        briefly "initial invocation",
+      step from actor App send command Reservation.BookNextAvailable to actor GatewayAPI
+        briefly "send smart booking query",
+    //  step from actor GatewayAPI "Book Next Available Reservation" to entity ImprovingApp.ReservationContext.Reservations
+    //    briefly "find available reservations & automatically book one given fields of info provided",
+    //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationCreated" to pipe ImprovingApp.ReservationContext.ReservationEvents
+    //    briefly "reservation added"
+    //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationCreated" to actor App
+    }
+    example Success is {
+    //  when Member sends BookNextAvailable command while providing a ReservationInfo to App
+    //  then App sends BookNextAvailable message to GatewayAPI
+    //  and GatewayAPI forwards message to ReservationContext
+    //  and Reservation is created
+    //  and ReservationCreated message is returned from ReservationContext to GatewayAPI
+    //  and GatewayAPI forwards message to App
+    //  and App displays success notification to Member
+    }
+  }
+} briefly "A story about creating a reservation in Improving.app"
+  described as "This is the story of how a reservation comes into existence"
