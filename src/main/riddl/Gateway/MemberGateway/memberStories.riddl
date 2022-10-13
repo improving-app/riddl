@@ -18,12 +18,12 @@ story RegisterMember is {
   }
   case HappyPath is {
     title: "Enroll a new Member"
-    scope domain {ImprovingApp}
+    scope domain ImprovingApp
     interaction is {
       step from actor Member "EnrollMember" to actor App
-        briefly "initial invocation",
-      step from actor App send command Member.EnrollMember to actor GatewayAPI
-        briefly "send creation message",
+        briefly "Member clicks on the enroll button",
+      step from actor App send command Member.EnrollMember to actor GatewayAPI //ImprovingApp.Gateway.MemberGateway.Member
+        briefly "App tells the Gateway to enroll the member",
     //   step from actor GatewayAPI "Register Member" to entity ImprovingApp.MemberContext.Member
     //     briefly "add new organization",
     //   step from entity ImprovingApp.MemberContext.Member "MemberRegistered" to pipe ImprovingApp.MemberContext.MemberEvents
