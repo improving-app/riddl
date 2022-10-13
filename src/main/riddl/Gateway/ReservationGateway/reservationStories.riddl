@@ -1,6 +1,39 @@
 //Reservation Gateway Stories
+story CreateReservation {
+	As actor Member wants to "Create a Reservation" so that "I can manage my Reservations & book them in ImprovingApp"
+  author Alex is {
+    name: "Alex Weinstein"
+    email: "alex.weinstin@improving.com"
+  }
+  case HappyPath is {
+    title: "Create a new Reservation without booking it"
+    scope domain {ImprovingApp}
+    interaction is {
+      step from actor Member "provides a ReservationId" to actor App
+        briefly "initial invocation",
+      step from actor App send command Reservation.CreateReservation to actor GatewayAPI
+    //    briefly "send creation message",
+    //  step from actor GatewayAPI "Create Reservation" to entity ImprovingApp.ReservationContext.Reservations
+    //    briefly "create reservation",
+    //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationCreated" to pipe ImprovingApp.ReservationContext.ReservationEvents
+    //    briefly "reservation created"
+    //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationCreated" to actor App
+    }
+    example Success is {
+    //  when Member provides CreateReservation command w/ necessary info to App
+    //  then App sends CreateReservation message to GatewayAPI
+    //  and GatewayAPI forwards message to ReservationContext
+    //  and Reservation is booked
+    //  and ReservationCreated message is returned from ReservationContext to GatewayAPI
+    //  and GatewayAPI forwards message to App
+    //  and App displays success notification to Member
+    }
+  }
+} briefly "A story about creating a reservation in Improving.app"
+  described as "This is the story of how a reservation comes into existence"
+
 story BookReservation is {
-  As actor Member wants to "create a Reservation" so that "I can manage my Reservations & book Events for them in ImprovingApp"
+  As actor Member wants to "Book a Reservation" so that "I can book my Reservations in ImprovingApp"
   author Alex is {
     name: "Alex Weinstein"
     email: "alex.weinstin@improving.com"
@@ -18,14 +51,14 @@ story BookReservation is {
     //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationsAvailabilityResults" to pipe ImprovingApp.ReservationContext.ReservationEvents
     //    briefly "return results of query"
     //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationsAvailabilityResults" to actor App
-    //  step from actor Member "BookReservation" to actor App
-    //    briefly "creation invocation",
-    //  step from actor App send command Reservation.BookReservation to actor GatewayAPI
-    //    briefly "send creation message",
-    //  step from actor GatewayAPI "Book Reservation" to entity ImprovingApp.ReservationContext.Reservations
-    //    briefly "add new reservation",
+    //  step from actor Member "provides a ReservationId from the list of results" to actor App
+    //    briefly "booking invocation",
+    //  step from actor App send command Reservation.CreateReservation to actor GatewayAPI
+    //    briefly "send booking message",
+    //  step from actor GatewayAPI "Create Reservation" to entity ImprovingApp.ReservationContext.Reservations
+    //    briefly "book reservation",
     //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationBooked" to pipe ImprovingApp.ReservationContext.ReservationEvents
-    //    briefly "reservation added"
+    //    briefly "reservation booked"
     //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationBooked" to actor App
     }
     example Success is {
@@ -38,7 +71,7 @@ story BookReservation is {
     //  and App displays success list of available Locations to Member
     //  and App sends BookReservation message to GatewayAPI
     //  and GatewayAPI forwards message to ReservationContext
-    //  and Reservation is created
+    //  and Reservation is booked
     //  and ReservationBooked message is returned from ReservationContext to GatewayAPI
     //  and GatewayAPI forwards message to App
     //  and App displays success notification to Member
@@ -57,14 +90,14 @@ story BookReservation is {
     //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationsAvailabilityResults" to pipe ImprovingApp.ReservationContext.ReservationEvents
     //    briefly "return results of query"
     //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationsAvailabilityResults" to actor App
-    //  step from actor Member "BookReservation" to actor App
-    //    briefly "creation invocation",
-    //  step from actor App send command Reservation.BookReservation to actor GatewayAPI
-    //    briefly "send creation message",
-    //  step from actor GatewayAPI "Book Reservation" to entity ImprovingApp.ReservationContext.Reservations
-    //    briefly "add new reservation",
+    //  step from actor Member "provides a ReservationId from the list of results" to actor App
+    //    briefly "booking invocation",
+    //  step from actor App send command Reservation.CreateReservation to actor GatewayAPI
+    //    briefly "send booking message",
+    //  step from actor GatewayAPI "Create Reservation" to entity ImprovingApp.ReservationContext.Reservations
+    //    briefly "book reservation",
     //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationBooked" to pipe ImprovingApp.ReservationContext.ReservationEvents
-    //    briefly "reservation added"
+    //    briefly "reservation booked"
     //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationBooked" to actor App
     }
     example Success is {
@@ -77,7 +110,7 @@ story BookReservation is {
     //  and App displays success list of available Locations to Member
     //  and App sends BookReservation message to GatewayAPI
     //  and GatewayAPI forwards message to ReservationContext
-    //  and Reservation is created
+    //  and Reservation is booked
     //  and ReservationBooked message is returned from ReservationContext to GatewayAPI
     //  and GatewayAPI forwards message to App
     //  and App displays success notification to Member
@@ -87,25 +120,25 @@ story BookReservation is {
     title: "Book a new Reservation automatically based on what is available next, parameterized by Reservation info"
     scope domain {ImprovingApp}
     interaction is {
-      step from actor Member "asks for next Reservation while providing ReservationInfo" to actor App
+      step from actor Member "asks to book next Reservation with search parameters based ReservationInfo in a provided ReservationId" to actor App
         briefly "initial invocation",
       step from actor App send command Reservation.BookNextAvailable to actor GatewayAPI
         briefly "send smart booking query",
-    //  step from actor GatewayAPI "Book Next Available Reservation" to entity ImprovingApp.ReservationContext.Reservations
-    //    briefly "find available reservations & automatically book one given fields of info provided",
+    //  step from actor GatewayAPI "Book Next Available Location" to entity ImprovingApp.ReservationContext.Reservations
+    //    briefly "find available locations & automatically book one given fields of info provided",
     //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationBooked" to pipe ImprovingApp.ReservationContext.ReservationEvents
-    //    briefly "reservation added"
+    //    briefly "reservation booked"
     //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationBooked" to actor App
     }
     example Success is {
     //  when Member sends BookNextAvailable command while providing a ReservationInfo to App
     //  then App sends BookNextAvailable message to GatewayAPI
     //  and GatewayAPI forwards message to ReservationContext
-    //  and Reservation is created
+    //  and Reservation is booked
     //  and ReservationBooked message is returned from ReservationContext to GatewayAPI
     //  and GatewayAPI forwards message to App
     //  and App displays success notification to Member
     }
   }
-} briefly "A story about creating a reservation in Improving.app"
-  described as "This is the story of how a reservation comes into existence"
+} briefly "A story about booking a reservation in Improving.app"
+  described as "This is the story of how a reservation is booked in an available Location"
