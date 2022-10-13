@@ -44,13 +44,13 @@ story BookReservation is {
     interaction is {
       step from actor Member "provide time range" to actor App
         briefly "initial invocation",
-      step from actor App send command Reservation.FindReservationsAvailability to actor GatewayAPI
+      step from actor App send command Reservation.FindLocationsAvailability to actor GatewayAPI
         briefly "send availability query",
-    //  step from actor GatewayAPI "Find Availability for Reservations" to entity ImprovingApp.ReservationContext.Reservations
-    //    briefly "find available reservations given parameters",
-    //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationsAvailabilityResults" to pipe ImprovingApp.ReservationContext.ReservationEvents
+    //  step from actor GatewayAPI "Find Availability for Locations" to entity ImprovingApp.LocationContext.Locations
+    //    briefly "find available locations given parameters",
+    //  step from entity ImprovingApp.LocationContext.Locations "LocationsAvailabilityResults" to pipe ImprovingApp.LocationContext.LocationEvents
     //    briefly "return results of query"
-    //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationsAvailabilityResults" to actor App
+    //  step from pipe ImprovingApp.LocationContext.LocationEvents "LocationsAvailabilityResults" to actor App
     //  step from actor Member "provides a ReservationId from the list of results" to actor App
     //    briefly "booking invocation",
     //  step from actor App send command Reservation.CreateReservation to actor GatewayAPI
@@ -62,11 +62,11 @@ story BookReservation is {
     //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationBooked" to actor App
     }
     example Success is {
-    //  when Member queries for FindReservationsAvailability while providing a time range to App
-    //  then App sends FindReservationsAvailability message to GatewayAPI
-    //  and GatewayAPI forwards message to ReservationContext
+    //  when Member queries for FindLocationsAvailability while providing a time range to App
+    //  then App sends FindLocationsAvailability message to GatewayAPI
+    //  and GatewayAPI forwards message to LocationContext
     //  and availability is found for time range
-    //  and ReservationsAvailability message is returned from ReservationContext to GatewayAPI
+    //  and LocationsAvailability message is returned from ReservationContext to GatewayAPI
     //  and GatewayAPI forwards message to App
     //  and App displays success list of available Locations to Member
     //  and App sends BookReservation message to GatewayAPI
@@ -83,13 +83,13 @@ story BookReservation is {
     interaction is {
       step from actor Member "provide maxCapacity" to actor App
         briefly "initial invocation",
-      step from actor App send command Reservation.FindReservationsAvailability to actor GatewayAPI
+      step from actor App send command Reservation.FindLocationsAvailability to actor GatewayAPI
         briefly "send availability query",
-    //  step from actor GatewayAPI "Find Availability for Reservations" to entity ImprovingApp.ReservationContext.Reservations
+    //  step from actor GatewayAPI "Find Availability for Locations" to entity ImprovingApp.LocationContext.Locations
     //    briefly "find available reservations given parameters",
-    //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationsAvailabilityResults" to pipe ImprovingApp.ReservationContext.ReservationEvents
+    //  step from entity ImprovingApp.LocationContext.Locations "LocationsAvailabilityResults" to pipe ImprovingApp.LocationContext.LocationEvents
     //    briefly "return results of query"
-    //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationsAvailabilityResults" to actor App
+    //  step from pipe ImprovingApp.LocationContext.LocationEvents "LocationsAvailabilityResults" to actor App
     //  step from actor Member "provides a ReservationId from the list of results" to actor App
     //    briefly "booking invocation",
     //  step from actor App send command Reservation.CreateReservation to actor GatewayAPI
@@ -101,11 +101,11 @@ story BookReservation is {
     //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationBooked" to actor App
     }
     example Success is {
-    //  when Member queries for FindReservationsAvailability while providing a maxCapacity to App
-    //  then App sends FindReservationsAvailability message to GatewayAPI
-    //  and GatewayAPI forwards message to ReservationContext
+    //  when Member queries for FindLocationsAvailability while providing a maxCapacity to App
+    //  then App sends FindLocationsAvailability message to GatewayAPI
+    //  and GatewayAPI forwards message to LocationContext
     //  and availability is found for maxCapacity
-    //  and ReservationsAvailability message is returned from ReservationContext to GatewayAPI
+    //  and LocationsAvailability message is returned from ReservationContext to GatewayAPI
     //  and GatewayAPI forwards message to App
     //  and App displays success list of available Locations to Member
     //  and App sends BookReservation message to GatewayAPI
@@ -122,9 +122,9 @@ story BookReservation is {
     interaction is {
       step from actor Member "asks to book next Reservation with search parameters based ReservationInfo in a provided ReservationId" to actor App
         briefly "initial invocation",
-      step from actor App send command Reservation.BookNextAvailable to actor GatewayAPI
+      step from actor App send command Location.BookNextAvailable to actor GatewayAPI
         briefly "send smart booking query",
-    //  step from actor GatewayAPI "Book Next Available Location" to entity ImprovingApp.ReservationContext.Reservations
+    //  step from actor GatewayAPI "Book Next Available Location" to entity ImprovingApp.LocationContext.Locations
     //    briefly "find available locations & automatically book one given fields of info provided",
     //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationBooked" to pipe ImprovingApp.ReservationContext.ReservationEvents
     //    briefly "reservation booked"
