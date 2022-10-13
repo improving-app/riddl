@@ -1,4 +1,13 @@
 domain GatewayAPI is {
     include "actorDefinitions.riddl"
-    include "gatewayStories.riddl"
+    include "EventGateway/eventStories.riddl"
+    include "MemberGateway/memberStories.riddl"
+    include "NotificationGateway/notificationStories.riddl"
+    include "OrderGateway/orderStories.riddl"
+    include "PlaceGateway/placeStories.riddl"
+    include "ProductGateway/productStories.riddl"
+    include "ReservationGateway/reservationStories.riddl"
+    include "StoreGateway/storeStories.riddl"
+    include "TenantGateway/tenantStories.riddl"
+    include "VendorGateway/vendorStories.riddl"
 }
