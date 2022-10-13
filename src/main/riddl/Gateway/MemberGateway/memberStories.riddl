@@ -23,71 +23,27 @@ story RegisterMember is {
     }
     //example Foo is {...}
   }
-} briefly "A story about establishing an organization in Improving.app"
-  described as "This is the story of how an organization comes to existence"
-//As a Member I would like to maintain my iAppCoins Account so that I can make purchases (funny money) (member has an iAppCoins Account)
-//As a Member I can deposit iAppCoins into my account so I can spend them within the app
-story DepositCoins is {
-  capability is "Deposit coins in iAppCoin Account"
-  benefit is "So Member can buy things within ImprovingApp"
-  case HappyPath {
-    title "Deposit Coin"
-    scope domain ImprovingApp
-    interaction is {
-      step from actor Member "Deposit Coin" to actor App
-        briefly "Member clicks Deposit button on the deposit form"
-      step from actor App send command Member.DepositCoin to actor GatewayAPI //ImprovingApp.Gateway.MemberGateway.IAppCoinAccount
-        briefly "App tells the Gateway to deposit coins to their iAppCoin Account"
-    }
-    example "Deposit negative coin" {???}
-    example "Deposit > 99 coin" {???}
-    example "Deposit non-integer amount" {???}
-  }
-}
-
-//As a Member I would like to withdraw coins from my iAppCoinsAccount so that I can purchase products/tickets from a store
-story WithdrawCoins is {
-  capability is "Withdraw coins from iAppCoin Account"
-  benefit is "To pay for items a Member purchases"
-  case HappyPath {
-    title "Withdraw Coin"
-    scope domain ImprovingApp
-    interaction is {
-      step from actor Member "Buy things" to actor App
-        briefly "Member clicks the buy button on the order page"
-      step from actor App send command Order.ProcessOrder to actor GatewayAPI //ImprovingApp.Gateway.OrderGateway.Order
-        briefly "App tells the Gateway to process the Order"
-      step from actor GatewayAPI send command Order.CreateOrder to ImprovingApp.Order
-        briefly "Gateway creates the order in the Order Service"
-      step from ImprovingApp.Order send command Store.CollectPayment to ImprovingApp.StoreContext.Store
-        briefly "Store Authorized to Collect Payment"
-      step from ImprovingApp.StoreContext.Store send CreditAccount to ImprovingApp.MemberContext.IAppCoinAccount
-        briefly "Store Collects Payment"
-      step from ImprovingApp.Member.IAppCoinAccount send event IAppCoinAccount.AccountCredited
-        briefly "Payment was successfully made"
-    }
-    example "Insufficient Funds" is {???}
-    example "Withdraw non-integer amount" is {???}
-    example "Order failed" is {???} //or cancelled
-  }
-}
+} briefly "A story about enrolling a new Member in Improving.app"
+  described as "This is the story of how a Member"
 
 //As a Member I would like to check the balance of my iAppCoins Account to see if I have enough coin to make a purchase
 story GetIAppCoinBalance is {
-  capability is "Check iAppCoinAccount Balance"
-  benefit is "To verify there is enough coin to make a purchase"
+  As actor Member wants to "check the balance of my iAppCoins Account" so that "I can check to see if I have enough coin to make a purchase"
+  // capability is "Check iAppCoinAccount Balance"
+  // benefit is "To verify there is enough coin to make a purchase"
   case HappyPath {
-    title "Check Balance"
-    scope domain ImprovingApp
-    interaction is {
-      step from actor Member "Check balance" to actor App
-        briefly "Member loads page to display iAppCoinAccount detail"
-      step from actor App send query ImprovingApp.GatewayAPI.Member.GetIAppCoinAccountBalance to actor APIGateway
-        briefly "Member asks the gateway to fetch the iAppCoin balance for the Member"
-    }
-  }
+    // title "Check Balance"
+    // scope domain ImprovingApp
+    // interaction is {
+      step from actor Member view AccountDetailsPage to app ImprovingAppUI
+        briefly "Member loads Account Details page to view iAppCoinAccount balance"
+    //}
+    //where we need to define the application with its pages so we can refer to them
+  } briefly ""
+  described as ""
 }
-As a Member of ImprovingApp I would like to subscribe to Event Update Stream so I can follow the progress of Events
+
+//As a Member of ImprovingApp I would like to subscribe to Event Update Stream so I can follow the progress of Events
 story GetEventUpdates is {
   capability is "Member would like to receive event updates as notifications in their Inbox"
   benefit is "Member can stay up to date regarding the Event"
@@ -97,7 +53,8 @@ story GetEventUpdates is {
     interaction is {???}
   }
 }
-As a Member of ImprovingApp I would like to subscrbe to the Order Stream so I can track the progress of my Orders
+
+//As a Member of ImprovingApp I would like to subscrbe to the Order Stream so I can track the progress of my Orders
 story GetOrderUpdates is {
   capability is "Member would like to recieved notifications about thier Order status in their Inbox"
   benefit is "So they can know how their order is progressing toward completion"
@@ -107,7 +64,8 @@ story GetOrderUpdates is {
     interaction is {???}
   }
 }
-As a Member I would like to express interest in an Event that has not been Reserved
+
+//As a Member I would like to express interest in an Event that has not been Reserved
 story IAmInterestedInAttending is {
   capability is "User Expresses interested in attending an Event that has not opened Ticket sales yet"
   beneift is "Get on the list of event notifications (like when tickets go on sale)"
