@@ -1,26 +1,22 @@
-story EstablishOrganization is {
   actor Owner is "the person that owns the organization"
-  capability is "establish an organization"
-  benefit is "I can conduct business as that organization"
+
+story EstablishOrganization is {
+  actor ImprovingApp.Owner wants to "establish an organization" so that
+    "I can conduct business as that organization"
   author reid is {
     name: "Reid Spencer"
     email: "reid.spencer@ossum.biz"
   } briefly "nada" described as "Just some guy on the internet"
   term Organization briefly "An organizational unit, incorporated or not. "
   case primary is {
-    title: "Creating An Organization"
-    scope domain ImprovingApp briefly
-      "This domain is the smallest encapsulating domain that contains everything referenced by uses"
-    interaction is {
-      step from actor Owner "creates an Organization" to context ImprovingApp.OrganizationContext
-        briefly "initial invocation",
-      step from context OrganizationContext "send creation message" to entity ImprovingApp.OrganizationContext.Organization
-        briefly "send creation message",
-      step from entity Organization "add new organization" to projection ImprovingApp.OrganizationContext.OrganizationViews
-        briefly "add new organization",
-      step from entity Organization "organizationAdded" to actor Owner
-        briefly "organization added"
-    }
+    arbitrary step from actor Owner "creates an Organization" to context ImprovingApp.OrganizationContext
+      briefly "initial invocation",
+    arbitrary step from context OrganizationContext "send creation message" to entity ImprovingApp.OrganizationContext.Organization
+      briefly "send creation message",
+    arbitrary step from entity OrganizationContext.Organization "add new organization" to projection ImprovingApp.OrganizationContext.OrganizationViews
+      briefly "add new organization",
+    arbitrary step from entity OrganizationContext.Organization "organizationAdded" to actor Owner
+      briefly "organization added"
   }
 } briefly "A story about establishing an organization in Improving.app"
   described as "This is the story of how an organization comes to existence"
