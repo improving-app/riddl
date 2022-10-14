@@ -1,6 +1,11 @@
 command EstablishOrganization is {
+  // TODO: Reid, do we need orgId in the creation message? Or can this be handled by the default handler for the entity?
   orgId: OrganizationId briefly "A unique identifier for this organization. This must be provided by the calling client.",
   info: OrganizationContext.Info briefly "Details about an organization required for it to exist. See OrganizationContext.Organization.Info for details.",
+  parent: Parent,
+  members: MemberList,
+  owners: OwnerList,
+  contacts: ContactList,
   establishingMember: MemberId briefly "The Id of the Member who is issuing the create command."
 } briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
 described in file "establishOrganization.md"
@@ -8,39 +13,91 @@ described in file "establishOrganization.md"
 event OrganizationEstablished is {
   orgId: OrganizationId,
   info: OrganizationContext.Info,
+  parent: Parent,
+  members: MemberList,
+  owners: OwnerList,
+  contacts: ContactList,
   meta: OrganizationContext.MetaInfo
 }
 
 command EditOrganizationInfo is {
   orgId: OrganizationId briefly "The unique Id of the organization to create",
-  newInfo: OrganizationContext.Info briefly "The information about the organization",
+  newInfo: OrganizationContext.UpdateInfo briefly "The information about the organization",
   editingMember: MemberId briefly "Id of the member who is creating the organization"
 } briefly "A command to edit the values of an Organization's Info "
 described in file "editOrganizationInfo.md"
 
+// TODO: Alex and I had a conversation on this block of commands. Several ideas came out that we should discuss:
+// 1. Should UpdateOrganizationInfo, AddMembersToOrganization, AddOwnersToOrganization, etc. all simply yield an OrganizationInfoUpdated event?
+// 2. Or should OrganizationInfoUpdated have the info type be OrganizationContext.UpdateInfo so we can put only what changed in the event?
+// 3. Or should we have matching events as it is desctibed below? AddMembersToOrganization/MembersAddedToOrganization
+// 4. Or should events which result in changes to OrganizationInfo only inlcude the changed fields (listed individually)
 event OrganizationInfoUpdated is {
   orgId: OrganizationId,
   info: OrganizationContext.Info,
   meta: OrganizationContext.MetaInfo
 }
-
+command UpdateParent is {
+  orgId: OrganizationId,
+  newParent: OrganizationId
+}
+event ParentUpdated is {
+  orgId: OrganizationId,
+  newParent: OrganizationId,
+  meta: OrganizationContext.MetaInfo
+}
 command AddMembersToOrganization is {
   orgId: OrganizationId,
-  members: MemberId+
+  membersToAdd: MemberId+,
+  updatingMember: MemberId
   // TODO: orgId: OrganizationId briefly @orgId,
   // TODO: members: MemberId+ briefly @membersList
 }
+// TODO: Should members be a list of the all members (including new), or should it be only the new members (relevant for #2 and 4 above)
 event MembersAddedToOrganization is {
-  orgId: OrganizationId, 
-  members: MemberId+
+  orgId: OrganizationId,
+  newMembers: MemberId+,
+  meta: OrganizationContext.MetaInfo
+}
+command RemoveMembersFromOrganization is {
+  orgId: OrganizationId,
+  membersToRemove: MemberId+,
+  updatingMember: MemberId
+}
+event MembersRemovedFromOrganization is {
+  orgId: OrganizationId,
+  removedMembers: MemberId+,
+  updatingMember: MemberId
 }
 command AddOwnersToOrganization is {
   orgId: OrganizationId, 
-  owners: MemberId+
+  ownersToAdd: MemberId+,
+  updatingMember: MemberId
 }
 event OwnersAddedToOrganization is {
+  orgId: OrganizationId,
+  newOwners: MemberId+,
+  meta: OrganizationContext.MetaInfo
+}
+command RemoveOwnersFromOrganization is {
   orgId: OrganizationId, 
-  owners: MemberId+
+  ownersToRemove: MemberId+,
+  updatingMember: MemberId
+}
+event OwnersRemovedFromOrganization is {
+  orgId: OrganizationId,
+  removedOwners: MemberId+,
+  meta: OrganizationContext.MetaInfo
+}
+command UpdateOrganizationContacts is {
+  orgId: OrganizationId, 
+  contacts: Contacts,
+  updatingMember: MemberId
+}
+event OrganizationContactsUpdated is {
+  orgId: OrganizationId, 
+  contacts: Contacts,  
+  meta: OrganizationContext.MetaInfo
 }
 command UpdateOrganizationStatus is {
   orgId: OrganizationId, 
@@ -50,15 +107,6 @@ command UpdateOrganizationStatus is {
 event OrganizationStatusUpdated is {
   orgId: OrganizationId, 
   newStatus: OrganizationContext.Status
-}
-command UpdateOrganizationContacts is {
-  orgId: OrganizationId, 
-  contacts: Contacts
-}
-event OrganizationContactsUpdated is {
-  orgId: OrganizationId, 
-  info: OrganizationContext.Info,  
-  meta: OrganizationContext.MetaInfo
 }
 command UpdateOrganizationAccounts is {
   orgId: OrganizationId, 

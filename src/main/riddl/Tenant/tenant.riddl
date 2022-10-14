@@ -1,0 +1,240 @@
+context TenantContext is {
+    type Status is any of {Draft, Active, Suspended}
+    type MetaInfo is {
+        createdOn: TimeStamp briefly "The Date/Time this tenant was created.",
+        createdBy: Contact briefly "The person who created this tenant",
+        lastUpdated: TimeStamp briefly "The Date/Time this tenant was last modified.",
+        lastUpdatedBy: MemberId briefly "The member who last modified this Tenant. This may also be a system user. i.e. they are two months late on payment so the system determines to suspend the tenant.",
+        currentStatus: TenantContext.Status briefly "The current state of this tenant. Valid states include Draft, Active, and Suspended"
+    } briefly "Meta data kept about an organization that the user does not directly modify. Instead the system updates this info as a Member Owner updates details in the Info type."
+
+    command EstablishTenant is { tenantId: TenantId, name: String,  primaryContact: Contact }
+    event TenantEstablished is { tenantId: TenantId, name: String, primaryContact: Contact, meta: TenantContext.MetaInfo }
+    command ActivateTenant is { tenantId: TenantId, updatingUser: String }
+    event TenantActivated is { tenantId: TenantId, name: String, meta: TenantContext.MetaInfo }
+    command SuspendTenant is { tenantId: TenantId, updatingUser: String }
+    event TenantSuspended is { tenantId: TenantId, name: String, meta: TenantContext.MetaInfo }
+    command UpdatePrimaryContact is { tenantId: TenantId, newContact: Contact, updatingUser: String }
+    event PrimaryContactUpdated is { tenantId: TenantId, oldContact: Contact, newContact: Contact, meta: TenantContext.MetaInfo }
+    command ChangeTenantName is { tenantId: TenantId, newName: String, updatingUser: String }
+    event TenantNameChanged is { tenantId: TenantId, oldName: String, newName: String, meta: TenantContext.MetaInfo }
+    // command SwapBillingAccount is { tenantId: TenantId, newBillingAccount: BillingAccountId, updatingUser: String }
+    // event BillingAccountSwapped is { tenantId: TenantId, name: String, oldAccount: BillingAccountId, newAccount: BillingAccountId, meta: TenantContext.MetaInfo }
+    // command SwapDistributionAccount is { tenantId: TenantId, newDistributionAccount: DistributionAccountId, updatingUser: String }
+    // event DistributionAccountSwapped is { tenantId: TenantId, name: String, oldAccount: DistributionAccountId, newAccount: DistributionAccountId, meta: TenantContext.MetaInfo }
+    
+    entity Tenant is {
+        options (event-sourced, available)
+
+        handler TenantHandler is {
+            on command EstablishTenant { 
+                example Success {
+                    then "Set fields from EstablishTenant for tenant"
+                    and "Set meta data to reflect change"
+                    and "yield TenantEstablished event"
+                }
+                example NameAlreadyTaken{
+                    when "name is being used for another tenant"
+                    then error "Name is not available for use"
+                }
+                example IncompletePrimaryContact {
+                    when "primaryContact info is not complete"
+                    then error "primaryContact must be complete in order to establish a Tenant"
+                }
+            }
+        }
+        state DraftTenant is {
+            fields {
+                name: String,
+                primaryContact: Contact,
+                billingAccount: BillingAccountId?,
+                distributionAccount: DistributionAccountId?,
+                meta: TenantContext.MetaInfo
+            }
+            handler DraftTenantHandler is {
+                on command ActivateTenant {
+                    example Success {
+                        then "Morph Tenant to Active state"
+                        and "Set Tenant meta data to reflect the change"
+                        and "yield TenantActivated event"
+                    }
+                    example NoBillingAccount {
+                        when "BillingAccount is null"
+                        then error "Tenant must have a BillingAccount to be Activated"
+                    }
+                    example NoDistributionAccount {
+                        when "DistributionAccount is null"
+                        then error "Tenant must have a DistributionAccount to be Activated"
+                    }
+                    example NotAuthorized {
+                        when "updating user is not authorized to activate the tenant"
+                        then error "User is not authorized to Activate Tenant"
+                    }
+                }
+                on command UpdatePrimaryContact {
+                    example Success {
+                        then "update primary contact details with arguments from UpdatePrimaryContact"
+                        and "set Tenant meta data to reflect the change"
+                        and "yield UpdatedPrimaryContactEvent"
+                    }
+                    example IncompleteContactInfo {
+                        when "incoming primary contact info does not have all fields"
+                        then error "primary contact info is not complete"
+                    }
+                    example NotAuthorized {
+                        when "updating user is not authorized to make changes to the tenant"
+                        then error "User is not authorized to modify Tenant"
+                    }
+                }
+                on command ChangeTenantName {
+                    example Success {
+                        then "update tenant name"
+                        and "Set Tenant meta data to reflect change"
+                        and "yield TenantNameChanged event"
+                    }
+                    example TenantNameAlreadyExists {
+                        when "Another Tenant is already using the provided name"
+                        then error "Tenant name is already in use"
+                    }
+                }
+                // on command SwapBillingAccount {
+                //     example Success {
+                //         then "Update the BillingAccountId"
+                //         and "set tenant meta data to reflect change"
+                //         and "yield BillingAccountSwapped event"
+                //     }
+                //     example InvalidBillingAccount {
+                //         when "BillingAccount ID does not exist"
+                //         then error "BillingAccount ID does not exist"
+                //     }
+                //     example NotAuthorized {
+                //         when "updating user is not authorized to make changes to the tenant"
+                //         then error "User is not authorized to modify Tenant"
+                //     }
+                // }
+                // on command SwapDistributionAccount {
+                //     example Success {
+                //         then "Update the DistributionAccountId"
+                //         and "set tenant meta data to reflect change"
+                //         and "yield DistributionAccountSwapped event"
+                //     }
+                //     example InvalidBillingAccount {
+                //         when "DistributionAccount ID does not exist"
+                //         then error "DistributionAccount ID does not exist"
+                //     }
+                //     example NotAuthorized {
+                //         when "updating user is not authorized to make changes to the tenant"
+                //         then error "User is not authorized to modify Tenant"
+                //     }
+                // }
+                on other { then error "Command not allowed in Draft state" }
+            }
+        }
+        state ActiveTenant is {
+            fields {
+                name: String,
+                primaryContact: Contact,
+                billingAccount: BillingAccountId,
+                distributionAccount: DistributionAccountId,
+                meta: TenantContext.MetaInfo
+            }
+            handler ActiveTenantHandler is {
+                on command SuspendTenant {
+                    example Success {
+                        then "morph tenant state to suspended"
+                        and "set meta data to reflect the change"
+                        and "yield TenantSuspended event"
+                    }
+                    example NotAuthorized {
+                        when "updating user is not authorized to suspend tenant"
+                        then error "User is not authorized to suspend Tenant"
+                    }
+                }
+                on command UpdatePrimaryContact {
+                    example Success {
+                        then "update primary contact details with arguments from UpdatePrimaryContact"
+                        and "set Tenant meta data to reflect the change"
+                        and "yield UpdatedPrimaryContactEvent"
+                    }
+                    example IncompleteContactInfo {
+                        when "incoming primary contact info does not have all fields"
+                        then error "primary contact info is not complete"
+                    }
+                    example NotAuthorized {
+                        when "updating user is not authorized to make changes to the tenant"
+                        then error "User is not authorized to modify Tenant"
+                    }
+                }
+                on command ChangeTenantName {
+                    example Success {
+                        then "update tenant name"
+                        and "Set Tenant meta data to reflect change"
+                        and "yield TenantNameChanged event"
+                    }
+                    example TenantNameAlreadyExists {
+                        when "Another Tenant is already using the provided name"
+                        then error "Tenant name is already in use"
+                    }
+                    example NotAuthorized {
+                        when "updating user is not authorized to make changes to the tenant"
+                        then error "User is not authorized to modify Tenant"
+                    }
+                }
+                // on command SwapBillingAccount {
+                //     example Success {
+                //         then "Update the BillingAccountId"
+                //         and "set tenant meta data to reflect change"
+                //         and "yield BillingAccountSwapped event"
+                //     }
+                //     example InvalidBillingAccount {
+                //         when "BillingAccount ID does not exist"
+                //         then error "BillingAccount ID does not exist"
+                //     }
+                //     example NotAuthorized {
+                //         when "updating user is not authorized to make changes to the tenant"
+                //         then error "User is not authorized to modify Tenant"
+                //     }
+                // }
+                // on command SwapDistributionAccount {
+                //     example Success {
+                //         then "Update the DistributionAccountId"
+                //         and "set tenant meta data to reflect change"
+                //         and "yield DistributionAccountSwapped event"
+                //     }
+                //     example InvalidBillingAccount {
+                //         when "DistributionAccount ID does not exist"
+                //         then error "DistributionAccount ID does not exist"
+                //     }
+                //     example NotAuthorized {
+                //         when "updating user is not authorized to make changes to the tenant"
+                //         then error "User is not authorized to modify Tenant"
+                //     }
+                // }
+                on other { then error "Command not allowed in Active state" }
+            }
+        }
+        state SuspendedTenant is {
+            fields {
+                name: String,
+                primaryContact: Contact,
+                billingAccount: BillingAccountId,
+                distributionAccount: DistributionAccountId,
+                meta: TenantContext.MetaInfo
+            }
+            handler SuspendedTenantHandler is {
+                on command ActivateTenant {
+                    example Success {
+                        then "Morph Tenant to Active state"
+                        and "Set Tenant meta data to reflect the change"
+                        and "yield TenantActivated event"
+                    }
+                    example NotAuthorized {
+                        when "updating user is not authorized to activate the tenant"
+                        then error "User is not authorized to Activate Tenant"
+                    }
+                }
+                on other { then error "Command not allowed in Suspended state" }
+            }
+        }
+    }
+} described in file "tenant.md"
