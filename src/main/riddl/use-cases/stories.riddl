@@ -1,0 +1,20 @@
+actor OrgOwner is "the person that owns the organization"
+
+story EstablishOrganization is {
+  actor ImprovingApp.OrgOwner wants " to establish an organization" so that
+    "I can conduct business as that organization"
+  author reid is {
+    name: "Reid Spencer"
+    email: "reid.spencer@ossum.biz"
+  } briefly "nada" described as "Just some guy on the internet"
+  term Organization briefly "An organizational entity, incorporated or not"
+  case primary is {
+    step from actor OrgOwner "creates an Organization" to input
+        ImprovingApp.UserInterface.OrganizationInfo briefly "fill out form",
+    step
+      from output OrganizationContext.Organization
+      "organizationAdded"
+      to actor OrgOwner briefly "organization added"
+  }
+} briefly "A story about establishing an organization in Improving.app"
+  described as "This is the story of how an organization comes to existence"
