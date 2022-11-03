@@ -1,0 +1,34 @@
+application UserInterface is {
+
+  command CreateOrganization is {
+    name: String
+  }
+  result OrganizationInfo is {
+    name: String,
+    createdAt: TimeStamp
+  }
+
+  group Organization is {
+    input CreateOrganization is {
+      acquires command UserInterface.CreateOrganization
+    }
+    output DisplayOrganization is {
+      presents result ImprovingApp.OrganizationContext.OrganizationInfo
+    }
+  }
+
+  handler OrgHandler is {
+    on command CreateOrganization from actor OrgOwner {
+      then tell command UserInterface.CreateOrganization to
+        context ImprovingApp.OrganizationContext
+    }
+    on event ImprovingApp.OrganizationContext.OrganizationCreated
+    from context ImprovingApp.OrganizationContext {
+      then {
+        tell result ImprovingApp.OrganizationContext.OrganizationCreated to
+          projection ImprovingApp.OrganizationContext.OrganizationViews,
+        "present Organization.DisplayOrganization"
+      }
+    }
+  }
+}
