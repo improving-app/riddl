@@ -369,5 +369,3 @@ context OrganizationContext is {
     }
 } described in file "organization.md"
 
-include "organizationStories"
-
