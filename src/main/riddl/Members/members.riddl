@@ -1,8 +1,12 @@
 context MembersContext is {
     //Member Details
     //type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
-    type MemberMap is mapping from MemberId to MembersContext.Info //gateway definition
-    type NotificationPreference is any of { Email, SMS }
+    type MemberMap is mapping from MemberId to MembersContext.Info  //gateway definition
+    type NotificationPreference is any of { Email, SMS, Application } described
+    as {
+      | The values of this enumeration define the ways in which a member may
+      | be notified of changes.
+    }
     type Status is any of { Active, Suspended }
     type Info is {
         handle: String briefly "username. Must be unique.",
@@ -55,7 +59,7 @@ context MembersContext is {
     result MemberListResult is {members: MemberMap}
 
     entity Member is {
-        option is aggregate
+        options(aggregate, technology("akka"))
 
         handler MemberHandler is {
             on command RegisterMember {
@@ -105,5 +109,5 @@ context MembersContext is {
             }
         } //A terminated member is one who exercises their right to be forgotten.
 
-    }
-}
+    } described in file "member-entity.md"
+} described in file "members-context.md"
