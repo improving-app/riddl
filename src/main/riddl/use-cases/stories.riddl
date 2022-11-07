@@ -1,13 +1,9 @@
 actor OrgOwner is "the person that owns the organization"
+actor Member is "any member (user) of the system"
 
-story EstablishOrganization is {
-  actor ImprovingApp.OrgOwner wants " to establish an organization" so that
-    "I can conduct business as that organization"
-  author reid is {
-    name: "Reid Spencer"
-    email: "reid.spencer@ossum.biz"
-  } briefly "nada" described as "Just some guy on the internet"
-  term Organization briefly "An organizational entity, incorporated or not"
+story EstablishOrganization by author Reid is {
+  actor ImprovingApp.OrgOwner wants "to establish an organization" so that
+    "they can conduct business as that organization"
   case primary is {
     step from actor OrgOwner "creates an Organization" to input
         ImprovingApp.UserInterface.OrganizationInfo briefly "fill out form",
@@ -18,3 +14,10 @@ story EstablishOrganization is {
   }
 } briefly "A story about establishing an organization in Improving.app"
   described as "This is the story of how an organization comes to existence"
+
+story RegisterMemberToOrganization by author Reid is {
+  actor ImprovingApp.OrgOwner wants "to register a member" so that
+    "they can fill the roster for their organization"
+  case primary is { ??? }
+} briefly "A story about registering a member into an organization"
+  described as "TBD"
