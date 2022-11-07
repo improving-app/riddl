@@ -74,7 +74,7 @@ context MembersContext  is {
        |self-service request the OrganizationType is optional.
     }
 
-    event  MemberRegistered is {
+    event MemberRegistered is {
       memberId: MemberId briefly "Unique identifier for the registered member",
       meta: MembersContext.MetaInfo
     } briefly "Event issued after RegisterMember or RegisterMemberList"
