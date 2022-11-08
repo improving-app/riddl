@@ -15,9 +15,16 @@ context MembersContext  is {
         lastName: String,
         mobileNumber: MobileNumber?,
         emailAddress: EmailAddress?,
-        notificationPreference: NotificationPreference? briefly "if this is set it is assumed that the user has opted in.",
-        organizationMembership: OrganizationId* briefly "A list of organizations this member belongs to."
+        notificationPreference: NotificationPreference?
+          briefly "if this is set it is assumed that the user has opted in.",
+        organizationMembership: OrganizationId*
+          briefly "A list of organizations this member belongs to."
         //memberType: MemberType+
+    } described as {
+      |This type provides the basic information about members that is
+      |retained by the Member entity. The fields of this type form the profile
+      |of the Member with demographics, contact info, and various options
+      |like notifications and group membership the Member can opt in to.
     }
     type UpdateInfo is {
         handle: String? briefly "username. Must be unique.",
@@ -29,6 +36,10 @@ context MembersContext  is {
         notificationPreference: NotificationPreference? briefly "if this is set it is assumed that the user has opted in.",
         organizationMembership: OrganizationId* briefly "A list of organizations this member belongs to."
         //memberType: MemberType+
+    } described as {
+      |This aggregate type specifies a way to update any or all of the
+      |MemberInfo fields. If a field value is missing (they are all optional)
+      |then the current value is not updated.
     }
     type MetaInfo is {
         createdOn: Date,
@@ -94,6 +105,10 @@ context MembersContext  is {
                 info: MembersContext.Info,
                 meta: MembersContext.MetaInfo
             }
+            invariant time_sanity is {
+              <=(@Active.meta.createdOn, @Active.meta.lastModifiedOn)
+            }
+
             handler ActiveMemberHandler {
                 on command UpdateMemberInfo {
                     then set ^^.Active.info to @UpdateMemberInfo.info
