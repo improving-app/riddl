@@ -2,21 +2,12 @@
 
 // This file is the top level RIDDL definition file for the Improving Application.
 // It merely includes the subodmains and bounded contexts that make up the full domain.
-domain ImprovingApp is {
+domain ImprovingApp by author James is {
     include "authors"
-    include "globalDefinitions"
     include "Common/Contact"
-    include "Common/UniqueIds"
-    include "Accounting/accounting"
-    include "Calendars/calendar"
-    include "Commerce/commerce"
-    include "Events/event"
-    include "Inventory/inventory"
     include "Members/members"
     include "Organization/organization"
     include "Tenant/tenant"
-    include "Vendors/vendor"
-    include "Venues/venue"
     include "use-cases/application"
     include "use-cases/stories"
 } described in file "ImprovingApp.md"

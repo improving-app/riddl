@@ -1,0 +1,9 @@
+// Identifiers
+// type BaseOrganizationId is Id (BaseOrganization)
+// type SubOrganizationId is Id (SubOrganization)
+// type OrganizationType is one of {BaseOrganizationId, SubOrganizationId}
+type BillingAccountId is Id (^AccountingContext.BillingAccount)
+  briefly "Unique identifier for Tenant Entity"
+type DistributionAccountId is Id (^AccountingContext.DistributionAccount)
+  briefly "Unique identifier for Tenant Entity"
+
