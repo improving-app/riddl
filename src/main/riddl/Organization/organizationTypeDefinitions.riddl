@@ -5,11 +5,12 @@ type Contacts is {
     distributionContacts: MemberId*
 } briefly "The contacts for a given organization."
 described in file "organizationContacts.md"
-type Accounts is {
+/*type Accounts is {
     billingAccount: BillingAccountId? briefly "Required for BaseOrg. Optional for all other organizations.",
     distributionAccount: DistributionAccountId? briefly "Required for BaseOrg. Optional for all other organizations."
 } briefly "Accounts are used to move money between Improving.App and an organization, or between suborganizations defined within an organization."
 described in file "../Accounting/accounts.md"
+*/
 type Info is {
     name: String briefly "i.e. Provo High School. Must be unique within the organizational structure.",
     shortName: String? briefly "i.e. PHS. Must be unique within the organizational structure.",

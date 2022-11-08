@@ -70,7 +70,7 @@ event MembersRemovedFromOrganization is {
   updatingMember: MemberId
 }
 command AddOwnersToOrganization is {
-  orgId: OrganizationId, 
+  orgId: OrganizationId,
   ownersToAdd: MemberId+,
   updatingMember: MemberId
 }
@@ -80,7 +80,7 @@ event OwnersAddedToOrganization is {
   meta: OrganizationContext.MetaInfo
 }
 command RemoveOwnersFromOrganization is {
-  orgId: OrganizationId, 
+  orgId: OrganizationId,
   ownersToRemove: MemberId+,
   updatingMember: MemberId
 }
@@ -90,46 +90,47 @@ event OwnersRemovedFromOrganization is {
   meta: OrganizationContext.MetaInfo
 }
 command UpdateOrganizationContacts is {
-  orgId: OrganizationId, 
+  orgId: OrganizationId,
   contacts: Contacts,
   updatingMember: MemberId
 }
 event OrganizationContactsUpdated is {
-  orgId: OrganizationId, 
-  contacts: Contacts,  
+  orgId: OrganizationId,
+  contacts: Contacts,
   meta: OrganizationContext.MetaInfo
 }
 command UpdateOrganizationStatus is {
-  orgId: OrganizationId, 
-  status: OrganizationContext.Status, 
+  orgId: OrganizationId,
+  status: OrganizationContext.Status,
   updatingMember: MemberId
 }
 event OrganizationStatusUpdated is {
-  orgId: OrganizationId, 
+  orgId: OrganizationId,
   newStatus: OrganizationContext.Status
 }
 command UpdateOrganizationAccounts is {
-  orgId: OrganizationId, 
-  accounts: Accounts
+  orgId: OrganizationId
+  /*,
+  accounts: Accounts */
 }
 event OrganizationAccountsUpdated is {
-  orgId: OrganizationId, 
-  info: OrganizationContext.Info, 
+  orgId: OrganizationId,
+  info: OrganizationContext.Info,
   meta: OrganizationContext.MetaInfo
 }
 
 query FindOrganizationsByMember is {member: MemberId} briefly "Get a list of organizations that a member belongs to."
 result OrganizationListByMember is {
-  member: MemberId, 
+  member: MemberId,
   organizations: OrganizationId*
 }
 query FindOrganizationsByOwner is {owner: MemberId} briefly "Get a list of organizations that are owned by a member."
 result OrganizationListByOwner is {
-  owner: MemberId, 
+  owner: MemberId,
   organizations: OrganizationId*
 }
 query GetOrganizationInfo is {orgId: OrganizationId}
 result OrganizationInfo is {
-  orgId: OrganizationId, 
+  orgId: OrganizationId,
   info: OrganizationContext.Info
 }
