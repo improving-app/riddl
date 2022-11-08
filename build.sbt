@@ -10,4 +10,4 @@ libraryDependencies ++= Seq(
 enablePlugins(RiddlSbtPlugin)
 riddlcOptions :=
   Seq("--show-times", "from", "src/main/riddl/ImprovingApp.conf", "hugo")
-riddlcMinVersion := "0.15.0"
+riddlcMinVersion := "0.17.1"
