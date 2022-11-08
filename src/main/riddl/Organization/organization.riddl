@@ -1,3 +1,6 @@
+type OrganizationId is Id (ImprovingApp.OrganizationContext.Organization)
+  briefly "Unique identifier for Organization entity"
+
 context OrganizationContext is {
     include "organizationTypeDefinitions"
     include "organizationMessages"
@@ -24,7 +27,7 @@ context OrganizationContext is {
                 parent: OrganizationId?,
                 members: MemberId+,
                 owners: MemberId+,
-                contacts: Contacts?,
+                contacts: Contact?,
                 // accounts: OrganizationContext.AccountList,
                 meta: OrganizationContext.MetaInfo
             }
@@ -185,7 +188,7 @@ context OrganizationContext is {
                 parent: OrganizationId?,
                 members: MemberId+,
                 owners: MemberId+,
-                contacts: Contacts?,
+                contacts: Contact?,
                 // accounts: OrganizationContext.AccountList,
                 orgMeta: OrganizationContext.MetaInfo
             }

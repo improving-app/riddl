@@ -1,3 +1,10 @@
+type VenueId is Id (ImprovingApp.VenueContext.Venue)
+  briefly "Unique identifier for Venue Entity"
+type LocationId is Id (^VenueContext.Location)
+  briefly "Unique identifier for Location Entity"
+type ReservationId is Id(ImprovingApp.VenueContext.Reservation)
+  briefly "Unique identifier for Reservation Entity"
+
 context VenueContext is {
     entity Venue is {
         state Available is {
@@ -9,8 +16,8 @@ context VenueContext is {
                 isAvailable: Boolean
             }
             handler AvailableVenueHandler is {???}
-        } 
-    } 
+        }
+    }
     entity Location is {
         command ReserveLocation is {locationId: LocationId, org: OrganizationId, start: DateTime, end: DateTime}
         event LocationReserved is {locationId: LocationId, reservationId: ReservationId, org: OrganizationId, start: DateTime, end: DateTime}
@@ -50,8 +57,8 @@ context VenueContext is {
                 on query FindAvailableLocationsInRangeWithAmenities {???}
             }
         }
-        
-    } 
+
+    }
 
     entity Reservation is {
         type ReservationInfo is {
