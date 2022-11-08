@@ -1,3 +1,6 @@
+type TenantId is Id(ImprovingApp.TenantContext.Tenant)
+  briefly "Unique identifier for Tenant Entity"
+
 context TenantContext is {
     type Status is any of {Draft, Active, Suspended}
     type MetaInfo is {
