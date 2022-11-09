@@ -3,6 +3,8 @@ type TenantId is Id(ImprovingApp.TenantContext.Tenant)
 
 context TenantContext is {
     type Status is any of {Draft, Active, Suspended}
+    type Info is {
+    }
     type MetaInfo is {
         createdOn: TimeStamp briefly "The Date/Time this tenant was created.",
         createdBy: Contact briefly "The person who created this tenant",
@@ -137,6 +139,7 @@ context TenantContext is {
             fields {
                 name: String,
                 primaryContact: Contact,
+                info: TenantContext.Info,
                 // billingAccount: BillingAccountId,
                 // distributionAccount: DistributionAccountId,
                 meta: TenantContext.MetaInfo
@@ -220,6 +223,7 @@ context TenantContext is {
             fields {
                 name: String,
                 primaryContact: Contact,
+                info: TenantContext.Info,
                 // billingAccount: BillingAccountId,
                 // distributionAccount: DistributionAccountId,
                 meta: TenantContext.MetaInfo
