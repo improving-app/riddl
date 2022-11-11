@@ -2,23 +2,100 @@ type TenantId is Id(ImprovingApp.TenantContext.Tenant)
   briefly "Unique identifier for Tenant Entity"
 
 context TenantContext is {
-    type Status is any of {Draft, Active, Suspended}
     type Info is {
-    }
-    type MetaInfo is {
-        createdOn: TimeStamp briefly "The Date/Time this tenant was created.",
-        createdBy: Contact briefly "The person who created this tenant",
-        lastUpdated: TimeStamp briefly "The Date/Time this tenant was last modified.",
-        lastUpdatedBy: MemberId briefly "The member who last modified this Tenant. This may also be a system user. i.e. they are two months late on payment so the system determines to suspend the tenant.",
-        currentStatus: TenantContext.Status briefly "The current state of this tenant. Valid states include Draft, Active, and Suspended"
-    } briefly "Meta data kept about an organization that the user does not directly modify. Instead the system updates this info as a Member Owner updates details in the Info type."
+      name: String,
+      primaryContact: Contact,
+      address: Address
+    } briefly "Information about the tenant"
 
-    command EstablishTenant is { tenantId: TenantId, name: String,  primaryContact: Contact }
-    event TenantEstablished is { tenantId: TenantId, name: String, primaryContact: Contact, meta: TenantContext.MetaInfo }
-    command ActivateTenant is { tenantId: TenantId, updatingUser: String }
-    event TenantActivated is { tenantId: TenantId, name: String, meta: TenantContext.MetaInfo }
-    command SuspendTenant is { tenantId: TenantId, updatingUser: String }
-    event TenantSuspended is { tenantId: TenantId, name: String, meta: TenantContext.MetaInfo }
+    type MetaInfo is {
+        createdOn: TimeStamp
+          briefly "The Date/Time this tenant was created.",
+        createdBy: Contact
+          briefly "The person who created this tenant",
+        lastUpdated: TimeStamp
+          briefly "The Date/Time this tenant was last modified.",
+        lastUpdatedBy: MemberId
+          briefly "The member who last modified this Tenant."
+          described as {
+            |This may also be a system user. i.e. they are two months late on
+            |payment so the system determines to suspend the tenant.
+          },
+        currentStatus: TenantContext.Status
+          briefly "The current state of this tenant"
+          described as {
+            |Valid states include Draft, Active, and Suspended.
+          }
+    } briefly "Meta information about a tenant"
+    described as {
+      |data kept about an organization that the user does not directly modify.
+      |Instead the system updates this info as a Member Owner updates details
+      |in the Info type."
+    }
+
+    type Status is any of {
+      Draft briefly "Tenant is inactive, in process of being created/defined",
+      Active briefly "Tenant is active and suitable for use",
+      Suspended briefly "Tenant is created but administratively suspended"
+    }
+
+    command EstablishTenant is {
+      tenantId: TenantId,
+      tenantInfo: TenantContext.Info
+    } brief "A command that creates a new Tenant"
+    described by {
+      |Given a TenantId and the corresponding Info, the tenant is created and
+      |set to the active state. This command yields a TenantEstablished event.
+    }
+    event TenantEstablished is {
+      tenantId: TenantId,
+      tenantInfo: TenantContext.Info,
+      metaInfo: TenantContext.MetaInfo,
+      name: String,
+      primaryContact: Contact,
+      meta: TenantContext.MetaInfo
+    } briefly "The event resulting from creating a new Tenant"
+    described by {
+      |When a Tenant is created, this event is raised to provide information
+      |about the tenant.
+    }
+
+    command ActivateTenant is
+      { tenantId: TenantId, updatingUser: String
+    } briefly "A command that activates a tenant"
+    described by {
+      |Given a TenantId, the tenant is activated. This command yields a
+      |TenantActivated event.
+    }
+
+    event TenantActivated is {
+      tenantId: TenantId,
+      name: String,
+      meta: TenantContext.MetaInfo
+    } briefly "The event resulting from activating a Tenant"
+    described by {
+      |When a Tenant is activated, this event is raised to provide information
+      |about the tenant, contained in the `meta` field.
+    }
+
+    command SuspendTenant is {
+      tenantId: TenantId,
+      updatingUser: String
+    } briefly "A command that suspends a tenant"
+    described by {
+      |Given a TenantId, the tenant is suspended. The name of the user that
+      |initiated the suspension is provided in the `updatingUser` field.
+      |This command yields a TenantSuspended event.
+    }
+    event TenantSuspended is {
+      tenantId: TenantId,
+      name: String,
+      meta: TenantContext.MetaInfo
+    } briefly "The event resulting from suspending a Tenant"
+    described by {
+      |When a Tenant is suspended, this event is raised to provide information
+      |about the tenant, contained in the `meta` field.
+    }
     command UpdatePrimaryContact is { tenantId: TenantId, newContact: Contact, updatingUser: String }
     event PrimaryContactUpdated is { tenantId: TenantId, oldContact: Contact, newContact: Contact, meta: TenantContext.MetaInfo }
     command ChangeTenantName is { tenantId: TenantId, newName: String, updatingUser: String }
