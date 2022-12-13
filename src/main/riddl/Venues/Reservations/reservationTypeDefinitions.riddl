@@ -1,0 +1,27 @@
+type Status is any of {Draft, OnHold, Reserved, Active, Past} briefly "Internal status of a Reservation."
+
+type Info is {
+    range: 'TimeRange',
+    title: String,
+    description: String,
+    location: LocationId,
+    forOrg: OrganizationId
+}
+
+type UpdateInfo is {
+    range: 'TimeRange'?,
+    title: String?,
+    description: String?,
+    location: LocationId?,
+    forOrg: OrganizationId?,
+    isPrivate: Boolean?
+}
+
+type MetaInfo is {
+  createdOn: TimeStamp briefly "The Date/Time this venue was created.",
+  createdBy: MemberId briefly "The member who created this venue",
+  lastUpdated: TimeStamp briefly "The Date/Time this venue was last modified.",
+  lastUpdatedBy: MemberId briefly "The member who last modified this venue. This may also be a system user. i.e. they are two months late on payment so the system determines to suspend the venue.",
+  currentStatus: ReservationContext.Status briefly "The current state of this venue. Valid states include Draft, Active, Suspended, and Terminated",
+  currentOwner: MemberId
+} briefly "Meta data kept about a reservation that the user does not directly modify. Instead the system updates this info as a Member Owner updates details in the Info type."

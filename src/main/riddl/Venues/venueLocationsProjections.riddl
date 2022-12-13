@@ -1,0 +1,21 @@
+projection VenueLocationsReservationsView is {
+    fields {
+        venueId: VenueId,
+        locationId: LocationId
+    }
+    handler VenueLocationsViewHandler is {
+        on event VenueEstablished {
+            then "set venueId to VenueEstablished.VenueId"
+        }
+        on event LocationEstablished {
+            given "LocationEstablished.locationInfo.venueId exists in this projection"
+            then "set locationId to LocationEstablished.locationId"
+            else error "Location cannot be established because the venueId requested does not exist already"
+        }
+        on query GetVenueLocations {
+						given "LocationEstablished.locationInfo.venueId exists in this projection"
+            then "set locationId to LocationEstablished.locationId"
+            else error "Location cannot be established because the venueId requested does not exist already"
+        }
+    }
+}

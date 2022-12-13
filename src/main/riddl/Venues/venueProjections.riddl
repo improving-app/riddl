@@ -1,0 +1,38 @@
+projection VenuesView is {
+    fields {
+        venueId: VenueId,
+        info: VenueContext.Info,
+        minCapacity: Integer,
+        maxCapacity: Integer
+    }
+    handler VenueCapacityViewHandler is {
+        on event VenueEstablished {
+            then "set venueId to VenueEstablished.VenueId"
+        }
+        on event LocationEstablished {
+            example LocationEstablishedSuccess {
+		          given "LocationEstablished.locationInfo.venueId exists in this projection"
+		          then "set minCapacity to min(LocationEstablished.locationInfo.capacity, minCapacity)"
+		          and "set maxCapacity to max(LocationEstablished.locationInfo.capacity, maxCapacity)"
+            }
+            example LocationEstablishedFailure {
+		          given "LocationEstablished.locationInfo.venueId not exists in this projection"
+		          then error "Location cannot be established because the venueId requested does not exist already"
+            }
+        }
+        on query GetVenueInfo {
+            example GetVenueInfoSuccess {
+              given "GetVenueInfo.venueId exists in this projection"
+              then "return VenueInfo"
+              else error "VenueId not found as requested"
+            }
+        }
+        on query GetVenueCapacityOverview {
+            example GetVenueCapacityOverviewSuccess {
+	            given "GetVenueCapacityOverview.venueId exists in this projection"
+	            then "yield VenueCapacityOverview"
+              else error "No venue found for this venueId"
+            }
+        }
+    }
+}
