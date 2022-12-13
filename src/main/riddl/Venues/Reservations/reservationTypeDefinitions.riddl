@@ -5,7 +5,7 @@ type Info is {
     title: String,
     description: String,
     location: LocationId,
-    forOrg: OrganizationId,
+    forOrg: OrganizationId
 }
 
 type UpdateInfo is {

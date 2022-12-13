@@ -3,7 +3,7 @@ command EstablishLocation is {
   name: String,
   description: String,
   directions: String,
-  latLong: LatLong,
+  //latLong: LatLong,
   url: URL?,
   capacity: Integer?,
   accessible: Boolean,
@@ -21,7 +21,7 @@ event LocationEstablished is {
 
 command AddLocationReservations is {
   locationId: LocationId,
-  reservations: ReservationsId+
+  reservations: ReservationId+
 }
 event LocationReservationsAdded is {
   locationId: LocationId,

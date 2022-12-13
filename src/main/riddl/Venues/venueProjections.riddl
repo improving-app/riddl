@@ -36,8 +36,3 @@ projection VenuesView is {
         }
     }
 }
-
-type CapacityOverview is {
-  minCapacity: Integer,
-  maxCapacity: Integer
-}

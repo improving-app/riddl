@@ -1,10 +1,10 @@
-context OrganizationContext is {
+	context OrganizationContext is {
     include "organizationTypeDefinitions"
     include "organizationMessages"
     include "organizationProjections"
     include "organizationSources"
 
-    entity Organization is {
+    entity Organization by author Reid is {
         options (event-sourced, available)
 
         handler OrganizationHandler is {

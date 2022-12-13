@@ -20,11 +20,11 @@ projection OrganizationViews is {
             //and set ^^.OrganizationViews.parent to @^^^OrganizationInfoUpdated.info.parent
             //and set ^^.OrganizationViews.children to @^^^OrganizationInfoUpdated.info.children
         }
-        on event MembersAddedToOrganization {
-            then append @MembersAddedToOrganization.members to OrganizationViews.members
+        on event MembersAddedToOrganization { ???
+            //then append @MembersAddedToOrganization.members to OrganizationViews.members
         }
-        on event OwnersAddedToOrganization {
-            then append @^^^OwnersAddedToOrganization.owners to OrganizationViews.owners
+        on event OwnersAddedToOrganization { ???
+            //then append @^^^OwnersAddedToOrganization.owners to OrganizationViews.owners
         }
         on query FindOrganizationsByMember {???}
         on query FindOrganizationsByOwner {???}

@@ -6,7 +6,7 @@ type Info is {
 	name: String,
   description: String,
   directions: String briefly "How do you find this location?",
-  latLong: LatLong,
+  //latLong: LatLong,
   url: URL?,
   capacity: Integer?,
   amenities: String*, //TODO: We may need amenities to be searchable - i.e. I need to find a Location that is handicaped accessible and has a kitchen
@@ -19,7 +19,7 @@ type UpdateInfo is {
 	name: String?,
   description: String?,
   directions: String? briefly "How do you find this location?",
-  latLong: LatLong?,
+  //latLong: LatLong?,
   url: URL?,
   capacity: Integer?,
   amenities: String*, //TODO: We may need amenities to be searchable - i.e. I need to find a Location that is handicaped accessible and has a kitchen
