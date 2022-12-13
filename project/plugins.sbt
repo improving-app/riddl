@@ -1,4 +1,4 @@
-addSbtPlugin("com.reactific" %% "sbt-riddl" % "0.15.+")
+addSbtPlugin("com.reactific" %% "sbt-riddl" % "0.17.+")
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.6")
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.5.0")
 addSbtPlugin("com.dwijnand" % "sbt-dynver" % "4.0.0")

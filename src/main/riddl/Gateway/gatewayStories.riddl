@@ -1,0 +1,152 @@
+//Member Stories (James)
+//As a person who would like to use the features of ImprovingApp I would like to register a new user account so that I can access those features
+story RegisterMember is {
+capability is "Enroll the Member"
+  benefit is "So Member can use ImprovingApp"
+  author James is {
+    name: "James Lovell"
+    email: "james.lovell@improving.com"
+  } 
+  case HappyPath is {
+    title: "Enroll a new Member"
+    scope domain {ImprovingApp} 
+    interaction is {
+      step from actor Member "EnrollMember" to actor App
+        briefly "initial invocation",
+      step from actor App send command Member.EnrollMember to actor GatewayAPI
+        briefly "send creation message",
+    //   step from actor GatewayAPI "Register Member" to entity ImprovingApp.MemberContext.Member
+    //     briefly "add new organization",
+    //   step from entity ImprovingApp.MemberContext.Member "MemberRegistered" to pipe ImprovingApp.MemberContext.MemberEvents
+    //     briefly "organization added"
+    //   step from pipe ImprovingApp.MemberContext.MemberEvents "MemberEnrolled" to actor App
+    }
+    //example Foo is {...}
+  }
+} briefly "A story about establishing an organization in Improving.app"
+  described as "This is the story of how an organization comes to existence"
+As a Member I would like to maintain my iAppCoins Account so that I can make purchases (funny money)
+As a user of ImprovingApp I can deposit iAppCoins into my account so I can spend them within the app
+As a Member I would like to check the balance of my iAppCoins Account to see if I have enough coin to make a purchase
+As a Member of ImprovingApp I would like to subscribe to Event Update Stream
+As a Member I would like to express interest in an Event that has not been Reserved
+
+//Tenant Stories (James)
+As a Member I would like to create a new Tenant so that I can use its features within my Organization. I am now the Owner of that Tenant.
+
+//Organization Stories (James)
+As an Owner of a Tenant I would like to create Organizations to track their Membership, Events, and Orders. 
+As an Owner of an Organization I would like to manage my Membership (add, remove members).
+
+//Event Stories (Reid)
+As an Owner of an Organization I would like to schedule an Event that is hosted by my Organization
+As an Owner of an Organization I would like to find a Location, Reserve the Location, and schedule my Event using that Reservation (easy button)
+  - must have max attendance as a field of Event
+  - must have start/end time
+  - Event is passed as an argument to a Place search to parameterize that search
+  - The event may need to be adjusted (time, etc) to accommodate Location availability
+  - After creating an event but before scheduling an event (booking a reservation) 
+  - Gather interest in an event prior to Reserving the event
+  
+//Place Stories (Alex)
+As a Tenant Owner I would like to create a Venue
+As a Tenant Owner I would like to create a Location within a Venue
+As the Owner of a Venue/Location I would like to make my Venue/Locations available for Organizations to Reserve for Events
+As an Organization Owner I would like to search for Location availability that would meet the needs for my Event (capacity and time)
+
+//Reservation Stories (Alex)
+As the Owner of an Event I would like to Reserve a Venue/Location to hold my Event at
+  - Pick a time/venue from a pick list of search results
+  - Pick the next available (easy button)
+
+//Store stories
+As the Owner of an Event I would like to create a Store to sell Tickets to my Event and Products at my Event
+As Vendor of a Store I would like to list and price and set inventory for Tickets to Events and Products I intend to sell in the Store
+As Vendor of a Store I would like to track Inventory of Tickets/Products so I don't oversell at the Store
+As Vendor of a Store I would like to view near real time reports about sales
+As a Vendor of a Store I would like to mark an Order delivered when a Member receives their order
+
+//Product Stories
+As a Vendor I would like to create a Product so that I can list it in a Store
+  - picture
+  - name
+  - description
+
+//Order Stories
+As a Member attending an Event I would like to buy my Ticket to the Event online
+As a Member attending an Event I would like to buy my concession Products online
+As a Vendor I would like to notify my Customer (Member) of Order status changes
+As a Vendor I would like to notify Inventory about product loss (dropped hamburger)
+
+//Notification Stories
+As a Member who made a purchase at a Store I would like to receive purchase receipts and order status details electronically
+As a Member I would like to download my Notifications (tickets, receipts, etc.)
+As a Member of an Organization I would like to be notified about Events hosted by my Organization
+As the Owner of an Event I would like to generate a stream of Event Updates (time, score, period, possession, …)
+As a Vendor I would like to receive Notification that a Product is low stock or stocked out so that I can restock
+As a Member I would like to receive Notification that a Product/Ticket has low stock or out of stock so that I can decide to purchase or make another purchase decision
+
+//Vendor Stories
+As an Owner of a Organization I want to create a Vendor to manage Stores at my Event
+  - Vendor must create a Tenant, then an Org, then Vendor, then Store(s)
+
+
+
+
+
+//Nice to Have
+As the Owner of an Event I would like to deposit Coins into an Member's iAppCoins Account so that the Member can be rewarded for participating (Player?)
+As the Owner of an Event I want to Measure "interest" in an Event and reschedule to a larger/smaller Location based on that interest
+As a Vendor I would like to cancel an Order
+As an Event Owner I would like to cancel an Event
+As a Member I would like to cancel my attendance to an Event
+
+//Later Scope?
+?As an administrator of ImprovingApp I would like to know who to contact if there are concerns with Tenant/Organization use of ImprovingApp
+?As an organization I would like to mark my organization private so that it is not open for anybody to join. An admin must admit users into a private Organization.
+?As a user I would like to be able to discover and join public Organizations
+?As a User I would like to know what organizations I am a member of
+?As a User I would like to remove myself from an organization that I am part of
+?
+?
+?As an attendee of an event I would like to have directions to where the event is held
+?As the leader of an organization I would like to make certain events private so the event is only visible to members
+?As the owner of a Venue/Location I would like to make my Venue/Location private so they are only available to organizations within my Tenant/Account
+?As the host of an event I would like to invite vendors to sell goods at my event
+?
+As ImprovingApp I would like organizations using the app to pay for their use (defer to a later version)
+As a user of ImprovingApp I would like to receive proceeds from sales facilitated by ImprovingApp (defer to a later version)
+As a purchaser of tickets I would like to purchase tickets for my group and distribute them to individuals of my group because they will be arriving at different times. (defer to a later version)
+As an attendee of an event I would like to save payment methods to make purchases easier. (defer to a later version)
+As a parent of a child attending an event I would like to put money on my child's account for them to purchase things. (defer to a later version)
+As an attendee of an event I would like the event program/roster accessible electronically (defer to a later version)
+As an attendee of an event I would like to participate in fan games electronically. (defer to a later version)
+As an owner of a local business I would like to advertise to attendees of events. (defer to a later version)
+As the host of an event I would like to distribute the program electronically so there is less cost to produce it and less mess to clean up after the event. (defer to a later version)
+As the host of an event I would like to track attendance and gather demographic data regarding attendance so that I can learn better how to market my events (defer to a later version)
+As the manager of a store I would like to track attendance and sales at events so that I can accurately predict inventory needs for future events 
+As a manager of a store I would like to create promotions to encourage sales. (defer to a later version)
+As a manager of a store I would like to notify the MC of the event that I am open/have low inventory/putting things on sale. (defer to a later version)
+As a manager of a store I would like to predict sales demands so I can accurately staff volunteers to run my store (defer to a later version)
+As a store manager I would like to audit and account for proceeds from sales at an event (defer to a later version)
+As a store manager I would like to cycle count inventory to understand/control loss (defer to a later version)
+As a leader of an organization hosting an event I would like to fairly distribute proceeds from the event to participating organizations (defer to a later version)
+As an Admin of an organization i would like to classify my members (student/year, faculty/staff, Volunteer, parent, sponsor, general)
+As ImprovingApp I would like to collect contact information from users to notify them of events, blog posts, white papers, etc. (when ImprovingApp is used for trainings, sales demos, etc.) (Future Scope)
+As ImprovingApp I want to protect PII information for my users so they feel safe in trusting us with their information
+As a person using ImprovingApp I would like to know my data is safe and would like to exercise my right to be forgotten if I don't think my data is safe
+As a non-registered person I would like to be able to find public events hosted by Organizations within my selected Tenant 
+As the manager of a store I would like to define categories of products to make it easy for customers to find the products they wish to buy
+As a manager of a store I would like to clone details from a previous store to make setup of a new store easier
+As the owner of a venue/location I would like to charge ImprovingApp organizations to make reservations at my venue/location
+As a Salesperson I would like to create an event/store to use as a demo to a potential customer
+As a Salesperson conducting a demo with a client I would like to play IT Wheel of Nightmares to demonstrate the reactive nature of ImprovingApp
+As the Instructor of a class I would like to schedule events/stores and play IT Wheel of Nightmares too (same reasons)
+As a Salesperson I would like to close a store I used for a demo so that it does not consume cloud resources unnecessarily
+As ImprovingApp I would like to close a store that has been inactive for 6 hours so it does not consume cloud resources unnecessarily
+As IT Wheel of Nightmares I would like to define a script that is executed on ImprovingApp when the wheel lands on a space
+As IT Wheel of Nightmares I would like to define a script that restores a service broken by a previous spin of the wheel
+As the Owner of an Event I would like to change the Location of an Event
+As the Owner of an Event I would like to change the Organization owning an Event
+As a Member I would like to lodge a complaint
+As an Organization reserving a Location I would like to know what other Events are happening within the Venue at the same time as my Reservation (HS golf team practice at the same time as a strip club's tournament)

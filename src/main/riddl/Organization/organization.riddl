@@ -1,4 +1,4 @@
-	context OrganizationContext is {
+context OrganizationContext is {
     include "organizationTypeDefinitions"
     include "organizationMessages"
     include "organizationProjections"
@@ -367,6 +367,4 @@
         }
     }
 } described in file "organization.md"
-
-include "organizationStories"
 

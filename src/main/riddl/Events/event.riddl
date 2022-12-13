@@ -112,7 +112,7 @@ context EventContext is {
                 on command StartEvent{???}
                 on command EndEvent{???}
                 on command AddLiveUpdate{???}
-            } 
+            }
         }
         state InProgress is {
             fields{
@@ -131,7 +131,7 @@ context EventContext is {
                 on command AddLiveUpdate{???}
             }
             //score, period, etc...
-        } 
+        }
         state Delayed is {
             fields {
                 eventId: EventId,
@@ -150,7 +150,7 @@ context EventContext is {
                 on command EndEvent{???}
                 on command AddLiveUpdate{???}
             }
-        } 
+        }
         state Past is {
             fields {
                 eventId: EventId,
@@ -168,7 +168,7 @@ context EventContext is {
                 on command EndEvent{???}
                 on command AddLiveUpdate{???}
             }
-        } 
+        }
         state Cancelled is {
             fields {
                 eventId: EventId,
@@ -186,7 +186,7 @@ context EventContext is {
                 on command EndEvent{???}
                 on command AddLiveUpdate{???}
             }
-        } 
+        }
         //also consider postponed, delayed
     }
 

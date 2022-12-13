@@ -1,50 +1,99 @@
-context MembersContext is {
+context MembersContext  is {
     //Member Details
     //type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
-    type MemberMap is mapping from MemberId to MembersContext.Info //gateway definition
-    type NotificationPreference is any of { Email, SMS }
+    type MemberMap is mapping from MemberId to MembersContext.Info  //gateway definition
+    type NotificationPreference is any of { Email, SMS, Application } described
+    as {
+      | The values of this enumeration define the ways in which a member may
+      | be notified of changes.
+    }
     type Status is any of { Active, Suspended }
     type Info is {
+        contact: Contact,
         handle: String briefly "username. Must be unique.",
         avatar: URL briefly "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
-        firstName: String,
-        lastName: String,
-        mobileNumber: MobileNumber?,
-        emailAddress: EmailAddress?,
-        notificationPreference: NotificationPreference? briefly "if this is set it is assumed that the user has opted in.",
-        organizationMembership: OrganizationId* briefly "A list of organizations this member belongs to."
+        firstName: String briefly "Real first name of the member",
+        lastName: String briefly "Real last name of the member",
+        mobileNumber: MobileNumber? briefly "Optional mobile phone number",
+        emailAddress: EmailAddress? briefly "Optional email address",
+        notificationPreference: NotificationPreference?
+          briefly "if this is set it is assumed that the user has opted in.",
+        organizationMembership: OrganizationId*
+          briefly "A possibly empty list of organizations this member belongs to
+          .",
+        tenant: TenantId
         //memberType: MemberType+
+    } described as {
+      |This type provides the basic information about members that is
+      |retained by the Member entity. The fields of this type form the profile
+      |of the Member with demographics, contact info, and various options
+      |like notifications and group membership the Member can opt in to.
     }
     type UpdateInfo is {
         handle: String? briefly "username. Must be unique.",
         avatar: URL? briefly "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
-        firstName: String?,
+        firstName: String? briefly "Real first name of the member",
         lastName: String?,
         mobileNumber: MobileNumber?,
         emailAddress: EmailAddress?,
         notificationPreference: NotificationPreference? briefly "if this is set it is assumed that the user has opted in.",
         organizationMembership: OrganizationId* briefly "A list of organizations this member belongs to."
         //memberType: MemberType+
+    } described as {
+      |This aggregate type specifies a way to update any or all of the
+      |MemberInfo fields. If a field value is missing (they are all optional)
+      |then the current value is not updated.
     }
     type MetaInfo is {
-        createdOn: Date,
+        createdOn: TimeStamp,
         createdBy: MemberId,
-        lastModifiedOn: Date,
+        lastModifiedOn: TimeStamp,
         lastModifiedBy: MemberId,
         memberStatus: MembersContext.Status
     }
     type MetaInfoQuery is {
-        createdOn: Date?,
+        createdOn: TimeStamp?,
         createdBy: MemberId?,
-        lastModifiedOn: Date?,
+        lastModifiedOn: TimeStamp?,
         lastModifiedBy: MemberId?,
         memberStatus: MembersContext.Status?
     }
 
-    command RegisterMember is {memberId: MemberId, info: MembersContext.Info, registeringMember: MemberId} briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional."
-    event  MemberRegistered is {memberId: MemberId, info: MembersContext.Info, meta: MembersContext.MetaInfo} briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
-    command RegisterMemberList is {memberList: MemberMap, registeringMember: MemberId} briefly "RegisterMemberList creates multiple members with a single call. The limitation is you can only define a single MemberType in each call, and all new Members must be assigned to the same Organization (typically a BaseOrg)."
-    event MemberListRegistered is {memberList: MemberMap, registeringMember: MemberId}
+    command RegisterMember is {
+      memberId: MemberId briefly "Unique identifier for the new member",
+      info: MembersContext.Info briefly "Info needed for registration",
+      registeringMember: MemberId briefly "Member that registered new member"
+    } briefly "Create a single new member"
+      described as {
+       |RegisterMember creates a single new member. As this could be a
+       |self-service request the OrganizationType is optional.
+    }
+
+    event  MemberRegistered is {
+      memberId: MemberId briefly "Unique identifier for the registered member",
+      meta: MembersContext.MetaInfo
+    } briefly "Event issued after RegisterMember or RegisterMemberList"
+    described as {
+      |This event occurs whenever a member is registered and provides the
+      |meta information for the registered member.  In the case of
+      |RegisterMemberList one event per member in the list is published.
+    }
+
+    command RegisterMemberList is {
+      memberList: MemberMap,
+      registeringMember: MemberId
+    } briefly "Create a bunch of members"
+    described as {
+      |RegisterMemberList creates multiple members with a single call. The
+      |limitation is you can only define a single MemberType in each call, and
+      |all new Members must be assigned to the same Organization (typically a
+      |BaseOrg).
+    }
+
+    event MemberListRegistered is {
+      memberList: MemberMap,
+      registeringMember: MemberId
+    } briefly ""
     command UpdateMemberInfo is {memberId: MemberId, info: MembersContext.UpdateInfo, actingMember: MemberId} briefly "This command will overwrite the values of attributes provided in UpdateInfo. If an attribute is not referenced it will be left as is. If an attribute is referenced with no value, an empty value will replace what is currently stored. If an attribute is referenced with a value, the new value will overwrite what is stored."
     event MemberInfoUpdated is {memberId: MemberId, info: MembersContext.Info, meta: MembersContext.MetaInfo}
     command UpdateMemberStatus is {memberId: MemberId, actingMember: MemberId, newStatus: MembersContext.Status}
@@ -55,7 +104,7 @@ context MembersContext is {
     result MemberListResult is {members: MemberMap}
 
     entity Member is {
-        option is aggregate
+        options(aggregate, technology("akka"))
 
         handler MemberHandler is {
             on command RegisterMember {
@@ -78,6 +127,30 @@ context MembersContext is {
                 info: MembersContext.Info,
                 meta: MembersContext.MetaInfo
             }
+            invariant time_sanity is {
+              <=(@Active.meta.createdOn, @Active.meta.lastModifiedOn)
+            }
+            invariant firstName is {
+              >=(length(@Active.info.firstName), 3)
+            }
+            invariant lastName is {
+              >=(length(@Active.info.firstName), 3)
+            }
+
+/*
+                    handle: String briefly "username. Must be unique.",
+                    avatar: URL briefly "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
+                    firstName: String,
+                    lastName: String,
+                    mobileNumber: MobileNumber?,
+                    emailAddress: EmailAddress?,
+                    notificationPreference: NotificationPreference?
+                      briefly "if this is set it is assumed that the user has opted in.",
+                    organizationMembership: OrganizationId*
+                      briefly "A list of organizations this member belongs to."
+                    //memberType: MemberType+
+*/
+
             handler ActiveMemberHandler {
                 on command UpdateMemberInfo {
                     then set ^^.Active.info to @UpdateMemberInfo.info
@@ -105,5 +178,5 @@ context MembersContext is {
             }
         } //A terminated member is one who exercises their right to be forgotten.
 
-    }
-}
+    } described in file "member-entity.md"
+} described in file "members-context.md"

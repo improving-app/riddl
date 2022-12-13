@@ -22,12 +22,12 @@ context TenantContext is {
     // event BillingAccountSwapped is { tenantId: TenantId, name: String, oldAccount: BillingAccountId, newAccount: BillingAccountId, meta: TenantContext.MetaInfo }
     // command SwapDistributionAccount is { tenantId: TenantId, newDistributionAccount: DistributionAccountId, updatingUser: String }
     // event DistributionAccountSwapped is { tenantId: TenantId, name: String, oldAccount: DistributionAccountId, newAccount: DistributionAccountId, meta: TenantContext.MetaInfo }
-    
+
     entity Tenant is {
         options (event-sourced, available)
 
         handler TenantHandler is {
-            on command EstablishTenant { 
+            on command EstablishTenant {
                 example Success {
                     then "Set fields from EstablishTenant for tenant"
                     and "Set meta data to reflect change"
@@ -47,8 +47,8 @@ context TenantContext is {
             fields {
                 name: String,
                 primaryContact: Contact,
-                billingAccount: BillingAccountId?,
-                distributionAccount: DistributionAccountId?,
+                // billingAccount: BillingAccountId?,
+                // distributionAccount: DistributionAccountId?,
                 meta: TenantContext.MetaInfo
             }
             handler DraftTenantHandler is {
@@ -134,8 +134,8 @@ context TenantContext is {
             fields {
                 name: String,
                 primaryContact: Contact,
-                billingAccount: BillingAccountId,
-                distributionAccount: DistributionAccountId,
+                // billingAccount: BillingAccountId,
+                // distributionAccount: DistributionAccountId,
                 meta: TenantContext.MetaInfo
             }
             handler ActiveTenantHandler is {
@@ -217,8 +217,8 @@ context TenantContext is {
             fields {
                 name: String,
                 primaryContact: Contact,
-                billingAccount: BillingAccountId,
-                distributionAccount: DistributionAccountId,
+                // billingAccount: BillingAccountId,
+                // distributionAccount: DistributionAccountId,
                 meta: TenantContext.MetaInfo
             }
             handler SuspendedTenantHandler is {

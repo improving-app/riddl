@@ -1,0 +1,16 @@
+// Identifiers
+// type BaseOrganizationId is Id (BaseOrganization)
+// type SubOrganizationId is Id (SubOrganization)
+// type OrganizationType is one of {BaseOrganizationId, SubOrganizationId}
+//type BillingAccountId is Id(ImprovingApp.AccountingContext.BillingAccount)
+//  briefly "Unique identifier for Tenant Entity"
+//type DistributionAccountId is Id(ImprovingApp.AccountingContext.DistributionAccount)
+//  briefly "Unique identifier for Tenant Entity"
+type OrganizationId is Id(ImprovingApp.OrganizationContext.Organization)
+type VenueId is Id(ImprovingApp.Venue.VenueContext.Venue)
+type LocationId is Id(ImprovingApp.Venue.LocationContext.Location)
+type ReservationId is Id(ImprovingApp.Venue.ReservationContext.Reservation)
+type EventId is Id(ImprovingApp.EventContext.Event)
+type MemberId is Id(ImprovingApp.MembersContext.Member)
+type TenantId is Id(ImprovingApp.TenantContext.Tenant)
+
