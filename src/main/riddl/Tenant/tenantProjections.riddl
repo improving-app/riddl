@@ -1,0 +1,31 @@
+projection TenantViews is {
+    fields {
+        orgId: TenantId,
+        primaryContact: Contact,
+        members: MemberId*,
+        organizations: OrganizationId*
+    }
+    handler TenantViewsHandler is {
+        on event TenantEstablished {???
+            //then set ^^.TenantViews.orgId to @TenantContext.TenantEstablished.orgId
+            //and set ^^.TenantViews.primaryContact to @TenantContext.TenantEstablished.info.primaryContact
+            //and set ^^.TenantViews.members to @TenantContext.TenantEstablished.info.members
+            //and set ^^.TenantViews.organizations to @TenantContext.TenantEstablished.info.organizations
+        }
+        on event TenantContext.InfoUpdated {???
+            //then set ^^.TenantViews.owners to @TenantInfoUpdated.info.owners
+            //and set ^^.TenantViews.members to @TenantInfoUpdated.info.members
+            //and set ^^.TenantViews.parent to @^^^TenantInfoUpdated.info.parent
+            //and set ^^.TenantViews.children to @^^^TenantInfoUpdated.info.children
+        }
+        on event MembersAdded {
+            then append @TenantContext.MembersAdded.members
+              to TenantViews.members
+        }
+        on event OrganizationsAdded {
+            then append @TenantContext.OrganizationsAdded.organizations to TenantViews.organizations
+        }
+        on query FindTenantsByMember {???}
+        on query FindTenantsByOrganization {???}
+    }
+}
