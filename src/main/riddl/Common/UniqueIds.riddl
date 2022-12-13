@@ -6,4 +6,13 @@ type BillingAccountId is Id (^AccountingContext.BillingAccount)
   briefly "Unique identifier for Tenant Entity"
 type DistributionAccountId is Id (^AccountingContext.DistributionAccount)
   briefly "Unique identifier for Tenant Entity"
+type OrganizationId is Id (^OrganizationContext.Organization)
+type VenueId is Id (^Venue.VenueContext.Venue)
+type LocationId is Id (^Venue.LocationContext.Location)
+type ReservationId is Id (^Venue.ReservationContext.Reservation)
+type EventId is Id (^EventContext.Event)
+type BillingAccountId is Id (^AccountingContext.BillingAccount)
+type DistributionAccountId is Id (^AccountingContext.DistributionAccount)
+type MemberId is Id(^MembersContext.Member)
+type TenantId is Id(ImprovingApp.TenantContext.Tenant)
 
