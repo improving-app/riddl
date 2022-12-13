@@ -10,6 +10,8 @@ domain ImprovingApp by author James is {
     include "Members/members"
     include "Organization/organization"
     include "Tenant/tenant"
+    include "Events/event"
+    include "Venues/venue"
     include "use-cases/application"
     include "use-cases/stories"
 } described in file "ImprovingApp.md"
