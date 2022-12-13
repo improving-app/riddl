@@ -1,0 +1,12 @@
+type PublicTenantEvent is one of {
+    TenantEstablished,
+    ^TenantContext.InfoUpdated,
+    ^TenantContext.StatusUpdated,
+    ^TenantContext.MembersAdded,
+    ^TenantContext.OrganizationsAdded,
+    ^TenantContext.PrimaryContactUpdated
+}
+
+source TenantEvents is {
+    outlet Events is type PublicTenantEvent from entity Tenant
+} explained as "This is a source for Tenant Events"
