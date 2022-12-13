@@ -1,4 +1,4 @@
-	context OrganizationContext is {
+context OrganizationContext is {
     include "organizationTypeDefinitions"
     include "organizationMessages"
     include "organizationProjections"

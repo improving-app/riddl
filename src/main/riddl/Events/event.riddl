@@ -1,6 +1,3 @@
-type EventId is Id (ImprovingApp.EventContext.Event)
-  briefly "Unique identifier for Tenant Entity"
-
 context EventContext is {
     // plant EventPlant is {
     //     pipe EventPipe is {???}
