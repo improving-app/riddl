@@ -1,7 +1,7 @@
 //Member Stories (James)
 //As a person who would like to use the features of ImprovingApp I would like to register a new user account so that I can access those features
 story RegisterMember is {
-capability is "Enroll the Member"
+	capability is "Enroll the Member"
   benefit is "So Member can use ImprovingApp"
   author James is {
     name: "James Lovell"
