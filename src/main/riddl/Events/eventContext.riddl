@@ -11,17 +11,7 @@ context EventContext is {
 
         handler EventHandler is {
             on command ScheduleEvent {
-                then morph entity Event to state Scheduled //(
-                    // eventId = @ScheduleEvent.eventId,
-                    // eventInfo = @ScheduleEvent.info,
-                    // eventMetaInfo = new EventMetaInfo(
-                    //     scheduledBy = @ScheduleEvent.schedulingMember,
-                    //     scheduledOn = today(),
-                    //     lastModifiedBy = @ScheduleEvent.schedulingMember,
-                    //     lastModifiedOn = today(),
-                    //     status = Delayed
-                    // )
-                //)
+                then morph entity Event to state Scheduled
             }
             on other {then error "You must first create an event using ScheduleEvent command."}
         }
@@ -36,19 +26,36 @@ context EventContext is {
                 on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
                 on command ChangeEventInfo{
                     then "set entity eventInfo to message info"
-                    and "set entity lastModifiedBy to message field cancellingMember"
+                    and "set entity lastModifiedBy to Event.cancellingMember"
                     and "set entity lastModifiedOn to today()"
                 }
                 on command CancelEvent{
-                    then "morph entity Event to state Event.Cancelled"
-                    and "set entity status to Cancelled"
-                    and "set entity lastModifiedBy to message field cancellingMember"
+                    then "morph entity Event to state EventStatus.Cancelled"
+                    and "set entity lastModifiedBy to Event.cancellingMember"
                     and "set entity lastModifiedOn to today()"
                 }
-                on command RescheduleEvent{???}
-                on command DelayEvent{???}
-                on command StartEvent{???}
-                on command EndEvent{???}
+                on command RescheduleEvent {
+                  then "set entity evenInfo.expectedStart to Event.start"
+                  and "set entity evenInfo.expectedEnd to Event.end"
+                  and "set entity lastModifiedBy to Event.reschedulingMember"
+                  and "set entity lastModifiedOn to today()"
+                }
+                on command DelayEvent{
+                  then "morph Event entity to EventStatus.Delayed"
+                  and "set entity eventInfo.expectedStart to eventInfo.expectedStart + Event.duration"
+                  and "set entity eventInfo.expectedEnd to eventInfo.expectedEnd + Event.duration"
+                  and "set entity lastModifiedBy to Event.delayingMember"
+                  and "set entity lastModifiedOn to today()"
+                  // what about Event.reason? Do we want to store it somewhere?
+                }
+                on command StartEvent{
+                  then "morph Event entity to EventStatus.InProgress"
+                  and "set entity lastModifiedBy to Event.startingMember"
+                  and "set entity lastModifiedOn to today()"
+                }
+                on command EndEvent{
+									then error "End has not started. Cannot end an event that has not started."
+                }
                 on command AddLiveUpdate{???}
             }
         }
@@ -59,13 +66,27 @@ context EventContext is {
                 eventMetaInfo: EventMetaInfo
             }
             handler InProgressEventHandler is {
-                on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
-                on command ChangeEventInfo{???}
-                on command CancelEvent{???}
-                on command RescheduleEvent{???}
-                on command DelayEvent{???}
-                on command StartEvent{???}
-                on command EndEvent{???}
+                on command ScheduleEvent{ ??? // is this allowed or does an event have to be delayed first?
+                }
+                on command ChangeEventInfo{ ??? // can info be changed while event is in progress? Would this be more likely to confuse or help users?
+                }
+                on command CancelEvent{
+									then "morph Event entity to EventStatus.Cancelled"
+                  and "set entity lastModifiedBy to Event.cancellingMember"
+                  and "set entity lastModifiedOn to today()"
+                }
+                on command RescheduleEvent{ ??? // is this allowed or does the event have to be delayed first?
+                }
+                on command DelayEvent{ ??? // is this allowed or return error?
+                }
+                on command StartEvent{
+                  then error "Event is already started. Cannot start an event that is already in progress"
+                }
+                on command EndEvent{
+									then "morph Event entity to EventStatus.Past"
+                  and "set entity lastModifiedBy to Event.endingMember"
+                  and "set entity lastModifiedOn to today()"
+                }
                 on command AddLiveUpdate{???}
             }
             //score, period, etc...
@@ -79,13 +100,43 @@ context EventContext is {
                 //finalScore
             }
             handler DelayedEventHandler is {
-                on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
-                on command ChangeEventInfo{???}
-                on command CancelEvent{???}
-                on command RescheduleEvent{???}
-                on command DelayEvent{???}
-                on command StartEvent{???}
-                on command EndEvent{???}
+                on command ScheduleEvent{
+									then "morph Event entity to EventStatus.InProgress"
+                  and "set entity lastModifiedBy to Event.delayingMember"
+                  and "set entity lastModifiedOn to today()"
+                }
+                on command ChangeEventInfo{
+                  then "set entity eventInfo to message info"
+                  and "set entity lastModifiedBy to Event.cancellingMember"
+                  and "set entity lastModifiedOn to today()"
+                }
+                on command CancelEvent{
+									then "morph Event entity to EventStatus.Cancelled"
+                  and "set entity lastModifiedBy to Event.cancellingMember"
+                  and "set entity lastModifiedOn to today()"
+                }
+                on command RescheduleEvent{
+                  then "set entity evenInfo.expectedStart to Event.start"
+                  and "set entity evenInfo.expectedEnd to Event.end"
+                  and "set entity lastModifiedBy to Event.reschedulingMember"
+                  and "set entity lastModifiedOn to today()"
+                }
+                on command DelayEvent{
+                  then "morph Event entity to EventStatus.Delayed"
+                  and "set entity eventInfo.expectedStart to eventInfo.expectedStart + Event.duration"
+                  and "set entity eventInfo.expectedEnd to eventInfo.expectedEnd + Event.duration"
+                  and "set entity lastModifiedBy to Event.delayingMember"
+                  and "set entity lastModifiedOn to today()"
+                  // what about Event.reason? Do we want to store it somewhere?
+                }
+                on command StartEvent{
+                  then "morph Event entity to EventStatus.InProgress"
+                  and "set entity lastModifiedBy to Event.startingMember"
+                  and "set entity lastModifiedOn to today()"
+                }
+                on command EndEvent{
+									then error "End has not started. Cannot end an event that has not started."
+                }
                 on command AddLiveUpdate{???}
             }
         }
@@ -97,14 +148,18 @@ context EventContext is {
                 //finalScore
             }
             handler PastEventHandler is {
-                on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
-                on command ChangeEventInfo{???}
-                on command CancelEvent{???}
-                on command RescheduleEvent{???}
-                on command DelayEvent{???}
-                on command StartEvent{???}
-                on command EndEvent{???}
-                on command AddLiveUpdate{???}
+                on command ScheduleEvent{then error "Event is already in past. Cannot schedule a past event."}
+                on command ChangeEventInfo{
+                   then error "Event is already in past. Cannot change info for a past event."
+                }
+                on command CancelEvent{then error "Event is already in past. Cannot cancel a past event."}
+                on command RescheduleEvent{
+                   then error "Event is already in past. Cannot reschedule a past event."
+                }
+                on command DelayEvent{then error "Event is already in past. Cannot delay a past event."}
+                on command StartEvent{then error "Event is already in past. Cannot start a past event."}
+                on command EndEvent{then error "Event is already in past. Cannot end a past event."}
+                on command AddLiveUpdate{then error "Event is already in past. Cannot add live update to a past event."}
             }
         }
         state Cancelled is {
@@ -115,14 +170,17 @@ context EventContext is {
                 //reason
             }
             handler CancelledEventHandler is {
-                on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
-                on command ChangeEventInfo{???}
-                on command CancelEvent{???}
-                on command RescheduleEvent{???}
-                on command DelayEvent{???}
-                on command StartEvent{???}
-                on command EndEvent{???}
-                on command AddLiveUpdate{???}
+                on command ScheduleEvent{ ??? // is this allowed or return error?
+                }
+                on command ChangeEventInfo{then error "Event is cancelled. Cannot change info for a cancelled event."}
+                on command CancelEvent{then error "Event is cancelled. Cannot cancel a cancelled event."}
+                on command RescheduleEvent{ ???
+                    // is this allowed or return error?
+                }
+                on command DelayEvent{then error "Event is cancelled. Cannot delay a cancelled event."}
+                on command StartEvent{then error "Event is cancelled. Cannot start a cancelled event."}
+                on command EndEvent{then error "Event is cancelled. Cannot end a cancelled event."}
+                on command AddLiveUpdate{then error "Event is cancelled. Cannot add live update to a cancelled event."}
             }
         }
         //also consider postponed, delayed
