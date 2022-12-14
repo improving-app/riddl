@@ -37,7 +37,7 @@ command AddReservationAttendees is {
   attendees: MemberId+
 }
 event ReservationAttendeesAdded is {
-  venueId: VenueId,
+  reservationId: ReservationId,
   allAttendees: MemberId+
 }
 

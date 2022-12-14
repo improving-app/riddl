@@ -4,7 +4,6 @@ type Info is {
     range: 'TimeRange',
     title: String,
     description: String,
-    location: LocationId,
     forOrg: OrganizationId
 }
 
@@ -12,7 +11,6 @@ type UpdateInfo is {
     range: 'TimeRange'?,
     title: String?,
     description: String?,
-    location: LocationId?,
     forOrg: OrganizationId?,
     isPrivate: Boolean?
 }
