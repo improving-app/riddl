@@ -158,18 +158,20 @@ context MembersContext  is {
 
             handler ActiveMemberHandler {
                 on command UpdateMemberInfo {
-                    then set ^^.Active.info to @UpdateMemberInfo.info
-                    and set ^^.Active.meta.lastModifiedBy to @UpdateMemberInfo.actingMember
-                    and set ^^.Active.meta.lastModifiedOn to today()
-                    and yield event MemberInfoUpdated(memberId = @Active.memberId, info = @Active.memberInfo, meta = @Active.memberMeta)
+                    then "set entity Info to non-Empty fields in UpdateInfo from message"
+                    and "set entity lastModifiedBy to actingMember from message"
+                    and "set entity lastModifiedOn to today()""
+                    and "yield event MemberInfoUpdated"
                 }
                 on command UpdateMemberStatus {
-                    then set Active.meta.memberStatus to @UpdateMemberStatus.newStatus
-                    and set Active.meta.lastModifiedBy to @UpdateMemberInfo.actingMember
-                    and set Active.meta.lastModifiedOn to today()
-                    and yield event MemberStatusUpdated(memberId = @Active.memberId, meta = @Active.memberMeta)
+                    then "set entity Status to Status field from message"
+                    and "set entity lastModifiedBy to actingMember from message"
+                    and "set entity lastModifiedOn to today()""
+                    and "yield event MemberStatusUpdated"
                 }
-                on query GetMemberData {  ??? }
+                on query GetMemberData {
+                    then "yield Info for entity"
+                }
             }
         }
 
