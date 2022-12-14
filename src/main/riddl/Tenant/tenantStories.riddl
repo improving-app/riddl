@@ -3,20 +3,18 @@ actor ResponsibleParty is "the person that is financially responsible for the Te
 story EstablishTenant is {
   As a ResponsibleParty, I would like "establish an new Tenant", so I can "I can leverage the capabilities Improving.App to benefit my organization (business/school/etc.)"
   term Tenant briefly "The financially responsible entity for an organization's use of Improving.App."
-  case primary is {
+  case HappyPath is {
     title: "Creating An Tenant"
     scope domain ImprovingApp briefly
       "This domain is the smallest encapsulating domain that contains everything referenced by uses"
     interaction is {
-      step from actor ResponsibileParty "creates a Tenant" to context ImprovingApp.TenantContext
-        briefly "initial invocation",
-      step from context TenantContext "EstablishTenant" to entity ImprovingApp.TenantContext.Tenant
-        briefly "send creation message",
-      step from entity Tenant "add new organization" to projection ImprovingApp.OrganizationContext.OrganizationViews
-        briefly "add new organization",
-      step from entity Organization "organizationAdded" to actor ResponsibleParty
-        briefly "organization added"
+      step from actor ResponsibleParty "creates a Tenant" to
+        input ImprovingApp.Improving_app.TenantPage.accept
+        briefly "create tenant",
+      step from output ImprovingApp.Improving_app.TenantPage.show
+        "presented" to actor ResponsibleParty
+        briefly "tenant added"
     }
   }
-} briefly "A story about establishing an organization in Improving.app"
-  described as "This is the story of how an organization comes to existence"
+} briefly "A story about establishing a tenant in Improving.app"
+  described as "This is the story of how a tenant comes to existence"
