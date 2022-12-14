@@ -100,16 +100,16 @@ context EventContext is {
             }
             handler ScheduledEventHandler {
                 on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
-                on command ChangeEventInfo{ ???
-                    //then set ^^Scheduled.eventInfo to @^^^ChangeEventInfo.info
-                    // and set Scheduled.metaInfo.lastModifiedBy to @ChangeEventInfo.cancellingMember
-                    // and set Scheduled.metaInfo.lastModifiedOn to today()
+                on command ChangeEventInfo{
+                    then "set entity eventInfo to message info"
+                    and "set entity lastModifiedBy to message field cancellingMember"
+                    and "set entity lastModifiedOn to today()"
                 }
                 on command CancelEvent{
-                    then morph entity Event to state Event.Cancelled
-                    // and set Cancelled.metaInfo.status to Cancelled
-                    // and set Cancelled.metaInfo.lastModifiedBy to @CancelEvent.cancellingMember
-                    // and set Cancelled.metaInfo.lastModifiedOn to today()
+                    then "morph entity Event to state Event.Cancelled"
+                    and "set entity status to Cancelled"
+                    and "set entity lastModifiedBy to message field cancellingMember"
+                    and "set entity lastModifiedOn to today()""
                 }
                 on command RescheduleEvent{???}
                 on command DelayEvent{???}
