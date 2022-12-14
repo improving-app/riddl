@@ -1,6 +1,5 @@
 domain Venue is {
     include "venueContext"
     include "Locations/location"
-    include "Reservations/reservation"
     include "venueLocationsReservationsProjections"
 }

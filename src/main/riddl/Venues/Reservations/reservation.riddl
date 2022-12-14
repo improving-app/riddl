@@ -1,4 +1,6 @@
-type ReservationId is Id(Reservation)
+type ReservationId is Id (ImprovingApp.Venues.ReservationContext.Reservation)
+  briefly "Unique identifier for Reservation Entity"
+
 context ReservationContext is {
     include "reservationTypeDefinitions"
     include "reservationMessages"

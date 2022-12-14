@@ -1,11 +1,7 @@
+actor ResponsibleParty is "the person that is financially responsible for the Tenant and all activity that happens under the Tenant"
+
 story EstablishTenant is {
-  actor ResponsibleParty is "the person that is financially responsible for the Tenant and all activity that happens under the Tenant"
-  capability is "establish an new Tenant"
-  benefit is "I can leverage the capabilities Improving.App to benefit my organization (business/school/etc.)"
-  author reid is {
-    name: "James Lovell"
-    email: "james.lovell@improving.com"
-  } 
+  As a ResponsibleParty, I would like "establish an new Tenant", so I can "I can leverage the capabilities Improving.App to benefit my organization (business/school/etc.)"
   term Tenant briefly "The financially responsible entity for an organization's use of Improving.App."
   case primary is {
     title: "Creating An Tenant"

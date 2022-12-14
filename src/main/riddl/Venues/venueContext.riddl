@@ -1,3 +1,6 @@
+type VenueId is Id (ImprovingApp.Venues.VenueContext.Venue)
+  briefly "Unique identifier for Venue Entity"
+
 context VenueContext is {
     include "venueTypeDefinitions"
     include "venueMessages"
