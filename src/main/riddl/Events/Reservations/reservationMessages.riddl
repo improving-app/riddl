@@ -41,9 +41,6 @@ event ReservationAttendeesAdded is {
   allAttendees: MemberId+
 }
 
-
-command CreateReservation is {}
-event ReservationCreated is {reservationId: ReservationId, info: ReservationContext.Info}
 command DeleteReservation is {reservationId: ReservationId}
 event ReservationDeleted is {reservationId: ReservationId}
 query GetReservationInfo is {reservationId: ReservationId}

@@ -34,7 +34,7 @@ command UpdateLocationStatus is {
   updatingMember: MemberId
 }
 event LocationStatusUpdated is {
-  reservationId: LocationId,
+  locationId: LocationId,
   newStatus: LocationContext.Status
 }
 
@@ -44,7 +44,7 @@ command EditLocationInfo is {
   editingMember: MemberId briefly "Id of the member who is creating the location"
 } briefly "A command to edit the values of an Reservation's Info "
 event LocationInfoUpdated is {
-  reservationId: LocationId,
+  locationId: LocationId,
   info: LocationContext.Info,
   meta: LocationContext.MetaInfo
 }
@@ -52,34 +52,34 @@ event LocationInfoUpdated is {
 query GetNextLocationReservations is {
   locationId: LocationId,
   maxCount: Integer,
-	startDate: DateTime? briefly "Used as start date of query when present instead of now()"
+  startDate: DateTime? briefly "Used as start date of query when present instead of now()"
 }
 query GetLocationReservations is {
-	venueId: LocationId,
-	ranges: TimeRange+
+  venueId: LocationId,
+  ranges: TimeRange+
 }
 result LocationReservations is {
-	venueId: LocationId,
-	schedule: ReservationId* briefly "All reservation that take place in the location within
-																		the time range (for GetNextLocationReservations) or
-																		maxCount+startDate (for GetLocationReservations) provided"
+  venueId: LocationId,
+  schedule: ReservationId* briefly "All reservation that take place in the location within
+									the time range (for GetNextLocationReservations) or
+									maxCount+startDate (for GetLocationReservations) provided"
 }
 
 query GetNextLocationAvailability is {
-	locationId: LocationId,
-	maxCount: Integer,
-	startDate: DateTime? briefly "Used as start date of query when present instead of now()"
+  locationId: LocationId,
+  maxCount: Integer,
+  startDate: DateTime? briefly "Used as start date of query when present instead of now()"
 }
 result LocationAvailabilityCalendar is {
-	locationId: LocationId,
-	schedule: 'TimeRange'* briefly "A list of time ranges indicating availability"
+  locationId: LocationId,
+  schedule: 'TimeRange'* briefly "A list of time ranges indicating availability"
 }
 
 query FindAvailableLocationsInRange is {locationId: LocationId, start: Date, end: Date}
 query FindAvailableLocationsInRangeWithAmenities is {locationId: LocationId, start: Date, end: Date, desiredAmenities: String*}
 
 query GetLocationVenue is {
-	locationId: LocationId
+  locationId: LocationId
 }
 result LocationVenue is {
   locationId: LocationId,

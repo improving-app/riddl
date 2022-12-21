@@ -1,9 +1,9 @@
 type Status is any of {Draft, Open, Closed} briefly "Internal status of a Location."
 
 type Info is {
-	id: LocationId,
-	venueId: VenueId,
-	name: String,
+  id: LocationId,
+  venueId: VenueId,
+  name: String,
   description: String,
   directions: String briefly "How do you find this location?",
   //latLong: LatLong,
@@ -12,11 +12,13 @@ type Info is {
   amenities: String*, //TODO: We may need amenities to be searchable - i.e. I need to find a Location that is handicaped accessible and has a kitchen
   entrances: Address+,
   preferredEntrance: Address,
-  isPrivate: Boolean briefly "Is this location accessible outside of the organization owning its venue?"
+  isPrivate: Boolean briefly "Is this location accessible outside of the organization owning its venue?",
+  reservations: ReservationId*
 }
 
 type UpdateInfo is {
-	name: String?,
+  name: String?,
+  name: String?,
   description: String?,
   directions: String? briefly "How do you find this location?",
   //latLong: LatLong?,

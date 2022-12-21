@@ -1,0 +1,6 @@
+query ScheduleEasyEvent is {maxAttendance: Integer, timeRange: TimeRange, info: EventContext.EventInfo, schedulingMember: MemberId}
+result EasyEventNoAvailability is {eventInfo: EventInfo}
+result EasyScheduledEvent is {eventInfo: EventInfo, locationId: LocationId}
+
+query FindVacanciesForEvent is {maxAttendance: Integer, timeRange: TimeRange, info: EventContext.EventInfo}
+result VacanciesForEventResult is mapping from LocationId to (EventInfo, ReservationContext.Info)

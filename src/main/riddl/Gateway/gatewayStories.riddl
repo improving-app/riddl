@@ -48,6 +48,20 @@ As an Owner of an Organization I would like to find a Location, Reserve the Loca
   - After creating an event but before scheduling an event (booking a reservation)
   - Gather interest in an event prior to Reserving the event
 
+story EventBookingEasyButton is {
+  case primary is {
+    step from actor Owner "presses easy button to make a reservation" to
+      input ImprovingApp.Improving_app.MyEventsPages.easy
+      briefly "make a reservation by searching for a location - includes max attendance, start/end time, already created event info"
+    step from output ImprovingApp.Improving_app.MyEventsPage.show
+      "presented" to actor Owner
+      briefly "event will now appear as scheduled in a venue that honours max attendance and event info parameters in the nearest time to start and end available"
+  }
+} briefly "A story about scheduling an event with the easy button in Improving.app"
+described as "This is the story of how an event is scheduled with an easy button."
+
+//Alex's Q - should there be more interaction with the app here? Do we want to display a selection of options?
+
 //Place Stories (Alex)
 As a Tenant Owner I would like to create a Venue
 As a Tenant Owner I would like to create a Location within a Venue

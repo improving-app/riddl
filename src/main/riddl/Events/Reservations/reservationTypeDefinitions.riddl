@@ -4,7 +4,8 @@ type Info is {
     range: 'TimeRange',
     title: String,
     description: String,
-    forOrg: OrganizationId
+    forOrg: OrganizationId,
+    isPrivate: Boolean
 }
 
 type UpdateInfo is {

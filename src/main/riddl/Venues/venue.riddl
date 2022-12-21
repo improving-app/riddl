@@ -1,5 +1,4 @@
-domain Venue is {
+domain Venues is {
     include "venueContext"
     include "Locations/location"
-    include "venueLocationsReservationsProjections"
 }

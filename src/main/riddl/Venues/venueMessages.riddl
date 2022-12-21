@@ -39,7 +39,7 @@ command AddVenueLocations is {
 }
 event VenueLocationsAdded is {
   venueId: VenueId,
-  allLocation: LocationId+
+  locations: LocationId+
 }
 
 query GetNextVenueReservations is {
