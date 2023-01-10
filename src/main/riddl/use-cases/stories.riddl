@@ -21,3 +21,13 @@ story RegisterMemberToOrganization by author Reid is {
   case primary is { ??? }
 } briefly "A story about registering a member into an organization"
   described as "TBD"
+
+story UpdateOrganizationInfo is {???}
+
+/*story
+Create X Tenants
+Create Y organizations for each Tenant
+Add Z Members to each Organization
+Create N events per organization
+Register M members for each events
+Query Organizations For Members registered to events on a specific day (to utilize projections)*/

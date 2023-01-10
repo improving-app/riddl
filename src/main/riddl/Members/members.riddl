@@ -1,10 +1,11 @@
 type MemberId is Id(ImprovingApp.MembersContext.Member)
   briefly "Unique identifier for Tenant Entity"
+type MemberMap is mapping from MemberId to MembersContext.Info  //gateway definition
 
 context MembersContext  is {
     //Member Details
     //type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
-    type MemberMap is mapping from MemberId to MembersContext.Info  //gateway definition
+
     type NotificationPreference is any of { Email, SMS, Application } described
     as {
       | The values of this enumeration define the ways in which a member may
@@ -22,9 +23,8 @@ context MembersContext  is {
         notificationPreference: NotificationPreference?
           briefly "if this is set it is assumed that the user has opted in.",
         organizationMembership: OrganizationId*
-          briefly "A possibly empty list of organizations this member belongs to
-          .",
-        tenant: TenantId
+          briefly "A possibly empty list of organizations this member belongs to.",
+        tenant: TenantId* briefly "the tenant(s) this member belongs to"
         //memberType: MemberType+
     } described as {
       |This type provides the basic information about members that is
@@ -41,6 +41,7 @@ context MembersContext  is {
         emailAddress: EmailAddress?,
         notificationPreference: NotificationPreference? briefly "if this is set it is assumed that the user has opted in.",
         organizationMembership: OrganizationId* briefly "A list of organizations this member belongs to."
+        tenant: TenantId* briefly "the tenant(s) this Member would belong to"
         //memberType: MemberType+
     } described as {
       |This aggregate type specifies a way to update any or all of the
