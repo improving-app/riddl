@@ -40,7 +40,7 @@ context MembersContext  is {
         mobileNumber: MobileNumber?,
         emailAddress: EmailAddress?,
         notificationPreference: NotificationPreference? briefly "if this is set it is assumed that the user has opted in.",
-        organizationMembership: OrganizationId* briefly "A list of organizations this member belongs to."
+        organizationMembership: OrganizationId* briefly "A list of organizations this member belongs to.",
         tenant: TenantId* briefly "the tenant(s) this Member would belong to"
         //memberType: MemberType+
     } described as {

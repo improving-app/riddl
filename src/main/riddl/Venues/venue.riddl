@@ -35,7 +35,7 @@ context VenueContext is {
             name: String,
             description: String,
             directions: String, //how do you find this location
-            latLong: LatLong,
+            latLong: Location, //HELP: This was defined as a LatLong type, however, RIDDL does not recognize this as a valid type
             url: URL?,
             capacity: Integer?,
             accessible: Boolean, //is this location handicapped accessible
