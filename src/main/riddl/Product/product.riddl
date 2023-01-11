@@ -1,6 +1,7 @@
 context ProductContext is {
   ProductDetails is select ReservedTicket | RestrictedTicket | OpenTicket
-  type ProductStatus is any of {Active, InActive)
+  type ProductStatus is any of {Active, InActive, Deleted)
+  type SKU is id(Product)
 
   type ReservedTicket is {
     section: String,
@@ -16,7 +17,7 @@ context ProductContext is {
     event: EventId
   }
   type ProductInfo is {
-    sku: String,
+    sku: SKU,
     name: String,
     description: String,
     productDetails: ProductDetails,
@@ -40,38 +41,64 @@ context ProductContext is {
     lastModifiedBy: MemberId,
     lastModifiedOn: Date
   }
-  command CreateProduct is {???}
-  event ProductCreated is {???}
-  command UpdateProductInfo is {???}
-  event ProductInfoUpdated is {???}
-  command DeleteProduct is {???}
-  event ProductDeleted is {???}
-  command ActivateProduct is {???}
-  event ProductActivated is {???}
-  command InactivateProduct is {???}
-  event ProductInactivated is {???}
-  query GetProductInfo is {???}
-  result ProductInfoResult is {???}
-  query GetProductsInStore is {???}
-  result ProductsInStore is {???}
-  query GetTicketsForEvent is {???}
-  result TicketsForEvent is {???}
+  command CreateProduct is {sku: SKU, info: ProductInfo, creatingMember: MemberId}
+  event ProductCreated is {sku: SKU, info: ProductInfo, meta: ProductMetaInfo}
+  command UpdateProductInfo is {sku: SKU, info: ProductInfoUpdate, updatingMember: MemberId}
+  event ProductInfoUpdated is {sku: SKU, info: ProductInfo, meta: ProductMetaInfo}
+  command DeleteProduct is {sku: SKU, deletingMember: MemberId}
+  event ProductDeleted is {sku: SKU}
+  command ActivateProduct is {sku: SKU, activatingMember: MemberId}
+  event ProductActivated is {sku: SKU}
+  command InactivateProduct is {sku: SKU, inactivatingMember: MemberId}
+  event ProductInactivated is {sku: SKU}
+  query GetProductInfo is {sku: SKU}
+  result ProductInfoResult is {info: ProductInfo, meta: ProductMetaInfo}
+  query GetTicketsForEvent is {event: EventId} //TODO: Move this query/result to a projection?
+  result TicketsForEvent is {event: EventId, tickets: SKU*}
 
-  entity ProductEntity is {
-    option is {???}
-    handler ProductHandler is {???}
+  entity Product is {
+    option is {event sourced}
+    handler ProductHandler is {
+      on command CreateProduct {
+        then "morph Product to Active state"
+        and "copy fields from the command into Active fields"
+        and "adjust meta fields to reflect the change set"
+        and "yield ProductCreated event"
+      }
+      on query GetProductsForEvent {???}
+      on other {then error "Only the CreateProduct command is allowed in the default state."}
+    }
     state ActiveProduct is {
       fields {
         info: ProductInfo,
         meta: ProductMetaInfo
       }
       handler ActiveProductHandler is {
-        on command CreateProduct {???}
-        on command UpdateProductInfo{???}
-        on command DeleteProduct{???}
-        on command ActivateProduct{???}
-        on command InactivateProduct{???}
-        on query GetProductInfo{???}
+        on command CreateProduct {
+          then error "Product already created."
+        }
+        on command UpdateProductInfo{
+          then "Copy fields from UpdateProductInfo into Active product fields"
+          and "adjust meta fields to reflect the change set"
+          and "yield ProductInfoUpated event"
+        }
+        on command DeleteProduct{
+          then "morph Product state to Deleted"
+          and "copy Active Product name and sku to Deleted Product name and sku"
+          and "adjust meta fields to reflect the change set"
+          and "yield ProductDeleted event"
+        }
+        on command ActivateProduct{
+          then error "Product is already active"
+        }
+        on command InactivateProduct{
+          then "morph product state to Inactive"
+          and "adjust meta fields to reflect the change set"
+          and "yield ProductInactivated event"
+        }
+        on query GetProductInfo{
+          then "yield ProductInfoResult message"
+        }
       }
     }
     state InactiveProduct is {
@@ -80,12 +107,57 @@ context ProductContext is {
         meta: ProductMetaInfo
       }
       handler InactiveProductHandler is {
-        on command CreateProduct {???}
-        on command UpdateProductInfo{???}
-        on command DeleteProduct{???}
-        on command ActivateProduct{???}
-        on command InactivateProduct{???}
-        on query GetProductInfo{???}
+        on command CreateProduct {
+          then error "Product already created."
+        }
+        on command UpdateProductInfo{
+          then "Copy fields from UpdateProductInfo into Active product fields"
+          and "adjust meta fields to reflect the change set"
+          and "yield ProductInfoUpated event"
+        }
+        on command DeleteProduct{
+          then "morph Product state to Deleted"
+          and "copy Active Product name and sku to Deleted Product name and sku"
+          and "adjust meta fields to reflect the change set"
+          and "yield ProductDeleted event"
+        }
+        on command ActivateProduct{
+          then "morph product state to Active"
+          and "adjust meta fields to reflect the change set"
+          and "yield ProductActivated event"
+        }
+        on command InactivateProduct{
+          then error "Product is already Inactive"
+        }
+        on query GetProductInfo{
+          then "yield ProductInfoResult message"
+        }
+      }
+    }
+    state DeletedProduct is {
+      fields {
+        sku: SKU,
+        name: String
+      }
+      handler DeltedProductHandler is {
+        on command CreateProduct {
+          then error "Product already created."
+        }
+        on command UpdateProductInfo{
+          then error "Cannot update a deleted product"
+        }
+        on command DeleteProduct{
+          then error "Product already deleted"
+        }
+        on command ActivateProduct{
+          then error "Cannot activate a deleted product. Consider creating a new product instead."
+        }
+        on command InactivateProduct{
+          then error "Cannot inactivate a deleted product."
+        }
+        on query GetProductInfo{
+          then "yield ProductInfoUpdate with only sku and name populated"
+        }
       }
     }
   }

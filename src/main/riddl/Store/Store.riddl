@@ -29,4 +29,7 @@ context StoreContext is {
   command IncrementProductInventory is {???}
   command DecrementProductInventory is {???}
   query GetStoreInfo is {???}
+  result StoreInfoResult is {???}
+  query GetProductsInStore is {store: StoreId}
+  result ProductsInStore is {store: StoreId, products: SKU*}
 }
