@@ -1,0 +1,38 @@
+type Status is any of {Draft, Open, Closed} briefly "Internal status of a Location."
+
+type Info is {
+	id: LocationId,
+	venueId: VenueId,
+	name: String,
+  description: String,
+  directions: String briefly "How do you find this location?",
+  //latLong: LatLong,
+  url: URL?,
+  capacity: Integer?,
+  amenities: String*, //TODO: We may need amenities to be searchable - i.e. I need to find a Location that is handicaped accessible and has a kitchen
+  entrances: Address+,
+  preferredEntrance: Address,
+  isPrivate: Boolean briefly "Is this location accessible outside of the organization owning its venue?"
+}
+
+type UpdateInfo is {
+	name: String?,
+  description: String?,
+  directions: String? briefly "How do you find this location?",
+  //latLong: LatLong?,
+  url: URL?,
+  capacity: Integer?,
+  amenities: String*, //TODO: We may need amenities to be searchable - i.e. I need to find a Location that is handicaped accessible and has a kitchen
+  entrances: Address*,
+  preferredEntrance: Address?,
+  isPrivate: Boolean? briefly "Is this location accessible outside of the organization owning its venue?"
+}
+
+type MetaInfo is {
+  createdOn: TimeStamp briefly "The Date/Time this venue was created.",
+  createdBy: MemberId briefly "The member who created this venue",
+  lastUpdated: TimeStamp briefly "The Date/Time this venue was last modified.",
+  lastUpdatedBy: MemberId briefly "The member who last modified this venue. This may also be a system user. i.e. they are two months late on payment so the system determines to suspend the venue.",
+  currentStatus: LocationContext.Status briefly "The current state of this venue. Valid states include Draft, Active, Suspended, and Terminated",
+  currentOwner: MemberId
+} briefly "Meta data kept about a location that the user does not directly modify. Instead the system updates this info as a Member Owner updates details in the Info type."

@@ -7,12 +7,12 @@ context OrganizationContext is {
     include "organizationProjections"
     include "organizationSources"
 
-    entity Organization is {
+    entity Organization by author Reid is {
         options (event-sourced, available)
 
         handler OrganizationHandler is {
             on command EstablishOrganization {
-                then "morph Organizaiton to Draft state"
+                then "morph Organization to Draft state"
                 and "Copy fields from the command into Draft fields"
                 and "adjust meta fields to reflect the change set"
                 and "yield event OrganizationEstablished"
@@ -172,10 +172,9 @@ context OrganizationContext is {
                 //     }
                 // }
                 on command UpdateOrganizationStatus {
-                    // then morph entity Organization to state @UpdateOrganizationStatus.status
                     then "morph Organization to the state provided in UpdateOrganizationStatus"
                     and "set MetaInfo to capture change data"
-                    and "yield event OrganizationInfoUpdated"
+                    and "yield event OrganizationStatusUpdated"
                 }
                 on other { then error "No other commands allowed in Draft state" }
             }
@@ -352,7 +351,7 @@ context OrganizationContext is {
                     then error "Organization already established"
                 }
                 on command UpdateOrganizationStatus {
-                    then "morph Organizaiton to the status provided in UpdateOrganiztionStatus"
+                    then "morph Organization to the status provided in UpdateOrganiztionStatus"
                     and "update the meta info to reflect the change"
                     and "yield event OrganizationStatusUpdated"
                 }

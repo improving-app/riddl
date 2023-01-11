@@ -37,8 +37,9 @@ context EventContext is {
         description: String,
         eventURL: URL,
         sponsoringOrg: OrganizationId,
+        geoLocation: Location,
         //venue: VenueId,
-        location: LocationId,
+        // location: LocationId,
         reservation: ReservationId,
         expectedStart: DateTime,
         expectedEnd: DateTime,
@@ -192,6 +193,9 @@ context EventContext is {
         }
         //also consider postponed, delayed
     }
+
+    type ReservationId is Id(Reservation)
+    entity Reservation is { ??? }
 
     // entity Game is {
     //     state PendingGame is {???} handler PendingGameHandler is {???}
