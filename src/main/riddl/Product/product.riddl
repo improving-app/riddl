@@ -1,0 +1,116 @@
+context ProductContext is {
+  ProductDetails is select ReservedTicket | RestrictedTicket | OpenTicket
+  type ProductStatus is any of {Active, InActive)
+
+  type ReservedTicket is {
+    section: String,
+    row: String,
+    seat: String,
+    event: EventId
+  }
+  type RestrictedTicket is {
+    section: String,
+    event: EventId
+  }
+  type OpenTicket is {
+    event: EventId
+  }
+  type ProductInfo is {
+    sku: String,
+    name: String,
+    description: String,
+    productDetails: ProductDetails,
+    image: String*,
+    price: Number,
+    cost: Number,
+    store: StoreId
+  }
+  type ProductInfoUpdate is {
+    name: String?,
+    description: String?,
+    productDetails: ProductDetails?,
+    image: String*,
+    price: Number?,
+    cost: Number?,
+    store: StoreId?
+  }
+  type ProductMetaInfo is {
+    createdBy: MemberId,
+    createdOn: Date,
+    lastModifiedBy: MemberId,
+    lastModifiedOn: Date
+  }
+  command CreateProduct is {???}
+  event ProductCreated is {???}
+  command UpdateProductInfo is {???}
+  event ProductInfoUpdated is {???}
+  command DeleteProduct is {???}
+  event ProductDeleted is {???}
+  command ActivateProduct is {???}
+  event ProductActivated is {???}
+  command InactivateProduct is {???}
+  event ProductInactivated is {???}
+  query GetProductInfo is {???}
+  result ProductInfoResult is {???}
+  query GetProductsInStore is {???}
+  result ProductsInStore is {???}
+  query GetTicketsForEvent is {???}
+  result TicketsForEvent is {???}
+
+  entity ProductEntity is {
+    option is {???}
+    handler ProductHandler is {???}
+    state ActiveProduct is {
+      fields {
+        info: ProductInfo,
+        meta: ProductMetaInfo
+      }
+      handler ActiveProductHandler is {
+        on command CreateProduct {???}
+        on command UpdateProductInfo{???}
+        on command DeleteProduct{???}
+        on command ActivateProduct{???}
+        on command InactivateProduct{???}
+        on query GetProductInfo{???}
+      }
+    }
+    state InactiveProduct is {
+      fields {
+        info: ProductInfo,
+        meta: ProductMetaInfo
+      }
+      handler InactiveProductHandler is {
+        on command CreateProduct {???}
+        on command UpdateProductInfo{???}
+        on command DeleteProduct{???}
+        on command ActivateProduct{???}
+        on command InactivateProduct{???}
+        on query GetProductInfo{???}
+      }
+    }
+  }
+}
+
+  //ProductDetails is select ReservedTicket | RestrictedTicket | OpenTicket | FoodItem | Beverage
+  //Units is any of {Grams, Kilograms, Pounds, Ounces, Milliliters, Liters}
+  //Condiments is any of {Catsup, Mustard, Mayonaise, Fry Sauce, Relish, Onion, Pickle, Jalapeno}
+  /*type FoodItem is {
+    PrimaryUnitOfMeasure: Units,
+    PrimarySize: Number,
+    SecondaryUnitOfMeasure: Units,
+    SecondarySize: Number,
+    Ingredients: String,
+    ServingSize: Number,
+    ServingsPerPackage: Number,
+    NutritionInfo: String,
+    AllergyInfo: String,
+    Condiments: Condiments*
+    PreparationNotes: String
+  }
+  type Beverage is {
+    sugarFree: Boolean,
+    alcholic: Boolean,
+    unitOfMeasure: Units,
+    size: Number,
+    addIce: Boolean
+  }*/

@@ -34,11 +34,11 @@ context VenueContext is {
         type LocationInfo is {
             name: String,
             description: String,
-            directions: String, //how do you find this location
-            latLong: Location, //HELP: This was defined as a LatLong type, however, RIDDL does not recognize this as a valid type
+            directions: String briefly "Text description of how you find this location.",
+            latLong: Location,
             url: URL?,
             capacity: Integer?,
-            accessible: Boolean, //is this location handicapped accessible
+            accessible: Boolean briefly "Is this location handicapped accessible?",
             amenities: String* //TODO: We may need amenities to be searchable - i.e. I need to find a Location that is handicaped accessible and has a kitchen
         }
         state LocationState is {

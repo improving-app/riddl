@@ -1,0 +1,29 @@
+context OrderContext is {
+  type OrderId is id (Order)
+  type OrderStatus is any of {Draft, Pending, InProcess, Ready, Delivered, Cancelled}
+  type LineItem is {
+    product: SKU,
+    quantity: Number,
+    LineTotal: Number
+  }
+
+  type OrderInfo is {
+    lineItems: LineItem+,
+    specialInstructions: String,
+    orderTotal: Number
+  }
+  type OrderMetaInfo is {
+    orderId: OrderId,
+    memberId: MemberId,
+    storeId: StoreId,
+    createdOn: Date,
+    lastModifiedBy: MemberId,
+    lastModifiedOn: Date,
+    status: OrderStatus
+  }
+  command CreateOrder {???}
+  command ChangeOrderStatus {???}
+  command UpdateOrderInfo {???}
+  command CancelOrder {???}
+  query GetOrderInfo {???}
+}

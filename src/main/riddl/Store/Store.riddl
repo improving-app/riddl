@@ -1,0 +1,32 @@
+context StoreContext is {
+  type StoreStatus is any of {Draft, Open, Closed}
+
+  type StoreInfo is {
+    id: StoreId,
+    name: String,
+    description: String,
+    products: ProductId*,
+    event: EventId?,
+    venue: VenueId,
+    location: LocationId,
+    sponsoringOrg: OrganizationId
+  }
+  type StoreMetaInfo is {
+    createdBy: MemberId,
+    createdOn: Date,
+    lastModifiedBy: MemberId,
+    lastModifiedOn: Date,
+    status: StoreStatus
+  }
+
+  command CreateStore is {???}
+  command UpdateStore is {???}
+  command DeleteStore is {???}
+  command OpenStore is {???}
+  command CloseStore is {???}
+  command AddProductToStore is {???}
+  command RemoveProductFromStore is {???}
+  command IncrementProductInventory is {???}
+  command DecrementProductInventory is {???}
+  query GetStoreInfo is {???}
+}
