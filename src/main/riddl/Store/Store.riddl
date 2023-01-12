@@ -1,11 +1,11 @@
 context StoreContext is {
-  type StoreStatus is any of {Draft, Open, Closed}
+  type StoreStatus is any of {Draft, Ready, Open, Closed, Deleted}
 
   type StoreInfo is {
     id: StoreId,
     name: String,
     description: String,
-    products: ProductId*,
+    products: ProductId+,
     event: EventId?,
     venue: VenueId,
     location: LocationId,
@@ -18,18 +18,218 @@ context StoreContext is {
     lastModifiedOn: Date,
     status: StoreStatus
   }
+  type StoreUpdateInfo is {
+    name: String?,
+    description: String?,
+    products: ProductId*,
+    event: EventId?,
+    venue: VenueId?,
+    location: LocationId?,
+    sponsoringOrg: OrganizationId?
+  }
 
-  command CreateStore is {???}
-  command UpdateStore is {???}
-  command DeleteStore is {???}
-  command OpenStore is {???}
-  command CloseStore is {???}
-  command AddProductToStore is {???}
-  command RemoveProductFromStore is {???}
-  command IncrementProductInventory is {???}
-  command DecrementProductInventory is {???}
+  command CreateStore is {storeId: StoreId, info: StoreInfo, creatingMember: MemberId}
+  event StoreCreated is {storeId: StoreId, info: StoreInfo, meta: StoreMetaInfo}
+  command UpdateStoreInfo is {storeId: StoreId, info: StoreUpdateInfo, updatingMember: MemberId}
+  event StoreInfoUpdated {storeId: StoreId, info: StoreInfo, meta: StoreMetaInfo}
+  command DeleteStore is {storeId: StoreId, deletingMember: MemberId}
+  event StoreDeleted is {storeId: StoreId, meta: StoreMetaInfo}
+  command OpenStore is {storeId: StoreId, openingMember: MemberId}
+  event StoreOpened is {storeId: StoreId, info: StoreInfo, meta: StoreMetaInfo}
+  command CloseStore is {storeId: StoreId, closingMember: MemberId}
+  event StoreClosed is {storeId: StoreId, info: StoreInfo, meta: StoreMetaInfo}
+  command AddProductsToStore is {storeId: StoreId, products: ProductId+, addingMember: MemberId}
+  event ProductsAddedToStore is {storeId: StoreId, info: StoreInfo, meta: StoreMetaInfo}
+  command RemoveProductsFromStore is {storeId: StoreId, product: ProductId+, removingMember: MemberId}
+  event ProductsRemovedFromStore is {storeId: StoreId, info: StoreInfo, meta: StoreMetaInfo}
+  //command IncrementProductInventory is {???} //TODO: Should we pull in the Nike Inventory demo that Sean built?
+  //command DecrementProductInventory is {???}
   query GetStoreInfo is {???}
   result StoreInfoResult is {???}
   query GetProductsInStore is {store: StoreId}
   result ProductsInStore is {store: StoreId, products: SKU*}
+
+  entity Store is {
+    options (event-sourced, available)
+
+    handler DefaultStoreHandler is {
+      on command CreateStore {
+        then "morph Store into Draft state"
+        and "copy fields from Create store command into the Draft store"
+        and "adjust meta fields to reflect the change set"
+        and "yield StoreCreated event"
+      }
+      on other {then error "Only the CreateStore command is allowed in the default state"}
+    }
+    state Draft is {
+      fields {
+        info: StoreUpdateInfo,
+        meta: StoreMetaInfo
+      }
+      handler DraftStoreHandler is {
+        on command CreateStore {
+          then error "Store already created"
+        }
+        on command UpdateStore {
+          then "copy fields from info to Draft info fields"
+          and "adjust meta fields to reflect the change"
+          and "yeild the StoreUpdated event"
+        }
+        on command DeleteStore {
+          then "morph store to the Deleted state"
+          and "remove all attributes not defined in the Deleted state"
+          and "adjust meta fields to reflect change"
+          and "yield the StoreDeleted event"
+        }
+        on command OpenStore {
+          then error "store must be moved to the Ready state. All required attributes must be provided."
+        }
+        on command CloseStore {
+          then error "A store in Draft state may not be closed"
+        }
+        on command AddProductsToStore {
+          then "add provided products to store definition"
+          and "and adjust meta fields to reflect the change"
+          and "yield the ProductsAddedToStore event"
+          //TODO: Add cases where there is invalid product
+        }
+        on command RemoveProductsFromStore {
+          then "remove produvided products from store"
+          and "adjust meta fields to reflect the change"
+          and "yield the ProductsRemovedFromStore event"
+          //TODO: Add case where product to be removed doesn't exist in store
+        }
+      }
+    }
+    state Ready is {
+      fields {
+        info: StoreUpdateInfo,
+        meta: StoreMetaInfo
+      }
+      handler ReadyStoreHandler is {
+        on command CreateStore {
+          then error "Store already created"
+        }
+        on command UpdateStore {
+          then "copy fields from info to Draft info fields"
+          and "adjust meta fields to reflect the change"
+          and "yeild the StoreUpdated event"
+        }
+        on command DeleteStore {
+          then error "Store must be closed before deleting it"
+        }
+        on command OpenStore {
+          then "morph store to Open state"
+          and "yield the StoreOpened event"
+        }
+        on command CloseStore {
+          //ensure all orders associated with store are Delivered or Cancelled before closing store
+        }
+        on command AddProductsToStore {
+          then "add provided products to store definition"
+          and "and adjust meta fields to reflect the change"
+          and "yield the ProductsAddedToStore event"
+          //TODO: Add cases where there is invalid product
+        }
+        on command RemoveProductsFromStore {
+          then "remove produvided products from store"
+          and "adjust meta fields to reflect the change"
+          and "yield the ProductsRemovedFromStore event"
+          //TODO: Add case where product to be removed doesn't exist in store
+        }
+      }
+    }
+    state Open is {
+      fields {
+        info: StoreUpdateInfo,
+        meta: StoreMetaInfo
+      }
+      handler OpenStoreHandler is {
+        on command CreateStore {
+          then error "Store already created"
+        }
+        on command UpdateStore {
+          then "copy fields from info to Draft info fields"
+          and "adjust meta fields to reflect the change"
+          and "yeild the StoreUpdated event"
+        }
+        on command DeleteStore {
+          then error "Store must be closed before deleting it"
+        }
+        on command OpenStore {
+          then error "Store is already opened"
+        }
+        on command CloseStore {
+          //ensure all orders associated with store are Delivered or Cancelled before closing store
+        }
+        on command AddProductsToStore {
+          then "add provided products to store definition"
+          and "and adjust meta fields to reflect the change"
+          and "yield the ProductsAddedToStore event"
+          //TODO: Add cases where there is invalid product
+        }
+        on command RemoveProductsFromStore {
+          then "remove produvided products from store"
+          and "adjust meta fields to reflect the change"
+          and "yield the ProductsRemovedFromStore event"
+          //TODO: Add case where product to be removed doesn't exist in store
+        }
+      }
+    }
+    state Closed is {
+      fields {
+        info: StoreUpdateInfo,
+        meta: StoreMetaInfo
+      }
+      handler ClosedStoreHandler is {
+        on command CreateStore {
+          then error "Store already created"
+        }
+        on command UpdateStore {
+          then "copy fields from info to Draft info fields"
+          and "adjust meta fields to reflect the change"
+          and "yeild the StoreUpdated event"
+        }
+        on command DeleteStore {
+          then "morph store to the Deleted state"
+          and "remove all attributes not defined in the Deleted state"
+          and "adjust meta fields to reflect change"
+          and "yield the StoreDeleted event"
+        }
+        on command OpenStore {
+          then "morph store to Open state"
+          and "yield the StoreOpened event"
+        }
+        on command CloseStore {
+          then error "Store is already closed."
+        }
+        on command AddProductsToStore {
+          then "add provided products to store definition"
+          and "and adjust meta fields to reflect the change"
+          and "yield the ProductsAddedToStore event"
+          //TODO: Add cases where there is invalid product
+        }
+        on command RemoveProductsFromStore {
+          then "remove produvided products from store"
+          and "adjust meta fields to reflect the change"
+          and "yield the ProductsRemovedFromStore event"
+          //TODO: Add case where product to be removed doesn't exist in store
+        }
+      }
+    }
+    state Deleted is {
+      fields {
+        storeId: StoreId,
+        storeName: String,
+        event: EventId?,
+        venue: VenueId,
+        location: LocationId,
+        sponsoringOrg: OrganizationId
+        meta: StoreMetaInfo
+      }
+      handler DeletedStoreHandler is {
+        on any {then error "No actions are permitted on a Deleted store"}
+      }
+    }
+  }
 }

@@ -57,7 +57,7 @@ context ProductContext is {
   result TicketsForEvent is {event: EventId, tickets: SKU*}
 
   entity Product is {
-    option is {event sourced}
+    option is {event-sourced}
     handler ProductHandler is {
       on command CreateProduct {
         then "morph Product to Active state"
