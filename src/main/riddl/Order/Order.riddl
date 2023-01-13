@@ -161,7 +161,18 @@ context OrderContext is {
       }
       handler ReadyOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
-        on command UpdateOrderStatus {???}
+        on command UpdateOrderStatus {
+          example ReadyOrderToDeliveredOrder is {
+            given "order is transitioning from Ready to Delivered"
+            then "morph order state to Delivered"
+            and "adjust meta info to reflect the change"
+            and "yield OrderStatusUpdated event"
+          }
+          example ReadyOrderIllegalStateTransition is {
+            given "order is transitioning from Ready to Draft, Pending, Cancelled, InProcess,  or Delivered"
+            then error "Draft orders may not transition to desired state."
+          }
+        }
         on command UpdateOrderInfo {then error "Ready Orders may not be modified"}
         on command CancelOrder {then error "Ready Orders may not be cancelled."}
         on query GetOrderInfo {then "yeild OrderInfoResult message"}
