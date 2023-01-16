@@ -1,7 +1,7 @@
 context ProductContext is {
-  ProductDetails is select ReservedTicket | RestrictedTicket | OpenTicket
-  type ProductStatus is any of {Active, InActive, Deleted)
-  type SKU is id(Product)
+  type ProductDetails is any of {ReservedTicket, RestrictedTicket, OpenTicket}
+  type ProductStatus is any of {Active, InActive, Deleted}
+  type SKU is Id(Product)
 
   type ReservedTicket is {
     section: String,
@@ -57,7 +57,7 @@ context ProductContext is {
   result TicketsForEvent is {event: EventId, tickets: SKU*}
 
   entity Product is {
-    option is {event-sourced}
+    options (event-sourced)
     handler ProductHandler is {
       on command CreateProduct {
         then "morph Product to Active state"
@@ -65,7 +65,6 @@ context ProductContext is {
         and "adjust meta fields to reflect the change set"
         and "yield ProductCreated event"
       }
-      on query GetProductsForEvent {???}
       on other {then error "Only the CreateProduct command is allowed in the default state."}
     }
     state ActiveProduct is {

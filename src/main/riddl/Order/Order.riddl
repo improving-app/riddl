@@ -1,5 +1,5 @@
 context OrderContext is {
-  type OrderId is id (Order)
+  type OrderId is Id(OrderContext.Order)
   type OrderStatus is any of {Draft, Pending, InProcess, Ready, Delivered, Cancelled}
   type LineItem is {
     product: SKU,
@@ -38,7 +38,7 @@ context OrderContext is {
   result OrderInfoResult {orderId: OrderId, info: OrderMetaInfo}
 
   entity Order is {
-    option (event-sourced)
+    options (event-sourced)
 
     handler DefaultOrderHandler is {
       on command CreateOrder {

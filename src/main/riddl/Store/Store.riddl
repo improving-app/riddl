@@ -1,11 +1,12 @@
 context StoreContext is {
   type StoreStatus is any of {Draft, Ready, Open, Closed, Deleted}
+  type StoreId is Id(StoreContext.Store)
 
   type StoreInfo is {
     id: StoreId,
     name: String,
     description: String,
-    products: ProductId+,
+    products: SKU+,
     event: EventId?,
     venue: VenueId,
     location: LocationId,
@@ -21,7 +22,7 @@ context StoreContext is {
   type StoreUpdateInfo is {
     name: String?,
     description: String?,
-    products: ProductId*,
+    products: SKU*,
     event: EventId?,
     venue: VenueId?,
     location: LocationId?,
@@ -38,9 +39,9 @@ context StoreContext is {
   event StoreOpened is {storeId: StoreId, info: StoreInfo, meta: StoreMetaInfo}
   command CloseStore is {storeId: StoreId, closingMember: MemberId}
   event StoreClosed is {storeId: StoreId, info: StoreInfo, meta: StoreMetaInfo}
-  command AddProductsToStore is {storeId: StoreId, products: ProductId+, addingMember: MemberId}
+  command AddProductsToStore is {storeId: StoreId, products: SKU+, addingMember: MemberId}
   event ProductsAddedToStore is {storeId: StoreId, info: StoreInfo, meta: StoreMetaInfo}
-  command RemoveProductsFromStore is {storeId: StoreId, product: ProductId+, removingMember: MemberId}
+  command RemoveProductsFromStore is {storeId: StoreId, product: SKU+, removingMember: MemberId}
   event ProductsRemovedFromStore is {storeId: StoreId, info: StoreInfo, meta: StoreMetaInfo}
   //command IncrementProductInventory is {???} //TODO: Should we pull in the Nike Inventory demo that Sean built?
   //command DecrementProductInventory is {???}
@@ -70,7 +71,7 @@ context StoreContext is {
         on command CreateStore {
           then error "Store already created"
         }
-        on command UpdateStore {
+        on command UpdateStoreInfo {
           then "copy fields from info to Draft info fields"
           and "adjust meta fields to reflect the change"
           and "yeild the StoreUpdated event"
@@ -110,7 +111,7 @@ context StoreContext is {
         on command CreateStore {
           then error "Store already created"
         }
-        on command UpdateStore {
+        on command UpdateStoreInfo {
           then "copy fields from info to Draft info fields"
           and "adjust meta fields to reflect the change"
           and "yeild the StoreUpdated event"
@@ -122,7 +123,7 @@ context StoreContext is {
           then "morph store to Open state"
           and "yield the StoreOpened event"
         }
-        on command CloseStore {
+        on command CloseStore { ???
           //ensure all orders associated with store are Delivered or Cancelled before closing store
         }
         on command AddProductsToStore {
@@ -148,7 +149,7 @@ context StoreContext is {
         on command CreateStore {
           then error "Store already created"
         }
-        on command UpdateStore {
+        on command UpdateStoreInfo {
           then "copy fields from info to Draft info fields"
           and "adjust meta fields to reflect the change"
           and "yeild the StoreUpdated event"
@@ -159,7 +160,7 @@ context StoreContext is {
         on command OpenStore {
           then error "Store is already opened"
         }
-        on command CloseStore {
+        on command CloseStore { ???
           //ensure all orders associated with store are Delivered or Cancelled before closing store
         }
         on command AddProductsToStore {
@@ -185,7 +186,7 @@ context StoreContext is {
         on command CreateStore {
           then error "Store already created"
         }
-        on command UpdateStore {
+        on command UpdateStoreInfo {
           then "copy fields from info to Draft info fields"
           and "adjust meta fields to reflect the change"
           and "yeild the StoreUpdated event"
@@ -224,11 +225,11 @@ context StoreContext is {
         event: EventId?,
         venue: VenueId,
         location: LocationId,
-        sponsoringOrg: OrganizationId
+        sponsoringOrg: OrganizationId,
         meta: StoreMetaInfo
       }
       handler DeletedStoreHandler is {
-        on any {then error "No actions are permitted on a Deleted store"}
+        on other {then error "No actions are permitted on a Deleted store"}
       }
     }
   }
