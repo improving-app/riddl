@@ -26,7 +26,7 @@ context OrderContext is {
     specialInstructions: String?,
     orderTotal: Number
   }
-  command CreateOrder {orderId: OrderId, info: OrderInfo, creatingMember: MemberId}
+  command CreateOrder {orderId: OrderId, storeId: StoreId, info: OrderInfo, creatingMember: MemberId}
   event OrderCreated {orderId: OrderId, info: OrderInfo, meta: OrderMetaInfo}
   command UpdateOrderStatus {orderId: OrderId, newStatus: OrderStatus, updatingMember: MemberId}
   event OrderStatusUpdated {orderId: OrderId, newStatus: OrderStatus}
