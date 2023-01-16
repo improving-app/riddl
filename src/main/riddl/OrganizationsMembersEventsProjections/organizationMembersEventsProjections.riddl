@@ -1,0 +1,45 @@
+context OrganizationsMembersEventsProjections is  {
+  include "organizationMembersEventsMessages"
+
+  projection OrganizationsMembersEventsView is {
+     fields {
+        orgId: OrganizationId,
+        event: EventId,
+        member: MemberId,
+        expectedStart: TimeStamp,
+        expectedEnd: TimeStamp,
+        isPrivate: Boolean
+    }
+    handler OrganizationsMembersEventsViewHandler is {
+        on event OrganizationEstablished {
+            then "find or create rows with orgId set to OrganizationEstablished.info.orgId"
+            and "set rows' isPrivate to true if OrganizationEstablished.info.isPrivate is true"
+        }
+        on event OrganizationInfoUpdated {
+            then "find rows with organizationId set to OrganizationInfoUpdated.orgId"
+            and "set rows' isPrivate to true if OrganizationInfoUpdated.info.isPrivate is true"
+        }
+        on event MembersAddedToOrganization {
+            then "find or create rows with orgId set to MembersAddedToOrganization.orgId and memberIds set to MembersAddedToOrganization.newMembers"
+        }
+        on event MembersRemovedFromOrganization {
+            then "remove rows with orgId set to MembersRemovedFromOrganization.orgId and memberIds set to MembersRemovedFromOrganization.newMembers"
+        }
+        on event EventScheduled {
+            then "find or create rows with orgId set to EventScheduled.info.sponsoringOrg"
+            and "set rows' expectedStart to EventScheduled.info.range.expectedStart"
+            and "set rows' expectedEnd to EventScheduled.info.range.expectedEnd"
+        }
+        on event EventRescheduled {
+            then "find rows with eventId set to EventRescheduled.eventId"
+            and "set rows' expectedStart to EventScheduled.info.range.expectedStart"
+            and "set rows' expectedEnd to EventScheduled.info.range.expectedEnd"
+        }
+        on query FindMembersAtEventsOnDayForOrg {
+            then "filter by FindMembersAtEventsOnDayForOrg.queryingMember equals memberId - return QueryNotAllowed if no row exists containing FindMembersAtEventsOnDayForOrg.org"
+            and "in separate operation, filter by FindMembersAtEventsOnDayForOrg.org equals orgId & check if expectedStart & expectedEnd occur on FindMembersAtEventsOnDayForOrg.day for each row - return NoEventsOnDayForOrg if no row exists containing an event"
+            and "return MembersAtEventsOnDay containing all members remaining in previous operation"
+        }
+    }
+  }
+}

@@ -13,7 +13,7 @@ context LocationEventsProjections is  {
     }
     handler LocationsEventsViewHandler is {
         on event VenueEstablished {
-            then "find rows with venueId set to VenueEstablished.venueId and orgId set to VenueEstablished.info.orgId"
+            then "find or create rows with VenueId set to VenueEstablished.venueId"
             and "set rows' isPrivate to true if VenueEstablished.info.isPrivate is true"
         }
         on event VenueInfoUpdated {

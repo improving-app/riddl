@@ -90,3 +90,13 @@ result VenueCapacityOverview is {
   venueInfo: VenueContext.Info,
   capacityOverview: CapacityOverview
 }
+
+//types
+type VenueReservationsSchedule is {
+	locationId: LocationId,
+	reservations: ReservationId+
+}
+type VenueAvailabilitySchedule is {
+	locationId: LocationId,
+	schedule: 'TimeRange'+
+}

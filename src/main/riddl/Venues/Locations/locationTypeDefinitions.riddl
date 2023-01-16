@@ -18,7 +18,6 @@ type Info is {
 
 type UpdateInfo is {
   name: String?,
-  name: String?,
   description: String?,
   directions: String? briefly "How do you find this location?",
   //latLong: LatLong?,

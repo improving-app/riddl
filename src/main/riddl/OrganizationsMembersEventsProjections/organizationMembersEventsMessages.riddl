@@ -1,0 +1,4 @@
+query FindMembersAtEventsOnDayForOrg is {org: OrgId, day: DateTime, queryingMember: MemberId}
+result QueryNotAllowed
+result NoEventsOnDayForOrg is {org: OrgId}
+result MembersAtEventsOnDay is {members: MemberId*}

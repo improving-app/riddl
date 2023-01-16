@@ -3,4 +3,5 @@ result EasyEventNoAvailability is {eventInfo: EventInfo}
 result EasyScheduledEvent is {eventInfo: EventInfo, locationId: LocationId}
 
 query FindVacanciesForEvent is {maxAttendance: Integer, timeRange: TimeRange, info: EventContext.EventInfo}
-result VacanciesForEventResult is mapping from LocationId to (EventInfo, ReservationContext.Info)
+type LocationWithReservationAndEventInfo is mapping from LocationId to {eventInfo: EventInfo, reservationInfo: ReservationContext.Info}
+result VacanciesForEventResult is {info: LocationWithReservationAndEventInfo}
