@@ -1,0 +1,210 @@
+context OrderContext is {
+  type OrderId is id (Order)
+  type OrderStatus is any of {Draft, Pending, InProcess, Ready, Delivered, Cancelled}
+  type LineItem is {
+    product: SKU,
+    quantity: Number,
+    unitPrice: Number,
+    lineTotal: Number
+  }
+
+  type OrderInfo is {
+    lineItems: LineItem+,
+    specialInstructions: String,
+    orderTotal: Number
+  }
+  type OrderMetaInfo is {
+    memberId: MemberId,
+    storeId: StoreId,
+    createdOn: Date,
+    lastModifiedBy: MemberId,
+    lastModifiedOn: Date,
+    status: OrderStatus
+  }
+  type OrderInfoUpdate is {
+    lineItems: LineItem*,
+    specialInstructions: String?,
+    orderTotal: Number
+  }
+  command CreateOrder {orderId: OrderId, storeId: StoreId, info: OrderInfo, creatingMember: MemberId}
+  event OrderCreated {orderId: OrderId, info: OrderInfo, meta: OrderMetaInfo}
+  command UpdateOrderStatus {orderId: OrderId, newStatus: OrderStatus, updatingMember: MemberId}
+  event OrderStatusUpdated {orderId: OrderId, newStatus: OrderStatus}
+  command UpdateOrderInfo {orderId: OrderId, update: OrderInfoUpdate, updatingMember: MemberId}
+  event OrderInfoUpdated {orderId: OrderId, info: OrderInfo, meta: OrderMetaInfo}
+  command CancelOrder {orderId: OrderId, cancellingMember: MemberId}
+  event OrderCancelled {orderId: OrderId, info: OrderInfo, meta: OrderMetaInfo}
+  query GetOrderInfo {orderId: OrderId, requstingMembert: MemberId}
+  result OrderInfoResult {orderId: OrderId, info: OrderMetaInfo}
+
+  entity Order is {
+    option (event-sourced)
+
+    handler DefaultOrderHandler is {
+      on command CreateOrder {
+        then "morph Order into Draft state"
+        and "copy fields from CreateOrder command into the Draft Order"
+        and "adjust meta fields to reflect the change set"
+        and "yield OrderCreated event"
+      }
+      on other {then error "Only CreateOrder is allowed in the default state"}
+    }
+
+    state Draft is {
+      fields {
+        orderId: OrderId,
+        info: OrderInfo,
+        meta: OrderMetaInfo
+      }
+      handler DraftOrderHandler is {
+        on command CreateOrder {then error "Order has already been created."}
+        on command UpdateOrderStatus {
+          example DraftOrderToPendingOrder is {
+            given "order is transitioning from Draft to Pending"
+            then "morph order state to Pending"
+            and "adjust meta info to reflect the change"
+            and "yield OrderStatusUpdated event"
+          }
+          example DraftOrderToCancelledOrder is {
+            given "order is transitioning from Draft to Cancelled"
+            then "morph order state to Cancelled"
+            and "adjust meta info to reflect change"
+            and "yield OrderStatusUpdated"
+          }
+          example DraftOrderIllegalStateTransition is {
+            given "order is transitioning from Draft to InProcess, Ready, Delivered, or Draft"
+            then error "Draft orders may not transition to desired state."
+          }
+        }
+        on command UpdateOrderInfo {
+          then "copy fields from the UpdateOrderInfo command into the Draft Order"
+          and "adjust meta fields to reflect the change set"
+          and "yield OrderInfoUpdated event"
+        }
+        on command CancelOrder {
+          then "morph order to Cancelled state"
+          and "adjust meta fields to reflect change set"
+          and "yield OrderCancelled event"
+        }
+        on query GetOrderInfo {then "yeild OrderInfoResult message"}
+      }
+    }
+    state Pending is {
+      fields {
+        orderId: OrderId,
+        info: OrderInfo,
+        meta: OrderMetaInfo
+      }
+      handler PendingOrderHandler is {
+        on command CreateOrder {then error "Order has already been created."}
+        on command UpdateOrderStatus {
+          example PendingOrderToInProcessOrder is {
+            given "order is transitioning from Pending to InProcess"
+            then "morph order state to InProcess"
+            and "adjust meta info to reflect the change"
+            and "yield OrderStatusUpdated event"
+          }
+          example PendingOrderToCancelledOrder is {
+            given "order is transitioning from Pending to Cancelled"
+            then "morph order state to Cancelled"
+            and "adjust meta info to reflect change"
+            and "yield OrderStatusUpdated"
+          }
+          example PendingOrderIllegalStateTransition is {
+            given "order is transitioning from Pending to Draft, Ready, or Delivered"
+            then error "Draft orders may not transition to desired state."
+          }
+        }
+        on command UpdateOrderInfo {
+          then "copy fields from the UpdateOrderInfo command into the Draft Order"
+          and "adjust meta fields to reflect the change set"
+          and "yield OrderInfoUpdated event"
+        }
+        on command CancelOrder {
+          then "morph order to Cancelled state"
+          and "adjust meta fields to reflect change set"
+          and "yield OrderCancelled event"
+        }
+        on query GetOrderInfo {then "yeild OrderInfoResult message"}
+      }
+    }
+    state InProcess is {
+      fields {
+        orderId: OrderId,
+        info: OrderInfo,
+        meta: OrderMetaInfo
+      }
+      handler InProcessOrderHandler is {
+        on command CreateOrder {then error "Order has already been created."}
+        on command UpdateOrderStatus {
+          example InProcessOrderToReadyOrder is {
+            given "order is transitioning from InProcess to Ready"
+            then "morph order state to Ready"
+            and "adjust meta info to reflect the change"
+            and "yield OrderStatusUpdated event"
+          }
+          example InProcessOrderIllegalStateTransition is {
+            given "order is transitioning from InProcess to Draft, Pending, Cancelled, or Delivered"
+            then error "Draft orders may not transition to desired state."
+          }
+        }
+        on command UpdateOrderInfo {then error "InProcess Orders may not be modified"}
+        on command CancelOrder {then error "InProcess Orders may not be cancelled."}
+        on query GetOrderInfo {then "yeild OrderInfoResult message"}
+      }
+    }
+    state Ready is {
+      fields {
+        orderId: OrderId,
+        info: OrderInfo,
+        meta: OrderMetaInfo
+      }
+      handler ReadyOrderHandler is {
+        on command CreateOrder {then error "Order has already been created."}
+        on command UpdateOrderStatus {
+          example ReadyOrderToDeliveredOrder is {
+            given "order is transitioning from Ready to Delivered"
+            then "morph order state to Delivered"
+            and "adjust meta info to reflect the change"
+            and "yield OrderStatusUpdated event"
+          }
+          example ReadyOrderIllegalStateTransition is {
+            given "order is transitioning from Ready to Draft, Pending, Cancelled, InProcess,  or Delivered"
+            then error "Draft orders may not transition to desired state."
+          }
+        }
+        on command UpdateOrderInfo {then error "Ready Orders may not be modified"}
+        on command CancelOrder {then error "Ready Orders may not be cancelled."}
+        on query GetOrderInfo {then "yeild OrderInfoResult message"}
+      }
+    }
+    state Delivered is {
+      fields {
+        orderId: OrderId,
+        info: OrderInfo,
+        meta: OrderMetaInfo
+      }
+      handler DeliveredOrderHandler is {
+        on command CreateOrder {then error "Order has already been created."}
+        on command UpdateOrderStatus {???}
+        on command UpdateOrderInfo {then error "Delivered Orders may not be modified"}
+        on command CancelOrder {then error "Delivered Orders may not be cancelled."}
+        on query GetOrderInfo {then "yeild OrderInfoResult message"}
+      }
+    }
+    state Cancelled is {
+      fields {
+        orderId: OrderId,
+        info: OrderInfo,
+        meta: OrderMetaInfo
+      }
+      handler CancelledOrderHandler is {
+        on command CreateOrder {then error "Order has already been created."}
+        on command UpdateOrderStatus {???}
+        on command UpdateOrderInfo {???}
+        on command CancelOrder {???}
+        on query GetOrderInfo {???}
+      }
+    }
+  }
+}

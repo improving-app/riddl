@@ -1,0 +1,112 @@
+story MakeReservation is {
+  actor Owner is "the person that will own the Reservation - includes a MemberId"
+  capability is "make a Reservation"
+  benefit is "I can reserve a Location based on desired parameters"
+  author alex is {
+    name: "Alex Weinstein"
+    email: "alex.weinstein@improving.com"
+  } briefly "nada" described as "Just some guy on the internet"
+  term Member briefly "Any user of ImprovingApp"
+  term MemberInfo briefly "All data describing a Member, including an address"
+  term Location briefly "A space where Reservations can be made so that Events can be held"
+  term Venue briefly "A collection of Locations"
+  term Reservation briefly "A reservation to occupy a Location - enables creation of Events"
+  term LocationAvailability briefly "A location with a list of time ranges to indicate availability"
+  case basedOnOwnersOrganization is {
+      title: "Making a Reservation based on Location taken from Venues belonging to the Owner"
+      scope domain ImprovingApp briefly
+        "This domain is the smallest encapsulating domain that contains everything referenced by uses"
+      interaction is {
+        step form actor Owner "get the organization I belong to" to context ImprovingApp.MemberContext
+              briefly "initial query to get Owner's organization"
+        step from context MemberContext "send query" to entity ImprovingApp.MemberContext.Members
+          briefly "send query",
+        step from entity Members "forward query" to projection ImprovingApp.MemberContext.MemberViews
+          briefly "perform query",
+        step from entity Members "return MemberInfo.orgId for MemberId requested" to actor Owner
+          briefly "return organizationId to Owner",
+	      step from actor Owner "get availability by orgId" to context ImprovingApp.VenueContext
+          briefly "command includes orgId from the previous query results, a maxCount, and a random
+                  TimeStamp indicating the upper limit of the query, max 3 months in future",
+        step from context ReservationContext "send query" to entity ImprovingApp.VenueContext.Reservations
+          briefly "send query",
+        step from entity Reservations "forward query" to projection ImprovingApp.VenueContext.OrganizationVenuesLocationsReservations
+          briefly "perform query on a projection of start and end times for each Reservation,
+                  indexed by venueId, locationId, organizationId, reservationId",
+        step from entity Reservations "return result" to actor Owner
+          briefly "return all availabilities for org after TimeStamp provided limited by maxCount provided",
+        step from actor Owner "make reservation" to context ImprovingApp.ReservationContext
+          briefly "command includes LocationId, start TimeStamp, end TimeStamp - start and end to be taken
+                    as a random subset of previous query result that is over x mins long",
+        step from context ReservationContext "send query message" to entity ImprovingApp.ReservationContext.Reservation
+          briefly "send creation message",
+        step from entity Reservation "add new Reservation" to projection ImprovingApp.ReservationContext.ReservationViews
+          briefly "add new Reservation",
+        step from entity Reservation "reservationAdded" to actor Owner
+          briefly "reservation added"
+      }
+  }
+  case timeBased is {
+      title: "Making a Reservation based on Availability nearest to a random future time"
+      scope domain ImprovingApp briefly
+        "This domain is the smallest encapsulating domain that contains everything referenced by uses"
+      interaction is {
+        step from actor Owner "get availability by time" to context ImprovingApp.ReservationContext
+          briefly "command includes a maxCount and a random TimeStamp indicating
+                    the upper limit of the query, max 3 months in future",
+        step from context ReservationContext "send query" to entity ImprovingApp.ReservationContext.Reservations
+  	      briefly "send query",
+  	    step from entity Reservations "forward query" to projection ImprovingApp.ReservationContext.ReservationLocationGeoViews
+  	      briefly "perform query on a projection configured for TimeStamp data",
+  	    step from entity Reservations "return result" to actor Owner
+  	      briefly "return result of query",
+        step from actor Owner "make reservation" to context ImprovingApp.ReservationContext
+          briefly "command includes LocationId, start TimeStamp, end TimeStamp - start and end to be taken
+                    as a random subset of previous query result that is over x mins long",
+        step from context ReservationContext "send query message" to entity ImprovingApp.ReservationContext.Reservation
+          briefly "send creation message",
+        step from entity Reservation "add new Reservation" to projection ImprovingApp.ReservationContext.ReservationViews
+          briefly "add new Reservation",
+	      step from entity Reservation "reservationAdded" to actor Owner
+	        briefly "reservation added"
+      }
+  }
+  case locationBased is {
+    title: "Making a Reservation based on Locations nearest to Owner's primary address"
+    scope domain ImprovingApp briefly
+      "This domain is the smallest encapsulating domain that contains everything referenced by uses"
+    interaction is {
+      step form actor Owner "get my primary address" to context ImprovingApp.MemberContext
+        briefly "initial query to get Owner's preferred address"
+      step from context MemberContext "send query" to entity ImprovingApp.MemberContext.Members
+        briefly "send query",
+      step from entity Members "forward query" to projection ImprovingApp.MemberContext.MemberViews
+        briefly "perform query",
+      step from entity Members "MemberInfo.primaryAddress" to actor Owner
+        briefly "return address to Owner",
+      step from actor Owner "get availability by location" to context ImprovingApp.ReservationContext
+        briefly "command includes an address, radius, and maxCount, possibly a TimeStamp indicating
+                  the lower limit of the query (use now() otherwise)",
+      step from context ReservationContext "send query" to entity ImprovingApp.ReservationContext.Reservations
+	      briefly "send query",
+	    step from entity Reservations "forward query" to projection ImprovingApp.ReservationContext.ReservationLocationGeoViews
+	      briefly "perform query on a projection configured for Geo-data",
+	    step from entity Reservations "return result" to actor Owner
+	      briefly "return result of query",
+      step from actor Owner "make reservation" to context ImprovingApp.ReservationContext
+        briefly "command includes LocationId, start TimeStamp, end TimeStamp - start and end to be taken
+                  as a random subset of previous query result that is over x mins long",
+      step from context ReservationContext "send query message" to entity ImprovingApp.ReservationContext.Reservation
+        briefly "send creation message",
+      step from entity Reservation "add new Reservation" to projection ImprovingApp.ReservationContext.ReservationViews
+        briefly "add new Reservation",
+      step from entity Reservation "reservationAdded" to actor Owner
+        briefly "reservation added"
+    }
+  }
+} briefly "A story about establishing an organization in Improving.app"
+  described as "This is the story of how an organization comes to existence"
+
+  As the Owner of an Event I would like to Reserve a Venue/Location to hold my Event at
+    - Pick a time/venue from a pick list of search results
+    - Pick the next available (easy button)

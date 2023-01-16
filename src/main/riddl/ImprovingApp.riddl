@@ -4,9 +4,9 @@
 // It merely includes the subodmains and bounded contexts that make up the full domain.
 domain ImprovingApp is {
     include "authors"
-    include "globalDefinitions"
     include "Common/Contact"
     include "Common/UniqueIds"
+    include "Common/Chrono"
     include "Accounting/accounting"
     include "Calendars/calendar"
     include "Commerce/commerce"

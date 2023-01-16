@@ -1,0 +1,113 @@
+context ReservationContext is {
+    include "reservationTypeDefinitions"
+    include "reservationMessages"
+
+    entity Reservation is {
+        options (event-sourced, available)
+
+		    handler ReservationHandler is {
+		        on command EstablishReservation {
+                then "morph Reservation to Draft state"
+                and "Copy fields from the command into Draft fields"
+                and "adjust meta fields to reflect the change set"
+                and "yield event ReservationEstablished"
+		        }
+		        on other { then error "Only EstablishReservation command is allowed in the default state"}
+		    }
+
+		    state Draft is {
+		        fields {
+		            reservationId: ReservationId,
+		            reservationInfo: ReservationContext.Info,
+		            attendees: MemberId*,
+		            reservationMeta: ReservationContext.MetaInfo
+		        }
+		        handler DraftReservation is {
+		            on command EstablishReservation {
+		                then error "Reservation already established"
+		            }
+		            on command EditReservationInfo {
+		                then "set Draft info fields to EditReservationInfo.info"
+		                and "yield event ReservationInfoUpdated"
+		            }
+		            on command UpdateReservationStatus {
+                    then "morph Reservation to the state provided in UpdateReservationStatus"
+                    and "set MetaInfo to capture change data"
+                    and "yield event ReservationStatusUpdated"		            }
+		        }
+		    }
+
+		    state OnHold is {
+		        fields {
+		            reservationId: ReservationId,
+		            reservationInfo: ReservationContext.Info,
+		            reservationMeta: ReservationContext.MetaInfo
+		        }
+		        handler OnHoldReservation is {
+		            on command EstablishReservation {
+		                then error "Reservation already established"
+		            }
+		            on command EditReservationInfo {
+		                then "set OnHold info fields to EditReservationInfo.info"
+		                and "yield event ReservationInfoUpdated"
+		            }
+		            on command UpdateReservationStatus {
+                    then "morph Reservation to the state provided in UpdateReservationStatus"
+                    and "set MetaInfo to capture change data"
+                    and "yield event ReservationStatusUpdated"			            }
+		        }
+		    }
+
+		    state Reserved is {
+		        fields {
+		            reservationId: ReservationId,
+		            reservationInfo: ReservationContext.Info,
+		            reservationMeta: ReservationContext.MetaInfo
+		        }
+		        handler ReservedReservation is {
+		            on command EstablishReservation {
+		                then error "Reservation already established"
+		            }
+		            on command EditReservationInfo {
+		                then error "Reservation is in Reserved state, editing info not allows"
+		            }
+		            on command UpdateReservationStatus {
+                    then "morph Reservation to the state provided in UpdateReservationStatus"
+                    and "set MetaInfo to capture change data"
+                    and "yield event ReservationStatusUpdated"			            }
+		        }
+		    }
+
+		    state Active is {
+		        fields {
+		            reservationId: ReservationId,
+		            reservationInfo: ReservationContext.Info,
+		            reservationMeta: ReservationContext.MetaInfo
+		        }
+		        handler ActiveReservation is {
+		            on command EstablishReservation {
+		                then error "Reservation already established"
+		            }
+		            on command EditReservationInfo {
+		                then error "Reservation is in Active state, editing info not allowed"
+		            }
+		            on command UpdateReservationStatus {
+		                then "morph Reservation to the state provided in UpdateReservationStatus"
+                    and "set MetaInfo to capture change data"
+                    and "yield event ReservationInfoUpdated"
+		            }
+		        }
+		    }
+
+		    state Past is {
+		        fields {
+		            reservationId: ReservationId,
+		            reservationInfo: ReservationContext.Info,
+		            reservationMeta: ReservationContext.MetaInfo
+		        }
+		        handler PastReservation is {
+		            on other {then error "No modification commands allowed in Past state"}
+		        }
+		    }
+		}
+}
