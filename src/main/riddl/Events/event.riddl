@@ -194,8 +194,8 @@ context EventContext is {
         //also consider postponed, delayed
     }
 
-    type ReservationId is Id(Reservation)
-    entity Reservation is { ??? }
+    // type ReservationId is Id(Reservation)
+    // entity Reservation is { ??? }
 
     // entity Game is {
     //     state PendingGame is {???} handler PendingGameHandler is {???}

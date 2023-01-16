@@ -1,3 +1,5 @@
+type LocationId is Id(Location)
+
 context LocationContext is {
     include "locationTypeDefinitions"
     include "locationMessages"

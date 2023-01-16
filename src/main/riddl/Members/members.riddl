@@ -1,6 +1,8 @@
 type MemberId is Id(ImprovingApp.MembersContext.Member)
   briefly "Unique identifier for Tenant Entity"
 
+  type MemberMap is mapping from MemberId to MembersContext.Info
+
 context MembersContext  is {
     //Member Details
     //type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}

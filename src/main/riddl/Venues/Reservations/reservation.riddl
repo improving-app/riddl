@@ -1,3 +1,4 @@
+type ReservationId is Id(Reservation)
 context ReservationContext is {
     include "reservationTypeDefinitions"
     include "reservationMessages"
