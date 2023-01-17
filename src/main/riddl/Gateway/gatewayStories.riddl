@@ -1,7 +1,7 @@
 //Member Stories (James)
 //As a person who would like to use the features of ImprovingApp I would like to register a new user account so that I can access those features
 story RegisterMember is {
-	capability is "Enroll the Member"
+  capability is "Enroll the Member"
   benefit is "So Member can use ImprovingApp"
   author James is {
     name: "James Lovell"
@@ -65,8 +65,6 @@ story EventBookingEasyButton is {
   }
 } briefly "A story about scheduling an event with the easy button in Improving.app"
 described as "This is the story of how an event is scheduled with an easy button."
-
-//Alex's Q - should there be more interaction with the app here? Do we want to display a selection of options?
 
 //Place Stories (Alex)
 As a Tenant Owner I would like to create a Venue

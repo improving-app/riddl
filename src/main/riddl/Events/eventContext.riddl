@@ -2,9 +2,9 @@ type EventId is Id (ImprovingApp.Events.EventContext.Event)
   briefly "Unique identifier for Tenant Entity"
 
 context EventContext is {
-		include "eventMessages"
-		include "eventTypeDefinitions"
-		include "eventSources"
+    include "eventMessages"
+    include "eventTypeDefinitions"
+    include "eventSources"
 
     entity Event is {
         option is aggregate

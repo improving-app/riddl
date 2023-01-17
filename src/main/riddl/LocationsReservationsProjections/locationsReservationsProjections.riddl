@@ -62,7 +62,7 @@ context LocationsReservationsProjections is  {
             and "find rows where ScheduleEasyEvent.maxAttendance < capacity - return EasyEventNoAvailability if empty"
             and "filter by ScheduleEasyEvent.info.timeRange.start & ScheduleEasyEvent.info.timeRange.end do not overlap reservationStart & reservationEnd"
             and "if empty, try 30mins earlier - if still empty, try 30 mins later - then return EasyEventNoAvailability if empty"
-            and "return EasyScheduledEvent with a all row's locationId, ScheduleEasyEvent.eventInfo where expectedStart & expectedEnd are possibly adjusted from previous steps"
+            and "return EasyScheduledEvent with all row's locationId, ScheduleEasyEvent.eventInfo where expectedStart & expectedEnd are possibly adjusted from previous steps"
         }
     }
   }

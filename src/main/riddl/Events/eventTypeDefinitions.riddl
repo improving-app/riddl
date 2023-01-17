@@ -24,6 +24,7 @@ type EventInfo is {
     eventName: String,
     description: String,
     eventURL: URL,
+    geoLocation: Location,
     sponsoringOrg: OrganizationId,
     expectedStart: DateTime,
     expectedEnd: DateTime,

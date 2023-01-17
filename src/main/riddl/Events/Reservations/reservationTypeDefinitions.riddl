@@ -5,16 +5,14 @@ type Info is {
     title: String,
     description: String,
     location: LocationId,
-    forOrg: OrganizationId,
-    isPrivate: Boolean
+    forOrg: OrganizationId
 }
 
 type UpdateInfo is {
     range: TimeRange?,
     title: String?,
     description: String?,
-    forOrg: OrganizationId?,
-    isPrivate: Boolean?
+    forOrg: OrganizationId?
 }
 
 type MetaInfo is {
