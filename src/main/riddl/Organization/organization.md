@@ -9,3 +9,12 @@ Organizations can be in one of the following states:
 * Suspended: an organzation that is non-functioning because of violation of terms, non-payment, or similar reason. If these concerns are remedied the organizaton may be moved back to active status by a BaseOrganization Admin.
 * Terminated: an organization that is non-functioning and will not or cannot be brought back to active status. Typically, only the organization ID and Name are retained to maintain internal consistency.
 
+Organizations can be public or private.
+
+The differences are:
+* Membership - to become a member of a private organization you must be invited or approved by an admin.
+* Events - By default, events from private organizations are private. and events from public organizations are public. This can be changed at event creation.
+* Event Searchability - Members of public organizations can find/be notified about public events from the organization or its children.  Only members of private organizations can find private events for those organizations
+    * E.g. Hogwarts is a public base org,  HogWarts Sports Clubs is a public org, child of Hogwarts, Hogwarts Quidditch club is a private org child of Hogwarts Sports Clubs.
+    * Quidditch practice is a private event created by the Hogwarts Quidditch club (organization) and is only visible to members of the Hogwarts Quidditch club.
+    * Quidditch Game is a public event, created by the Hogwarts Quidditch club and is visible to all members of Hogwarts and children organizations - and is also findable by any member of any organization looking for public events from Hogwarts.

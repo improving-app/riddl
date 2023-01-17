@@ -28,11 +28,12 @@ type EventInfo is {
     geoLocation: Location,
     //venue: VenueId,
     // location: LocationId,
-    reservation: ReservationId,
+    reservation: ReservationId?,
     expectedStart: DateTime,
     expectedEnd: DateTime,
     isPrivate: Boolean
     //eventType: EventType
+    //eventTags: String+,// List of relevant, searchable tags that identify/describe this event
 }
 type EventMetaInfo is {
     scheduledBy: MemberId,
