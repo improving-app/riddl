@@ -47,14 +47,14 @@ context TenantContext is {
                         and "Set Tenant meta data to reflect the change"
                         and "yield TenantContext.StatusUpdated event"
                     }
-                    example NoBillingAccount {
-                        when "Desired status is Active and BillingAccount is null"
-                        then error "Tenant must have a BillingAccount to be Activated"
-                    }
-                    example NoDistributionAccount {
-                        when "Desired status is Active and DistributionAccount is null"
-                        then error "Tenant must have a DistributionAccount to be Activated"
-                    }
+                    // example NoBillingAccount {
+                    //     when "Desired status is Active and BillingAccount is null"
+                    //     then error "Tenant must have a BillingAccount to be Activated"
+                    // }
+                    // example NoDistributionAccount {
+                    //     when "Desired status is Active and DistributionAccount is null"
+                    //     then error "Tenant must have a DistributionAccount to be Activated"
+                    // }
                     example NotAuthorized {
                         when "Desired status is Active and updating user is not authorized to activate the tenant"
                         then error "User is not authorized to Activate Tenant"
