@@ -72,7 +72,7 @@ query GetNextLocationAvailability is {
 }
 result LocationAvailabilityCalendar is {
   locationId: LocationId,
-  schedule: 'TimeRange'* briefly "A list of time ranges indicating availability"
+  schedule: TimeRange* briefly "A list of time ranges indicating availability"
 }
 
 query FindAvailableLocationsInRange is {locationId: LocationId, start: Date, end: Date}

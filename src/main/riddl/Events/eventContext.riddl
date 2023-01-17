@@ -20,10 +20,14 @@ context EventContext is {
             fields {
                 eventId: EventId,
                 eventInfo: EventInfo,
-                eventMetaInfo: EventMetaInfo
+                eventMetaInfo: EventMetaInfo,
+                reservation: ReservationId?
             }
             handler ScheduledEventHandler {
                 on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
+                on command AddReservationToEvent {
+                    then "set reservation to AddReservationToEvent.reservation"
+                }
                 on command ChangeEventInfo{
                     then "set entity eventInfo to message info"
                     and "set entity lastModifiedBy to Event.cancellingMember"
@@ -46,15 +50,15 @@ context EventContext is {
                   and "set entity eventInfo.expectedEnd to eventInfo.expectedEnd + Event.duration"
                   and "set entity lastModifiedBy to Event.delayingMember"
                   and "set entity lastModifiedOn to today()"
-                  // what about Event.reason? Do we want to store it somewhere?
                 }
                 on command StartEvent{
-                  then "morph Event entity to EventStatus.InProgress"
+                  then "check if Event has reservation - error if none"
+                  and "morph Event entity to EventStatus.InProgress"
                   and "set entity lastModifiedBy to Event.startingMember"
                   and "set entity lastModifiedOn to today()"
                 }
                 on command EndEvent{
-									then error "End has not started. Cannot end an event that has not started."
+				  then error "End has not started. Cannot end an event that has not started."
                 }
                 on command AddLiveUpdate{???}
             }
@@ -63,11 +67,15 @@ context EventContext is {
             fields{
                 eventId: EventId,
                 eventInfo: EventInfo,
-                eventMetaInfo: EventMetaInfo
+                eventMetaInfo: EventMetaInfo,
+                reservation: ReservationId
             }
             handler InProgressEventHandler is {
                 on command ScheduleEvent{
                     then error "Event is already in progress, cannot be scheduled"
+                }
+                on command AddReservationToEvent{
+                    then error "Event is already in progress, cannot accept new reservation"
                 }
                 on command ChangeEventInfo{
                     then error "Event is already in progress, info cannot be modified"
@@ -100,12 +108,16 @@ context EventContext is {
                 eventId: EventId,
                 eventInfo: EventInfo,
                 reason: String,
-                eventMetaInfo: EventMetaInfo
+                eventMetaInfo: EventMetaInfo,
+                reservation: ReservationId
                 //finalScore
             }
             handler DelayedEventHandler is {
                 on command ScheduleEvent{
 				  then error "Cannot schedule a delayed event, please reschedule"
+                }
+                on command AddReservationToEvent{
+                    then error "Event cannot accept new reservation in delayed state - please try exte4nding the reservation"
                 }
                 on command ChangeEventInfo{
                   then "set entity eventInfo to message info"
@@ -141,7 +153,8 @@ context EventContext is {
             fields {
                 eventId: EventId,
                 eventInfo: EventInfo,
-                eventMetaInfo: EventMetaInfo
+                eventMetaInfo: EventMetaInfo,
+                reservation: ReservationId?
                 //finalScore
             }
             handler PastEventHandler is {
@@ -152,25 +165,18 @@ context EventContext is {
             fields {
                 eventId: EventId,
                 eventInfo: EventInfo,
-                eventMetaInfo: EventMetaInfo
+                eventMetaInfo: EventMetaInfo,
+                reservation: ReservationId?
                 //reason
             }
             handler CancelledEventHandler is {
-                on command ScheduleEvent{
-                    then error "A cancelled event cannot be scheduled, must be rescheduled"
-                }
-                on command ChangeEventInfo{then error "Event is cancelled. Cannot change info for a cancelled event."}
-                on command CancelEvent{then error "Event is cancelled. Cannot cancel a cancelled event."}
                 on command RescheduleEvent{
                   then "set entity evenInfo.expectedStart to RescheduleEvent.info.start"
                   and "set entity evenInfo.expectedEnd to RescheduleEvent.info.end"
                   and "set entity lastModifiedBy to RescheduleEvent.reschedulingMember"
                   and "set entity lastModifiedOn to today()"
                 }
-                on command DelayEvent{then error "Event is cancelled. Cannot delay a cancelled event."}
-                on command StartEvent{then error "Event is cancelled. Cannot start a cancelled event."}
-                on command EndEvent{then error "Event is cancelled. Cannot end a cancelled event."}
-                on command AddLiveUpdate{then error "Event is cancelled. Cannot add live update to a cancelled event."}
+                on other { then error "Event is delayed, the only available command is RescheduleEvent" }
             }
         }
         //also consider postponed, delayed

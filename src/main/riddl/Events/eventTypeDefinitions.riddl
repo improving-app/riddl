@@ -25,10 +25,6 @@ type EventInfo is {
     description: String,
     eventURL: URL,
     sponsoringOrg: OrganizationId,
-    geoLocation: Location,
-    //venue: VenueId,
-    // location: LocationId,
-    reservation: ReservationId?,
     expectedStart: DateTime,
     expectedEnd: DateTime,
     isPrivate: Boolean
