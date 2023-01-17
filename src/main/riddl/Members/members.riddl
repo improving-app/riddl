@@ -160,13 +160,13 @@ context MembersContext  is {
                 on command UpdateMemberInfo {
                     then "set entity Info to non-Empty fields in UpdateInfo from message"
                     and "set entity lastModifiedBy to actingMember from message"
-                    and "set entity lastModifiedOn to today()""
+                    and "set entity lastModifiedOn to today()"
                     and "yield event MemberInfoUpdated"
                 }
                 on command UpdateMemberStatus {
                     then "set entity Status to Status field from message"
                     and "set entity lastModifiedBy to actingMember from message"
-                    and "set entity lastModifiedOn to today()""
+                    and "set entity lastModifiedOn to today()"
                     and "yield event MemberStatusUpdated"
                 }
                 on query GetMemberData {

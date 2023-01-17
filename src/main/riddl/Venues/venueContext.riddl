@@ -6,8 +6,6 @@ context VenueContext is {
     include "venueMessages"
     include "venueProjections"
 
-	type VenueId is Id(VenueContext.Venue)
-
     entity Venue is {
         options (event-sourced, available)
 

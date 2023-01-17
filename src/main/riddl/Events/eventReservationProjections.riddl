@@ -1,0 +1,4 @@
+query GetLocationForEvent is {event: EventId}
+result LocationForEvent is {event: EventId, location: LocationId}
+result NoReservationForEvent
+result NoLocationForEventReservation
