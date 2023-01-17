@@ -1,6 +1,9 @@
-context OrganizationsMembersEventsProjections is  {
-  include "organizationMembersEventsMessages"
+query FindMembersAtEventsOnDayForOrg is {org: OrgId, day: DateTime, queryingMember: MemberId}
+result QueryNotAllowed
+result NoEventsOnDayForOrg is {org: OrgId}
+result MembersAtEventsOnDay is {members: MemberId*}
 
+context OrganizationsMembersEventsProjections is  {
   projection OrganizationsMembersEventsView is {
      fields {
         orgId: OrganizationId,

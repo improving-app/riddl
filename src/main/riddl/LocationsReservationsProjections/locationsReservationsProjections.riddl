@@ -1,24 +1,29 @@
-context LocationEventsProjections is  {
-  include "locationsEventsMessages"
+query ScheduleEasyEvent is {maxAttendance: Integer, timeRange: TimeRange, info: EventContext.EventInfo, schedulingMember: MemberId}
+result EasyEventNoAvailability is {eventInfo: EventInfo}
+result EasyScheduledEvent is {eventInfo: EventInfo, locations: LocationId+}
 
-  projection LocationsEventsView is {
+query FindVacanciesForEvent is {maxAttendance: Integer, timeRange: TimeRange, info: EventContext.EventInfo}
+type LocationWithReservationAndEventInfo is mapping from LocationId to {eventInfo: EventInfo, reservationInfo: ReservationContext.Info}
+result VacanciesForEventResult is {info: LocationWithReservationAndEventInfo}
+
+context LocationsReservationsProjections is  {
+  projection LocationsReservationsView is {
      fields {
+        venueId: VenueId,
         orgId: OrganizationId,
         locationId: LocationId,
         capacity: Integer,
         reservationId: ReservationId,
         reservationStart: TimeStamp,
         reservationEnd: TimeStamp,
-        isPrivate: Boolean // we can use this for a sum of location, reservation, & venue privacy
+        isPrivate: Boolean
     }
     handler LocationsEventsViewHandler is {
         on event VenueEstablished {
-            then "find or create rows with VenueId set to VenueEstablished.venueId"
-            and "set rows' isPrivate to true if VenueEstablished.info.isPrivate is true"
+            then "find or create rows with venueId set to VenueEstablished.venueId and orgId set to VenueEstablished.info.orgId"
         }
         on event VenueInfoUpdated {
-            then "find rows with venueId set to VenueInfoUpdated.venueId and orgId set to VenueEstablished.info.orgId"
-            and "set rows' isPrivate to true if VenueInfoUpdated.info.isPrivate is true"
+            then "find rows with venueId set to VenueInfoUpdated.venueId and orgId set to VenueInfoUpdated.info.orgId"
         }
         on event VenueLocationsAdded {
             then "find or create rows with venueId set to VenueLocationsAdded.venueId and locationIds set to VenueLocationsAdded.locationIds"
@@ -27,19 +32,16 @@ context LocationEventsProjections is  {
             then "find or create rows with reservationId set to ReservationEstablished.reservationId"
             and "set rows' reservationStart to ReservationEstablished.info.range.start"
             and "set rows' reservationEnd to ReservationEstablished.info.range.end"
-            and "set rows' isPrivate to true if ReservationEstablished.info.isPrivate is true"
         }
         on event ReservationInfoUpdated {
             then "find rows with reservationId set to ReservationInfoUpdated.reservationId"
             and "set rows' reservationStart to ReservationInfoUpdated.info.range.start"
             and "set rows' reservationEnd to ReservationInfoUpdated.info.range.end"
-            and "set rows' isPrivate to true if ReservationInfoUpdated.info.isPrivate is true"
         }
         on event LocationEstablished {
             then "find or create rows with reservationId set to LocationEstablished.reservationIds"
             and "set rows' capacity to LocationEstablished.locationInfo.capacity"
             and "set rows' locationIds to LocationEstablished.locationIds"
-            and "set rows' isPrivate to true if LocationEstablished.locationInfo.isPrivate is true"
         }
         on event LocationReservationsAdded {
             then "find or create rows with reservationId set to LocationReservationsAdded.reservationId"
@@ -48,23 +50,13 @@ context LocationEventsProjections is  {
         on event LocationInfoUpdated {
             then "find rows where locationId is LocationInfoUpdated.locationId"
             and "set rows' capacity to LocationInfoUpdated.info.capacity"
-            and "set rows' isPrivate to true if LocationInfoUpdated.info.isPrivate is true"
         }
         on query ScheduleEasyEvent {
             then "filter by ScheduleEasyEvent.info.forOrg equals orgId - return EasyEventNoAvailability if empty"
             and "find rows where ScheduleEasyEvent.maxAttendance < capacity - return EasyEventNoAvailability if empty"
             and "filter by ScheduleEasyEvent.timeRange.start & ScheduleEasyEvent.timeRange.end do not overlap reservationStart & reservationEnd"
             and "if empty, try 30mins earlier - if still empty, try 30 mins later - then return EasyEventNoAvailability if empty"
-            and "deduplicate by locationId and pick a random row"
-            and "create Reservation newReservation"
-            and "set newReservation.range to previously found value"
-            and "set newReservation.title to '${ScheduleEasyEvent.eventInfo.eventName}_Reservation'"
-            and "set newReservation.description to ScheduleEasyEvent.eventInfo.description"
-            and "set newReservation.forOrg to orgId in previously selected row"
-            and "set newReservation.isPrivate to ScheduleEasyEvent.eventInfo.isPrivate"
-            and "emit EstablishReservation with reservationId newly generated, info set as newReservation, establishingMember set as ScheduleEasyEvent.schedulingMember, owner as ScheduleEasyEvent.schedulingMember"
-            and "emit AddLocationReservations with reservationId set as previously generated is last step, locationId from previously selected row"
-            and "return EasyScheduledEvent with a previously selected row's locationId, ScheduleEasyEvent.eventInfo where expectedStart & expectedEnd are possibly adjusted from previous steps"
+            and "return EasyScheduledEvent with a all row's locationId, ScheduleEasyEvent.eventInfo where expectedStart & expectedEnd are possibly adjusted from previous steps"
         }
     }
   }

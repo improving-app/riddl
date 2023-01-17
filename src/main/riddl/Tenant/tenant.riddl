@@ -43,13 +43,9 @@ context TenantContext is {
                 }
                 on command TenantContext.UpdateStatus {
                     example Success {
-                        then "Morph Tenant to desired state"
+                        then "Morph Tenant to Active state"
                         and "Set Tenant meta data to reflect the change"
                         and "yield TenantContext.StatusUpdated event"
-                    }
-                    example SameStatus {
-                        when "Tenant already is in desired state"
-                        then error "Tenant is already in desired state"
                     }
                     example NoBillingAccount {
                         when "Desired status is Active and BillingAccount is null"
@@ -179,13 +175,9 @@ context TenantContext is {
             handler ActiveTenantHandler is {
                  on command TenantContext.UpdateStatus {
                     example Success {
-                        then "Morph Tenant to desired state"
+                        then "Morph Tenant to Suspended state"
                         and "Set Tenant meta data to reflect the change"
                         and "yield TenantContext.StatusUpdated event"
-                    }
-                    example SameStatus {
-                        when "Tenant already is in desired state"
-                        then error "Tenant is already in desired state"
                     }
                     example NotAuthorized {
                         when "updating user is not authorized to suspend tenant"
@@ -311,13 +303,9 @@ context TenantContext is {
             handler SuspendedTenantHandler is {
                  on command TenantContext.UpdateStatus {
                     example Success {
-                        then "Morph Tenant to desired state"
+                        then "Morph Tenant to Active state"
                         and "Set Tenant meta data to reflect the change"
                         and "yield TenantContext.StatusUpdated event"
-                    }
-                    example SameStatus {
-                        when "Tenant already is in desired state"
-                        then error "Tenant is already in desired state"
                     }
                     example NotAuthorized {
                         when "updating user is not authorized to activate the tenant"

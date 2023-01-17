@@ -21,8 +21,7 @@ described by {
 
 command UpdateStatus is {
 	tenantId: TenantId,
-	updatingUser: String,
-	status: ^TenantContext.Status
+	updatingUser: String
 } briefly "A command that updates a tenant's status"
 described by {
   |Given a TenantId, the tenant status is updated. This command yields a

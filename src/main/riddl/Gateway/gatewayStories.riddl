@@ -55,7 +55,13 @@ story EventBookingEasyButton is {
       briefly "make a reservation by searching for a location - includes max attendance, start/end time, already created event info"
     step from output ImprovingApp.Improving_app.MyEventsPage.show
       "presented" to actor Owner
-      briefly "event will now appear as scheduled in a venue that honours max attendance and event info parameters in the nearest time to start and end available"
+      briefly "location(s) will appear as that honour max attendance and event info parameters in the nearest time to start and end available"
+    step from actor Owner "selects a location" to
+      input ImprovingApp.Improving_app.MyEventsPages.easy
+      briefly "user selects a location based on the list that appeared in the previous step & requests gateway to create reservation"
+    step from output ImprovingApp.Improving_app.MyEventsPage.show
+      "presented" to actor Owner
+      briefly "notify user that event now has a reservation in selected location"
   }
 } briefly "A story about scheduling an event with the easy button in Improving.app"
 described as "This is the story of how an event is scheduled with an easy button."
