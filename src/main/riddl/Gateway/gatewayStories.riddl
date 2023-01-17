@@ -1,7 +1,7 @@
 //Member Stories (James)
 //As a person who would like to use the features of ImprovingApp I would like to register a new user account so that I can access those features
 story RegisterMember is {
-capability is "Enroll the Member"
+  capability is "Enroll the Member"
   benefit is "So Member can use ImprovingApp"
   author James is {
     name: "James Lovell"
@@ -47,6 +47,24 @@ As an Owner of an Organization I would like to find a Location, Reserve the Loca
   - The event may need to be adjusted (time, etc) to accommodate Location availability
   - After creating an event but before scheduling an event (booking a reservation)
   - Gather interest in an event prior to Reserving the event
+
+story EventBookingEasyButton is {
+  case primary is {
+    step from actor Owner "presses easy button to make a reservation" to
+      input ImprovingApp.Improving_app.MyEventsPages.easy
+      briefly "make a reservation by searching for a location - includes max attendance, start/end time, already created event info"
+    step from output ImprovingApp.Improving_app.MyEventsPage.show
+      "presented" to actor Owner
+      briefly "location(s) will appear as that honour max attendance and event info parameters in the nearest time to start and end available"
+    step from actor Owner "selects a location" to
+      input ImprovingApp.Improving_app.MyEventsPages.easy
+      briefly "user selects a location based on the list that appeared in the previous step & requests gateway to create reservation"
+    step from output ImprovingApp.Improving_app.MyEventsPage.show
+      "presented" to actor Owner
+      briefly "notify user that event now has a reservation in selected location"
+  }
+} briefly "A story about scheduling an event with the easy button in Improving.app"
+described as "This is the story of how an event is scheduled with an easy button."
 
 //Place Stories (Alex)
 As a Tenant Owner I would like to create a Venue

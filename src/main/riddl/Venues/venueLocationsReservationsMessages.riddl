@@ -6,7 +6,7 @@ query GetNextVenueReservations is {
 }
 query GetVenueReservationsInRange is {
 	venueId: VenueId,
-	range: 'TimeRange'+
+	range: TimeRange+
 }
 result VenueReservations is {
 	venueId: VenueId,
@@ -33,7 +33,7 @@ query GetNextLocationReservations is {
 }
 query GetLocationReservations is {
 	venueId: LocationId,
-	ranges: 'TimeRange'+
+	ranges: TimeRange+
 }
 result LocationReservations is {
 	venueId: LocationId,
@@ -49,18 +49,8 @@ query GetNextLocationAvailability is {
 }
 result LocationAvailabilityCalendar is {
 	locationId: LocationId,
-	schedule: 'TimeRange'* briefly "A list of time ranges indicating availability"
+	schedule: TimeRange* briefly "A list of time ranges indicating availability"
 }
 
 query FindAvailableLocationsInDateRange is {locationId: LocationId, start: Date, end: Date}
 query FindAvailableLocationsInDateRangeWithAmenities is {locationId: LocationId, start: Date, end: Date, desiredAmenities: String*}
-
-//types
-type VenueReservationsSchedule is {
-	locationId: LocationId,
-	reservations: ReservationId+
-}
-type VenueAvailabilitySchedule is {
-	locationId: LocationId,
-	schedule: 'TimeRange'+
-}

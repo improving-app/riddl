@@ -1,0 +1,43 @@
+type LiveUpdate is mapping from String to String//i.e. "Score" -> "12 to 10", "attendance" -> "523", ...
+type EventResults is mapping from String to String //i.e. "Score" -> "12 to 10", "attendance" -> "523", ...
+
+/*
+type EventSpecificDetails is one of {FootballGame, BasketballGame, Play, Concert, FundRaiser}
+
+type FootballGame is {???
+    //homeTeam: OrgID,
+    //visitingTeam: String, || OrgID,
+}
+type BasketballGame is {???}
+type Play is {???}
+type Concert is {???}
+type FundRaiser is {???}
+type EventType is {
+    details: EventSpecificDetails,
+    finalResults: EventResults
+}
+*/
+
+type EventStatus is any of {Scheduled, InProgress, Past, Cancelled, Delayed}
+
+type EventInfo is {
+    eventName: String,
+    description: String,
+    eventURL: URL,
+    geoLocation: Location,
+    sponsoringOrg: OrganizationId,
+    expectedStart: DateTime,
+    expectedEnd: DateTime,
+    isPrivate: Boolean
+    //eventType: EventType
+    //eventTags: String+,// List of relevant, searchable tags that identify/describe this event
+}
+type EventMetaInfo is {
+    scheduledBy: MemberId,
+    scheduledOn: DateTime,
+    lastModifiedBy: MemberId,
+    lastModifiedOn: DateTime,
+    actualStart: DateTime,
+    actualEnd: DateTime,
+    status: EventStatus
+}

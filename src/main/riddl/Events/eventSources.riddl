@@ -1,0 +1,7 @@
+// plant EventPlant is {
+//     pipe EventPipe is {???}
+// }
+
+source LiveUpdates is {
+    outlet Updates is type LiveUpdate from entity Event
+} explained as "This is a source for things that happen as an event progresses"
