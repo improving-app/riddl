@@ -15,6 +15,7 @@ domain ImprovingApp by author James is {
     include "Product/product"
     include "Order/Order"
     include "LocationsReservationsProjections/locationsReservationsProjections"
+    include "OrganizationsMembersEventsProjections/organizationsMembersEventsProjections"
     include "use-cases/application"
     include "use-cases/stories"
 } described in file "ImprovingApp.md"

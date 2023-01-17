@@ -1,6 +1,6 @@
-query FindMembersAtEventsOnDayForOrg is {org: OrgId, day: DateTime, queryingMember: MemberId}
-result QueryNotAllowed
-result NoEventsOnDayForOrg is {org: OrgId}
+query FindMembersAtEventsOnDayForOrg is {org: OrganizationId, day: DateTime, queryingMember: MemberId}
+result QueryNotAllowed is {}
+result NoEventsOnDayForOrg is {org: OrganizationId}
 result MembersAtEventsOnDay is {members: MemberId*}
 
 context OrganizationsMembersEventsProjections is  {
