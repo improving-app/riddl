@@ -2,30 +2,33 @@ projection TenantViews is {
     fields {
         orgId: TenantId,
         primaryContact: Contact,
-        members: MemberId*,
-        organizations: OrganizationId*
+        member: MemberId,
+        organization: OrganizationId
     }
     handler TenantViewsHandler is {
-        on event TenantEstablished {???
-            //then set ^^.TenantViews.orgId to @TenantContext.TenantEstablished.orgId
-            //and set ^^.TenantViews.primaryContact to @TenantContext.TenantEstablished.info.primaryContact
-            //and set ^^.TenantViews.members to @TenantContext.TenantEstablished.info.members
-            //and set ^^.TenantViews.organizations to @TenantContext.TenantEstablished.info.organizations
+        on event TenantEstablished {
+            then "set orgId to TenantEstablished.tenantId"
+            and "set primaryContact to TenantEstablished.info.primaryContact"
+            and "set members to TenantEstablished.info.members"
+            and "set organizations to TenantEstablished.info.organizations"
         }
-        on event TenantContext.InfoUpdated {???
-            //then set ^^.TenantViews.owners to @TenantInfoUpdated.info.owners
-            //and set ^^.TenantViews.members to @TenantInfoUpdated.info.members
-            //and set ^^.TenantViews.parent to @^^^TenantInfoUpdated.info.parent
-            //and set ^^.TenantViews.children to @^^^TenantInfoUpdated.info.children
+        on event TenantContext.InfoUpdated {
+            then "set orgId to TenantContext.InfoUpdated.tenantId"
+            and "set primaryContact to TenantContext.InfoUpdated.info.primaryContact"
+            and "set members to TenantContext.InfoUpdated.info.members"
+            and "set organizations to TenantContext.InfoUpdated.info.organizations"
         }
         on event MembersAdded {
-            then append @TenantContext.MembersAdded.members
-              to TenantViews.members
+            then "add each item of MembersAdded.members as member row"
         }
         on event OrganizationsAdded {
-            then append @TenantContext.OrganizationsAdded.organizations to TenantViews.organizations
+            then "add each item of OrganizationsAdded.organizations as organization row"
         }
-        on query FindTenantsByMember {???}
-        on query FindTenantsByOrganization {???}
+        on query FindTenantsByMember {
+            then "filter by member equals FindTenantsByMember.member and return TenantListByMember containing member and all organizations found"
+        }
+        on query FindTenantsByOwner {
+            then "filter by primaryContact equals FindTenantsByOrganization.owner and return TenantListByOrganization containing member and all tenants found"
+        }
     }
 }
