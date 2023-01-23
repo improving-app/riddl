@@ -1,0 +1,52 @@
+query FindOrgsByMembersForEvents is {events: EventId+}
+type MemberEventInfo is {eventId: EventId, eventName: String}
+type MemberEvents is mapping from MemberId to {memberName: String, memberEventInfo: MemberEventInfo+}
+type OrgMembersEvents is mapping from OrganizationId to {orgName: String, memberEvents: MemberEvents+}
+result OrgsByMembersForEvents is {orgEventMembers: OrgMembersEvents+}
+
+context EventsOrganizationsAttendingMembersProjections is  {
+  projection EventsOrganizationsAttendingMembersView is {
+     fields {
+        event: EventId,     //event table, ticket-event correlation table
+        eventName: String,  //event table
+        ticketSku: SKU, // ticket-event & ticket-member correlation tables
+        attendingMemberOrg: OrganizationId, //org table & org-member correlation table
+        attendingMemberOrgName: String, //org table
+        attendingMember: MemberId, //ticket-member, org-member correlation table & member table
+        attendingMemberName: String //member table
+    }
+    handler OrganizationsMembersEventsViewHandler is {
+        on event OrganizationEstablished {
+            then "create row in org table with orgId set to OrganizationEstablished.info.orgId"
+            and "set previous row's attendingMemberOrgName to OrganizationEstablished.info.name"
+        }
+        on event MemberRegistered {
+            then "create rows in member table with attendingMember set to MemberRegistered.id"
+            and "set previous row's MemberRegistered.info.firstName and MemberRegistered.info.lastName concatenated as attendingMemberName"
+        }
+        on event MembersAddedToOrganization {
+            then "create rows in org-member table with attendingMemberOrg set to MembersAddedToOrganization.orgId and attendingMembers set to MembersAddedToOrganization.newMembers"
+        }
+        on event MembersRemovedFromOrganization {
+            then "remove rows in org-member table with attendingMemberOrg set to MembersRemovedFromOrganization.orgId and attendingMembers set to MembersRemovedFromOrganization.newMembers"
+        }
+        on event EventScheduled {
+            then "create row in event table with event set to to EventScheduled.eventId"
+        }
+        on event EventCancelled {
+            then "remove row in row in event table with event corresponding to EventCancelled.eventId"
+        }
+        on event ProductCreated {
+            then "if product is ticket, create row in ticket-event table with sku as ticketSku & productDetails.eventId as event"
+        }
+        on event OrderCreated {
+            then "for each OrderCreated.orderInfo.lineItem that has a SKU in event-ticket table, create row in ticket-member table with OrderCreated.meta.memberId as attendingMember & sku as ticketSku"
+        }
+        on query FindOrgsByMembersForEvents {
+            then "left join event table filtered by FindOrgsByMembersForEvents.events to ticket-event table"
+            and "left join table found in previous operation to ticket-member, org-member, org, member tables"
+            and "return OrgsByMembersForEvents containing results in the form of events keyed by members keyed by orgs"
+        }
+    }
+  }
+}

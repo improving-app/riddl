@@ -1,34 +1,27 @@
 projection TenantViews is {
     fields {
-        orgId: TenantId,
-        primaryContact: Contact,
-        member: MemberId,
-        organization: OrganizationId
+        tenant: TenantId,
+        member: MemberId
     }
     handler TenantViewsHandler is {
         on event TenantEstablished {
-            then "set orgId to TenantEstablished.tenantId"
-            and "set primaryContact to TenantEstablished.info.primaryContact"
-            and "set members to TenantEstablished.info.members"
-            and "set organizations to TenantEstablished.info.organizations"
+            then "set tenant to TenantEstablished.tenantId"
+            and "set member to TenantEstablished.info.members"
         }
         on event TenantContext.InfoUpdated {
-            then "set orgId to TenantContext.InfoUpdated.tenantId"
-            and "set primaryContact to TenantContext.InfoUpdated.info.primaryContact"
-            and "set members to TenantContext.InfoUpdated.info.members"
-            and "set organizations to TenantContext.InfoUpdated.info.organizations"
+            then "find tenant set to TenantEstablished.tenantId"
+            and "set member to TenantEstablished.info.members"
         }
         on event MembersAdded {
-            then "add each item of MembersAdded.members as member row"
+            then "find tenant set to TenantEstablished.tenantId"
+            and "add members from MembersAdded.newMemberList that don't exist for tenant"
         }
-        on event OrganizationsAdded {
-            then "add each item of OrganizationsAdded.organizations as organization row"
+        on event MembersRemoved {
+            then "find tenant set to TenantEstablished.tenantId"
+            and "remove all members for tenant and reset to MembersRemoved.newMemberList"
         }
         on query FindTenantsByMember {
-            then "filter by member equals FindTenantsByMember.member and return TenantListByMember containing member and all organizations found"
-        }
-        on query FindTenantsByOwner {
-            then "filter by primaryContact equals FindTenantsByOrganization.owner and return TenantListByOrganization containing member and all tenants found"
+            then "filter by member equals FindTenantsByMember.member and return TenantListByMember containing member and tenant"
         }
     }
 }

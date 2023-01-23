@@ -1,0 +1,2 @@
+This projection is meant to show Members' Organizations given a list of Events.
+The distinction from similarly named eventsOrganizationsAttendingMembersProjections if that here organizations are attached to members, and there they are attached to events.
