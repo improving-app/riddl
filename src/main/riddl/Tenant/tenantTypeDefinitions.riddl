@@ -2,7 +2,6 @@ type Info is {
   name: String,
   primaryContact: Contact,
   address: Address,
-  members: Member*,
   orgs: Organization*
 } briefly "Information about the tenant"
 

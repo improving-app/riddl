@@ -29,10 +29,7 @@ context TenantContext is {
         }
         state DraftTenant is {
             fields {
-                name: String,
-                primaryContact: Contact,
-                // billingAccount: BillingAccountId?,
-                // distributionAccount: DistributionAccountId?,
+                info: TenantContext.Info,
                 meta: TenantContext.MetaInfo
             }
             handler DraftTenantHandler is {
@@ -62,7 +59,7 @@ context TenantContext is {
                 }
                 on command UpdatePrimaryContact {
                     example Success {
-                        then "update primary contact details with arguments from UpdatePrimaryContact"
+                        then "update info's primary contact details with arguments from UpdatePrimaryContact"
                         and "set Tenant meta data to reflect the change"
                         and "yield UpdatedPrimaryContactEvent"
                     }
@@ -77,7 +74,7 @@ context TenantContext is {
                 }
                 on command ChangeTenantName {
                     example Success {
-                        then "update tenant name"
+                        then "update info's tenant name"
                         and "Set Tenant meta data to reflect change"
                         and "yield TenantNameChanged event"
                     }
@@ -86,31 +83,9 @@ context TenantContext is {
                         then error "Tenant name is already in use"
                     }
                 }
-                on command AddMembers {
-                    example Success {
-                        then "add members to list of tenant members"
-                        and "Set Tenant meta data to reflect change"
-                        and "yield MembersAdded event"
-                    }
-                    example MemberNameAlreadyInList {
-                        when "Some of these members already belongs to this tenant"
-                        then error "Some members already belongs to tenant"
-                    }
-                }
-                on command RemoveMembers {
-                   example Success {
-                       then "remove member from list of tenant members"
-                       and "Set Tenant meta data to reflect change"
-                       and "yield MembersRemoved event"
-                   }
-                   example MemberNameNotInListAlready {
-                       when "Some of these members already don't belong to this tenant"
-                       then error "Some members don't belongs to organization tenant"
-                   }
-                }
                 on command AddOrganizations {
                     example Success {
-                        then "add orgs to list of tenant orgs"
+                        then "add orgs to info's list of tenant orgs"
                         and "Set Tenant meta data to reflect change"
                         and "yield OrganizationsAdded event"
                     }
@@ -121,7 +96,7 @@ context TenantContext is {
                 }
                 on command RemoveOrganizations {
                    example Success {
-                       then "remove organizations from list of tenant orgs"
+                       then "remove organizations from info's list of tenant orgs"
                        and "Set Tenant meta data to reflect change"
                        and "yield OrganizationsRemoved event"
                    }
@@ -165,11 +140,7 @@ context TenantContext is {
         }
         state ActiveTenant is {
             fields {
-                name: String,
-                primaryContact: Contact,
                 info: TenantContext.Info,
-                // billingAccount: BillingAccountId,
-                // distributionAccount: DistributionAccountId,
                 meta: TenantContext.MetaInfo
             }
             handler ActiveTenantHandler is {
@@ -186,7 +157,7 @@ context TenantContext is {
                 }
                 on command UpdatePrimaryContact {
                     example Success {
-                        then "update primary contact details with arguments from UpdatePrimaryContact"
+                        then "update info's primary contact details with arguments from UpdatePrimaryContact"
                         and "set Tenant meta data to reflect the change"
                         and "yield UpdatedPrimaryContactEvent"
                     }
@@ -201,7 +172,7 @@ context TenantContext is {
                 }
                 on command ChangeTenantName {
                     example Success {
-                        then "update tenant name"
+                        then "update info's tenant name"
                         and "Set Tenant meta data to reflect change"
                         and "yield TenantNameChanged event"
                     }
@@ -214,31 +185,9 @@ context TenantContext is {
                         then error "User is not authorized to modify Tenant"
                     }
                 }
-                on command AddMembers {
-	                example Success {
-	                    then "add members to list of tenant members"
-	                    and "Set Tenant meta data to reflect change"
-	                    and "yield MembersAdded event"
-	                }
-	                example MemberNameAlreadyInList {
-	                    when "Some of these members already belongs to this tenant"
-	                    then error "Some members already belongs to tenant"
-	                }
-	            }
-	            on command RemoveMembers {
-	               example Success {
-	                   then "remove member from list of tenant members"
-	                   and "Set Tenant meta data to reflect change"
-	                   and "yield MembersRemoved event"
-	               }
-	               example MemberNameNotInListAlready {
-	                   when "Some of these members already don't belong to this tenant"
-	                   then error "Some members don't belongs to organization tenant"
-	               }
-	            }
 	            on command AddOrganizations {
 	                example Success {
-	                    then "add orgs to list of tenant orgs"
+	                    then "add orgs to info's list of tenant orgs"
 	                    and "Set Tenant meta data to reflect change"
 	                    and "yield OrganizationsAdded event"
 	                }
@@ -249,7 +198,7 @@ context TenantContext is {
 	            }
 	            on command RemoveOrganizations {
 	               example Success {
-	                   then "remove organizations from list of tenant orgs"
+	                   then "remove organizations from info's list of tenant orgs"
 	                   and "Set Tenant meta data to reflect change"
 	                   and "yield OrganizationsRemoved event"
 	               }
@@ -293,11 +242,7 @@ context TenantContext is {
         }
         state SuspendedTenant is {
             fields {
-                name: String,
-                primaryContact: Contact,
                 info: TenantContext.Info,
-                // billingAccount: BillingAccountId,
-                // distributionAccount: DistributionAccountId,
                 meta: TenantContext.MetaInfo
             }
             handler SuspendedTenantHandler is {
