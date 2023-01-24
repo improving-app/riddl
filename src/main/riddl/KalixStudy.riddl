@@ -19,4 +19,5 @@ domain ImprovingApp by author James is {
     include "OrganizationsMembersEventsProjections/organizationsMembersEventsProjections"
     include "use-cases/application"
     include "use-cases/stories"
+    include "Test/TestGateway"
 } described in file "ImprovingApp.md"

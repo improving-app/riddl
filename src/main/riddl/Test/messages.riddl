@@ -1,0 +1,26 @@
+
+type TenantInfo is {
+  name: String,
+  primaryContact: Contact,
+  address: Address
+} briefly "Information about the tenant" described by {
+| Basic information about the tenant in order to create it with
+| no members and no organizations
+}
+
+command CreateTenants is {
+  tenantInfos: TestGateway.TenantInfo+
+} briefly "A command to create multiple tenants at once" explained by {
+| This command will create one tenant for each of the TenantInfo values
+| provided. The TenantInfo has only basic contact information. Members and
+| organizations can be added in batches by another command.
+}
+
+type ScenarioInfo is {
+  tenantsToCreate: Integer
+}
+
+command RunScenario is {
+  scenario: ScenarioInfo
+}
+
