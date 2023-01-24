@@ -1,31 +1,29 @@
+query FindTenantByName is {name: String} briefly "Get a list of tenants that a member belongs to."
+result TenantByName is {
+  tenants: TenantId,
+  info: TenantContext.Info
+}
+result NoTenantWithName {}
+
 projection TenantViews is {
     fields {
-        orgId: TenantId,
-        primaryContact: Contact,
-        members: MemberId*,
-        organizations: OrganizationId*
+        tenant: TenantId,
+        tenantName: String,
+        tenantInfo: TenantContext.Info
     }
     handler TenantViewsHandler is {
-        on event TenantEstablished {???
-            //then set ^^.TenantViews.orgId to @TenantContext.TenantEstablished.orgId
-            //and set ^^.TenantViews.primaryContact to @TenantContext.TenantEstablished.info.primaryContact
-            //and set ^^.TenantViews.members to @TenantContext.TenantEstablished.info.members
-            //and set ^^.TenantViews.organizations to @TenantContext.TenantEstablished.info.organizations
+        on event TenantEstablished {
+            then "set tenant to TenantEstablished.tenantId"
+            and "set tenantName to TenantEstablished.info.name"
+            and "set tenantInfo to TenantEstablished.info"
         }
-        on event TenantContext.InfoUpdated {???
-            //then set ^^.TenantViews.owners to @TenantInfoUpdated.info.owners
-            //and set ^^.TenantViews.members to @TenantInfoUpdated.info.members
-            //and set ^^.TenantViews.parent to @^^^TenantInfoUpdated.info.parent
-            //and set ^^.TenantViews.children to @^^^TenantInfoUpdated.info.children
+        on event TenantContext.InfoUpdated {
+            then "find tenant set to TenantEstablished.tenantId"
+            and "if name has changed, set tenantName to TenantEstablished.info.name"
+            and "set tenantInfo to TenantEstablished.info"
         }
-        on event MembersAdded {
-            then append @TenantContext.MembersAdded.members
-              to TenantViews.members
+        on query TenantContext.FindTenantByName {
+            then "find by member equals FindTenantsByName.name and return TenantByName containing tenant and its info - or NoTenantWithName if empty"
         }
-        on event OrganizationsAdded {
-            then append @TenantContext.OrganizationsAdded.organizations to TenantViews.organizations
-        }
-        on query FindTenantsByMember {???}
-        on query FindTenantsByOrganization {???}
     }
 }

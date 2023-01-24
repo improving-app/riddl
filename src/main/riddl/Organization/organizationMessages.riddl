@@ -119,14 +119,10 @@ event OrganizationAccountsUpdated is {
   meta: OrganizationContext.MetaInfo
 }
 
-query FindOrganizationsByMember is {member: MemberId} briefly "Get a list of organizations that a member belongs to."
-result OrganizationListByMember is {
-  member: MemberId,
-  organizations: OrganizationId*
-}
-query FindOrganizationsByOwner is {owner: MemberId} briefly "Get a list of organizations that are owned by a member."
-result OrganizationListByOwner is {
-  owner: MemberId,
+query FindOrganizationsByMemberOrOwner is {memberOrOwner: MemberId, isMember: Boolean} briefly "Get a list of organizations that a member belongs to."
+result OrganizationListByMemberOrOwner is {
+  memberOrOwner: MemberId,
+  isMember: Boolean,
   organizations: OrganizationId*
 }
 query GetOrganizationInfo is {orgId: OrganizationId}

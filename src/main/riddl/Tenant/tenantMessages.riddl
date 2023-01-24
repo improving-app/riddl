@@ -43,12 +43,6 @@ event InfoUpdated is {
   info: ^TenantContext.Info,
   meta: ^TenantContext.MetaInfo
 }
-
-command AddMembers is { tenantId: TenantId, memberId: MemberId*, updatingUser: String }
-event MembersAdded is { tenantId: TenantId, newMemberList: MemberId*, meta: TenantContext.MetaInfo }
-command RemoveMembers is { tenantId: TenantId, memberId: MemberId*, updatingUser: String }
-event MembersRemoved is { tenantId: TenantId, newMemberList: MemberId*, newContact: Contact, meta: TenantContext.MetaInfo }
-
 command AddOrganizations is { tenantId: TenantId, orgId: OrganizationId*, updatingUser: String }
 event OrganizationsAdded is { tenantId: TenantId, newOrgsList: OrganizationId*, meta: TenantContext.MetaInfo }
 command RemoveOrganizations is { tenantId: TenantId, orgId: OrganizationId*, updatingUser: String }
@@ -64,19 +58,3 @@ event TenantNameChanged is { tenantId: TenantId, oldName: String, newName: Strin
 // event BillingAccountSwapped is { tenantId: TenantId, name: String, oldAccount: BillingAccountId, newAccount: BillingAccountId, meta: TenantContext.MetaInfo }
 // command SwapDistributionAccount is { tenantId: TenantId, newDistributionAccount: DistributionAccountId, updatingUser: String }
 // event DistributionAccountSwapped is { tenantId: TenantId, name: String, oldAccount: DistributionAccountId, newAccount: DistributionAccountId, meta: TenantContext.MetaInfo }
-
-query FindTenantsByMember is {member: MemberId} briefly "Get a list of organizations that a member belongs to."
-result TenantListByMember is {
-  member: MemberId,
-  organizations: TenantId*
-}
-query FindTenantsByOrganization is {owner: MemberId} briefly "Get a list of organizations that are owned by a member."
-result TenantListByOrganization is {
-  organizations: OrganizationId,
-  owner: TenantId*
-}
-query GetTenantInfo is {orgId: OrganizationId}
-result TenantInfo is {
-  orgId: TenantId,
-  info: TenantContext.Info
-}
