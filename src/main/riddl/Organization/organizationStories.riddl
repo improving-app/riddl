@@ -11,4 +11,4 @@ story EstablishOrganization is {
       briefly "organization added"
   }
 } briefly "A story about establishing an organization in Improving.app"
-  described as "This is the story of how an organiorzation comes to existence"
+  described as "This is the story of how an organization comes to existence"

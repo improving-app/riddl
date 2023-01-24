@@ -1,3 +1,6 @@
+type ReservationId is Id (ImprovingApp.Events.ReservationContext.Reservation)
+  briefly "Unique identifier for Reservation Entity"
+
 context ReservationContext is {
     include "reservationTypeDefinitions"
     include "reservationMessages"
@@ -78,27 +81,6 @@ context ReservationContext is {
 		        }
 		    }
 
-		    state Active is {
-		        fields {
-		            reservationId: ReservationId,
-		            reservationInfo: ReservationContext.Info,
-		            reservationMeta: ReservationContext.MetaInfo
-		        }
-		        handler ActiveReservation is {
-		            on command EstablishReservation {
-		                then error "Reservation already established"
-		            }
-		            on command EditReservationInfo {
-		                then error "Reservation is in Active state, editing info not allowed"
-		            }
-		            on command UpdateReservationStatus {
-		                then "morph Reservation to the state provided in UpdateReservationStatus"
-                    and "set MetaInfo to capture change data"
-                    and "yield event ReservationInfoUpdated"
-		            }
-		        }
-		    }
-
 		    state Past is {
 		        fields {
 		            reservationId: ReservationId,
@@ -107,6 +89,17 @@ context ReservationContext is {
 		        }
 		        handler PastReservation is {
 		            on other {then error "No modification commands allowed in Past state"}
+		        }
+		    }
+
+		    state Cancelled is {
+		        fields {
+		            reservationId: ReservationId,
+		            reservationInfo: ReservationContext.Info,
+		            reservationMeta: ReservationContext.MetaInfo
+		        }
+		        handler PastReservation is {
+		            on other {then error "No modification commands allowed in Cancelled state"}
 		        }
 		    }
 		}

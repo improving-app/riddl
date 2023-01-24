@@ -1,0 +1,29 @@
+query FindTenantByName is {name: String} briefly "Get a list of tenants that a member belongs to."
+result TenantByName is {
+  tenants: TenantId,
+  info: TenantContext.Info
+}
+result NoTenantWithName {}
+
+projection TenantViews is {
+    fields {
+        tenant: TenantId,
+        tenantName: String,
+        tenantInfo: TenantContext.Info
+    }
+    handler TenantViewsHandler is {
+        on event TenantEstablished {
+            then "set tenant to TenantEstablished.tenantId"
+            and "set tenantName to TenantEstablished.info.name"
+            and "set tenantInfo to TenantEstablished.info"
+        }
+        on event TenantContext.InfoUpdated {
+            then "find tenant set to TenantEstablished.tenantId"
+            and "if name has changed, set tenantName to TenantEstablished.info.name"
+            and "set tenantInfo to TenantEstablished.info"
+        }
+        on query TenantContext.FindTenantByName {
+            then "find by member equals FindTenantsByName.name and return TenantByName containing tenant and its info - or NoTenantWithName if empty"
+        }
+    }
+}

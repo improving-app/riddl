@@ -1,7 +1,7 @@
-type Status is any of {Draft, OnHold, Reserved, Active, Past} briefly "Internal status of a Reservation."
+type Status is any of {Draft, OnHold, Reserved, Past, Cancelled} briefly "Internal status of a Reservation."
 
 type Info is {
-    range: 'TimeRange',
+    range: TimeRange,
     title: String,
     description: String,
     location: LocationId,
@@ -9,12 +9,10 @@ type Info is {
 }
 
 type UpdateInfo is {
-    range: 'TimeRange'?,
+    range: TimeRange?,
     title: String?,
     description: String?,
-    location: LocationId?,
-    forOrg: OrganizationId?,
-    isPrivate: Boolean?
+    forOrg: OrganizationId?
 }
 
 type MetaInfo is {

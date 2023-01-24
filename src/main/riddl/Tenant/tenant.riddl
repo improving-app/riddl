@@ -1,27 +1,11 @@
-context TenantContext is {
-    type Status is any of {Draft, Active, Suspended}
-    type MetaInfo is {
-        createdOn: TimeStamp briefly "The Date/Time this tenant was created.",
-        createdBy: Contact briefly "The person who created this tenant",
-        lastUpdated: TimeStamp briefly "The Date/Time this tenant was last modified.",
-        lastUpdatedBy: MemberId briefly "The member who last modified this Tenant. This may also be a system user. i.e. they are two months late on payment so the system determines to suspend the tenant.",
-        currentStatus: TenantContext.Status briefly "The current state of this tenant. Valid states include Draft, Active, and Suspended"
-    } briefly "Meta data kept about an organization that the user does not directly modify. Instead the system updates this info as a Member Owner updates details in the Info type."
+type TenantId is Id(ImprovingApp.TenantContext.Tenant)
+  briefly "Unique identifier for Tenant Entity"
 
-    command EstablishTenant is { tenantId: TenantId, name: String,  primaryContact: Contact }
-    event TenantEstablished is { tenantId: TenantId, name: String, primaryContact: Contact, meta: TenantContext.MetaInfo }
-    command ActivateTenant is { tenantId: TenantId, updatingUser: String }
-    event TenantActivated is { tenantId: TenantId, name: String, meta: TenantContext.MetaInfo }
-    command SuspendTenant is { tenantId: TenantId, updatingUser: String }
-    event TenantSuspended is { tenantId: TenantId, name: String, meta: TenantContext.MetaInfo }
-    command UpdatePrimaryContact is { tenantId: TenantId, newContact: Contact, updatingUser: String }
-    event PrimaryContactUpdated is { tenantId: TenantId, oldContact: Contact, newContact: Contact, meta: TenantContext.MetaInfo }
-    command ChangeTenantName is { tenantId: TenantId, newName: String, updatingUser: String }
-    event TenantNameChanged is { tenantId: TenantId, oldName: String, newName: String, meta: TenantContext.MetaInfo }
-    // command SwapBillingAccount is { tenantId: TenantId, newBillingAccount: BillingAccountId, updatingUser: String }
-    // event BillingAccountSwapped is { tenantId: TenantId, name: String, oldAccount: BillingAccountId, newAccount: BillingAccountId, meta: TenantContext.MetaInfo }
-    // command SwapDistributionAccount is { tenantId: TenantId, newDistributionAccount: DistributionAccountId, updatingUser: String }
-    // event DistributionAccountSwapped is { tenantId: TenantId, name: String, oldAccount: DistributionAccountId, newAccount: DistributionAccountId, meta: TenantContext.MetaInfo }
+context TenantContext is {
+    include "tenantTypeDefinitions"
+    include "tenantMessages"
+    include "tenantProjections"
+    include "tenantSources"
 
     entity Tenant is {
         options (event-sourced, available)
@@ -45,35 +29,37 @@ context TenantContext is {
         }
         state DraftTenant is {
             fields {
-                name: String,
-                primaryContact: Contact,
-                // billingAccount: BillingAccountId?,
-                // distributionAccount: DistributionAccountId?,
+                info: TenantContext.Info,
                 meta: TenantContext.MetaInfo
             }
             handler DraftTenantHandler is {
-                on command ActivateTenant {
+                on command TenantContext.EditInfo {
+                    then "Copy fields from TenantContext.EditInfo into Draft info fields"
+                    and "adjust meta fields to reflect the change set"
+                    and "yield event TenantContext.InfoUpdated"
+                }
+                on command TenantContext.UpdateStatus {
                     example Success {
                         then "Morph Tenant to Active state"
                         and "Set Tenant meta data to reflect the change"
-                        and "yield TenantActivated event"
+                        and "yield TenantContext.StatusUpdated event"
                     }
-                    example NoBillingAccount {
-                        when "BillingAccount is null"
-                        then error "Tenant must have a BillingAccount to be Activated"
-                    }
-                    example NoDistributionAccount {
-                        when "DistributionAccount is null"
-                        then error "Tenant must have a DistributionAccount to be Activated"
-                    }
+                    // example NoBillingAccount {
+                    //     when "Desired status is Active and BillingAccount is null"
+                    //     then error "Tenant must have a BillingAccount to be Activated"
+                    // }
+                    // example NoDistributionAccount {
+                    //     when "Desired status is Active and DistributionAccount is null"
+                    //     then error "Tenant must have a DistributionAccount to be Activated"
+                    // }
                     example NotAuthorized {
-                        when "updating user is not authorized to activate the tenant"
+                        when "Desired status is Active and updating user is not authorized to activate the tenant"
                         then error "User is not authorized to Activate Tenant"
                     }
                 }
                 on command UpdatePrimaryContact {
                     example Success {
-                        then "update primary contact details with arguments from UpdatePrimaryContact"
+                        then "update info's primary contact details with arguments from UpdatePrimaryContact"
                         and "set Tenant meta data to reflect the change"
                         and "yield UpdatedPrimaryContactEvent"
                     }
@@ -88,7 +74,7 @@ context TenantContext is {
                 }
                 on command ChangeTenantName {
                     example Success {
-                        then "update tenant name"
+                        then "update info's tenant name"
                         and "Set Tenant meta data to reflect change"
                         and "yield TenantNameChanged event"
                     }
@@ -96,6 +82,28 @@ context TenantContext is {
                         when "Another Tenant is already using the provided name"
                         then error "Tenant name is already in use"
                     }
+                }
+                on command AddOrganizations {
+                    example Success {
+                        then "add orgs to info's list of tenant orgs"
+                        and "Set Tenant meta data to reflect change"
+                        and "yield OrganizationsAdded event"
+                    }
+                    example OrganizationsNameAlreadyInList {
+                        when "This organizations already belongs to this tenant"
+                        then error "Organizations already belongs to tenant"
+                    }
+                }
+                on command RemoveOrganizations {
+                   example Success {
+                       then "remove organizations from info's list of tenant orgs"
+                       and "Set Tenant meta data to reflect change"
+                       and "yield OrganizationsRemoved event"
+                   }
+                   example OrganizationsNameNotInListAlready {
+                       when "This tenant already doesn't belong to this organizations"
+                       then error "Tenant doesn't belongs to organizations already"
+                   }
                 }
                 // on command SwapBillingAccount {
                 //     example Success {
@@ -132,18 +140,15 @@ context TenantContext is {
         }
         state ActiveTenant is {
             fields {
-                name: String,
-                primaryContact: Contact,
-                // billingAccount: BillingAccountId,
-                // distributionAccount: DistributionAccountId,
+                info: TenantContext.Info,
                 meta: TenantContext.MetaInfo
             }
             handler ActiveTenantHandler is {
-                on command SuspendTenant {
+                 on command TenantContext.UpdateStatus {
                     example Success {
-                        then "morph tenant state to suspended"
-                        and "set meta data to reflect the change"
-                        and "yield TenantSuspended event"
+                        then "Morph Tenant to Suspended state"
+                        and "Set Tenant meta data to reflect the change"
+                        and "yield TenantContext.StatusUpdated event"
                     }
                     example NotAuthorized {
                         when "updating user is not authorized to suspend tenant"
@@ -152,7 +157,7 @@ context TenantContext is {
                 }
                 on command UpdatePrimaryContact {
                     example Success {
-                        then "update primary contact details with arguments from UpdatePrimaryContact"
+                        then "update info's primary contact details with arguments from UpdatePrimaryContact"
                         and "set Tenant meta data to reflect the change"
                         and "yield UpdatedPrimaryContactEvent"
                     }
@@ -167,7 +172,7 @@ context TenantContext is {
                 }
                 on command ChangeTenantName {
                     example Success {
-                        then "update tenant name"
+                        then "update info's tenant name"
                         and "Set Tenant meta data to reflect change"
                         and "yield TenantNameChanged event"
                     }
@@ -180,6 +185,28 @@ context TenantContext is {
                         then error "User is not authorized to modify Tenant"
                     }
                 }
+	            on command AddOrganizations {
+	                example Success {
+	                    then "add orgs to info's list of tenant orgs"
+	                    and "Set Tenant meta data to reflect change"
+	                    and "yield OrganizationsAdded event"
+	                }
+	                example OrganizationsNameAlreadyInList {
+	                    when "This organizations already belongs to this tenant"
+	                    then error "Organizations already belongs to tenant"
+	                }
+	            }
+	            on command RemoveOrganizations {
+	               example Success {
+	                   then "remove organizations from info's list of tenant orgs"
+	                   and "Set Tenant meta data to reflect change"
+	                   and "yield OrganizationsRemoved event"
+	               }
+	               example OrganizationsNameNotInListAlready {
+	                   when "This tenant already doesn't belong to this organizations"
+	                   then error "Tenant doesn't belongs to organizations already"
+	               }
+	            }
                 // on command SwapBillingAccount {
                 //     example Success {
                 //         then "Update the BillingAccountId"
@@ -215,18 +242,15 @@ context TenantContext is {
         }
         state SuspendedTenant is {
             fields {
-                name: String,
-                primaryContact: Contact,
-                // billingAccount: BillingAccountId,
-                // distributionAccount: DistributionAccountId,
+                info: TenantContext.Info,
                 meta: TenantContext.MetaInfo
             }
             handler SuspendedTenantHandler is {
-                on command ActivateTenant {
+                 on command TenantContext.UpdateStatus {
                     example Success {
                         then "Morph Tenant to Active state"
                         and "Set Tenant meta data to reflect the change"
-                        and "yield TenantActivated event"
+                        and "yield TenantContext.StatusUpdated event"
                     }
                     example NotAuthorized {
                         when "updating user is not authorized to activate the tenant"

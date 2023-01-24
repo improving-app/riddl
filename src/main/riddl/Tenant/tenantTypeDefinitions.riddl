@@ -1,0 +1,37 @@
+type Info is {
+  name: String,
+  primaryContact: Contact,
+  address: Address,
+  orgs: Organization*
+} briefly "Information about the tenant"
+
+type MetaInfo is {
+    createdOn: TimeStamp
+      briefly "The Date/Time this tenant was created.",
+    createdBy: Contact
+      briefly "The person who created this tenant",
+    lastUpdated: TimeStamp
+      briefly "The Date/Time this tenant was last modified.",
+    lastUpdatedBy: MemberId
+      briefly "The member who last modified this Tenant."
+      described as {
+        |This may also be a system user. i.e. they are two months late on
+        |payment so the system determines to suspend the tenant.
+      },
+    currentStatus: TenantContext.Status
+      briefly "The current state of this tenant"
+      described as {
+        |Valid states include Draft, Active, and Suspended.
+      }
+} briefly "Meta information about a tenant"
+described as {
+  |data kept about an organization that the user does not directly modify.
+  |Instead the system updates this info as a Member Owner updates details
+  |in the Info type."
+}
+
+type Status is any of {
+  Draft briefly "Tenant is inactive, in process of being created/defined",
+  Active briefly "Tenant is active and suitable for use",
+  Suspended briefly "Tenant is created but administratively suspended"
+}

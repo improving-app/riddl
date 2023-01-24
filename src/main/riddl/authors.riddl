@@ -14,3 +14,11 @@ author Reid is {
   title is "VP Technology"
   url is https://docs.improving.app/
 }
+
+author Alex is {
+  name is "Alex Weinstein"
+  email is "info@yoppworks.com"
+  organization is "Improving Ottawa Inc."
+  title is "Software Developer"
+  url is https://docs.improving.app/
+}

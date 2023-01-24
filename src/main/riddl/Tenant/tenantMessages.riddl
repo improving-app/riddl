@@ -1,0 +1,60 @@
+command EstablishTenant is {
+  tenantId: TenantId,
+  tenantInfo: TenantContext.Info
+} brief "A command that creates a new Tenant"
+described by {
+  |Given a TenantId and the corresponding Info, the tenant is created and
+  |set to the active state. This command yields a TenantEstablished event.
+}
+event TenantEstablished is {
+  tenantId: TenantId,
+  tenantInfo: TenantContext.Info,
+  metaInfo: TenantContext.MetaInfo,
+  name: String,
+  primaryContact: Contact,
+  meta: ^TenantContext.MetaInfo
+} briefly "The event resulting from creating a new Tenant"
+described by {
+  |When a Tenant is created, this event is raised to provide information
+  |about the tenant.
+}
+
+command UpdateStatus is {
+	tenantId: TenantId,
+	updatingUser: String
+} briefly "A command that updates a tenant's status"
+described by {
+  |Given a TenantId, the tenant status is updated. This command yields a
+  |TenantStatusUpdated event.
+}
+event StatusUpdated is {
+  tenantId: TenantId,
+  newStatus: ^TenantContext.Status,
+  meta: TenantContext.MetaInfo
+} briefly "The event resulting from updating a Tenant's status"
+
+command EditInfo {
+  tenantId: TenantId briefly "The unique Id of the tenant to create",
+  newInfo: ^TenantContext.UpdateInfo briefly "The information about the tenant",
+  updatingUser: String
+} briefly "A command to edit the values of an Tenant's Info "
+event InfoUpdated is {
+  tenantId: TenantId,
+  info: ^TenantContext.Info,
+  meta: ^TenantContext.MetaInfo
+}
+command AddOrganizations is { tenantId: TenantId, orgId: OrganizationId*, updatingUser: String }
+event OrganizationsAdded is { tenantId: TenantId, newOrgsList: OrganizationId*, meta: TenantContext.MetaInfo }
+command RemoveOrganizations is { tenantId: TenantId, orgId: OrganizationId*, updatingUser: String }
+event OrganizationsRemoved is { tenantId: TenantId, newOrgsList: OrganizationId*, newContact: Contact, meta: TenantContext.MetaInfo }
+
+command UpdatePrimaryContact is { tenantId: TenantId, newContact: Contact, updatingUser: String }
+event PrimaryContactUpdated is { tenantId: TenantId, oldContact: Contact, newContact: Contact, meta: TenantContext.MetaInfo }
+
+command ChangeTenantName is { tenantId: TenantId, newName: String, updatingUser: String }
+event TenantNameChanged is { tenantId: TenantId, oldName: String, newName: String, meta: TenantContext.MetaInfo }
+
+// command SwapBillingAccount is { tenantId: TenantId, newBillingAccount: BillingAccountId, updatingUser: String }
+// event BillingAccountSwapped is { tenantId: TenantId, name: String, oldAccount: BillingAccountId, newAccount: BillingAccountId, meta: TenantContext.MetaInfo }
+// command SwapDistributionAccount is { tenantId: TenantId, newDistributionAccount: DistributionAccountId, updatingUser: String }
+// event DistributionAccountSwapped is { tenantId: TenantId, name: String, oldAccount: DistributionAccountId, newAccount: DistributionAccountId, meta: TenantContext.MetaInfo }

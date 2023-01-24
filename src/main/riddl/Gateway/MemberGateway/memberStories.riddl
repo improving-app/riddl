@@ -6,10 +6,19 @@ story RegisterMember is {
   author James is {
     name: "James Lovell"
     email: "james.lovell@improving.com"
-  } 
+  }
   case HappyPath is {
     title: "Enroll a new Member"
-    scope domain ImprovingApp 
+    scope domain ImprovingApp
+    interaction is {
+      step from actor Member "EnrollMember" to actor App
+        briefly "Member clicks on the enroll button",
+      step from actor App send command Member.EnrollMember to actor GatewayAPI //ImprovingApp.Gateway.MemberGateway.Member
+        briefly "App tells the Gateway to enroll the member",
+  }
+  case HappyPath is {
+    title: "Enroll a new Member"
+    scope domain ImprovingApp
     interaction is {
       step from actor Member "EnrollMember" to actor App
         briefly "Member clicks on the enroll button",
@@ -73,9 +82,9 @@ story IAmInterestedInAttending is {
     title "Want to Attend Event"
     scope domain ImprovingApp
     interaction is {
-      step from actor Member "find an event to attend" to actor App 
+      step from actor Member "find an event to attend" to actor App
         briefly "Member searches for events"
-      step from actor App send query ImprovingApp.GatewayAPI.Event.GetEventsForOrg to actor GatewayAPI  
+      step from actor App send query ImprovingApp.GatewayAPI.Event.GetEventsForOrg to actor GatewayAPI
         briefly "App sends query parameters to Gateway"
       step from actor GatewayAPI send response ImprovingApp.GatewayAPI.EventEventsForOrg to actor App
         briefly "App gets upcoming Events that match the search criteria"

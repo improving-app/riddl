@@ -2,9 +2,9 @@ name: Validate RIDDL
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, kalix-study ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, kalix-study ]
   workflow_dispatch:
 
 jobs:

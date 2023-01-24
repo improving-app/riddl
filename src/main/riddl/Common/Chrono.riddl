@@ -1,4 +1,4 @@
 type TimeRange is {
-		start: TimeStamp,
-		end: TimeStamp
+  start: TimeStamp,
+  end: TimeStamp
 }

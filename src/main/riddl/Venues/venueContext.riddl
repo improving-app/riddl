@@ -1,3 +1,6 @@
+type VenueId is Id (ImprovingApp.Venues.VenueContext.Venue)
+  briefly "Unique identifier for Venue Entity"
+
 context VenueContext is {
     include "venueTypeDefinitions"
     include "venueMessages"
@@ -66,8 +69,8 @@ context VenueContext is {
 		            }
 				        on command AddVenueLocations {
 		                then "add the LocationIds provided in this command to Venue.locations"
-                    and "set MetaInfo to capture change data"
-                    and "yield event VenueInfoUpdated"
+                        and "set MetaInfo to capture change data"
+                        and "yield event VenueInfoUpdated"
 		            }
 		        }
 		    }

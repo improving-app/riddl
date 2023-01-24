@@ -1,7 +1,12 @@
+type MemberId is Id(ImprovingApp.MembersContext.Member)
+  briefly "Unique identifier for Tenant Entity"
+
+  type MemberMap is mapping from MemberId to MembersContext.Info
+
 context MembersContext  is {
     //Member Details
     //type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
-    type MemberMap is mapping from MemberId to MembersContext.Info  //gateway definition
+
     type NotificationPreference is any of { Email, SMS, Application } described
     as {
       | The values of this enumeration define the ways in which a member may
@@ -19,8 +24,7 @@ context MembersContext  is {
         notificationPreference: NotificationPreference?
           briefly "if this is set it is assumed that the user has opted in.",
         organizationMembership: OrganizationId*
-          briefly "A possibly empty list of organizations this member belongs to
-          .",
+          briefly "A possibly empty list of organizations this member belongs to.",
         tenant: TenantId
         //memberType: MemberType+
     } described as {
@@ -37,7 +41,8 @@ context MembersContext  is {
         mobileNumber: MobileNumber?,
         emailAddress: EmailAddress?,
         notificationPreference: NotificationPreference? briefly "if this is set it is assumed that the user has opted in.",
-        organizationMembership: OrganizationId* briefly "A list of organizations this member belongs to."
+        organizationMembership: OrganizationId* briefly "A list of organizations this member belongs to.",
+        tenant: TenantId* briefly "the tenant(s) this Member would belong to"
         //memberType: MemberType+
     } described as {
       |This aggregate type specifies a way to update any or all of the
@@ -69,8 +74,9 @@ context MembersContext  is {
        |self-service request the OrganizationType is optional.
     }
 
-    event  MemberRegistered is {
+    event MemberRegistered is {
       memberId: MemberId briefly "Unique identifier for the registered member",
+      info: MembersContext.Info briefly "Info describing the member",
       meta: MembersContext.MetaInfo
     } briefly "Event issued after RegisterMember or RegisterMemberList"
     described as {
@@ -153,18 +159,20 @@ context MembersContext  is {
 
             handler ActiveMemberHandler {
                 on command UpdateMemberInfo {
-                    then set ^^.Active.info to @UpdateMemberInfo.info
-                    and set ^^.Active.meta.lastModifiedBy to @UpdateMemberInfo.actingMember
-                    and set ^^.Active.meta.lastModifiedOn to today()
-                    and yield event MemberInfoUpdated(memberId = @Active.memberId, info = @Active.memberInfo, meta = @Active.memberMeta)
+                    then "set entity Info to non-Empty fields in UpdateInfo from message"
+                    and "set entity lastModifiedBy to actingMember from message"
+                    and "set entity lastModifiedOn to today()"
+                    and "yield event MemberInfoUpdated"
                 }
                 on command UpdateMemberStatus {
-                    then set Active.meta.memberStatus to @UpdateMemberStatus.newStatus
-                    and set Active.meta.lastModifiedBy to @UpdateMemberInfo.actingMember
-                    and set Active.meta.lastModifiedOn to today()
-                    and yield event MemberStatusUpdated(memberId = @Active.memberId, meta = @Active.memberMeta)
+                    then "set entity Status to Status field from message"
+                    and "set entity lastModifiedBy to actingMember from message"
+                    and "set entity lastModifiedOn to today()"
+                    and "yield event MemberStatusUpdated"
                 }
-                on query GetMemberData {  ??? }
+                on query GetMemberData {
+                    then "yield Info for entity"
+                }
             }
         }
 
