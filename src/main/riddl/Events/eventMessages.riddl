@@ -1,7 +1,7 @@
 command ChangeEventInfo is {eventId: EventId, info: EventInfo, changingMember: MemberId}
 event EventInfoChanged is {eventId: EventId, info: EventInfo, meta: EventMetaInfo}
 command ScheduleEvent is {eventId: EventId, info: EventInfo, schedulingMember: MemberId}
-event EventScheduled is {info: EventInfo, meta: EventMetaInfo}
+event EventScheduled is {eventId: EventId, info: EventInfo, meta: EventMetaInfo}
 command AddReservationToEvent is {event: EventId, reservation: ReservationId}
 event ReservationAddedToEvent is {event: EventId, reservation: ReservationId}
 command CancelEvent is {eventId: EventId, cancellingMember: MemberId}
