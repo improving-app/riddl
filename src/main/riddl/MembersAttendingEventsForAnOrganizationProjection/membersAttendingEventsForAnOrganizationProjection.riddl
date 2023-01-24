@@ -2,8 +2,8 @@ query FindMembersAtEventsOnDayForOrg is {org: OrganizationId, eventDate: Date}
 result NoEventsOnDayForOrg is {org: OrganizationId}
 result MembersAtEventsOnDay is {memberEvents: MemberEvents+}
 
-context EventsAttendingMembersOrganizationsProjections is  {
-  projection EventsAttendingMembersOrganizationsView is {
+context MembersAttendingEventsForAnOrganizationProjection is  {
+  projection MembersAttendingEventsForAnOrganizationView is {
     fields {
         event: EventId,     //ticket-event & org-event correlation tables, event table
         eventName: String,  //event table
@@ -13,7 +13,7 @@ context EventsAttendingMembersOrganizationsProjections is  {
         attendingMember: MemberId, //ticket-member correlation table & member table
         attendingMemberName: String //member table
     }
-    handler OrganizationsMembersEventsViewHandler is {
+    handler MembersAttendingEventsForAnOrganizationEventsViewHandler is {
         on event MemberRegistered {
             then "create rows in member table with attendingMember set to MemberRegistered.id"
             and "set previous row's MemberRegistered.info.firstName and MemberRegistered.info.lastName concatenated as attendingMemberName"

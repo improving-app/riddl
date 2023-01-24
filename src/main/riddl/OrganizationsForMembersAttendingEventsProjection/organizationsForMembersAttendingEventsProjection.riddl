@@ -4,8 +4,8 @@ type MemberEvents is mapping from MemberId to {memberName: String, memberEventIn
 type OrgMembersEvents is mapping from OrganizationId to {orgName: String, memberEvents: MemberEvents+}
 result OrgsByMembersForEvents is {orgEventMembers: OrgMembersEvents+}
 
-context EventsOrganizationsAttendingMembersProjections is  {
-  projection EventsOrganizationsAttendingMembersView is {
+context OrganizationsForMembersAttendingEventsProjections is  {
+  projection OrganizationsForMembersAttendingEventsView is {
      fields {
         event: EventId,     //event table, ticket-event correlation table
         eventName: String,  //event table
@@ -15,7 +15,7 @@ context EventsOrganizationsAttendingMembersProjections is  {
         attendingMember: MemberId, //ticket-member, org-member correlation table & member table
         attendingMemberName: String //member table
     }
-    handler OrganizationsMembersEventsViewHandler is {
+    handler OrganizationsForMembersAttendingEventsViewHandler is {
         on event OrganizationEstablished {
             then "create row in org table with orgId set to OrganizationEstablished.info.orgId"
             and "set previous row's attendingMemberOrgName to OrganizationEstablished.info.name"
