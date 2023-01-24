@@ -22,7 +22,7 @@ context OrganizationsForMembersAttendingEventsProjections is  {
         }
         on event MemberRegistered {
             then "create rows in member table with attendingMember set to MemberRegistered.id"
-            and "set previous row's MemberRegistered.info.firstName and MemberRegistered.info.lastName concatenated as attendingMemberName"
+            and "set previous row's attendingMemberName to concatenated MemberRegistered.info.firstName and MemberRegistered.info.lastName"
         }
         on event MembersAddedToOrganization {
             then "create rows in org-member table with attendingMemberOrg set to MembersAddedToOrganization.orgId and attendingMembers set to MembersAddedToOrganization.newMembers"
