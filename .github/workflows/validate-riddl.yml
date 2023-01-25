@@ -2,9 +2,9 @@ name: Validate RIDDL
 
 on:
   push:
-    branches: [ main, kalix-study ]
+    branches: [ main, Kalix-Study ]
   pull_request:
-    branches: [ main, kalix-study ]
+    branches: [ main, Kalix-Study ]
   workflow_dispatch:
 
 jobs:
@@ -23,5 +23,5 @@ jobs:
       run: |
         echo RIDDLC = "$RIDDLC"
         which riddlc
-        riddlc from "src/main/riddl/ImprovingApp.conf" validate
+        riddlc from "src/main/riddl/KalixStudy.conf" validate
       shell: bash
