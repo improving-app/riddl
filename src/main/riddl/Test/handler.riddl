@@ -3,6 +3,10 @@ handler TestGateway is {
     given "each of the TenantInfo values provided in CreateTenants"
     then "create a tenant with matching content, 0 members, and 0 organizations"
   }
+  on command CreateOrganizations {
+    given "each of the OrgInfo values provided in CreateOrganization"
+    then "create an organization with matching content, no members, no child organizations"
+  }
   on command RunScenario {
     given "The scenario information in the command "
     then "create or connect each non-empty item in the scenario "

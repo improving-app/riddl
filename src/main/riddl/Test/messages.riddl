@@ -16,11 +16,38 @@ command CreateTenants is {
 | organizations can be added in batches by another command.
 }
 
+type OrgInfo is {
+  name: String briefly "i.e. Provo High School. Must be unique within the organizational structure.",
+  address: Address? briefly "Required for BaseOrg. Optional for all other organizations.",
+  isPrivate: Boolean briefly "defaults to true",
+  tenant: TenantId briefly "The tenant that owns this organization",
+  establishingMember: MemberId briefly "The Id of the Member who is issuing the create command and establishes the org"
+} briefly "Minimum information to create an organization" explained by {
+| Information required for the creation of an Organization. Used by CreateOrganization command
+}
+
+
+command CreateOrganizations is {
+  orgInfos: TestGateway.OrgInfo+
+} briefly "A command to create multiple organizations at once" explained by {
+| This command will create one organization for each of the OrgInfo values
+| provided in `orgInfos`. The OrgInfo has only basic contact information. Optional
+| aspects of the organization can be provided with subsequent commands
+}
+
+
 type ScenarioInfo is {
-  tenantsToCreate: Integer
+  tenantsToCreate: Integer,
+  organizationsToCreate: Integer
+} briefly "Information needed for setting up a scenario" described as {
+| This type is used to specify how many of each type of entity to create for a scenario
+| and how to interlink them
 }
 
 command RunScenario is {
   scenario: ScenarioInfo
+} briefly "A command to run a scenario" explained by {
+| This command uses the provided `scenario` information to create
+| the various entities that a testing scenario may require and link them together as well.
 }
 
