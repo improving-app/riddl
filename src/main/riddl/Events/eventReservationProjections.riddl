@@ -6,7 +6,7 @@ result NoLocationForEventReservation is {}
 
 context EventReservationProjections is  {
   projection EventReservationView is {
-     fields {
+     record Fields {
         event: EventId,
         location: LocationId,
         reservation: ReservationId

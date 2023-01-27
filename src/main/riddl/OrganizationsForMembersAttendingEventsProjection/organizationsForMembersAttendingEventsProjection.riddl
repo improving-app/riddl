@@ -6,7 +6,7 @@ result OrgsByMembersForEvents is {orgEventMembers: OrgMembersEvents+}
 
 context OrganizationsForMembersAttendingEventsProjections is  {
   projection OrganizationsForMembersAttendingEventsView is {
-     fields {
+     record FIELDS {
         event: EventId,     //event table, ticket-event correlation table
         eventName: String,  //event table
         ticketSku: SKU, // ticket-event & ticket-member correlation tables
