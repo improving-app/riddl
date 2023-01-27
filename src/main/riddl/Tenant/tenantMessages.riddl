@@ -43,11 +43,6 @@ event InfoUpdated is {
   info: ^TenantContext.Info,
   meta: ^TenantContext.MetaInfo
 }
-command AddOrganizations is { tenantId: TenantId, orgId: OrganizationId*, updatingUser: String }
-event OrganizationsAdded is { tenantId: TenantId, newOrgsList: OrganizationId*, meta: TenantContext.MetaInfo }
-command RemoveOrganizations is { tenantId: TenantId, orgId: OrganizationId*, updatingUser: String }
-event OrganizationsRemoved is { tenantId: TenantId, newOrgsList: OrganizationId*, newContact: Contact, meta: TenantContext.MetaInfo }
-
 command UpdatePrimaryContact is { tenantId: TenantId, newContact: Contact, updatingUser: String }
 event PrimaryContactUpdated is { tenantId: TenantId, oldContact: Contact, newContact: Contact, meta: TenantContext.MetaInfo }
 
