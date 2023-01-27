@@ -2,7 +2,7 @@ command CreateTenants is {
   tenantInfos: TenantContext.Info+
 } briefly "A command to create multiple tenants at once" explained by {
 | This command will create one tenant for each of the Info values
-| provided. The Info has only basic contact information. Organizations can be added in batches by another command.
+| provided. The Info has only basic contact information.
 }
 
 event TenantsCreated is {
