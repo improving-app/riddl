@@ -1,4 +1,4 @@
-query FindTenantByName is {name: String} briefly "Get a info for a tenant searching by name"
+query FindTenantByName is {name: String} briefly "Get info for a tenant searching by name"
 result TenantByName is {
   tenants: TenantId,
   info: TenantContext.Info
