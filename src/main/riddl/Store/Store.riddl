@@ -3,7 +3,6 @@ context StoreContext is {
   type StoreId is Id(StoreContext.Store)
 
   type StoreInfo is {
-    id: StoreId,
     name: String,
     description: String,
     products: SKU+,

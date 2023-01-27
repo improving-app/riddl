@@ -1,19 +1,144 @@
-
-type TenantInfo is {
-  name: String,
-  primaryContact: Contact,
-  address: Address
-} briefly "Information about the tenant" described by {
-| Basic information about the tenant in order to create it with
-| no members and no organizations
+command CreateTenants is {
+  tenantInfos: TenantContext.Info+
+} briefly "A command to create multiple tenants at once" explained by {
+| This command will create one tenant for each of the Info values
+| provided. The Info has only basic contact information. Members and
+| organizations can be added in batches by another command.
 }
 
-command CreateTenants is {
-  tenantInfos: TestGateway.TenantInfo+
-} briefly "A command to create multiple tenants at once" explained by {
-| This command will create one tenant for each of the TenantInfo values
-| provided. The TenantInfo has only basic contact information. Members and
-| organizations can be added in batches by another command.
+event TenantsCreated is {
+  tenantsCreated: TenantId+
+} briefly "A reply from creating multiple tenants at once" explained by {
+| This event will contain all TenantIds created for the CreateTenants command it replies to
+}
+
+command CreateOrganizations is {
+  orgInfos: OrganizationContext.Info+
+} briefly "A command to create multiple organizations at once" explained by {
+| This command will create one organization for each of the Info values
+| provided. The Info has only basic contact information. Parents, members, owners and
+| contacts can be added in batches by another command.
+}
+
+event OrganizationsCreated is {
+  organizationsCreated: OrganizationId+
+} briefly "A reply from creating multiple organizations at once" explained by {
+| This event will contain all OrganizationIds created for the CreateOrganizations command it replies to
+}
+
+command CreateOrganizationsForTenants is {
+  orgInfosForTenants: mapping from TenantId to OrganizationContext.Info+
+} briefly "A command to create multiple organizations at once by TenantId" explained by {
+| This command will create one organization for each of the Info values
+| provided and also register that organization for the tenant indicated.
+| The Info has only basic contact information. Parents, members, owners and
+| contacts can be added in batches by another command.
+}
+
+event OrganizationsCreatedForTenants is {
+  organizationsCreated: mapping from TenantId to OrganizationId+
+} briefly "A reply from creating multiple organizations at once for tenants provided" explained by {
+| This event will contain all OrganizationIds created for the CreateOrganizationsForTenants command it replies to
+}
+
+command CreateMembers is {
+  memberInfos: MembersContext.Info+,
+  creatingMember: MemberId
+} briefly "A command to create multiple members at once" explained by {
+| This command will create one organization for each of the Info values
+| provided. They will not be added to any organizations
+}
+
+event MembersCreated is {
+  membersCreated: MemberId+
+} briefly "A reply from creating multiple members at once" explained by {
+| This event will contain all MemberIds created for the CreateMembers command it replies to
+}
+
+command CreateMembersForOrgs is {
+  memberInfosForOrgs: mapping from OrganizationId to MembersContext.Info+,
+  creatingMember: MemberId
+} briefly "A command to create multiple members at once by OrganizationId" explained by {
+| This command will create one member for each of the Info values
+| provided and also register that member for the organization indicated (requires calling organizations service).
+}
+
+event MembersCreatedForOrgs is {
+  organizationsCreated: mapping from TenantId to OrganizationId+
+} briefly "A reply from creating multiple members at once for organizations provided" explained by {
+| This event will contain all MemberIds created for the CreateMembersForOrgs command it replies to
+}
+
+command CreateEvents is {
+  orgInfos: EventInfo+,
+  creatingMember: MemberId
+} briefly "A command to create multiple events at once" explained by {
+| This command will create one event for each of the Info values
+| provided. Organization can be provided via EventInfo.SponsoringOrg
+}
+
+event EventCreated is {
+  eventsCreated: EventId+
+} briefly "A reply from creating multiple events at once" explained by {
+| This event will contain all EventIds created for the CreateEvents command it replies to
+}
+
+command CreateStores is {
+  storeInfos: StoreInfo+,
+  creatingMember: MemberId
+} briefly "A command to create multiple stores at once" explained by {
+| This command will create one store for each of the Info values
+| provided.
+}
+
+event StoresCreated is {
+  storesCreated: StoreId+
+} briefly "A reply from creating multiple stores at once" explained by {
+| This event will contain all StoreIds created for the CreateStores command it replies to
+}
+
+command CreateProducts is {
+  productInfos: ProductInfo+,
+  creatingMember: MemberId
+} briefly "A command to create multiple products at once" explained by {
+| This command will create one product for each of the Info values
+| provided. The ProductInfo includes a field productDetails, which can be used to choose ticket types.
+| ProductInfo required an EventId. StoreId is required in ProductInfo, as well as various metadata fields.
+}
+
+event ProductsCreated is {
+  productsCreated: SKU+
+} briefly "A reply from creating multiple products at once" explained by {
+| This event will contain all ProductIds created for the CreateProducts command it replies to
+}
+
+command CreateOrders is {
+  orderInfos: OrderInfo+,
+  store: StoreId,
+  creatingMember: MemberId
+} briefly "A command to create multiple orders at once" explained by {
+| This command will create one order for each of the Info values
+| provided. The Info includes a lineItems field which can be used to reference product SKUs.
+}
+
+event OrdersCreated is {
+  orders: OrderId+
+} briefly "A reply from creating multiple orders at once" explained by {
+| This event will contain all OrderIds created for the CreateOrders command it replies to
+}
+
+command CreateOrdersForMembers is {
+  orders: mapping from MemberId to OrderInfo+,
+  store: StoreId
+} briefly "A command to create multiple orders at once for individual members" explained by {
+| This command will create one order for each of the Info values
+| provided. The Info includes a lineItems field which can be used to reference product SKUs.
+}
+
+event OrdersCreated is {
+  orders: mapping from MemberId to OrderId+
+} briefly "A reply from creating multiple orders at once for individual members" explained by {
+| This event will contain all OrderIds created for the CreateOrders command it replies to
 }
 
 type OrgInfo is {

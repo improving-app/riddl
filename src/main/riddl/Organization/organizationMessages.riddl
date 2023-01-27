@@ -1,7 +1,7 @@
 command EstablishOrganization is {
   info: OrganizationContext.Info briefly "Details about an organization required for it to exist. See OrganizationContext.Organization.Info for details.",
   tenant: TenantId,
-  parent: Parent,
+  parent: Parent?,
   members: MemberList,
   owners: OwnerList,
   contacts: ContactList,
@@ -12,7 +12,7 @@ described in file "establishOrganization.md"
 event OrganizationEstablished is {
   orgId: OrganizationId briefly "Unique identifier returned by EstablishOrganization command",
   info: OrganizationContext.Info,
-  parent: Parent,
+  parent: Parent?,
   members: MemberList,
   owners: OwnerList,
   contacts: ContactList,

@@ -17,7 +17,6 @@ context ProductContext is {
     event: EventId
   }
   type ProductInfo is {
-    sku: SKU,
     name: String,
     description: String,
     productDetails: ProductDetails,
