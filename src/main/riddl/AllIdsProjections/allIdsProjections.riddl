@@ -14,7 +14,7 @@ query GetAllStoreIds is {}
 result AllStoreIds is {stores: StoreId*}
 
 query GetAllSkus is {}
-result AllSkus is {skus: Sku*}
+result AllSkus is {skus: SKU*}
 
 context AllIdsProjections is  {
   projection AllTenantIdsView is {
