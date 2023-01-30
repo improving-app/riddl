@@ -88,7 +88,7 @@ context AllIdsProjections is  {
   projection AllMemberIdsView is {
      fields {
         member: MemberId,
-        memberStatus: MemberContext.Status
+        memberStatus: MembersContext.Status
     }
     handler AllMemberIdsViewHandler is {
         on event MemberRegistered {
