@@ -33,6 +33,7 @@ context StoreContext is {
   event StoreCreated is {storeId: StoreId, info: StoreInfo, meta: StoreMetaInfo}
   command UpdateStoreInfo is {storeId: StoreId, info: StoreUpdateInfo, updatingMember: MemberId}
   event StoreInfoUpdated {storeId: StoreId, info: StoreInfo, meta: StoreMetaInfo}
+x  event StoreIsReady is {storeId: StoreId, meta: StoreMetaInfo}
   command DeleteStore is {storeId: StoreId, deletingMember: MemberId}
   event StoreDeleted is {storeId: StoreId, meta: StoreMetaInfo}
   command OpenStore is {storeId: StoreId, openingMember: MemberId}
@@ -82,6 +83,10 @@ context StoreContext is {
           and "adjust meta fields to reflect change"
           and "yield the StoreDeleted event"
         }
+        on command MakeStoreReady {
+          then "morph store to Ready state"
+          and "yield the StoreIsReady event"
+        }
         on command OpenStore {
           then error "store must be moved to the Ready state. All required attributes must be provided."
         }
@@ -104,7 +109,7 @@ context StoreContext is {
     }
     state Ready is {
       fields {
-        info: StoreUpdateInfo,
+        info: StoreInfo,
         meta: StoreMetaInfo
       }
       handler ReadyStoreHandler is {
@@ -118,6 +123,9 @@ context StoreContext is {
         }
         on command DeleteStore {
           then error "Store must be closed before deleting it"
+        }
+        on command MakeStoreReady {
+          then error "Store must be in Draft state before being made Ready"
         }
         on command OpenStore {
           then "morph store to Open state"
@@ -142,7 +150,7 @@ context StoreContext is {
     }
     state Open is {
       fields {
-        info: StoreUpdateInfo,
+        info: StoreInfo,
         meta: StoreMetaInfo
       }
       handler OpenStoreHandler is {
@@ -153,6 +161,9 @@ context StoreContext is {
           then "copy fields from info to Draft info fields"
           and "adjust meta fields to reflect the change"
           and "yeild the StoreUpdated event"
+        }
+        on command MakeStoreReady {
+          then error "Store must be in Draft state before being made Ready"
         }
         on command DeleteStore {
           then error "Store must be closed before deleting it"
@@ -179,7 +190,7 @@ context StoreContext is {
     }
     state Closed is {
       fields {
-        info: StoreUpdateInfo,
+        info: StoreInfo,
         meta: StoreMetaInfo
       }
       handler ClosedStoreHandler is {
@@ -190,6 +201,9 @@ context StoreContext is {
           then "copy fields from info to Draft info fields"
           and "adjust meta fields to reflect the change"
           and "yeild the StoreUpdated event"
+        }
+        on command MakeStoreReady {
+          then error "Store must be in Draft state before being made Ready"
         }
         on command DeleteStore {
           then "morph store to the Deleted state"
