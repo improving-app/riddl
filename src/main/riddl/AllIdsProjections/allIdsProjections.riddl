@@ -1,0 +1,103 @@
+query GetAllTenantIds is {}
+result AllTenantIds is {tenants: TenantId*}
+
+query GetAllOrgIds is {}
+result AllOrgIds is {orgs: OrganizationId*}
+
+query GetAllEventIds is {}
+result AllEventIds {events: EventId*}
+
+query GetAllMemberIds is {}
+result AllMemberIds is {members: MemberId*}
+
+query GetAllStoreIds is {}
+result AllStoreIds is {stores: StoreId*}
+
+query GetAllSkus is {}
+result AllSkus is {skus: Sku*}
+
+context AllIdsProjections is  {
+  projection AllTenantIdsView is {
+     fields {
+        tenant: TenantId
+    }
+    handler AllTenantIdsViewHandler is {
+        on event TenantEstablished {
+            then "create row with tenant set to TenantEstablished.tenantId"
+        }
+        on query GetAllTenantIds {
+            then "reply with AllTenantIds packed with entire table"
+        }
+    }
+  }
+
+  projection AllOrgIdsView is {
+     fields {
+        org: OrganizationId
+    }
+    handler AllOrgIdsViewHandler is {
+        on event OrganizationEstablished {
+            then "create row with org set to OrganizationEstablished.orgId"
+        }
+        on query GetAllOrgIds {
+            then "reply with AllOrgIds packed with entire table"
+        }
+    }
+  }
+
+  projection AllEventIdsView is {
+     fields {
+        event: EventId
+    }
+    handler AllTenantIdsViewHandler is {
+        on event EventScheduled {
+            then "create row with event set to EventEstablished.eventId"
+        }
+        on query GetAllEventIds {
+            then "reply with AllEventIds packed with entire table"
+        }
+    }
+  }
+
+  projection AllMemberIdsView is {
+     fields {
+        member: MemberId
+    }
+    handler AllMemberIdsViewHandler is {
+        on event MemberRegistered {
+            then "create row with member set to MemberRegistered.memberId"
+        }
+        on query GetAllMemberIds {
+            then "reply with AllMemberIds packed with entire table"
+        }
+    }
+  }
+
+  projection AllStoreIdsView is {
+     fields {
+        store: StoreId
+    }
+    handler AllStoreIdsViewHandler is {
+        on event StoreCreated {
+            then "create rows with store set to StoreCreated.storeId"
+        }
+        on query GetAllStoreIds {
+            then "reply with AllStoreIds packed with entire table"
+        }
+    }
+  }
+
+  projection AllSkusView is {
+     fields {
+        sku: SKU
+    }
+    handler AllSkusViewHandler is {
+        on event ProductCreated {
+            then "create rows with sku set to ProductCreated.sku"
+        }
+        on query GetAllSkus {
+            then "reply with AllSkus packed with entire table"
+        }
+    }
+  }
+}
