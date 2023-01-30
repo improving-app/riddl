@@ -33,7 +33,7 @@ context StoreContext is {
   event StoreCreated is {storeId: StoreId, info: StoreInfo, meta: StoreMetaInfo}
   command UpdateStoreInfo is {storeId: StoreId, info: StoreUpdateInfo, updatingMember: MemberId}
   event StoreInfoUpdated {storeId: StoreId, info: StoreInfo, meta: StoreMetaInfo}
-x  event StoreIsReady is {storeId: StoreId, meta: StoreMetaInfo}
+  event StoreIsReady is {storeId: StoreId, meta: StoreMetaInfo}
   command DeleteStore is {storeId: StoreId, deletingMember: MemberId}
   event StoreDeleted is {storeId: StoreId, meta: StoreMetaInfo}
   command OpenStore is {storeId: StoreId, openingMember: MemberId}
