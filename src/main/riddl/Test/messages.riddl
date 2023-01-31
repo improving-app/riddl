@@ -101,17 +101,38 @@ event OrdersCreated is {
 }
 
 type ScenarioInfo is {
-  tenantsToCreate: Integer,
-  organizationsToCreate: Integer
+  numTenants: Integer,
+  numOrgsPerTenant: Integer,
+  numMembersPerOrg: Integer,
+  numEventsPerOrg: Integer,
+  numStores: Integer,
+  numProductsPerEvent: Integer,
+  numOrdersPerMember: Integer
 } briefly "Information needed for setting up a scenario" described as {
 | This type is used to specify how many of each type of entity to create for a scenario
 | and how to interlink them
 }
 
-command RunScenario is {
+command StartScenario is {
   scenario: ScenarioInfo
 } briefly "A command to run a scenario" explained by {
 | This command uses the provided `scenario` information to create
 | the various entities that a testing scenario may require and link them together as well.
 }
+
+event ScenarioResults is {
+  tenants: TenantId*,
+  orgsForTenants: mapping from TenantId to OrganizationId*,
+  membersForOrgs: mapping from OrganizationId to MemberId*,
+  eventsForOrgs: mapping from OrganizationId to EventId*,
+  ordersForMembers: mapping from MemberId to OrderId*,
+  stores: StoreId*,
+  productsForStores: mapping from StoreId to SKU*
+}
+
+command EndScenario is {
+  resultsToRelease: ScenarioResults
+}
+
+event ScenarioEnded is { }
 
