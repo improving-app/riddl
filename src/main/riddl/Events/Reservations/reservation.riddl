@@ -20,7 +20,7 @@ context ReservationContext is {
 
 		    state Draft is {
 		        fields {
-		            reservationId: ReservationId,
+		        fields {
 		            reservationInfo: ReservationContext.Info,
 		            attendees: MemberId*,
 		            reservationMeta: ReservationContext.MetaInfo
@@ -42,7 +42,6 @@ context ReservationContext is {
 
 		    state OnHold is {
 		        fields {
-		            reservationId: ReservationId,
 		            reservationInfo: ReservationContext.Info,
 		            reservationMeta: ReservationContext.MetaInfo
 		        }
@@ -63,7 +62,6 @@ context ReservationContext is {
 
 		    state Reserved is {
 		        fields {
-		            reservationId: ReservationId,
 		            reservationInfo: ReservationContext.Info,
 		            reservationMeta: ReservationContext.MetaInfo
 		        }
@@ -83,7 +81,6 @@ context ReservationContext is {
 
 		    state Past is {
 		        fields {
-		            reservationId: ReservationId,
 		            reservationInfo: ReservationContext.Info,
 		            reservationMeta: ReservationContext.MetaInfo
 		        }
@@ -94,7 +91,6 @@ context ReservationContext is {
 
 		    state Cancelled is {
 		        fields {
-		            reservationId: ReservationId,
 		            reservationInfo: ReservationContext.Info,
 		            reservationMeta: ReservationContext.MetaInfo
 		        }

@@ -219,7 +219,6 @@ context StoreContext is {
     }
     state Deleted is {
       fields {
-        storeId: StoreId,
         storeName: String,
         event: EventId?,
         venue: VenueId,

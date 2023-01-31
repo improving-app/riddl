@@ -129,7 +129,6 @@ context MembersContext  is {
 
         state Active is {
             fields {
-                memberId: MemberId,
                 info: MembersContext.Info,
                 meta: MembersContext.MetaInfo
             }
@@ -178,9 +177,7 @@ context MembersContext  is {
 
 
         state Terminated is {
-            fields {
-                memberId: MemberId
-            }
+            fields { }
             handler TerminatedMemberHandler is {
                 on other { then error "Terminated members cannot process messages" }
             }

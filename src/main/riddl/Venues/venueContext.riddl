@@ -21,7 +21,6 @@ context VenueContext is {
 
 		    state Draft is {
 		        fields {
-		            venueId: VenueId,
 		            venueInfo: VenueContext.Info,
 		            locations: LocationId*,
 		            venueMeta: VenueContext.MetaInfo
@@ -49,7 +48,6 @@ context VenueContext is {
 
 		    state Open is {
 		        fields {
-		            venueId: VenueId,
 		            venueInfo: VenueContext.Info,
 		            locations: LocationId*,
 		            venueMeta: VenueContext.MetaInfo
@@ -77,7 +75,6 @@ context VenueContext is {
 
 		    state Closed is {
 		        fields {
-		            venueId: VenueId,
 		            orgId: OrganizationId,
 		            locations: LocationId*,
 		            venueMeta: VenueContext.MetaInfo
