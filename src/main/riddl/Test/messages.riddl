@@ -5,7 +5,7 @@ command CreateTenants is {
 | provided. The Info has only basic contact information.
 }
 
-event TenantsCreated is {
+result TenantsCreatedResult is {
   tenantsCreated: TenantId+
 } briefly "A reply from creating multiple tenants at once" explained by {
 | This event will contain all TenantIds created for the CreateTenants command it replies to
@@ -20,7 +20,7 @@ command CreateOrganizations is {
 | in the tenant field of the Info objects.
 }
 
-event OrganizationsCreated is {
+result OrganizationsCreated is {
   organizationsCreated: OrganizationId+
 } briefly "A reply from creating multiple organizations at once" explained by {
 | This event will contain all OrganizationIds created for the CreateOrganizations command it replies to
@@ -34,7 +34,7 @@ command CreateMembers is {
 | provided. Organization can be specified via Info.organizationMembership.
 }
 
-event MembersCreated is {
+result MembersCreated is {
   membersCreated: MemberId+
 } briefly "A reply from creating multiple members at once" explained by {
 | This event will contain all MemberIds created for the CreateMembers command it replies to.
@@ -48,7 +48,7 @@ command CreateEvents is {
 | provided. Organization can be provided via EventInfo.SponsoringOrg.
 }
 
-event EventCreated is {
+result EventCreated is {
   eventsCreated: EventId+
 } briefly "A reply from creating multiple events at once" explained by {
 | This event will contain all EventIds created for the CreateEvents command it replies to.
@@ -62,7 +62,7 @@ command CreateStores is {
 | provided.
 }
 
-event StoresCreated is {
+result StoresCreated is {
   storesCreated: StoreId+
 } briefly "A reply from creating multiple stores at once" explained by {
 | This event will contain all StoreIds created for the CreateStores command it replies to.
@@ -77,7 +77,7 @@ command CreateProducts is {
 | ProductInfo required an EventId. StoreId is required in ProductInfo, as well as various metadata fields.
 }
 
-event ProductsCreated is {
+result ProductsCreated is {
   productsCreated: SKU+
 } briefly "A reply from creating multiple products at once" explained by {
 | This event will contain all ProductIds created for the CreateProducts command it replies to.
@@ -94,24 +94,45 @@ command CreateOrders is {
 | provided. The Info includes a lineItems field which can be used to reference product SKUs.
 }
 
-event OrdersCreated is {
+result OrdersCreated is {
   orders: OrderCreatedForMember+
 } briefly "A reply from creating multiple orders at once for individual members" explained by {
 | This event will contain all OrderIds created for the CreateOrders command it replies to, paired with their original MemberIds.
 }
 
 type ScenarioInfo is {
-  tenantsToCreate: Integer,
-  organizationsToCreate: Integer
+  numTenants: Integer,
+  numOrgsPerTenant: Integer,
+  numMembersPerOrg: Integer,
+  numEventsPerOrg: Integer,
+  numStores: Integer,
+  numProductsPerStore: Integer,
+  numOrdersPerMember: Integer
 } briefly "Information needed for setting up a scenario" described as {
 | This type is used to specify how many of each type of entity to create for a scenario
 | and how to interlink them
 }
 
-command RunScenario is {
+command StartScenario is {
   scenario: ScenarioInfo
 } briefly "A command to run a scenario" explained by {
 | This command uses the provided `scenario` information to create
 | the various entities that a testing scenario may require and link them together as well.
 }
+
+result ScenarioResults is {
+  tenants: TenantId*,
+  orgsForTenants: mapping from TenantId to OrganizationId*,
+  membersForOrgs: mapping from OrganizationId to MemberId*,
+  eventsForOrgs: mapping from OrganizationId to EventId*,
+  ordersForMembers: mapping from MemberId to OrderId*,
+  stores: StoreId*,
+  productsForStores: mapping from StoreId to SKU*
+}
+
+command EndScenario is {
+  resultsToRelease: ScenarioResults
+}
+
+event ScenarioEnded is { }
 
