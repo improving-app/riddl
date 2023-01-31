@@ -106,7 +106,7 @@ type ScenarioInfo is {
   numMembersPerOrg: Integer,
   numEventsPerOrg: Integer,
   numStores: Integer,
-  numProductsPerStore: Integer,
+  numProductsPerEvent: Integer,
   numOrdersPerMember: Integer
 } briefly "Information needed for setting up a scenario" described as {
 | This type is used to specify how many of each type of entity to create for a scenario
