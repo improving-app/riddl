@@ -87,7 +87,7 @@ type OrderInfoForMember is {member: MemberId, orderInfo: OrderInfo}
 type OrderCreatedForMember is {member: MemberId, orderId: OrderId}
 
 command CreateOrders is {
-  orders: OrderInfoForMember+
+  orders: OrderInfoForMember+,
   store: StoreId
 } briefly "A command to create multiple orders at once for individual members" explained by {
 | This command will create one order for each member with which the Info values are

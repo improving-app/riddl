@@ -20,7 +20,6 @@ context ReservationContext is {
 
 		    state Draft is {
 		        fields {
-		        fields {
 		            reservationInfo: ReservationContext.Info,
 		            attendees: MemberId*,
 		            reservationMeta: ReservationContext.MetaInfo

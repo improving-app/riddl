@@ -114,9 +114,9 @@ context MembersContext  is {
 
         handler MemberHandler is {
             on command RegisterMember {
-                then morph entity Member to state Member.Active
-                and set Member.Active.memberId to @RegisterMember.memberId
-                and set Member.Active.info to @RegisterMember.info
+                then "morph entity Member to state Member.Active"
+                and "set Member.Active.entityId to @RegisterMember.memberId"
+                and "set Member.Active.info to @RegisterMember.info"
             }
             on command RegisterMemberList {
                 //TODO: list operations on the following:
@@ -177,7 +177,9 @@ context MembersContext  is {
 
 
         state Terminated is {
-            fields { }
+            fields {
+                memberId: MemberId // needed for compilation - RIDDL requires fields object and fields object requires at least one field
+            }
             handler TerminatedMemberHandler is {
                 on other { then error "Terminated members cannot process messages" }
             }
