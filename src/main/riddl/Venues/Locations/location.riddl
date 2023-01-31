@@ -20,7 +20,6 @@ context LocationContext is {
 
 		    state Draft is {
 		        fields {
-		            locationId: LocationId,
 		            locationInfo: LocationContext.Info,
 		            locationMeta: LocationContext.MetaInfo
 		        }
@@ -47,7 +46,6 @@ context LocationContext is {
 
 		    state Open is {
 		        fields {
-		            locationId: LocationId,
 		            locationInfo: LocationContext.Info,
 		            locationMeta: LocationContext.MetaInfo
 		        }
@@ -69,7 +67,6 @@ context LocationContext is {
 
 		    state Closed is {
 		        fields {
-		            locationId: LocationId,
 		            locationInfo: LocationContext.Info,
 		            locationMeta: LocationContext.MetaInfo
 		        }

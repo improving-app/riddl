@@ -52,7 +52,6 @@ context OrderContext is {
 
     state Draft is {
       fields {
-        orderId: OrderId,
         info: OrderInfo,
         meta: OrderMetaInfo
       }
@@ -91,7 +90,6 @@ context OrderContext is {
     }
     state Pending is {
       fields {
-        orderId: OrderId,
         info: OrderInfo,
         meta: OrderMetaInfo
       }
@@ -130,7 +128,6 @@ context OrderContext is {
     }
     state InProcess is {
       fields {
-        orderId: OrderId,
         info: OrderInfo,
         meta: OrderMetaInfo
       }
@@ -155,7 +152,6 @@ context OrderContext is {
     }
     state Ready is {
       fields {
-        orderId: OrderId,
         info: OrderInfo,
         meta: OrderMetaInfo
       }
@@ -180,7 +176,6 @@ context OrderContext is {
     }
     state Delivered is {
       fields {
-        orderId: OrderId,
         info: OrderInfo,
         meta: OrderMetaInfo
       }
@@ -194,7 +189,6 @@ context OrderContext is {
     }
     state Cancelled is {
       fields {
-        orderId: OrderId,
         info: OrderInfo,
         meta: OrderMetaInfo
       }

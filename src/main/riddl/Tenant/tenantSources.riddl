@@ -2,7 +2,6 @@ type PublicTenantEvent is one of {
     TenantEstablished,
     ^TenantContext.InfoUpdated,
     ^TenantContext.StatusUpdated,
-    ^TenantContext.OrganizationsAdded,
     ^TenantContext.PrimaryContactUpdated
 }
 
