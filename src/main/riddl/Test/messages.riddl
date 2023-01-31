@@ -83,33 +83,21 @@ event ProductsCreated is {
 | This event will contain all ProductIds created for the CreateProducts command it replies to.
 }
 
+type OrderInfoForMember is {member: MemberId, orderInfo: OrderInfo}
+type OrderCreatedForMember is {member: MemberId, orderId: OrderId}
+
 command CreateOrders is {
-  orderInfos: OrderInfo+,
-  store: StoreId,
-  creatingMember: MemberId
-} briefly "A command to create multiple orders at once" explained by {
-| This command will create one order for each of the Info values
+  orders: OrderInfoForMember+
+  store: StoreId
+} briefly "A command to create multiple orders at once for individual members" explained by {
+| This command will create one order for each member with which the Info values are
 | provided. The Info includes a lineItems field which can be used to reference product SKUs.
 }
 
 event OrdersCreated is {
-  orders: OrderId+
-} briefly "A reply from creating multiple orders at once" explained by {
-| This event will contain all OrderIds created for the CreateOrders command it replies to.
-}
-
-command CreateOrdersForMembers is {
-  orders: mapping from MemberId to OrderInfo+,
-  store: StoreId
-} briefly "A command to create multiple orders at once for individual members" explained by {
-| This command will create one order for each of the Info values
-| provided. The Info includes a lineItems field which can be used to reference product SKUs.
-}
-
-event OrdersCreatedForMembers is {
-  orders: mapping from MemberId to OrderId+
+  orders: OrderCreatedForMember+
 } briefly "A reply from creating multiple orders at once for individual members" explained by {
-| This event will contain all OrderIds created for the CreateOrders command it replies to.
+| This event will contain all OrderIds created for the CreateOrders command it replies to, paired with their original MemberIds.
 }
 
 type ScenarioInfo is {
