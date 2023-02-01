@@ -1,5 +1,5 @@
 projection VenuesView is {
-    fields {
+    record VenuesFields {
         venueId: VenueId,
         info: VenueContext.Info,
         minCapacity: Integer,

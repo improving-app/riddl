@@ -6,7 +6,7 @@ result TenantByName is {
 result NoTenantWithName {}
 
 projection TenantViews is {
-    fields {
+    record TenantFields {
         tenant: TenantId,
         tenantName: String,
         tenantInfo: TenantContext.Info
