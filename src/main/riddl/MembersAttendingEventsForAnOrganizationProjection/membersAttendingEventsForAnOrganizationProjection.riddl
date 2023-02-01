@@ -4,7 +4,7 @@ result MembersAtEventsOnDay is {memberEvents: MemberEvents+}
 
 context MembersAttendingEventsForAnOrganizationProjection is  {
   projection MembersAttendingEventsForAnOrganizationView is {
-    record fields {
+    record MembersAttendingEventsForAnOrganizationFields {
         event: EventId,     //ticket-event & org-event correlation tables, event table
         eventName: String,  //event table
         eventDate: Date,     //event table

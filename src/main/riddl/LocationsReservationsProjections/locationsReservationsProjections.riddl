@@ -10,7 +10,7 @@ result EasyScheduledEvent is {locations: LocationId+}
 
 context LocationsReservationsProjections is  {
   projection LocationsReservationsView is {
-     record fields {
+     record LocationsReservationsFields {
         venueId: VenueId,
         orgId: OrganizationId,
         locationId: LocationId,
