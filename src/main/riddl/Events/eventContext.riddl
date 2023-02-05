@@ -18,7 +18,6 @@ context EventContext is {
 
         state Scheduled is {
             fields {
-                eventId: EventId,
                 eventInfo: EventInfo,
                 eventMetaInfo: EventMetaInfo,
                 reservation: ReservationId?
@@ -65,7 +64,6 @@ context EventContext is {
         }
         state InProgress is {
             fields{
-                eventId: EventId,
                 eventInfo: EventInfo,
                 eventMetaInfo: EventMetaInfo,
                 reservation: ReservationId
@@ -105,7 +103,6 @@ context EventContext is {
         }
         state Delayed is {
             fields {
-                eventId: EventId,
                 eventInfo: EventInfo,
                 reason: String,
                 eventMetaInfo: EventMetaInfo,
@@ -151,7 +148,6 @@ context EventContext is {
         }
         state Past is {
             fields {
-                eventId: EventId,
                 eventInfo: EventInfo,
                 eventMetaInfo: EventMetaInfo,
                 reservation: ReservationId?
@@ -163,7 +159,6 @@ context EventContext is {
         }
         state Cancelled is {
             fields {
-                eventId: EventId,
                 eventInfo: EventInfo,
                 eventMetaInfo: EventMetaInfo,
                 reservation: ReservationId?

@@ -4,16 +4,12 @@ result MembersAtEventsOnDay is {memberEvents: MemberEvents+}
 
 context MembersAttendingEventsForAnOrganizationProjection is  {
   projection MembersAttendingEventsForAnOrganizationView is {
-    record EVENT {
+    record MembersAttendingEventsForAnOrganizationFields {
         event: EventId,     //ticket-event & org-event correlation tables, event table
         eventName: String,  //event table
         eventDate: Date,     //event table
-        eventOrg: OrganizationId //org-event correlation table
-    }
-    record TICKET {
-        ticketSku: SKU // ticket-event & ticket-member correlation tables
-    }
-    record MEMBER {
+        eventOrg: OrganizationId, //org-event correlation table
+        ticketSku: SKU, // ticket-event & ticket-member correlation tables
         attendingMember: MemberId, //ticket-member correlation table & member table
         attendingMemberName: String //member table
     }

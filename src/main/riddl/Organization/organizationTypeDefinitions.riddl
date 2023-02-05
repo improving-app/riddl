@@ -17,7 +17,8 @@ type Info is {
     address: Address? briefly "Required for BaseOrg. Optional for all other organizations.",
     isPrivate: Boolean briefly "defaults to true",
     url: URL?,
-    logo: URL?
+    logo: URL?,
+    tenant: TenantId
     //color scheme
     //calendar: Calendar
 } briefly "Essential information about an organization that is expected to evolve over time."

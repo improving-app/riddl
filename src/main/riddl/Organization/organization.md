@@ -6,7 +6,7 @@ Organizations can be in one of the following states:
 * Draft: an organization that is in process of being defined.
 * Active: an organization that is fully defined and currently in use.
 * Inactive: an organization that may be fully defined but is not in use. This state is typically self induced, for example, the school year ends.
-* Suspended: an organzation that is non-functioning because of violation of terms, non-payment, or similar reason. If these concerns are remedied the organizaton may be moved back to active status by a BaseOrganization Admin.
+* Suspended: an organization that is non-functioning because of violation of terms, non-payment, or similar reason. If these concerns are remedied the organizaton may be moved back to active status by a BaseOrganization Admin.
 * Terminated: an organization that is non-functioning and will not or cannot be brought back to active status. Typically, only the organization ID and Name are retained to maintain internal consistency.
 
 Organizations can be public or private.

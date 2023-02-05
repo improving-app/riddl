@@ -22,7 +22,6 @@ context OrganizationContext is {
 
         state Draft is {
             fields {
-                orgId: OrganizationId,
                 info: OrganizationContext.Info,
                 parent: OrganizationId?,
                 members: MemberId+,
@@ -182,7 +181,6 @@ context OrganizationContext is {
 
         state Active is {
             fields {
-                oid: OrganizationId,
                 info: OrganizationContext.Info,
                 parent: OrganizationId?,
                 members: MemberId+,
@@ -337,7 +335,6 @@ context OrganizationContext is {
 
         state Suspended is {
             fields {
-                oid: OrganizationId,
                 info: OrganizationContext.Info,
                 parent: OrganizationId?,
                 members: MemberId+,
@@ -361,7 +358,6 @@ context OrganizationContext is {
 
         state Terminated is {
             fields {
-                oid: OrganizationId,
                 name: String
             }
             handler TerminatedOrganization is {
