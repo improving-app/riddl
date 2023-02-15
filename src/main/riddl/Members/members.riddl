@@ -12,15 +12,15 @@ context MembersContext  is {
       | The values of this enumeration define the ways in which a member may
       | be notified of changes.
     }
-    type Status is any of { Active, Suspended }
+    type Status is any of { Draft, Active, Inactive, Suspended, Terminated }
     type Info is {
         contact: Contact,
         handle: String briefly "username. Must be unique.",
         avatar: URL briefly "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
         firstName: String briefly "Real first name of the member",
         lastName: String briefly "Real last name of the member",
-        mobileNumber: MobileNumber? briefly "Optional mobile phone number",
-        emailAddress: EmailAddress? briefly "Optional email address",
+        //mobileNumber: MobileNumber? briefly "Optional mobile phone number",
+        //emailAddress: EmailAddress? briefly "Optional email address",
         notificationPreference: NotificationPreference?
           briefly "if this is set it is assumed that the user has opted in.",
         organizationMembership: OrganizationId*
@@ -39,7 +39,7 @@ context MembersContext  is {
         firstName: String? briefly "Real first name of the member",
         lastName: String?,
         mobileNumber: MobileNumber?,
-        emailAddress: EmailAddress?,
+        //emailAddress: EmailAddress?,
         notificationPreference: NotificationPreference? briefly "if this is set it is assumed that the user has opted in.",
         organizationMembership: OrganizationId* briefly "A list of organizations this member belongs to.",
         tenant: TenantId* briefly "the tenant(s) this Member would belong to"
@@ -127,6 +127,60 @@ context MembersContext  is {
             }
         }
 
+        state Draft is {
+          fields {
+            info: MembersContext.Info,
+            meta: MembersContext.MetaInfo
+          }
+
+          handler DraftMemberHandler {
+            on command RegisterMember {then error "Member has already been registered."}
+            on command UpdateMemberStatus {
+              example DraftMemberToActiveMember is {
+                given "entity is transitioning from Draft to Active and required fields are non-empty"
+                then "set entity Status to Status field from message"
+                and "set entity lastModifiedBy to actingMember from message"
+                and "set entity lastModifiedOn to today()"
+                and "yield event MemberStatusUpdated"
+              }
+              example DraftMemberToInactiveMember is {
+                given "entity is transitioning from Draft to Inactive and required fields are non-empty"
+                then "set entity Status to Status field from message"
+                and "set entity lastModifiedBy to actingMember from message"
+                and "set entity lastModifiedOn to today()"
+                and "yield event MemberStatusUpdated"
+              }
+              example DraftMemberToSuspendedMember is {
+                given "entity is transitioning from Draft to Suspended and required fields are non-empty"
+                then "set entity Status to Status field from message"
+                and "set entity lastModifiedBy to actingMember from message"
+                and "set entity lastModifiedOn to today()"
+                and "yield event MemberStatusUpdated"
+              }
+              example DraftMemberToTerminatedMember is {
+                given "entity is transitioning from Draft to Terminated and required fields are non-empty"
+                then "set entity Status to Status field from message"
+                and "set entity lastModifiedBy to actingMember from message"
+                and "set entity lastModifiedOn to today()"
+                and "yield event MemberStatusUpdated"
+              }
+              example DraftMemberIllegalStateTransition is {
+                given "entity is transitioning from Draft to Draft"
+                then error "Draft members may not transition to desired state."
+              }
+            }
+            on command UpdateMemberInfo {
+              then "set entity Info to non-Empty fields in UpdateInfo from message"
+              and "set entity lastModifiedBy to actingMember from message"
+              and "set entity lastModifiedOn to today()"
+              and "yield event MemberInfoUpdated"
+            }
+            on query GetMemberData {
+              then "yield Info for entity"
+            }
+          }
+        }
+
         state Active is {
             fields {
                 info: MembersContext.Info,
@@ -157,6 +211,7 @@ context MembersContext  is {
 */
 
             handler ActiveMemberHandler {
+                on command RegisterMember {then error "Member has already been registered."}
                 on command UpdateMemberInfo {
                     then "set entity Info to non-Empty fields in UpdateInfo from message"
                     and "set entity lastModifiedBy to actingMember from message"
@@ -164,15 +219,102 @@ context MembersContext  is {
                     and "yield event MemberInfoUpdated"
                 }
                 on command UpdateMemberStatus {
+                  example ActiveMemberToInactiveMember is {
+                    given "entity is transitioning from Active to Inactive"
                     then "set entity Status to Status field from message"
                     and "set entity lastModifiedBy to actingMember from message"
                     and "set entity lastModifiedOn to today()"
                     and "yield event MemberStatusUpdated"
+                  }
+                  example ActiveMemberToSuspendedMember is {
+                    given "entity is transitioning from Active to Suspended"
+                    then "set entity Status to Status field from message"
+                    and "set entity lastModifiedBy to actingMember from message"
+                    and "set entity lastModifiedOn to today()"
+                    and "yield event MemberStatusUpdated"
+                  }
+                  example ActiveMemberToTerminatedMember is {
+                    given "entity is transitioning from Active to Terminated"
+                    then "set entity Status to Status field from message"
+                    and "set entity lastModifiedBy to actingMember from message"
+                    and "set entity lastModifiedOn to today()"
+                    and "yield event MemberStatusUpdated"
+                  }
+                  example ActiveMemberIllegalStateTransition is {
+                    given "entity is transitioning from Active to Draft or Active"
+                    then error "Active members may not transition to desired state."
+                  }
                 }
                 on query GetMemberData {
                     then "yield Info for entity"
                 }
             }
+        }
+
+        state Inactive is {
+          on command RegisterMember {then error "Member has already been registered."}
+          on command UpdateMemberStatus {
+            example InactiveMemberToActiveMember is {
+              given "entity is transitioning from Inactive to Active and required fields are non-empty"
+              then "set entity Status to Status field from message"
+              and "set entity lastModifiedBy to actingMember from message"
+              and "set entity lastModifiedOn to today()"
+              and "yield event MemberStatusUpdated"
+            }
+            example InactiveMemberToTerminatedMember is {
+              given "entity is transitioning from Inactive to Terminated and required fields are non-empty"
+              then "set entity Status to Status field from message"
+              and "set entity lastModifiedBy to actingMember from message"
+              and "set entity lastModifiedOn to today()"
+              and "yield event MemberStatusUpdated"
+            }
+            example InactiveMemberIllegalStateTransition is {
+              given "entity is transitioning from Draft to Draft, Inactive, or Suspended"
+              then error "Draft members may not transition to desired state."
+            }
+          }
+          on command UpdateMemberInfo {
+            then "set entity Info to non-Empty fields in UpdateInfo from message"
+            and "set entity lastModifiedBy to actingMember from message"
+            and "set entity lastModifiedOn to today()"
+            and "yield event MemberInfoUpdated"
+          }
+          on query GetMemberData {
+            then "yield Info for entity"
+          }
+        }
+
+        state Suspended is {
+          on command RegisterMember {then error "Member has already been registered."}
+          on command UpdateMemberStatus {
+            example SuspendedMemberToActiveMember is {
+              given "entity is transitioning from Suspended to Active and required fields are non-empty"
+              then "set entity Status to Status field from message"
+              and "set entity lastModifiedBy to actingMember from message"
+              and "set entity lastModifiedOn to today()"
+              and "yield event MemberStatusUpdated"
+            }
+            example SuspendedMemberToTerminatedMember is {
+              given "entity is transitioning from Suspended to Terminated and required fields are non-empty"
+              then "set entity Status to Status field from message"
+              and "set entity lastModifiedBy to actingMember from message"
+              and "set entity lastModifiedOn to today()"
+              and "yield event MemberStatusUpdated"
+            }
+            example SuspendedMemberIllegalStateTransition is {
+              given "entity is transitioning from Suspended to Draft, Inactive, or Suspended"
+              then error "Draft members may not transition to desired state."
+            }
+          }
+          on command UpdateMemberInfo {
+            then "set entity Info to non-Empty fields in UpdateInfo from message"
+            and "set entity lastModifiedBy to actingMember from message"
+            and "set entity lastModifiedOn to today()"
+            and "yield event MemberInfoUpdated"
+          }
+          on query GetMemberData {
+            then "yield Info for entity"
+          }
         }
 
 
