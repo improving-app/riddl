@@ -4,16 +4,16 @@ context OrderContext is {
   type LineItem is {
     product: SKU,
     quantity: Number,
-    unitPrice: Number,
     lineTotal: Number
   }
 
   type OrderInfo is {
+    order_id: OrderId,
     lineItems: LineItem+,
-    specialInstructions: String,
-    orderTotal: Number
+    specialInstructions: String
   }
   type OrderMetaInfo is {
+    order_id: OrderId,
     memberId: MemberId,
     storeId: StoreId,
     createdOn: Date,
@@ -23,8 +23,7 @@ context OrderContext is {
   }
   type OrderInfoUpdate is {
     lineItems: LineItem*,
-    specialInstructions: String?,
-    orderTotal: Number
+    specialInstructions: String?
   }
   command CreateOrder {orderId: OrderId, storeId: StoreId, info: OrderInfo, creatingMember: MemberId}
   event OrderCreated {orderId: OrderId, info: OrderInfo, meta: OrderMetaInfo}
@@ -35,7 +34,7 @@ context OrderContext is {
   command CancelOrder {orderId: OrderId, cancellingMember: MemberId}
   event OrderCancelled {orderId: OrderId, info: OrderInfo, meta: OrderMetaInfo}
   query GetOrderInfo {orderId: OrderId, requstingMembert: MemberId}
-  result OrderInfoResult {orderId: OrderId, info: OrderMetaInfo}
+  result OrderInfoResult {orderId: OrderId, info: OrderInfo}
 
   entity Order is {
     options (event-sourced)
@@ -47,7 +46,7 @@ context OrderContext is {
         and "adjust meta fields to reflect the change set"
         and "yield OrderCreated event"
       }
-      on other {then error "Only CreateOrder is allowed in the default state"}
+      on other {then error "Only CreateOrder is allowed in the default state."}
     }
 
     state Draft is {
@@ -85,7 +84,7 @@ context OrderContext is {
           and "adjust meta fields to reflect change set"
           and "yield OrderCancelled event"
         }
-        on query GetOrderInfo {then "yeild OrderInfoResult message"}
+        on query GetOrderInfo {then "yield OrderInfoResult message"}
       }
     }
     state Pending is {
@@ -109,7 +108,7 @@ context OrderContext is {
             and "yield OrderStatusUpdated"
           }
           example PendingOrderIllegalStateTransition is {
-            given "order is transitioning from Pending to Draft, Ready, or Delivered"
+            given "order is transitioning from Pending to Pending, Draft, Ready, or Delivered"
             then error "Draft orders may not transition to desired state."
           }
         }
@@ -123,7 +122,7 @@ context OrderContext is {
           and "adjust meta fields to reflect change set"
           and "yield OrderCancelled event"
         }
-        on query GetOrderInfo {then "yeild OrderInfoResult message"}
+        on query GetOrderInfo {then "yield OrderInfoResult message"}
       }
     }
     state InProcess is {
@@ -141,13 +140,13 @@ context OrderContext is {
             and "yield OrderStatusUpdated event"
           }
           example InProcessOrderIllegalStateTransition is {
-            given "order is transitioning from InProcess to Draft, Pending, Cancelled, or Delivered"
+            given "order is transitioning from InProcess to InProcess, Draft, Pending, Cancelled, or Delivered"
             then error "Draft orders may not transition to desired state."
           }
         }
-        on command UpdateOrderInfo {then error "InProcess Orders may not be modified"}
+        on command UpdateOrderInfo {then error "InProcess Orders may not be modified."}
         on command CancelOrder {then error "InProcess Orders may not be cancelled."}
-        on query GetOrderInfo {then "yeild OrderInfoResult message"}
+        on query GetOrderInfo {then "yield OrderInfoResult message"}
       }
     }
     state Ready is {
@@ -165,13 +164,13 @@ context OrderContext is {
             and "yield OrderStatusUpdated event"
           }
           example ReadyOrderIllegalStateTransition is {
-            given "order is transitioning from Ready to Draft, Pending, Cancelled, InProcess,  or Delivered"
+            given "order is transitioning from Ready to Draft, Pending, Cancelled, InProcess, or Ready"
             then error "Draft orders may not transition to desired state."
           }
         }
-        on command UpdateOrderInfo {then error "Ready Orders may not be modified"}
+        on command UpdateOrderInfo {then error "Ready Orders may not be modified."}
         on command CancelOrder {then error "Ready Orders may not be cancelled."}
-        on query GetOrderInfo {then "yeild OrderInfoResult message"}
+        on query GetOrderInfo {then "yield OrderInfoResult message"}
       }
     }
     state Delivered is {
@@ -181,10 +180,15 @@ context OrderContext is {
       }
       handler DeliveredOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
-        on command UpdateOrderStatus {???}
-        on command UpdateOrderInfo {then error "Delivered Orders may not be modified"}
+        on command UpdateOrderStatus {
+          example ReadyOrderIllegalStateTransition is {
+            given "order is transitioning from Delivered to Draft, Pending, Cancelled, InProcess, or Ready, Delivered"
+            then error "Delivered orders may not transition to desired state."
+          }
+        }
+        on command UpdateOrderInfo {then error "Delivered Orders may not be modified."}
         on command CancelOrder {then error "Delivered Orders may not be cancelled."}
-        on query GetOrderInfo {then "yeild OrderInfoResult message"}
+        on query GetOrderInfo {then "yield OrderInfoResult message"}
       }
     }
     state Cancelled is {
@@ -194,10 +198,15 @@ context OrderContext is {
       }
       handler CancelledOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
-        on command UpdateOrderStatus {???}
-        on command UpdateOrderInfo {???}
-        on command CancelOrder {???}
-        on query GetOrderInfo {???}
+        on command UpdateOrderStatus {
+          example ReadyOrderIllegalStateTransition is {
+            given "order is transitioning from Cancelled to Draft, Pending, Cancelled, InProcess, or Ready, Delivered"
+            then error "Cancelled orders may not transition to desired state."
+          }
+        }
+        on command UpdateOrderInfo {then error "Cancelled Orders may not be modified."}
+        on command CancelOrder {then error "Delivered Orders may not be cancelled."}
+        on query GetOrderInfo {then "yield OrderInfoResult message"}
       }
     }
   }
