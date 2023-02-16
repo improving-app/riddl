@@ -161,6 +161,9 @@ context MembersContext  is {
               and "set entity lastModifiedOn to today()"
               and "yield event MemberInfoUpdated"
             }
+            // For GetMemberData, eventually probably only admins and self should be able to make this call. Also
+            // potentially allow other roles to get some limited information (this will require adding another
+            // aggregate).
             on query GetMemberData {
               then "yield Info for entity"
             }
