@@ -1,6 +1,6 @@
 context ProductContext is {
   type ProductDetails is any of {ReservedTicket, RestrictedTicket, OpenTicket}
-  type ProductStatus is any of {Active, InActive, Deleted}
+  type ProductStatus is any of {Draft, Active, InActive, Deleted}
   type SKU is Id(Product)
 
   type ReservedTicket is {
@@ -66,7 +66,7 @@ context ProductContext is {
       }
       on other {then error "Only the CreateProduct command is allowed in the default state."}
     }
-    state ActiveProduct is {
+    state Draft is {
       fields {
         info: ProductInfo,
         meta: ProductMetaInfo
@@ -99,7 +99,40 @@ context ProductContext is {
         }
       }
     }
-    state InactiveProduct is {
+    state Active is {
+      fields {
+        info: ProductInfo,
+        meta: ProductMetaInfo
+      }
+      handler ActiveProductHandler is {
+        on command CreateProduct {
+          then error "Product already created."
+        }
+        on command UpdateProductInfo{
+          then "Copy fields from UpdateProductInfo into Active product fields"
+          and "adjust meta fields to reflect the change set"
+          and "yield ProductInfoUpated event"
+        }
+        on command DeleteProduct{
+          then "morph Product state to Deleted"
+          and "copy Active Product name and sku to Deleted Product name and sku"
+          and "adjust meta fields to reflect the change set"
+          and "yield ProductDeleted event"
+        }
+        on command ActivateProduct{
+          then error "Product is already active"
+        }
+        on command InactivateProduct{
+          then "morph product state to Inactive"
+          and "adjust meta fields to reflect the change set"
+          and "yield ProductInactivated event"
+        }
+        on query GetProductInfo{
+          then "yield ProductInfoResult message"
+        }
+      }
+    }
+    state Inactive is {
       fields {
         info: ProductInfo,
         meta: ProductMetaInfo
@@ -132,7 +165,7 @@ context ProductContext is {
         }
       }
     }
-    state DeletedProduct is {
+    state Deleted is {
       fields {
         sku: SKU,
         name: String
