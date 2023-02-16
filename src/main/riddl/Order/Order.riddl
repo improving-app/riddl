@@ -34,7 +34,7 @@ context OrderContext is {
   command CancelOrder {orderId: OrderId, cancellingMember: MemberId}
   event OrderCancelled {orderId: OrderId, info: OrderInfo, meta: OrderMetaInfo}
   query GetOrderInfo {orderId: OrderId, requstingMembert: MemberId}
-  result OrderInfoResult {orderId: OrderId, info: OrderInfo}
+  result OrderInfoResult {orderId: OrderId, info: OrderInfo, meta: OrderMetaInfo}
 
   entity Order is {
     options (event-sourced)
