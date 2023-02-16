@@ -206,7 +206,7 @@ context OrderContext is {
         }
         on command UpdateOrderInfo {then error "Cancelled Orders may not be modified."}
         on command CancelOrder {then error "Delivered Orders may not be cancelled."}
-        on query GetOrderInfo {then "yield OrderInfoResult message"}
+        on query GetOrderInfo {then "yield result OrderInfoResult"}
       }
     }
   }
