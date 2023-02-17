@@ -14,22 +14,27 @@ context MembersAttendingEventsForAnOrganizationProjection is  {
         attendingMemberName: String //member table
     }
     handler MembersAttendingEventsForAnOrganizationEventsViewHandler is {
+        // Conflict: Should status be set here as well? Most recent change to member has default to Draft.
+        // IA-113 has a slightly older version that doesn't have Draft. Also I think default is set if none provided.
         on event MemberRegistered {
-            then "create rows in member table with attendingMember set to MemberRegistered.id"
+            then "create rows in members table with attendingMember set to MemberRegistered.id"
             and "set previous row's attendingMemberName to concatenated MemberRegistered.info.firstName and MemberRegistered.info.lastName"
             and "set previous row's status to MemberRegistered.metaInfo.memberStatus"
         }
         on event MemberStatusUpdated {
-            then "update row in member table with id = MemberStatusUpdated.memberId and update the status to MemberStatusUpdated.metaInfo.memberStatus"
+            then "update row in member table with status set to MemberStatusUpdated.metaInfo.memberStatus"
         }
+        // Conflict: Should all these attributes be set or is only eventId necessary here?
         on event EventScheduled {
             then "create row in event table with event set to EventScheduled.eventId, eventName set to EventScheduled.info.eventName, eventOrg to EventScheduled.info.sponsoringOrg, eventDate to day of EventScheduled.info.expectedStart, status to EventScheduled.metaInfo.status"
             and "create row in org-event table with event set to EventScheduled.eventId, eventOrg set to set to EventScheduled.info.sponsoringOrg"
         }
+        // Conflict: Should the event date be set here or should only the state be updated?
         on event EventRescheduled {
             then "update row in event table with eventDate with day of EventRescheduled.startTime in row in event table with event corresponding to EventRescheduled.eventId"
             and "update row in event table with status with EventRescheduled.metaInfo.status"
         }
+        // Conflict: Should all fields be copied and use the "now" time or should we just update the start (coming from eventStarted.info.expectedStart) and status?
         on event EventStarted {
             then "update row in event table with eventDate with day of the current day"
             and "update row in event table with status with EventStarted.metaInfo.status"
@@ -38,24 +43,29 @@ context MembersAttendingEventsForAnOrganizationProjection is  {
             then "remove row in row in event table with event corresponding to EventCancelled.eventId"
             and "remove row in org-event table with event set to EventScheduled.eventId, eventOrg set to set to EventScheduled.info.sponsoringOrg"
         }
-        on EventDelayed {
+        // Conflict: Should this only update the status or should this also update other attributes as well? Frances PR has comments adding `newDate` into here as well.
+        on event EventDelayed {
             then "update row in event table with eventDate with the new date"
             and "update row in event table with status with EventDelayed.metaInfo.status"
         }
-        on EventEnded {
+        // Conflict: Should this handler delete the row or should it only change the status?
+        on event EventEnded {
             then "update row in event table with status with EventDelayed.metaInfo.status"
-            //TODO: should we delete on ending?
         }
+        // Conflict: A comment was brought up saying that status is not in Product's meta info and this could be a problem.
+        // I don't think this is an issue since these tables are just for reads and querying rather than any real business logic.
+        // Anyway, status is also updated here on the conflicting branch. I think this could be left out since it'll default to
+        // Draft (once the most recent changes of product comes into IA-113).
         on event ProductCreated {
             then "if product is ticket, create row in ticket-event table with sku as ticketSku & productDetails.eventId as event & status as ACTIVE"
         }
         on event ProductActivated {
             then "update row in ticket-event table with status to active"
         }
-        on event ProductInactivated" {
+        on event ProductInactivated {
             then "update row in ticket-event table with status to inactive"
         }
-        on event ProductDeleted" {
+        on event ProductDeleted {
             then "delete row in ticket-event"
         }
         on event OrderCreated {

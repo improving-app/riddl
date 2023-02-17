@@ -1,3 +1,5 @@
+//TODO: This will be modified once product entity pr is merged in
+
 command RegisterMember is {
   memberId: MemberId briefly "Unique identifier for the new member",
   info: MembersContext.Info briefly "Info needed for registration",

@@ -1,3 +1,5 @@
+//TODO: This will be modified once product entity pr is merged in
+
 //type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
 
     type NotificationPreference is any of { Email, SMS, Application } described
