@@ -1,26 +1,44 @@
-type RegisterMemberList is command {memberList: MemberMap+, registeringMember: MemberId} briefly "RegisterMemberList creates multiple members with a single call. The limitation is you can only define a single MemberType in each call, and all new Members must be assigned to an Organization (typically a BaseOrg)."
-type MemberListRegistered is event {memberData:MemberData*}
+command RegisterMember is {
+  memberId: MemberId briefly "Unique identifier for the new member",
+  info: MembersContext.Info briefly "Info needed for registration",
+  registeringMember: MemberId briefly "Member that registered new member"
+} briefly "Create a single new member"
+  described as {
+    |RegisterMember creates a single new member. As this could be a
+    |self-service request the OrganizationType is optional.
+}
 
-type RegisterMember is command {memberToAdd: MembersMap, registeringMember: MemberId?} briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional. Also registeringMember is optional - if you are registering yourself then you are the registering member for yourself - you just don't exist yet"
-type MemberRegistered is event {memberId: MemberId, memberInfo: MemberInfo, memberMeta: MemberMetaInfo} briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
+event MemberRegistered is {
+  memberId: MemberId briefly "Unique identifier for the registered member",
+  info: MembersContext.Info briefly "Info describing the member",
+  meta: MembersContext.MetaInfo
+} briefly "Event issued after RegisterMember or RegisterMemberList"
+described as {
+  |This event occurs whenever a member is registered and provides the
+  |meta information for the registered member.  In the case of
+  |RegisterMemberList one event per member in the list is published.
+}
 
-type UpdateMemberInfo is command {memberMap:MemberMap, actingMember: MemberId} briefly "All member info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full MemberInfo object back."
-type MemberInfoUpdated is event {memberId: MemberId, memberInfo: MemberInfo, memberMeta: MemberMetaInfo}
+command RegisterMemberList is {
+  memberList: MemberMap,
+  registeringMember: MemberId
+} briefly "Create a bunch of members"
+described as {
+  |RegisterMemberList creates multiple members with a single call. The
+  |limitation is you can only define a single MemberType in each call, and
+  |all new Members must be assigned to the same Organization (typically a
+  |BaseOrg).
+}
 
-type ActivateMember is command {memberId: MemberId, actingMember: MemberId}
-type MemberActivated is event {memberId: MemberId, memberMeta: MemberMetaInfo}
-
-type InactivateMember is command {memberId: MemberId, actingMember: MemberId}
-type MemberInactivated is event {memberId: MemberId, memberMeta: MemberMetaInfo}
-
-type SuspendMember is command {memberId: MemberId, actingMember: MemberId}
-type MemberSuspended is event {memberId: MemberId, memberMeta: MemberMetaInfo}
-
-type TerminateMember is command {memberId: MemberId, actingMember: MemberId}
-type MemberTerminated is event {memberId: MemberId, memberMeta: MemberMetaInfo}
-
-type GetMemberInfo is query {memberId: MemberId}
-type MemberData is result {memberId: MemberId, memberInfo: MemberInfo, memberMeta: MemberMetaInfo}
-
-type GetMemberForHandle is query {handle:string}
-type MemberForHandle is result {memberId: MemberId?}
+event MemberListRegistered is {
+  memberList: MemberMap,
+  registeringMember: MemberId
+} briefly ""
+command UpdateMemberInfo is {memberId: MemberId, info: MembersContext.UpdateInfo, actingMember: MemberId} briefly "This command will overwrite the values of attributes provided in UpdateInfo. If an attribute is not referenced it will be left as is. If an attribute is referenced with no value, an empty value will replace what is currently stored. If an attribute is referenced with a value, the new value will overwrite what is stored."
+event MemberInfoUpdated is {memberId: MemberId, info: MembersContext.Info, meta: MembersContext.MetaInfo}
+command UpdateMemberStatus is {memberId: MemberId, actingMember: MemberId, newStatus: MembersContext.Status}
+event MemberStatusUpdated is {memberId: MemberId, meta: MembersContext.MetaInfo}
+query GetMemberData is {memberId: MemberId}
+result MemberData is {memberId: MemberId, info: MembersContext.Info, meta: MembersContext.MetaInfo}
+query GetMembersByMetaInfo is {queryData: MembersContext.MetaInfoQuery}
+result MemberListResult is {members: MemberMap}
