@@ -46,6 +46,7 @@ context MemberGateway is {
     type GetMemberForHandle is query {handle:string}
     type MemberForHandle is result {memberId: MemberId?}
 
+
     // Feature "Register new member" is {
     //   Scenario "Handle and Member Id do not already exist" is {
     //     When the member registers
