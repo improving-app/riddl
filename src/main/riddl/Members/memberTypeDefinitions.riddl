@@ -1,0 +1,58 @@
+//type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
+
+    type NotificationPreference is any of { Email, SMS, Application } described
+    as {
+      | The values of this enumeration define the ways in which a member may
+      | be notified of changes.
+    }
+    type Status is any of { Active, Suspended }
+    type Info is {
+        contact: Contact,
+        handle: String briefly "username. Must be unique.",
+        avatar: URL briefly "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
+        firstName: String briefly "Real first name of the member",
+        lastName: String briefly "Real last name of the member",
+        mobileNumber: MobileNumber? briefly "Optional mobile phone number",
+        emailAddress: EmailAddress? briefly "Optional email address",
+        notificationPreference: NotificationPreference?
+          briefly "if this is set it is assumed that the user has opted in.",
+        organizationMembership: OrganizationId*
+          briefly "A possibly empty list of organizations this member belongs to.",
+        tenant: TenantId
+        //memberType: MemberType+
+    } described as {
+      |This type provides the basic information about members that is
+      |retained by the Member entity. The fields of this type form the profile
+      |of the Member with demographics, contact info, and various options
+      |like notifications and group membership the Member can opt in to.
+    }
+    type UpdateInfo is {
+        handle: String? briefly "username. Must be unique.",
+        avatar: URL? briefly "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
+        firstName: String? briefly "Real first name of the member",
+        lastName: String?,
+        mobileNumber: MobileNumber?,
+        emailAddress: EmailAddress?,
+        notificationPreference: NotificationPreference? briefly "if this is set it is assumed that the user has opted in.",
+        organizationMembership: OrganizationId* briefly "A list of organizations this member belongs to.",
+        tenant: TenantId* briefly "the tenant(s) this Member would belong to"
+        //memberType: MemberType+
+    } described as {
+      |This aggregate type specifies a way to update any or all of the
+      |MemberInfo fields. If a field value is missing (they are all optional)
+      |then the current value is not updated.
+    }
+    type MetaInfo is {
+        createdOn: TimeStamp,
+        createdBy: MemberId,
+        lastModifiedOn: TimeStamp,
+        lastModifiedBy: MemberId,
+        memberStatus: MembersContext.Status
+    }
+    type MetaInfoQuery is {
+        createdOn: TimeStamp?,
+        createdBy: MemberId?,
+        lastModifiedOn: TimeStamp?,
+        lastModifiedBy: MemberId?,
+        memberStatus: MembersContext.Status?
+    }
