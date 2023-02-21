@@ -20,27 +20,56 @@ context OrganizationsForMembersAttendingEventsProjections is  {
             then "create row in org table with orgId set to OrganizationEstablished.info.orgId"
             and "set previous row's attendingMemberOrgName to OrganizationEstablished.info.name"
         }
+        on event OrganizationStatusUpdated {
+            then "set row in org table with the new status"
+        }
         on event MemberRegistered {
             then "create rows in member table with attendingMember set to MemberRegistered.id"
             and "set previous row's attendingMemberName to concatenated MemberRegistered.info.firstName and MemberRegistered.info.lastName"
+            and "create row in org-member table with attendingMemberOrgId set to MemberRegistered.info.organizationMembership.head"
+            and "set attendingMemberId to MemberRegistered.memberId"
         }
-        on event MembersAddedToOrganization {
-            then "create rows in org-member table with attendingMemberOrg set to MembersAddedToOrganization.orgId and attendingMembers set to MembersAddedToOrganization.newMembers"
+        on event MemberStatusUpdated {
+          then "update row in member table with the new status"
         }
-        on event MembersRemovedFromOrganization {
-            then "remove rows in org-member table with attendingMemberOrg set to MembersRemovedFromOrganization.orgId and attendingMembers set to MembersRemovedFromOrganization.newMembers"
-        }
+        //on event MembersAddedToOrganization {
+        //    then "create rows in org-member table with attendingMemberOrg set to MembersAddedToOrganization.orgId and attendingMembers set to MembersAddedToOrganization.newMembers"
+        //}
+        //on event MembersRemovedFromOrganization {
+        //    then "remove rows in org-member table with attendingMemberOrg set to MembersRemovedFromOrganization.orgId and attendingMembers set to MembersRemovedFromOrganization.newMembers"
+        //}
         on event EventScheduled {
-            then "create row in event table with event set to to EventScheduled.eventId"
+            then "create row in event table with event id set to to EventScheduled.eventId"
+            and "set event_name to EventScheduled.info.eventName"
         }
-        on event EventCancelled {
-            then "remove row in row in event table with event corresponding to EventCancelled.eventId"
-        }
+        //on event EventCancelled {
+        //    then "remove row in event table with event corresponding to EventCancelled.eventId"
+        //}
         on event ProductCreated {
             then "if product is ticket, create row in ticket-event table with sku as ticketSku & productDetails.eventId as event"
         }
+        on event ProductActivated {
+            then "update row in ticket-event table with the Active status"
+        }
+        on event ProductInactivated {
+            then "update row in ticket-event table with the Inactive status"
+        }
+        on event ProductDeleted {
+            then "remove row in ticket-event table"
+        }
         on event OrderCreated {
             then "for each OrderCreated.orderInfo.lineItem that has a SKU in event-ticket table, create row in ticket-member table with OrderCreated.meta.memberId as attendingMember & sku as ticketSku"
+        }
+        on event OrderStatusUpdated {
+            then "update row in orders table with the new status"
+        }
+        on event LineItemOrdered {
+            then "create row in ticket-member table with ticketSku set to LineItemOrdered.productId"
+            and "set attendingMemberId to LineItemOrdered.forMemberId"
+            and "set orderId to LineItemOrdered.orderId"
+        }
+        on event LineItemCancelled {
+            then "remove row in ticket-member table"
         }
         on query FindOrgsByMembersForEvents {
             then "left join event table filtered by FindOrgsByMembersForEvents.events to ticket-event table"
