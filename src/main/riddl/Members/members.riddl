@@ -239,6 +239,10 @@ context MembersContext  is {
               then "yield Info for entity"
             }
           }
+        } described as {
+          |This state is the initial state of a Member. It describes that the member
+          |is not yet ready to be active. Once out of this state, a member cannot go
+          |back to Draft.
         }
 
         state Active is {
@@ -309,6 +313,9 @@ context MembersContext  is {
                     then "yield Info for entity"
                 }
             }
+        } described as {
+          |This state describes that a member is now active. An active
+          |member can transition to any state other than Draft.
         }
 
         state Inactive is {
@@ -349,6 +356,10 @@ context MembersContext  is {
               then "yield Info for entity"
             }
           }
+        } described as {
+          |This state describes that the member will no longer be active.
+          |One example is when a student graduates but the admin wants to
+          |keep the record.
         }
 
         state Suspended is {
@@ -389,6 +400,11 @@ context MembersContext  is {
               then "yield Info for entity"
             }
           }
+        } described as {
+          |This state describes that a member cannot access anything due
+          |to being a bad actor. This state transition is only possible
+          |as a command issued by an administrator and therefore can only
+          |be removed from the suspended state by an administrator.
         }
 
 
@@ -399,7 +415,9 @@ context MembersContext  is {
             handler TerminatedMemberHandler is {
                 on other { then error "Terminated members cannot process messages" }
             }
-        } //A terminated member is one who exercises their right to be forgotten.
+        } described as {
+          |This state describes a member who exercises their right to be forgotten.
+        }
 
     } described in file "member-entity.md"
 } described in file "members-context.md"
