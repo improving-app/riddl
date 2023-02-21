@@ -12,8 +12,11 @@ context EventContext is {
         handler EventHandler is {
             on command ScheduleEvent {
                 then morph entity Event to state Scheduled
+                with record Foo()
             }
-            on other {then error "You must first create an event using ScheduleEvent command."}
+            on other {
+            then error "You must first create an event using ScheduleEvent command."
+            }
         }
 
         state Scheduled is {
