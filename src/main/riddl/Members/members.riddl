@@ -14,11 +14,16 @@ context MembersContext  is {
     }
     type Status is any of { Draft, Active, Inactive, Suspended, Terminated }
     type Info is {
-        contact: Contact,
-        handle: String briefly "username. Must be unique.",
-        avatar: URL briefly "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
-        firstName: String briefly "Real first name of the member",
-        lastName: String briefly "Real last name of the member",
+        contact: Contact
+          briefly "Contact information of the member",
+        handle: String
+          briefly "username. Must be unique.",
+        avatar: URL
+          briefly "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
+        firstName: String
+          briefly "Real first name of the member",
+        lastName: String
+          briefly "Real last name of the member",
         //mobileNumber: MobileNumber? briefly "Optional mobile phone number",
         //emailAddress: EmailAddress? briefly "Optional email address",
         notificationPreference: NotificationPreference?
@@ -26,6 +31,7 @@ context MembersContext  is {
         organizationMembership: OrganizationId*
           briefly "A possibly empty list of organizations this member belongs to.",
         tenant: TenantId
+          briefly "Tenant id of the member"
         //memberType: MemberType+
     } described as {
       |This type provides the basic information about members that is
@@ -34,15 +40,22 @@ context MembersContext  is {
       |like notifications and group membership the Member can opt in to.
     }
     type UpdateInfo is {
-        handle: String? briefly "username. Must be unique.",
-        avatar: URL? briefly "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
-        firstName: String? briefly "Real first name of the member",
-        lastName: String?,
-        mobileNumber: MobileNumber?,
+        handle: String?
+          briefly "username. Must be unique.",
+        avatar: URL?
+          briefly "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
+        firstName: String?
+          briefly "Real first name of the member",
+        lastName: String?
+          briefly "Real last name of the member",
+        //mobileNumber: MobileNumber?,
         //emailAddress: EmailAddress?,
-        notificationPreference: NotificationPreference? briefly "if this is set it is assumed that the user has opted in.",
-        organizationMembership: OrganizationId* briefly "A list of organizations this member belongs to.",
-        tenant: TenantId* briefly "the tenant(s) this Member would belong to"
+        notificationPreference: NotificationPreference?
+          briefly "if this is set it is assumed that the user has opted in.",
+        organizationMembership: OrganizationId*
+          briefly "A list of organizations this member belongs to.",
+        tenant: TenantId*
+          briefly "the tenant(s) this Member would belong to"
         //memberType: MemberType+
     } described as {
       |This aggregate type specifies a way to update any or all of the
@@ -50,18 +63,28 @@ context MembersContext  is {
       |then the current value is not updated.
     }
     type MetaInfo is {
-        createdOn: TimeStamp,
-        createdBy: MemberId,
-        lastModifiedOn: TimeStamp,
-        lastModifiedBy: MemberId,
+        createdOn: TimeStamp
+          briefly "The timestamp the member was created",
+        createdBy: MemberId
+          briefly "The member that created this member",
+        lastModifiedOn: TimeStamp
+          briefly "The timestamp the member was last modified",
+        lastModifiedBy: MemberId
+          briefly "The member that last modified this member",
         memberStatus: MembersContext.Status
+          briefly "The status of this member"
     }
     type MetaInfoQuery is {
-        createdOn: TimeStamp?,
-        createdBy: MemberId?,
-        lastModifiedOn: TimeStamp?,
-        lastModifiedBy: MemberId?,
+        createdOn: TimeStamp?
+          briefly "Optionally the timestamp to match a member's creation timestamp against",
+        createdBy: MemberId?
+          briefly "Optionally the member id to match a member's creator against",
+        lastModifiedOn: TimeStamp?
+          briefly "Optionally the timestamp to match a member's last modification timestamp against",
+        lastModifiedBy: MemberId?
+          briefly "Optionally the member id to match a member's last modifier against",
         memberStatus: MembersContext.Status?
+          briefly "Optionally the status to match a member's status against"
     }
 
     command RegisterMember is {
@@ -85,29 +108,76 @@ context MembersContext  is {
       |RegisterMemberList one event per member in the list is published.
     }
 
-    command RegisterMemberList is {
-      memberList: MemberMap,
-      registeringMember: MemberId
-    } briefly "Create a bunch of members"
+    //command RegisterMemberList is {
+    //  memberList: MemberMap,
+    //  registeringMember: MemberId
+    //} briefly "Create a bunch of members"
+    //described as {
+    //  |RegisterMemberList creates multiple members with a single call. The
+    //  |limitation is you can only define a single MemberType in each call, and
+    //  |all new Members must be assigned to the same Organization (typically a
+    //  |BaseOrg).
+    //}
+
+    //event MemberListRegistered is {
+    //  memberList: MemberMap,
+    //  registeringMember: MemberId
+    //}
+
+    command UpdateMemberInfo is {memberId: MemberId, info: MembersContext.UpdateInfo, actingMember: MemberId}
+    briefly "Update info of a member"
     described as {
-      |RegisterMemberList creates multiple members with a single call. The
-      |limitation is you can only define a single MemberType in each call, and
-      |all new Members must be assigned to the same Organization (typically a
-      |BaseOrg).
+      |This command will overwrite the values of attributes provided in UpdateInfo.
+      |If an attribute is not referenced it will be left as is. If an attribute is
+      |referenced with no value, an empty value will replace what is currently
+      |stored. If an attribute is referenced with a value, the new value will
+      |overwrite what is stored.
     }
 
-    event MemberListRegistered is {
-      memberList: MemberMap,
-      registeringMember: MemberId
-    } briefly ""
-    command UpdateMemberInfo is {memberId: MemberId, info: MembersContext.UpdateInfo, actingMember: MemberId} briefly "This command will overwrite the values of attributes provided in UpdateInfo. If an attribute is not referenced it will be left as is. If an attribute is referenced with no value, an empty value will replace what is currently stored. If an attribute is referenced with a value, the new value will overwrite what is stored."
     event MemberInfoUpdated is {memberId: MemberId, info: MembersContext.Info, meta: MembersContext.MetaInfo}
+    briefly "Event issued after UpdateMemberInfo"
+    described as {
+      |This event occurs whenever a member's information is updated.
+    }
+
     command UpdateMemberStatus is {memberId: MemberId, actingMember: MemberId, newStatus: MembersContext.Status}
+    briefly "Update status of a member"
+    described as {
+      |This command will overwrite the status provided in Status. If the status
+      |change is valid given the current state, the new status will be updated.
+    }
+
     event MemberStatusUpdated is {memberId: MemberId, meta: MembersContext.MetaInfo}
+    briefly "Event issued after UpdateMemberStatus"
+    described as {
+      |This event occurs whenever a member's status is updated.
+    }
+
     query GetMemberData is {memberId: MemberId}
+    briefly "Get the data of a member"
+    described as {
+      |This query gets the data of a member if it exists.
+    }
+
     result MemberData is {memberId: MemberId, info: MembersContext.Info, meta: MembersContext.MetaInfo}
+    briefly "The data of the member returned from the GetMemberData query"
+    described as {
+      |This result contains the member id, member information, and member metadata.
+    }
+
     query GetMembersByMetaInfo is {queryData: MembersContext.MetaInfoQuery}
+    briefly "Get the members based on the meta info"
+    described as {
+      |This query gets the members by checking if at least one of the fields of
+      |MetaInfoQuery has matched.
+    }
+
     result MemberListResult is {members: MemberMap}
+    briefly "The data returned from the GetMembersByMetaInfo query"
+    described as {
+      |This result contains the MemberMap, which contains all members that
+      |matched to at least one of the fields of MetaInfoQuery.
+    }
 
     entity Member is {
         options(aggregate, technology("akka"))
