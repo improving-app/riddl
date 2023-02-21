@@ -93,8 +93,9 @@ context MembersContext  is {
       registeringMember: MemberId briefly "Member that registered new member"
     } briefly "Create a single new member"
       described as {
-       |RegisterMember creates a single new member. As this could be a
-       |self-service request the OrganizationType is optional.
+       |RegisterMember creates a single new member. The member can be
+       |registered by either another member or by themselves. As this
+       |could be a self-service request the OrganizationType is optional.
     }
 
     event MemberRegistered is {
