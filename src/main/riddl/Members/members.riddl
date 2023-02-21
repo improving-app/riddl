@@ -5,7 +5,6 @@ type MemberId is Id(ImprovingApp.MembersContext.Member)
 
 context MembersContext  is {
     //Member Details
-    //type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
 
     type NotificationPreference is any of { Email, SMS, Application } described
     as {
@@ -31,7 +30,6 @@ context MembersContext  is {
           briefly "A possibly empty list of organizations this member belongs to.",
         tenant: TenantId
           briefly "Tenant id of the member"
-        //memberType: MemberType+
     } described as {
       |This type provides the basic information about members that is
       |retained by the Member entity. The fields of this type form the profile
@@ -55,7 +53,6 @@ context MembersContext  is {
           briefly "A list of organizations this member belongs to.",
         tenant: TenantId*
           briefly "the tenant(s) this Member would belong to"
-        //memberType: MemberType+
     } described as {
       |This aggregate type specifies a way to update any or all of the
       |MemberInfo fields. If a field value is missing (they are all optional)
@@ -305,7 +302,6 @@ context MembersContext  is {
                       briefly "if this is set it is assumed that the user has opted in.",
                     organizationMembership: OrganizationId*
                       briefly "A list of organizations this member belongs to."
-                    //memberType: MemberType+
 */
 
             handler ActiveMemberHandler {
