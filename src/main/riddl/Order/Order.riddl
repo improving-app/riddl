@@ -10,7 +10,7 @@ context OrderContext is {
   type OrderInfo is {
     order_id: OrderId,
     lineItems: LineItem+,
-    specialInstructions: String
+    specialInstructions: String?
   }
   type OrderMetaInfo is {
     order_id: OrderId,
