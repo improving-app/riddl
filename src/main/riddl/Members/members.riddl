@@ -388,7 +388,7 @@ context MembersContext  is {
             suspensionReason: String
           }
 
-          handler InactiveMemberHandler {
+          handler SuspendedMemberHandler {
             on command RegisterMember {then error "Member has already been registered."}
             on command ActivateMember {
               given "entity has non-empty required fields"
