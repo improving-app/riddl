@@ -4,13 +4,23 @@ context OrderContext is {
   type LineItem is {
     product: SKU,
     quantity: Number,
+    unitPrice: Number
+      described as {
+      |This field is calculated and therefore should never be set
+      |and instead works more like a function.
+    },
     lineTotal: Number
   }
 
   type OrderInfo is {
     order_id: OrderId,
     lineItems: LineItem+,
-    specialInstructions: String?
+    specialInstructions: String?,
+    orderTotal: Number
+      described as {
+      |This field is calculated and therefore should never be set
+      |and instead works more like a function.
+    }
   }
   type OrderMetaInfo is {
     order_id: OrderId,
