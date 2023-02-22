@@ -60,9 +60,6 @@ context OrganizationsForMembersAttendingEventsProjections is  {
         on event OrderCreated {
             then "for each OrderCreated.orderInfo.lineItem that has a SKU in event-ticket table, create row in ticket-member table with OrderCreated.meta.memberId as attendingMember & sku as ticketSku"
         }
-        on event OrderStatusUpdated {
-            then "update row in orders table with the new status"
-        }
         on event LineItemOrdered {
             then "create row in ticket-member table with ticketSku set to LineItemOrdered.productId"
             and "set attendingMemberId to LineItemOrdered.forMemberId"
