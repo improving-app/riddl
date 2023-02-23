@@ -1,32 +1,35 @@
 type MemberId is Id(ImprovingApp.MembersContext.Member)
   briefly "Unique identifier for Tenant Entity"
 
-  type MemberMap is mapping from MemberId to MembersContext.Info
+type MemberMap is mapping from MemberId to MembersContext.Info
 
 context MembersContext  is {
     //Member Details
-    //type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
 
     type NotificationPreference is any of { Email, SMS, Application } described
     as {
       | The values of this enumeration define the ways in which a member may
       | be notified of changes.
     }
-    type Status is any of { Active, Suspended }
     type Info is {
-        contact: Contact,
-        handle: String briefly "username. Must be unique.",
-        avatar: URL briefly "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
-        firstName: String briefly "Real first name of the member",
-        lastName: String briefly "Real last name of the member",
-        mobileNumber: MobileNumber? briefly "Optional mobile phone number",
-        emailAddress: EmailAddress? briefly "Optional email address",
+        contact: Contact
+          briefly "Contact information of the member",
+        handle: String
+          briefly "username. Must be unique.",
+        avatar: URL
+          briefly "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
+        firstName: String
+          briefly "Real first name of the member",
+        lastName: String
+          briefly "Real last name of the member",
+        //mobileNumber: MobileNumber? briefly "Optional mobile phone number",
+        //emailAddress: EmailAddress? briefly "Optional email address",
         notificationPreference: NotificationPreference?
           briefly "if this is set it is assumed that the user has opted in.",
         organizationMembership: OrganizationId*
           briefly "A possibly empty list of organizations this member belongs to.",
         tenant: TenantId
-        //memberType: MemberType+
+          briefly "Tenant id of the member"
     } described as {
       |This type provides the basic information about members that is
       |retained by the Member entity. The fields of this type form the profile
@@ -34,34 +37,46 @@ context MembersContext  is {
       |like notifications and group membership the Member can opt in to.
     }
     type UpdateInfo is {
-        handle: String? briefly "username. Must be unique.",
-        avatar: URL? briefly "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
-        firstName: String? briefly "Real first name of the member",
-        lastName: String?,
-        mobileNumber: MobileNumber?,
-        emailAddress: EmailAddress?,
-        notificationPreference: NotificationPreference? briefly "if this is set it is assumed that the user has opted in.",
-        organizationMembership: OrganizationId* briefly "A list of organizations this member belongs to.",
-        tenant: TenantId* briefly "the tenant(s) this Member would belong to"
-        //memberType: MemberType+
+        handle: String?
+          briefly "username. Must be unique.",
+        avatar: URL?
+          briefly "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
+        firstName: String?
+          briefly "Real first name of the member",
+        lastName: String?
+          briefly "Real last name of the member",
+        //mobileNumber: MobileNumber?,
+        //emailAddress: EmailAddress?,
+        notificationPreference: NotificationPreference?
+          briefly "if this is set it is assumed that the user has opted in.",
+        organizationMembership: OrganizationId*
+          briefly "A list of organizations this member belongs to.",
+        tenant: TenantId*
+          briefly "the tenant(s) this Member would belong to"
     } described as {
       |This aggregate type specifies a way to update any or all of the
       |MemberInfo fields. If a field value is missing (they are all optional)
       |then the current value is not updated.
     }
     type MetaInfo is {
-        createdOn: TimeStamp,
-        createdBy: MemberId,
-        lastModifiedOn: TimeStamp,
-        lastModifiedBy: MemberId,
-        memberStatus: MembersContext.Status
+        createdOn: TimeStamp
+          briefly "The timestamp the member was created",
+        createdBy: MemberId
+          briefly "The member that created this member",
+        lastModifiedOn: TimeStamp
+          briefly "The timestamp the member was last modified",
+        lastModifiedBy: MemberId
+          briefly "The member that last modified this member"
     }
     type MetaInfoQuery is {
-        createdOn: TimeStamp?,
-        createdBy: MemberId?,
-        lastModifiedOn: TimeStamp?,
-        lastModifiedBy: MemberId?,
-        memberStatus: MembersContext.Status?
+        createdOn: TimeStamp?
+          briefly "Optionally the timestamp to match a member's creation timestamp against",
+        createdBy: MemberId?
+          briefly "Optionally the member id to match a member's creator against",
+        lastModifiedOn: TimeStamp?
+          briefly "Optionally the timestamp to match a member's last modification timestamp against",
+        lastModifiedBy: MemberId?
+          briefly "Optionally the member id to match a member's last modifier against"
     }
 
     command RegisterMember is {
@@ -70,8 +85,9 @@ context MembersContext  is {
       registeringMember: MemberId briefly "Member that registered new member"
     } briefly "Create a single new member"
       described as {
-       |RegisterMember creates a single new member. As this could be a
-       |self-service request the OrganizationType is optional.
+       |RegisterMember creates a single new member. The member can be
+       |registered by either another member or by themselves. As this
+       |could be a self-service request the OrganizationType is optional.
     }
 
     event MemberRegistered is {
@@ -85,54 +101,187 @@ context MembersContext  is {
       |RegisterMemberList one event per member in the list is published.
     }
 
-    command RegisterMemberList is {
-      memberList: MemberMap,
-      registeringMember: MemberId
-    } briefly "Create a bunch of members"
+    //command RegisterMemberList is {
+    //  memberList: MemberMap,
+    //  registeringMember: MemberId
+    //} briefly "Create a bunch of members"
+    //described as {
+    //  |RegisterMemberList creates multiple members with a single call. The
+    //  |limitation is you can only define a single MemberType in each call, and
+    //  |all new Members must be assigned to the same Organization (typically a
+    //  |BaseOrg).
+    //}
+
+    //event MemberListRegistered is {
+    //  memberList: MemberMap,
+    //  registeringMember: MemberId
+    //}
+
+    command UpdateMemberInfo is {memberId: MemberId, info: MembersContext.UpdateInfo, actingMember: MemberId}
+    briefly "Update info of a member"
     described as {
-      |RegisterMemberList creates multiple members with a single call. The
-      |limitation is you can only define a single MemberType in each call, and
-      |all new Members must be assigned to the same Organization (typically a
-      |BaseOrg).
+      |This command will overwrite the values of attributes provided in UpdateInfo.
+      |If an attribute is not referenced it will be left as is. If an attribute is
+      |referenced with no value, an empty value will replace what is currently
+      |stored. If an attribute is referenced with a value, the new value will
+      |overwrite what is stored.
     }
 
-    event MemberListRegistered is {
-      memberList: MemberMap,
-      registeringMember: MemberId
-    } briefly ""
-    command UpdateMemberInfo is {memberId: MemberId, info: MembersContext.UpdateInfo, actingMember: MemberId} briefly "This command will overwrite the values of attributes provided in UpdateInfo. If an attribute is not referenced it will be left as is. If an attribute is referenced with no value, an empty value will replace what is currently stored. If an attribute is referenced with a value, the new value will overwrite what is stored."
     event MemberInfoUpdated is {memberId: MemberId, info: MembersContext.Info, meta: MembersContext.MetaInfo}
-    command UpdateMemberStatus is {memberId: MemberId, actingMember: MemberId, newStatus: MembersContext.Status}
-    event MemberStatusUpdated is {memberId: MemberId, meta: MembersContext.MetaInfo}
+    briefly "Event issued after UpdateMemberInfo"
+    described as {
+      |This event occurs whenever a member's information is updated.
+    }
+
+    command ActivateMember is {memberId: MemberId, actingMember: MemberId}
+    briefly "Update state of member to Active"
+    described as {
+      |This command activates the member.
+    }
+
+    event MemberActivated is {memberId: MemberId, meta: MembersContext.MetaInfo}
+    briefly "Event issued after ActivateMember"
+    described as {
+      |This event is issued after ActivateMember to denote
+      |that the member is now active.
+    }
+
+    command InactivateMember is {memberId: MemberId, actingMember: MemberId}
+    briefly "Update state of member to Inactive"
+    described as {
+      |This command inactivates the member.
+    }
+
+    event MemberInactivated is {memberId: MemberId, meta: MembersContext.MetaInfo}
+    briefly "Event issued after InactivateMember"
+    described as {
+      |This event is issued after InactivateMember to denote
+      |that the member is now inactive.
+    }
+
+    command SuspendMember is {memberId: MemberId, actingMember: MemberId, suspensionReason: String}
+    briefly "Update state of member to Suspended"
+    described as {
+      |This command suspends the member.
+    }
+
+    event MemberSuspended is {memberId: MemberId, meta: MembersContext.MetaInfo}
+    briefly "Event issued after SuspendMember"
+    described as {
+      |This event is issued after SuspendMember to denote
+      |that the member is now suspended.
+    }
+
+    command TerminateMember is {memberId: MemberId, actingMember: MemberId}
+    briefly "Update state of member to Terminated"
+    described as {
+      |This command terminates the member.
+    }
+
+    event MemberTerminated is {memberId: MemberId, meta: MembersContext.MetaInfo}
+    briefly "Event issued after TerminateMember"
+    described as {
+      |This event is issued after TerminateMember to denote
+      |that the member is now terminated.
+    }
+
     query GetMemberData is {memberId: MemberId}
+    briefly "Get the data of a member"
+    described as {
+      |This query gets the data of a member if it exists.
+    }
+
     result MemberData is {memberId: MemberId, info: MembersContext.Info, meta: MembersContext.MetaInfo}
+    briefly "The data of the member returned from the GetMemberData query"
+    described as {
+      |This result contains the member id, member information, and member metadata.
+    }
+
     query GetMembersByMetaInfo is {queryData: MembersContext.MetaInfoQuery}
+    briefly "Get the members based on the meta info"
+    described as {
+      |This query gets the members by checking if at least one of the fields of
+      |MetaInfoQuery has matched.
+    }
+
     result MemberListResult is {members: MemberMap}
+    briefly "The data returned from the GetMembersByMetaInfo query"
+    described as {
+      |This result contains the MemberMap, which contains all members that
+      |matched to at least one of the fields of MetaInfoQuery.
+    }
 
     entity Member is {
         options(aggregate, technology("akka"))
 
         handler MemberHandler is {
             on command RegisterMember {
-                then morph entity Member to state Member.Active
-                and set Member.Active.memberId to @RegisterMember.memberId
-                and set Member.Active.info to @RegisterMember.info
+                then "morph entity Member to state Member.Active"
+                and "set Member.Active.entityId to @RegisterMember.memberId"
+                and "set Member.Active.info to @RegisterMember.info"
             }
-            on command RegisterMemberList {
-                //TODO: list operations on the following:
-                then morph entity Member to state Member.Active
-                //TODO: How do you reference members of a mapping?
-                //and set Active.memberId to @RegisterMemberList.MemberList.memberId
-                //and set Active.info to @RegisterMemberList.MemberList.info
-            }
+            //on command RegisterMemberList {
+            //    //TODO: list operations on the following:
+            //    then morph entity Member to state Member.Active
+            //      with record ^^ActiveState(info = MembersContext.Info(),
+            //        meta = MembersContext.MetaInfo())
+            //    //TODO: How do you reference members of a mapping?
+            //    //and set Active.memberId to @RegisterMemberList.MemberList.memberId
+            //    //and set Active.info to @RegisterMemberList.MemberList.info
+            //}
         }
 
-        state Active is {
-            fields {
-                memberId: MemberId,
-                info: MembersContext.Info,
-                meta: MembersContext.MetaInfo
+        record DraftState is {
+          info: MembersContext.Info,
+          meta: MembersContext.MetaInfo
+        }
+        state Draft of ^DraftState is {
+          handler DraftMemberHandler {
+            on command RegisterMember {then error "Member has already been registered."}
+            on command ActivateMember {
+              given "entity has non-empty required fields"
+              then "morph Member entity to Active state"
+              and "set entity lastModifiedBy to actingMember from message"
+              and "set entity lastModifiedOn to today()"
+              and "yield event MemberActivated"
             }
+            on command InactivateMember {
+              then error "Cannot set state to Inactive on a member that is not active"
+            }
+            on command SuspendMember {
+              then error "Cannot set state to Suspended on a member that is not active"
+            }
+            on command TerminateMember {
+              given "entity has non-empty required fields"
+              then "morph Member entity to Terminated state"
+              and "set entity lastModifiedBy to actingMember from message"
+              and "set entity lastModifiedOn to today()"
+              and "yield event MemberTerminated"
+            }
+            on command UpdateMemberInfo {
+              then "set entity Info to non-Empty fields in UpdateInfo from message"
+              and "set entity lastModifiedBy to actingMember from message"
+              and "set entity lastModifiedOn to today()"
+              and "yield event MemberInfoUpdated"
+            }
+            // For GetMemberData, eventually probably only admins and self should be able to make this call. Also
+            // potentially allow other roles to get some limited information (this will require adding another
+            // aggregate).
+            on query GetMemberData {
+              then "yield Info for entity"
+            }
+          }
+        } described as {
+          |This state is the initial state of a Member. It describes that the member
+          |is not yet ready to be active. Once out of this state, a member cannot go
+          |back to Draft.
+        }
+
+        record ActiveState is {
+            info: MembersContext.Info,
+            meta: MembersContext.MetaInfo
+        }
+        state Active of ^ActiveState is {
             invariant time_sanity is {
               <=(@Active.meta.createdOn, @Active.meta.lastModifiedOn)
             }
@@ -154,37 +303,144 @@ context MembersContext  is {
                       briefly "if this is set it is assumed that the user has opted in.",
                     organizationMembership: OrganizationId*
                       briefly "A list of organizations this member belongs to."
-                    //memberType: MemberType+
 */
 
             handler ActiveMemberHandler {
+                on command RegisterMember {then error "Member has already been registered."}
                 on command UpdateMemberInfo {
                     then "set entity Info to non-Empty fields in UpdateInfo from message"
                     and "set entity lastModifiedBy to actingMember from message"
                     and "set entity lastModifiedOn to today()"
                     and "yield event MemberInfoUpdated"
                 }
-                on command UpdateMemberStatus {
-                    then "set entity Status to Status field from message"
-                    and "set entity lastModifiedBy to actingMember from message"
-                    and "set entity lastModifiedOn to today()"
-                    and "yield event MemberStatusUpdated"
+                on command ActivateMember {
+                  then error "Cannot activate a member that is already activated"
+                }
+                on command InactivateMember {
+                  then "morph Member entity to Inactive state"
+                }
+                on command SuspendMember {
+                  given "entity has suspensionReason non-empty"
+                  then "morph Member entity to Suspended state"
+                  and "set entity lastModifiedBy to actingMember from message"
+                  and "set entity lastModifiedOn to today()"
+                  and "yield event MemberSuspended"
+                }
+                on command TerminateMember {
+                  then "morph Member entity to Terminated state"
                 }
                 on query GetMemberData {
                     then "yield Info for entity"
                 }
             }
+        } described as {
+          |This state describes that a member is now active. An active
+          |member can transition to any state other than Draft.
+        }
+
+        record InactiveState is {
+          info: MembersContext.Info,
+          meta: MembersContext.MetaInfo
+        }
+        state Inactive of ^InactiveState is {
+          handler InactiveMemberHandler {
+            on command RegisterMember {then error "Member has already been registered."}
+            on command ActivateMember {
+              given "entity has non-empty required fields"
+              then "morph Member entity to Active state"
+              and "set entity lastModifiedBy to actingMember from message"
+              and "set entity lastModifiedOn to today()"
+              and "yield event MemberActivated"
+            }
+            on command InactivateMember {
+              then error "Cannot set a member to inactive that is already inactivated"
+            }
+            on command SuspendMember {
+              then error "Cannot set an inactive member to suspended"
+            }
+            on command TerminateMember {
+              given "entity has non-empty required fields"
+              then "morph Member entity to Terminated state"
+              and "set entity lastModifiedBy to actingMember from message"
+              and "set entity lastModifiedOn to today()"
+              and "yield event MemberTerminated"
+            }
+            on command UpdateMemberInfo {
+              then "set entity Info to non-Empty fields in UpdateInfo from message"
+              and "set entity lastModifiedBy to actingMember from message"
+              and "set entity lastModifiedOn to today()"
+              and "yield event MemberInfoUpdated"
+            }
+            on query GetMemberData {
+              then "yield Info for entity"
+            }
+          }
+        } described as {
+          |This state describes that the member will no longer be active.
+          |One example is when a student graduates but the admin wants to
+          |keep the record.
+        }
+
+        record SuspendedState is {
+          info: MembersContext.Info,
+          meta: MembersContext.MetaInfo,
+          suspensionReason: String
+        }
+        state Suspended of ^SuspendedState is {
+          handler SuspendedMemberHandler {
+            on command RegisterMember {then error "Member has already been registered."}
+            on command ActivateMember {
+              given "entity has non-empty required fields"
+              then "morph Member entity to Active state"
+              and "set entity lastModifiedBy to actingMember from message"
+              and "set entity lastModifiedOn to today()"
+              and "yield event MemberActivated"
+            }
+            on command InactivateMember {
+              then error "Cannot set a suspended member to inactive"
+            }
+            on command SuspendMember {
+              given "entity has suspensionReason non-empty"
+              then "morph Member entity to Active state"
+              and "set entity lastModifiedBy to actingMember from message"
+              and "set entity lastModifiedOn to today()"
+              and "yield event MemberSuspended"
+            } briefly "A suspension reason can be updated by re-issuing the command"
+            on command TerminateMember {
+              given "entity has non-empty required fields"
+              then "morph Member entity to Terminated state"
+              and "set entity lastModifiedBy to actingMember from message"
+              and "set entity lastModifiedOn to today()"
+              and "yield event MemberTerminated"
+            }
+            on command UpdateMemberInfo {
+              then "set entity Info to non-Empty fields in UpdateInfo from message"
+              and "set entity lastModifiedBy to actingMember from message"
+              and "set entity lastModifiedOn to today()"
+              and "yield event MemberInfoUpdated"
+            }
+            on query GetMemberData {
+              then "yield Info for entity"
+            }
+          }
+        } described as {
+          |This state describes that a member cannot access anything due
+          |to being a bad actor. This state transition is only possible
+          |as a command issued by an administrator and therefore can only
+          |be removed from the suspended state by an administrator.
         }
 
 
-        state Terminated is {
-            fields {
-                memberId: MemberId
-            }
+        record TerminatedState is {
+            memberId: MemberId // needed for compilation - RIDDL requires fields object and fields object requires at least one field
+        }
+        state Terminated of ^TerminatedState is {
             handler TerminatedMemberHandler is {
                 on other { then error "Terminated members cannot process messages" }
             }
-        } //A terminated member is one who exercises their right to be forgotten.
+        } described as {
+          |This state describes a member who exercises their right to be forgotten.
+        }
 
     } described in file "member-entity.md"
 } described in file "members-context.md"

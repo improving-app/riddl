@@ -1,6 +1,6 @@
 context ProductContext is {
   type ProductDetails is any of {ReservedTicket, RestrictedTicket, OpenTicket}
-  type ProductStatus is any of {Active, InActive, Deleted}
+  type ProductStatus is any of {Draft, Active, InActive, Deleted}
   type SKU is Id(Product)
 
   type ReservedTicket is {
@@ -17,7 +17,6 @@ context ProductContext is {
     event: EventId
   }
   type ProductInfo is {
-    sku: SKU,
     name: String,
     description: String,
     productDetails: ProductDetails,
@@ -67,11 +66,12 @@ context ProductContext is {
       }
       on other {then error "Only the CreateProduct command is allowed in the default state."}
     }
-    state ActiveProduct is {
-      fields {
-        info: ProductInfo,
-        meta: ProductMetaInfo
-      }
+
+    record DraftState is {
+      info: ProductInfo,
+      meta: ProductMetaInfo
+    }
+    state Draft of ^DraftState is {
       handler ActiveProductHandler is {
         on command CreateProduct {
           then error "Product already created."
@@ -79,7 +79,7 @@ context ProductContext is {
         on command UpdateProductInfo{
           then "Copy fields from UpdateProductInfo into Active product fields"
           and "adjust meta fields to reflect the change set"
-          and "yield ProductInfoUpated event"
+          and "yield ProductInfoUpdated event"
         }
         on command DeleteProduct{
           then "morph Product state to Deleted"
@@ -100,11 +100,46 @@ context ProductContext is {
         }
       }
     }
-    state InactiveProduct is {
-      fields {
-        info: ProductInfo,
-        meta: ProductMetaInfo
+
+    record ActiveState is {
+      info: ProductInfo,
+      meta: ProductMetaInfo
+    }
+    state Active of ^ActiveState is {
+      handler ActiveProductHandler is {
+        on command CreateProduct {
+          then error "Product already created."
+        }
+        on command UpdateProductInfo{
+          then "Copy fields from UpdateProductInfo into Active product fields"
+          and "adjust meta fields to reflect the change set"
+          and "yield ProductInfoUpdated event"
+        }
+        on command DeleteProduct{
+          then "morph Product state to Deleted"
+          and "copy Active Product name and sku to Deleted Product name and sku"
+          and "adjust meta fields to reflect the change set"
+          and "yield ProductDeleted event"
+        }
+        on command ActivateProduct{
+          then error "Product is already active"
+        }
+        on command InactivateProduct{
+          then "morph product state to Inactive"
+          and "adjust meta fields to reflect the change set"
+          and "yield ProductInactivated event"
+        }
+        on query GetProductInfo{
+          then "yield ProductInfoResult message"
+        }
       }
+    }
+
+    record InactiveState is {
+      info: ProductInfo,
+      meta: ProductMetaInfo
+    }
+    state Inactive of ^InactiveState is {
       handler InactiveProductHandler is {
         on command CreateProduct {
           then error "Product already created."
@@ -112,7 +147,7 @@ context ProductContext is {
         on command UpdateProductInfo{
           then "Copy fields from UpdateProductInfo into Active product fields"
           and "adjust meta fields to reflect the change set"
-          and "yield ProductInfoUpated event"
+          and "yield ProductInfoUpdated event"
         }
         on command DeleteProduct{
           then "morph Product state to Deleted"
@@ -133,12 +168,13 @@ context ProductContext is {
         }
       }
     }
-    state DeletedProduct is {
-      fields {
-        sku: SKU,
-        name: String
-      }
-      handler DeltedProductHandler is {
+
+    record DeletedState is {
+      sku: SKU,
+      name: String
+    }
+    state Deleted of ^DeletedState is {
+      handler DeletedProductHandler is {
         on command CreateProduct {
           then error "Product already created."
         }
@@ -164,7 +200,7 @@ context ProductContext is {
 
   //ProductDetails is select ReservedTicket | RestrictedTicket | OpenTicket | FoodItem | Beverage
   //Units is any of {Grams, Kilograms, Pounds, Ounces, Milliliters, Liters}
-  //Condiments is any of {Catsup, Mustard, Mayonaise, Fry Sauce, Relish, Onion, Pickle, Jalapeno}
+  //Condiments is any of {Catsup, Mustard, Mayonnaise, Fry Sauce, Relish, Onion, Pickle, Jalapeno}
   /*type FoodItem is {
     PrimaryUnitOfMeasure: Units,
     PrimarySize: Number,
@@ -180,7 +216,7 @@ context ProductContext is {
   }
   type Beverage is {
     sugarFree: Boolean,
-    alcholic: Boolean,
+    alcoholic: Boolean,
     unitOfMeasure: Units,
     size: Number,
     addIce: Boolean

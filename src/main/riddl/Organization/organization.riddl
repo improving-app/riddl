@@ -20,17 +20,16 @@ context OrganizationContext is {
             on other { then error "Only EstablishOrganization command is allowed in the default state" }
         }
 
-        state Draft is {
-            fields {
-                orgId: OrganizationId,
-                info: OrganizationContext.Info,
-                parent: OrganizationId?,
-                members: MemberId+,
-                owners: MemberId+,
-                contacts: Contact?,
-                // accounts: OrganizationContext.AccountList,
-                meta: OrganizationContext.MetaInfo
-            }
+        record DraftState is {
+            info: OrganizationContext.Info,
+            parent: OrganizationId?,
+            members: MemberId+,
+            owners: MemberId+,
+            contacts: Contact?,
+            // accounts: OrganizationContext.AccountList,
+            meta: OrganizationContext.MetaInfo
+        }
+        state Draft of ^DraftState is {
             handler DraftOrganizationHandler is {
                 on command EstablishOrganization {
                     then error "Organization already established"
@@ -180,17 +179,16 @@ context OrganizationContext is {
             }
         }
 
-        state Active is {
-            fields {
-                oid: OrganizationId,
-                info: OrganizationContext.Info,
-                parent: OrganizationId?,
-                members: MemberId+,
-                owners: MemberId+,
-                contacts: Contact?,
-                // accounts: OrganizationContext.AccountList,
-                orgMeta: OrganizationContext.MetaInfo
-            }
+        record ActiveState is {
+            info: OrganizationContext.Info,
+            parent: OrganizationId?,
+            members: MemberId+,
+            owners: MemberId+,
+            contacts: Contact?,
+            // accounts: OrganizationContext.AccountList,
+            orgMeta: OrganizationContext.MetaInfo
+        }
+        state Active of ^ActiveState is {
             handler ActiveOrganization is {
                 on command EstablishOrganization {
                     then error "Organization already established"
@@ -335,17 +333,16 @@ context OrganizationContext is {
             }
         }
 
-        state Suspended is {
-            fields {
-                oid: OrganizationId,
-                info: OrganizationContext.Info,
-                parent: OrganizationId?,
-                members: MemberId+,
-                owners: MemberId+,
-                contacts: Contacts?,
-                // accounts: OrganizationContext.AccountList,
-                orgMeta: OrganizationContext.MetaInfo
-            }
+        record SuspendedState is {
+            info: OrganizationContext.Info,
+            parent: OrganizationId?,
+            members: MemberId+,
+            owners: MemberId+,
+            contacts: Contacts?,
+            // accounts: OrganizationContext.AccountList,
+            orgMeta: OrganizationContext.MetaInfo
+        }
+        state Suspended of ^SuspendedState is {
             handler SuspendedOrganization is {
                 on command EstablishOrganization {
                     then error "Organization already established"
@@ -359,11 +356,10 @@ context OrganizationContext is {
             }
         }
 
-        state Terminated is {
-            fields {
-                oid: OrganizationId,
-                name: String
-            }
+        record TerminatedState is {
+            name: String
+        }
+        state Terminated of ^TerminatedState is {
             handler TerminatedOrganization is {
                 on other {then error "No commands allowed in Terminated state"}
             }

@@ -1,6 +1,6 @@
 context OrganizationsProjection is  {
   projection OrganizationsView is {
-     fields {
+     record Fields {
         orgId: OrganizationId, //org-owner & org-member correlation tables
         orgOwner: MemberId,    //org-owner correlation table
         orgMember: MemberId     //org-member correlation table

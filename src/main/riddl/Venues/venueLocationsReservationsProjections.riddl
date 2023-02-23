@@ -1,5 +1,5 @@
 projection VenueLocationsReservationsView is {
-    fields {
+    record Fields {
         venueId: VenueId,
         locationId: LocationId,
         reservationId: ReservationId,

@@ -1,0 +1,133 @@
+//all comments to be implemented post kalix-study
+
+query GetAllTenantIds is {}
+result AllTenantIds is {tenants: TenantId*}
+
+query GetAllOrgIds is {}
+result AllOrgIds is {orgs: OrganizationId*}
+
+query GetAllEventIds is {}
+result AllEventIds {events: EventId*}
+
+query GetAllMemberIds is {}
+result AllMemberIds is {members: MemberId*}
+
+query GetAllStoreIds is {}
+result AllStoreIds is {stores: StoreId*}
+
+query GetAllSkus is {}
+result AllSkus is {skus: SKU*}
+
+context AllIdsProjections is  {
+  projection AllTenantIdsView is {
+     record AllTenantIdsFields {
+        tenant: TenantId
+        //tenantStatus: TenantContext.Status
+    }
+    handler AllTenantIdsViewHandler is {
+        on event TenantEstablished {
+            then "create row with tenant set to TenantEstablished.tenantId"// and tenantStatus to Draft"
+        }
+        //on event TenantContext.StatusUpdated {
+        //    then "update row with tenant set to StatusUpdated.tenantId to tenantStatus with StatusUpdated.newStatus"
+        //}
+        on query GetAllTenantIds {
+            then "reply with AllTenantIds packed with entire table filtered by tenantStatus == Active"
+        }
+    }
+  }
+
+  projection AllOrgIdsView is {
+     record AllOrgIdsFields {
+        org: OrganizationId
+        //orgStatus: OrganizationContext.Status
+    }
+    handler AllOrgIdsViewHandler is {
+        on event OrganizationEstablished {
+            then "create row with org set to OrganizationEstablished.orgId"// and orgStatus set to Draft"
+        }
+        //on event OrganizationStatusUpdated {
+        //    then "update row with org set to OrganizationStatusUpdated.orgId to orgStatus with OrganizationStatusUpdated.newStatus"
+        //}
+        on query GetAllOrgIds {
+            then "reply with AllOrgIds packed with entire table filtered by orgStatus == Active"
+        }
+    }
+  }
+
+  projection AllEventIdsView is {
+     record AllEventIdsFields{
+        event: EventId
+        //eventStatus: EventContext.Status
+    }
+    handler AllTenantIdsViewHandler is {
+        on event EventScheduled {
+            then "create row with event set to EventEstablished.eventId"// and eventStatus set to Scheduled"
+        }
+        //on event EventCancelled {
+        //    then "update row with event set to EventCancelled.eventId to eventStatus with Status.Cancelled"
+        //}
+        //on event EventRescheduled {
+        //    then "update row with event set to EventRescheduled.eventId to eventStatus with Status.Scheduled"
+        //}
+        //on event EventDelayed {
+        //    then "update row with event set to EventDelayed.eventId to eventStatus with Status.Delayed"
+        //}
+        //on event EventStarted {
+        //    then "update row with event set to EventStarted.eventId to eventStatus with Status.InProgress"
+        //}
+        //on event EventEnded {
+        //    then "update row with event set to EventEnded.eventId to eventStatus with Status.Past"
+        //}
+        on query GetAllEventIds {
+            then "reply with AllEventIds packed with entire table filtered by eventStatus == Scheduled"
+        }
+    }
+  }
+
+  projection AllMemberIdsView is {
+     record AllMemberIdsFields {
+        member: MemberId,
+        memberStatus: MembersContext.Status
+    }
+    handler AllMemberIdsViewHandler is {
+        on event MemberRegistered {
+            then "create row with member set to MemberRegistered.memberId"// and memberStatus set to Active"
+        }
+        //on event MemberStatusUpdated {
+        //    then "update row with member set to MemberStatusUpdated.memberId to memberStatus with MemberStatusUpdated.newStatus"
+        //}
+        on query GetAllMemberIds {
+            then "reply with AllMemberIds packed with entire table"
+        }
+    }
+  }
+
+  projection AllStoreIdsView is {
+     record AllStoreIdsFields {
+        store: StoreId
+    }
+    handler AllStoreIdsViewHandler is {
+        on event StoreCreated {
+            then "create rows with store set to StoreCreated.storeId"
+        }
+        on query GetAllStoreIds {
+            then "reply with AllStoreIds packed with entire table"
+        }
+    }
+  }
+
+  projection AllSkusView is {
+     record AllSkusFields {
+        sku: SKU
+    }
+    handler AllSkusViewHandler is {
+        on event ProductCreated {
+            then "create rows with sku set to ProductCreated.sku"
+        }
+        on query GetAllSkus {
+            then "reply with AllSkus packed with entire table"
+        }
+    }
+  }
+}

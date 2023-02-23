@@ -1,8 +1,7 @@
 command EstablishOrganization is {
-  // TODO: Reid, do we need orgId in the creation message? Or can this be handled by the default handler for the entity?
-  orgId: OrganizationId briefly "A unique identifier for this organization. This must be provided by the calling client.",
   info: OrganizationContext.Info briefly "Details about an organization required for it to exist. See OrganizationContext.Organization.Info for details.",
-  parent: Parent,
+  tenant: TenantId,
+  parent: Parent?,
   members: MemberList,
   owners: OwnerList,
   contacts: ContactList,
@@ -11,9 +10,9 @@ command EstablishOrganization is {
 described in file "establishOrganization.md"
 
 event OrganizationEstablished is {
-  orgId: OrganizationId,
+  orgId: OrganizationId briefly "Unique identifier returned by EstablishOrganization command",
   info: OrganizationContext.Info,
-  parent: Parent,
+  parent: Parent?,
   members: MemberList,
   owners: OwnerList,
   contacts: ContactList,

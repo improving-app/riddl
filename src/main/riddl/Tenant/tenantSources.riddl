@@ -7,5 +7,5 @@ type PublicTenantEvent is one of {
 }
 
 source TenantEvents is {
-    outlet Events is type PublicTenantEvent from entity Tenant
+    outlet Events is type PublicTenantEvent
 } explained as "This is a source for Tenant Events"

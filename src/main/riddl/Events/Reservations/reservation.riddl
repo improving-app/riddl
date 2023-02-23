@@ -18,13 +18,12 @@ context ReservationContext is {
 		        on other { then error "Only EstablishReservation command is allowed in the default state"}
 		    }
 
-		    state Draft is {
-		        fields {
-		            reservationId: ReservationId,
-		            reservationInfo: ReservationContext.Info,
-		            attendees: MemberId*,
-		            reservationMeta: ReservationContext.MetaInfo
-		        }
+        record DraftState {
+            reservationInfo: ReservationContext.Info,
+            attendees: MemberId*,
+            reservationMeta: ReservationContext.MetaInfo
+        }
+		    state Draft of ^DraftState is {
 		        handler DraftReservation is {
 		            on command EstablishReservation {
 		                then error "Reservation already established"
@@ -40,12 +39,11 @@ context ReservationContext is {
 		        }
 		    }
 
-		    state OnHold is {
-		        fields {
-		            reservationId: ReservationId,
-		            reservationInfo: ReservationContext.Info,
-		            reservationMeta: ReservationContext.MetaInfo
-		        }
+        record OnHoldState {
+            reservationInfo: ReservationContext.Info,
+            reservationMeta: ReservationContext.MetaInfo
+        }
+		    state OnHold of ^OnHoldState is {
 		        handler OnHoldReservation is {
 		            on command EstablishReservation {
 		                then error "Reservation already established"
@@ -61,12 +59,11 @@ context ReservationContext is {
 		        }
 		    }
 
-		    state Reserved is {
-		        fields {
-		            reservationId: ReservationId,
-		            reservationInfo: ReservationContext.Info,
-		            reservationMeta: ReservationContext.MetaInfo
-		        }
+        record ReservedState {
+            reservationInfo: ReservationContext.Info,
+            reservationMeta: ReservationContext.MetaInfo
+        }
+		    state Reserved of ReservedState is {
 		        handler ReservedReservation is {
 		            on command EstablishReservation {
 		                then error "Reservation already established"
@@ -81,23 +78,21 @@ context ReservationContext is {
 		        }
 		    }
 
-		    state Past is {
-		        fields {
-		            reservationId: ReservationId,
-		            reservationInfo: ReservationContext.Info,
-		            reservationMeta: ReservationContext.MetaInfo
-		        }
+        record PastState {
+            reservationInfo: ReservationContext.Info,
+            reservationMeta: ReservationContext.MetaInfo
+        }
+		    state Past of ^PastState is {
 		        handler PastReservation is {
 		            on other {then error "No modification commands allowed in Past state"}
 		        }
 		    }
 
-		    state Cancelled is {
-		        fields {
-		            reservationId: ReservationId,
-		            reservationInfo: ReservationContext.Info,
-		            reservationMeta: ReservationContext.MetaInfo
-		        }
+        record CancelledState is {
+            reservationInfo: ReservationContext.Info,
+            reservationMeta: ReservationContext.MetaInfo
+        }
+		    state Cancelled of ^CancelledState is {
 		        handler PastReservation is {
 		            on other {then error "No modification commands allowed in Cancelled state"}
 		        }

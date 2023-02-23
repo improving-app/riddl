@@ -16,6 +16,7 @@ domain ImprovingApp by author James is {
     include "Order/Order"
     include "Events/eventReservationProjections"
     include "Tenant/tenantProjections"
+    include "AllIdsProjections/allIdsProjections"
     include "LocationsReservationsProjections/locationsReservationsProjections"
     include "OrganizationsForMembersAttendingEventsProjection/organizationsForMembersAttendingEventsProjection"
     include "MembersAttendingEventsForAnOrganizationProjection/membersAttendingEventsForAnOrganizationProjection"

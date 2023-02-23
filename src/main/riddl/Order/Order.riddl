@@ -1,41 +1,56 @@
 context OrderContext is {
   type OrderId is Id(OrderContext.Order)
-  type OrderStatus is any of {Draft, Pending, InProcess, Ready, Delivered, Cancelled}
   type LineItem is {
     product: SKU,
     quantity: Number,
-    unitPrice: Number,
+    unitPrice: Number
+      described as {
+      |This field is calculated and therefore should never be set
+      |and instead works more like a function.
+    },
     lineTotal: Number
   }
 
   type OrderInfo is {
+    order_id: OrderId,
     lineItems: LineItem+,
-    specialInstructions: String,
+    specialInstructions: String?,
     orderTotal: Number
+      described as {
+      |This field is calculated and therefore should never be set
+      |and instead works more like a function.
+    }
   }
   type OrderMetaInfo is {
+    order_id: OrderId,
     memberId: MemberId,
     storeId: StoreId,
     createdOn: Date,
     lastModifiedBy: MemberId,
-    lastModifiedOn: Date,
-    status: OrderStatus
+    lastModifiedOn: Date
   }
   type OrderInfoUpdate is {
     lineItems: LineItem*,
-    specialInstructions: String?,
-    orderTotal: Number
+    specialInstructions: String?
   }
   command CreateOrder {orderId: OrderId, storeId: StoreId, info: OrderInfo, creatingMember: MemberId}
   event OrderCreated {orderId: OrderId, info: OrderInfo, meta: OrderMetaInfo}
-  command UpdateOrderStatus {orderId: OrderId, newStatus: OrderStatus, updatingMember: MemberId}
-  event OrderStatusUpdated {orderId: OrderId, newStatus: OrderStatus}
+  command SetToPendingOrder {orderId: OrderId, updatingMember: MemberId}
+  event PendingOrderSet {orderId: OrderId, info: OrderInfo, meta: OrderMetaInfo}
+  command SetToInProcessOrder {orderId: OrderId, updatingMember: MemberId}
+  event InProcessOrderSet {orderId: OrderId, info: OrderInfo, meta: OrderMetaInfo}
+  command SetToReadyOrder {orderId: OrderId, updatingMember: MemberId}
+  event ReadyOrderSet {orderId: OrderId, info: OrderInfo, meta: OrderMetaInfo}
+  command DeliverOrder {orderId: OrderId, updatingMember: MemberId}
+  event OrderDelivered {orderId: OrderId, info: OrderInfo, meta: OrderMetaInfo}
   command UpdateOrderInfo {orderId: OrderId, update: OrderInfoUpdate, updatingMember: MemberId}
   event OrderInfoUpdated {orderId: OrderId, info: OrderInfo, meta: OrderMetaInfo}
   command CancelOrder {orderId: OrderId, cancellingMember: MemberId}
   event OrderCancelled {orderId: OrderId, info: OrderInfo, meta: OrderMetaInfo}
-  query GetOrderInfo {orderId: OrderId, requstingMembert: MemberId}
-  result OrderInfoResult {orderId: OrderId, info: OrderMetaInfo}
+  query GetOrderInfo {orderId: OrderId, requestingMember: MemberId}
+  result OrderInfoResult {orderId: OrderId, info: OrderMetaInfo, meta: OrderMetaInfo}
+  event LineItemOrdered {orderId: OrderId, productId: SKU, forMemberId: MemberId}
+  event LineItemCancelled {orderId: OrderId, productId: SKU, forMemberId: MemberId}
 
   entity Order is {
     options (event-sourced)
@@ -47,163 +62,182 @@ context OrderContext is {
         and "adjust meta fields to reflect the change set"
         and "yield OrderCreated event"
       }
-      on other {then error "Only CreateOrder is allowed in the default state"}
+      on other {then error "Only CreateOrder is allowed in the default state."}
     }
 
-    state Draft is {
-      fields {
-        orderId: OrderId,
-        info: OrderInfo,
-        meta: OrderMetaInfo
-      }
+    record DraftState is {
+      info: OrderInfo,
+      meta: OrderMetaInfo
+    }
+    state Draft of ^DraftState is {
       handler DraftOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
-        on command UpdateOrderStatus {
-          example DraftOrderToPendingOrder is {
-            given "order is transitioning from Draft to Pending"
-            then "morph order state to Pending"
-            and "adjust meta info to reflect the change"
-            and "yield OrderStatusUpdated event"
-          }
-          example DraftOrderToCancelledOrder is {
-            given "order is transitioning from Draft to Cancelled"
-            then "morph order state to Cancelled"
-            and "adjust meta info to reflect change"
-            and "yield OrderStatusUpdated"
-          }
-          example DraftOrderIllegalStateTransition is {
-            given "order is transitioning from Draft to InProcess, Ready, Delivered, or Draft"
-            then error "Draft orders may not transition to desired state."
-          }
-        }
         on command UpdateOrderInfo {
           then "copy fields from the UpdateOrderInfo command into the Draft Order"
           and "adjust meta fields to reflect the change set"
           and "yield OrderInfoUpdated event"
+        }
+        on command SetToPendingOrder {
+          then "morph order to Pending state"
+          and "adjust meta fields to reflect change set"
+          and "yield PendingOrderSet event"
+        }
+        on command SetToInProcessOrder {
+          then error "Draft orders may not transition to the InProcess state"
+        }
+        on command SetToReadyOrder {
+          then error "Draft orders may not transition to the Ready state"
+        }
+        on command DeliverOrder {
+          then error "Draft orders may not transition to the Delivered state"
         }
         on command CancelOrder {
           then "morph order to Cancelled state"
           and "adjust meta fields to reflect change set"
           and "yield OrderCancelled event"
         }
-        on query GetOrderInfo {then "yeild OrderInfoResult message"}
+        on query GetOrderInfo {then "yield OrderInfoResult message"}
       }
     }
-    state Pending is {
-      fields {
-        orderId: OrderId,
-        info: OrderInfo,
-        meta: OrderMetaInfo
-      }
+
+    record PendingState is {
+      info: OrderInfo,
+      meta: OrderMetaInfo
+    }
+    state Pending of ^PendingState is {
       handler PendingOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
-        on command UpdateOrderStatus {
-          example PendingOrderToInProcessOrder is {
-            given "order is transitioning from Pending to InProcess"
-            then "morph order state to InProcess"
-            and "adjust meta info to reflect the change"
-            and "yield OrderStatusUpdated event"
-          }
-          example PendingOrderToCancelledOrder is {
-            given "order is transitioning from Pending to Cancelled"
-            then "morph order state to Cancelled"
-            and "adjust meta info to reflect change"
-            and "yield OrderStatusUpdated"
-          }
-          example PendingOrderIllegalStateTransition is {
-            given "order is transitioning from Pending to Draft, Ready, or Delivered"
-            then error "Draft orders may not transition to desired state."
-          }
-        }
         on command UpdateOrderInfo {
           then "copy fields from the UpdateOrderInfo command into the Draft Order"
           and "adjust meta fields to reflect the change set"
           and "yield OrderInfoUpdated event"
+        }
+        on command SetToPendingOrder {
+          then error "Pending orders may not transition to the Pending state"
+        }
+        on command SetToInProcessOrder {
+          then "morph order to InProcess state"
+          and "adjust meta fields to reflect change set"
+          and "yield InProcessOrderSet event"
+        }
+        on command SetToReadyOrder {
+          then error "Pending orders may not transition to the Ready state"
+        }
+        on command DeliverOrder {
+          then error "Pending orders may not transition to the Delivered state"
         }
         on command CancelOrder {
           then "morph order to Cancelled state"
           and "adjust meta fields to reflect change set"
           and "yield OrderCancelled event"
         }
-        on query GetOrderInfo {then "yeild OrderInfoResult message"}
+        on query GetOrderInfo {then "yield OrderInfoResult message"}
       }
     }
-    state InProcess is {
-      fields {
-        orderId: OrderId,
-        info: OrderInfo,
-        meta: OrderMetaInfo
-      }
+
+    record InProcessState is {
+      info: OrderInfo,
+      meta: OrderMetaInfo
+    }
+    state InProcess of ^InProcessState is {
       handler InProcessOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
-        on command UpdateOrderStatus {
-          example InProcessOrderToReadyOrder is {
-            given "order is transitioning from InProcess to Ready"
-            then "morph order state to Ready"
-            and "adjust meta info to reflect the change"
-            and "yield OrderStatusUpdated event"
-          }
-          example InProcessOrderIllegalStateTransition is {
-            given "order is transitioning from InProcess to Draft, Pending, Cancelled, or Delivered"
-            then error "Draft orders may not transition to desired state."
-          }
+        on command UpdateOrderInfo {then error "InProcess Orders may not be modified."}
+        on command SetToPendingOrder {
+          then error "Pending orders may not transition to the Pending state"
         }
-        on command UpdateOrderInfo {then error "InProcess Orders may not be modified"}
+        on command SetToInProcessOrder {
+          then error "Draft orders may not transition to the InProcess state"
+        }
+        on command SetToReadyOrder {
+          then "morph order to Ready state"
+          and "adjust meta fields to reflect change set"
+          and "yield ReadyOrderSet event"
+        }
+        on command DeliverOrder {
+          then error "Pending orders may not transition to the Delivered state"
+        }
         on command CancelOrder {then error "InProcess Orders may not be cancelled."}
-        on query GetOrderInfo {then "yeild OrderInfoResult message"}
+        on query GetOrderInfo {then "yield OrderInfoResult message"}
       }
     }
-    state Ready is {
-      fields {
-        orderId: OrderId,
-        info: OrderInfo,
-        meta: OrderMetaInfo
-      }
+
+    record ReadyState is {
+      info: OrderInfo,
+      meta: OrderMetaInfo
+    }
+    state Ready of ^ReadyState is {
       handler ReadyOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
-        on command UpdateOrderStatus {
-          example ReadyOrderToDeliveredOrder is {
-            given "order is transitioning from Ready to Delivered"
-            then "morph order state to Delivered"
-            and "adjust meta info to reflect the change"
-            and "yield OrderStatusUpdated event"
-          }
-          example ReadyOrderIllegalStateTransition is {
-            given "order is transitioning from Ready to Draft, Pending, Cancelled, InProcess,  or Delivered"
-            then error "Draft orders may not transition to desired state."
-          }
+        on command UpdateOrderInfo {then error "Ready Orders may not be modified."}
+        on command SetToPendingOrder {
+          then error "Pending orders may not transition to the Pending state"
         }
-        on command UpdateOrderInfo {then error "Ready Orders may not be modified"}
+        on command SetToInProcessOrder {
+          then error "Draft orders may not transition to the InProcess state"
+        }
+        on command SetToReadyOrder {
+          then error "Pending orders may not transition to the Ready state"
+        }
+        on command DeliverOrder {
+          then "morph order to Delivered state"
+          and "adjust meta fields to reflect change set"
+          and "yield OrderDelivered event"
+        }
         on command CancelOrder {then error "Ready Orders may not be cancelled."}
-        on query GetOrderInfo {then "yeild OrderInfoResult message"}
+        on query GetOrderInfo {then "yield OrderInfoResult message"}
       }
     }
-    state Delivered is {
-      fields {
-        orderId: OrderId,
-        info: OrderInfo,
-        meta: OrderMetaInfo
-      }
+
+    record DeliveredState is {
+      info: OrderInfo,
+      meta: OrderMetaInfo
+    }
+    state Delivered of ^DeliveredState is {
       handler DeliveredOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
-        on command UpdateOrderStatus {???}
-        on command UpdateOrderInfo {then error "Delivered Orders may not be modified"}
+        on command UpdateOrderInfo {then error "Delivered Orders may not be modified."}
+        on command SetToPendingOrder {
+          then error "Pending orders may not transition to the Pending state"
+        }
+        on command SetToInProcessOrder {
+          then error "Draft orders may not transition to the InProcess state"
+        }
+        on command SetToReadyOrder {
+          then error "Pending orders may not transition to the Ready state"
+        }
+        on command DeliverOrder {
+          then "morph order to Delivered state"
+          and "adjust meta fields to reflect change set"
+          and "yield OrderDelivered event"
+        }
         on command CancelOrder {then error "Delivered Orders may not be cancelled."}
-        on query GetOrderInfo {then "yeild OrderInfoResult message"}
+        on query GetOrderInfo {then "yield OrderInfoResult message"}
       }
     }
-    state Cancelled is {
-      fields {
-        orderId: OrderId,
-        info: OrderInfo,
-        meta: OrderMetaInfo
-      }
+
+    record CancelledState is {
+      info: OrderInfo,
+      meta: OrderMetaInfo
+    }
+    state Cancelled of ^CancelledState is {
       handler CancelledOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
-        on command UpdateOrderStatus {???}
-        on command UpdateOrderInfo {???}
-        on command CancelOrder {???}
-        on query GetOrderInfo {???}
+        on command UpdateOrderInfo {then error "Cancelled Orders may not be modified."}
+        on command SetToPendingOrder {
+          then error "Pending orders may not transition to the Pending state"
+        }
+        on command SetToInProcessOrder {
+          then error "Draft orders may not transition to the InProcess state"
+        }
+        on command SetToReadyOrder {
+          then error "Pending orders may not transition to the Ready state"
+        }
+        on command DeliverOrder {
+          then error "Pending orders may not transition to the Delivered state"
+        }
+        on command CancelOrder {then error "Delivered Orders may not be cancelled."}
+        on query GetOrderInfo {then "yield result OrderInfoResult"}
       }
     }
   }
