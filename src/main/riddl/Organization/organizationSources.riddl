@@ -9,5 +9,5 @@ type PublicOrganizationEvent is one of {
 }
 
 source OrganizationEvents is {
-    outlet Events is type PublicOrganizationEvent from entity Organization
+    outlet Events is type PublicOrganizationEvent
 } explained as "This is a source for Organization Events"
