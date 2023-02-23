@@ -11,19 +11,21 @@ context EventContext is {
 
         handler EventHandler is {
             on command ScheduleEvent {
-                then "morph entity Event to state Scheduled"
+                then morph entity Event to state Scheduled with
+                  record ^^ScheduledState(eventInfo = EventInfo(),
+                  eventMetaInfo = EventMetaInfo(), reservation = ReservationId())
             }
             on other {
             then error "You must first create an event using ScheduleEvent command."
             }
         }
 
-        state Scheduled is {
-            fields {
-                eventInfo: EventInfo,
-                eventMetaInfo: EventMetaInfo,
-                reservation: ReservationId?
-            }
+        record ScheduledState is {
+          eventInfo: EventInfo,
+          eventMetaInfo: EventMetaInfo,
+          reservation: ReservationId?
+        }
+        state Scheduled of ^ScheduledState is {
             handler ScheduledEventHandler {
                 on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
                 on command AddReservationToEvent {
@@ -64,12 +66,12 @@ context EventContext is {
                 on command AddLiveUpdate{???}
             }
         }
-        state InProgress is {
-            fields{
-                eventInfo: EventInfo,
-                eventMetaInfo: EventMetaInfo,
-                reservation: ReservationId
-            }
+        record InProgressState is {
+          eventInfo: EventInfo,
+          eventMetaInfo: EventMetaInfo,
+          reservation: ReservationId
+        }
+        state InProgress of ^InProgressState is {
             handler InProgressEventHandler is {
                 on command ScheduleEvent{
                     then error "Event is already in progress, cannot be scheduled"
@@ -103,14 +105,14 @@ context EventContext is {
             }
             //score, period, etc...
         }
-        state Delayed is {
-            fields {
-                eventInfo: EventInfo,
-                reason: String,
-                eventMetaInfo: EventMetaInfo,
-                reservation: ReservationId
-                //finalScore
-            }
+        record DelayedState is {
+          eventInfo: EventInfo,
+          reason: String,
+          eventMetaInfo: EventMetaInfo,
+          reservation: ReservationId
+          //finalScore
+        }
+        state Delayed of ^DelayedState is {
             handler DelayedEventHandler is {
                 on command ScheduleEvent{
 				  then error "Cannot schedule a delayed event, please reschedule"
@@ -148,24 +150,25 @@ context EventContext is {
                 on command AddLiveUpdate{???}
             }
         }
-        state Past is {
-            fields {
-                eventInfo: EventInfo,
-                eventMetaInfo: EventMetaInfo,
-                reservation: ReservationId?
-                //finalScore
-            }
+        record PastState {
+            eventInfo: EventInfo,
+            eventMetaInfo: EventMetaInfo,
+            reservation: ReservationId?
+            //finalScore
+        }
+        state Past of ^PastState is {
             handler PastEventHandler is {
               on other {then error "No actions are permitted on a Past event"}
             }
         }
-        state Cancelled is {
-            fields {
-                eventInfo: EventInfo,
-                eventMetaInfo: EventMetaInfo,
-                reservation: ReservationId?
-                //reason
-            }
+        record CancelledState {
+            eventInfo: EventInfo,
+            eventMetaInfo: EventMetaInfo,
+            reservation: ReservationId?
+            //reason
+        }
+
+        state Cancelled of ^CancelledState is {
             handler CancelledEventHandler is {
                 on command RescheduleEvent{
                   then "set entity evenInfo.expectedStart to RescheduleEvent.info.start"

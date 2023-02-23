@@ -66,11 +66,12 @@ context ProductContext is {
       }
       on other {then error "Only the CreateProduct command is allowed in the default state."}
     }
-    state Draft is {
-      fields {
-        info: ProductInfo,
-        meta: ProductMetaInfo
-      }
+
+    record DraftState is {
+      info: ProductInfo,
+      meta: ProductMetaInfo
+    }
+    state Draft of ^DraftState is {
       handler ActiveProductHandler is {
         on command CreateProduct {
           then error "Product already created."
@@ -78,7 +79,7 @@ context ProductContext is {
         on command UpdateProductInfo{
           then "Copy fields from UpdateProductInfo into Active product fields"
           and "adjust meta fields to reflect the change set"
-          and "yield ProductInfoUpated event"
+          and "yield ProductInfoUpdated event"
         }
         on command DeleteProduct{
           then "morph Product state to Deleted"
@@ -99,11 +100,12 @@ context ProductContext is {
         }
       }
     }
-    state Active is {
-      fields {
-        info: ProductInfo,
-        meta: ProductMetaInfo
-      }
+
+    record ActiveState is {
+      info: ProductInfo,
+      meta: ProductMetaInfo
+    }
+    state Active of ^ActiveState is {
       handler ActiveProductHandler is {
         on command CreateProduct {
           then error "Product already created."
@@ -111,7 +113,7 @@ context ProductContext is {
         on command UpdateProductInfo{
           then "Copy fields from UpdateProductInfo into Active product fields"
           and "adjust meta fields to reflect the change set"
-          and "yield ProductInfoUpated event"
+          and "yield ProductInfoUpdated event"
         }
         on command DeleteProduct{
           then "morph Product state to Deleted"
@@ -132,11 +134,12 @@ context ProductContext is {
         }
       }
     }
-    state Inactive is {
-      fields {
-        info: ProductInfo,
-        meta: ProductMetaInfo
-      }
+
+    record InactiveState is {
+      info: ProductInfo,
+      meta: ProductMetaInfo
+    }
+    state Inactive of ^InactiveState is {
       handler InactiveProductHandler is {
         on command CreateProduct {
           then error "Product already created."
@@ -144,7 +147,7 @@ context ProductContext is {
         on command UpdateProductInfo{
           then "Copy fields from UpdateProductInfo into Active product fields"
           and "adjust meta fields to reflect the change set"
-          and "yield ProductInfoUpated event"
+          and "yield ProductInfoUpdated event"
         }
         on command DeleteProduct{
           then "morph Product state to Deleted"
@@ -165,12 +168,13 @@ context ProductContext is {
         }
       }
     }
-    state Deleted is {
-      fields {
-        sku: SKU,
-        name: String
-      }
-      handler DeltedProductHandler is {
+
+    record DeletedState is {
+      sku: SKU,
+      name: String
+    }
+    state Deleted of ^DeletedState is {
+      handler DeletedProductHandler is {
         on command CreateProduct {
           then error "Product already created."
         }
@@ -196,7 +200,7 @@ context ProductContext is {
 
   //ProductDetails is select ReservedTicket | RestrictedTicket | OpenTicket | FoodItem | Beverage
   //Units is any of {Grams, Kilograms, Pounds, Ounces, Milliliters, Liters}
-  //Condiments is any of {Catsup, Mustard, Mayonaise, Fry Sauce, Relish, Onion, Pickle, Jalapeno}
+  //Condiments is any of {Catsup, Mustard, Mayonnaise, Fry Sauce, Relish, Onion, Pickle, Jalapeno}
   /*type FoodItem is {
     PrimaryUnitOfMeasure: Units,
     PrimarySize: Number,
@@ -212,7 +216,7 @@ context ProductContext is {
   }
   type Beverage is {
     sugarFree: Boolean,
-    alcholic: Boolean,
+    alcoholic: Boolean,
     unitOfMeasure: Units,
     size: Number,
     addIce: Boolean

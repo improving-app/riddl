@@ -63,11 +63,12 @@ context StoreContext is {
       }
       on other {then error "Only the CreateStore command is allowed in the default state"}
     }
-    state Draft is {
-      fields {
-        info: StoreUpdateInfo,
-        meta: StoreMetaInfo
-      }
+
+    record DraftState is {
+      info: StoreUpdateInfo,
+      meta: StoreMetaInfo
+    }
+    state Draft of ^DraftState is {
       handler DraftStoreHandler is {
         on command CreateStore {
           then error "Store already created"
@@ -75,7 +76,7 @@ context StoreContext is {
         on command UpdateStoreInfo {
           then "copy fields from info to Draft info fields"
           and "adjust meta fields to reflect the change"
-          and "yeild the StoreUpdated event"
+          and "yield the StoreUpdated event"
         }
         on command DeleteStore {
           then "morph store to the Deleted state"
@@ -100,18 +101,19 @@ context StoreContext is {
           //TODO: Add cases where there is invalid product
         }
         on command RemoveProductsFromStore {
-          then "remove produvided products from store"
+          then "remove provided products from store"
           and "adjust meta fields to reflect the change"
           and "yield the ProductsRemovedFromStore event"
           //TODO: Add case where product to be removed doesn't exist in store
         }
       }
     }
-    state Ready is {
-      fields {
-        info: StoreInfo,
-        meta: StoreMetaInfo
-      }
+
+    record ReadyState is {
+      info: StoreInfo,
+      meta: StoreMetaInfo
+    }
+    state Ready of ^ReadyState is {
       handler ReadyStoreHandler is {
         on command CreateStore {
           then error "Store already created"
@@ -119,7 +121,7 @@ context StoreContext is {
         on command UpdateStoreInfo {
           then "copy fields from info to Draft info fields"
           and "adjust meta fields to reflect the change"
-          and "yeild the StoreUpdated event"
+          and "yield the StoreUpdated event"
         }
         on command DeleteStore {
           then error "Store must be closed before deleting it"
@@ -141,18 +143,19 @@ context StoreContext is {
           //TODO: Add cases where there is invalid product
         }
         on command RemoveProductsFromStore {
-          then "remove produvided products from store"
+          then "remove provided products from store"
           and "adjust meta fields to reflect the change"
           and "yield the ProductsRemovedFromStore event"
           //TODO: Add case where product to be removed doesn't exist in store
         }
       }
     }
-    state Open is {
-      fields {
-        info: StoreInfo,
-        meta: StoreMetaInfo
-      }
+
+    record OpenFields is {
+      info: StoreInfo,
+      meta: StoreMetaInfo
+    }
+    state Open of ^OpenFields is {
       handler OpenStoreHandler is {
         on command CreateStore {
           then error "Store already created"
@@ -160,7 +163,7 @@ context StoreContext is {
         on command UpdateStoreInfo {
           then "copy fields from info to Draft info fields"
           and "adjust meta fields to reflect the change"
-          and "yeild the StoreUpdated event"
+          and "yield the StoreUpdated event"
         }
         on command MakeStoreReady {
           then error "Store must be in Draft state before being made Ready"
@@ -181,18 +184,19 @@ context StoreContext is {
           //TODO: Add cases where there is invalid product
         }
         on command RemoveProductsFromStore {
-          then "remove produvided products from store"
+          then "remove provided products from store"
           and "adjust meta fields to reflect the change"
           and "yield the ProductsRemovedFromStore event"
           //TODO: Add case where product to be removed doesn't exist in store
         }
       }
     }
-    state Closed is {
-      fields {
-        info: StoreInfo,
-        meta: StoreMetaInfo
-      }
+
+    record ClosedState is {
+      info: StoreInfo,
+      meta: StoreMetaInfo
+    }
+    state Closed of ^ClosedState is {
       handler ClosedStoreHandler is {
         on command CreateStore {
           then error "Store already created"
@@ -200,7 +204,7 @@ context StoreContext is {
         on command UpdateStoreInfo {
           then "copy fields from info to Draft info fields"
           and "adjust meta fields to reflect the change"
-          and "yeild the StoreUpdated event"
+          and "yield the StoreUpdated event"
         }
         on command MakeStoreReady {
           then error "Store must be in Draft state before being made Ready"
@@ -225,22 +229,23 @@ context StoreContext is {
           //TODO: Add cases where there is invalid product
         }
         on command RemoveProductsFromStore {
-          then "remove produvided products from store"
+          then "remove provided products from store"
           and "adjust meta fields to reflect the change"
           and "yield the ProductsRemovedFromStore event"
           //TODO: Add case where product to be removed doesn't exist in store
         }
       }
     }
-    state Deleted is {
-      fields {
-        storeName: String,
-        event: EventId?,
-        venue: VenueId,
-        location: LocationId,
-        sponsoringOrg: OrganizationId,
-        meta: StoreMetaInfo
-      }
+
+    record DeletedState is {
+      storeName: String,
+      event: EventId?,
+      venue: VenueId,
+      location: LocationId,
+      sponsoringOrg: OrganizationId,
+      meta: StoreMetaInfo
+    }
+    state Deleted of ^DeletedState is {
       handler DeletedStoreHandler is {
         on other {then error "No actions are permitted on a Deleted store"}
       }

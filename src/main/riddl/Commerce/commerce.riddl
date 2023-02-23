@@ -1,7 +1,7 @@
 context Commerce is {
     type PromotionId is Id( Promotion )
     type PromotionInfo is {
-        name: String, 
+        name: String,
         startTime: DateTime,
         endTime: DateTime,
         condition: String,
@@ -32,38 +32,51 @@ context Commerce is {
         specialInstructions: String
     } //not part of MVP
 
+    type NullState is Nothing
+
     entity Promotion is {
-        state Active is {???} handler ActivePromotionHandler is {???}
-        state Expired is {???} handler InactivePromotionHandler is {???}
+        state Active of ^^NullState is {???}
+        handler ActivePromotionHandler is {???}
+        state Expired of ^^NullState is {???}
+        handler InactivePromotionHandler is {???}
     } //not part of MVP
 
     entity PaymentProvider is {???} //TBD - after MVP
-    
+
     entity Payment is {
-        state Payment is {
-            fields {
-                paymentId: PaymentId,
-                orderId: OrderId,
-                amount: Number,
-                dateProcessed: DateTime
-            }
+        record PaymentState is {
+           paymentId: PaymentId,
+           orderId: OrderId,
+           amount: Number,
+           dateProcessed: DateTime
+        }
+        state Payment of ^PaymentState is {
             handler PaymentHandler is {???}
-        } 
+        }
     }
     entity Cart is {???} //develop as a future feature - Persistant Cart - Training exercise
-    
+
     entity Order is {
-        state Placed is {???} handler PlacedOrderHandler is {???}
-        state InProcess is {???} handler InProcessOrderHandler is {???}
-        state Ready is {???} handler ReadyOrderHandler is {???}
-        state Delivered is {???} handler DeliveredOrderHandler is {???}
-        state Cancelled is {???} handler CancelledOrderHandler is {???}
+        state Placed of ^^NullState is {???}
+        handler PlacedOrderHandler is {???}
+        state InProcess of ^^NullState is {???}
+        handler InProcessOrderHandler is {???}
+        state Ready of ^^NullState is {???}
+        handler ReadyOrderHandler is {???}
+        state Delivered of ^^NullState is {???}
+        handler DeliveredOrderHandler is {???}
+        state Cancelled of ^^NullState is {???}
+        handler CancelledOrderHandler is {???}
     }
 
     entity Delivery is {
-        state Pending is {???} handler PendingDeliveryHandler is {???}
-        state Ready is {???} handler ReadyDeliveryHandler is {???}
-        state EnRoute is {???} handler EnRoutDeliveryHandler is {???}
-        state Delivered is {???} handler DeliveredDeliveryHandler is {???}
+        state Pending of ^^NullState is {???}
+        handler PendingDeliveryHandler is {???}
+        state Ready of ^^NullState is {???}
+        handler ReadyDeliveryHandler is {???}
+        state EnRoute of ^^NullState is {???}
+        handler EnRoutDeliveryHandler is {???}
+        state Delivered of ^^NullState is {???}
+        handler DeliveredDeliveryHandler is {???}
     } //not part of MVP
 }

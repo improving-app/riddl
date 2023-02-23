@@ -19,12 +19,12 @@ context VenueContext is {
             on other { then error "Only EstablishVenue command is allowed in the default state"}
         }
 
-		    state Draft is {
-		        fields {
-		            venueInfo: VenueContext.Info,
-		            locations: LocationId*,
-		            venueMeta: VenueContext.MetaInfo
-		        }
+        record DraftState is {
+            venueInfo: VenueContext.Info,
+            locations: LocationId*,
+            venueMeta: VenueContext.MetaInfo
+        }
+		    state Draft of ^DraftState is {
 		        handler DraftVenue is {
 		            on command EstablishVenue {
 		                then error "Venue already established"
@@ -46,12 +46,12 @@ context VenueContext is {
 			      }
 	      }
 
-		    state Open is {
-		        fields {
-		            venueInfo: VenueContext.Info,
-		            locations: LocationId*,
-		            venueMeta: VenueContext.MetaInfo
-		        }
+        record OpenState is {
+            venueInfo: VenueContext.Info,
+            locations: LocationId*,
+            venueMeta: VenueContext.MetaInfo
+        }
+		    state Open of ^OpenState is {
 		        handler OpenVenue is {
 		            on command EstablishVenue {
 		                then error "Venue already established"
@@ -73,12 +73,12 @@ context VenueContext is {
 		        }
 		    }
 
-		    state Closed is {
-		        fields {
-		            orgId: OrganizationId,
-		            locations: LocationId*,
-		            venueMeta: VenueContext.MetaInfo
-		        }
+        record ClosedState is {
+            orgId: OrganizationId,
+            locations: LocationId*,
+            venueMeta: VenueContext.MetaInfo
+        }
+		    state Closed of ^ClosedState is {
 		        handler ClosedVenue is {
 		            on command EstablishVenue {
 		                then error "Venue already established"
