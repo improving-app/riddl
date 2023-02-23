@@ -33,103 +33,108 @@ context Vendor is {
     }
 
     entity Vendor is {
-        state Draft is {
-            fields {
-                vendorId: VendorId,
-                vendorInfo: VendorInfo
-            }
+        record DraftState is {
+            vendorId: VendorId,
+            vendorInfo: VendorInfo
+        }
+        state Draft of ^DraftState is {
             handler DraftVendor is {???}
         }
-        state Active is {
-            fields {
-                vendorId: VendorId,
-                vendorInfo: VendorInfo
-            }
+
+        record ActiveState is {
+            vendorId: VendorId,
+            vendorInfo: VendorInfo
+        }
+        state Active of ^ActiveState is {
             handler ActiveVendorHandler is {???}
         }
-        state Inactive is {
-            fields {
-                vendorId: VendorId,
-                vendorInfo: VendorInfo
-            }
+        record InactiveState is {
+            vendorId: VendorId,
+            vendorInfo: VendorInfo
+        }
+        state Inactive of ^InactiveState is {
             handler InactiveVendor is {???}
         }
-        state Suspended is {
-            fields {
-                vendorId: VendorId,
-                vendorInfo: VendorInfo
-            }
+        record SuspendedState is {
+            vendorId: VendorId,
+            vendorInfo: VendorInfo
+        }
+        state Suspended of ^SuspendedState is {
             handler SuspendedVendorHandler is {???}
         }
-        state Terminated is {
-            fields {
-                vendorId: VendorId
-            }
+        record TerminatedState is {
+            vendorId: VendorId
+        }
+        state Terminated of ^TerminatedState is {
             handler TerminatedVendor is {???}
         }
     }
 
     entity Store is {
-        state Staged is {
-            fields {
-                storeId: StoreId,
-                storeInfo: StoreInfo
-            }
+        record StagedState is {
+            storeId: StoreId,
+            storeInfo: StoreInfo
+        }
+        state Staged of ^StagedState is {
             handler StagedStoreHandler is {???}
         }
-        state Open is {
-            fields {
-                storeId: StoreId,
-                storeInfo: StoreInfo
-            }
+
+        record OpenState is {
+            storeId: StoreId,
+            storeInfo: StoreInfo
+        }
+        state Open of ^OpenState is {
             handler OpenStoreHandler is {???}
         }
-        state Closed is {
-            fields {
-                storeId: StoreId,
-                storeInfo: StoreInfo
-            }
+
+        record ClosedState  {
+            storeId: StoreId,
+            storeInfo: StoreInfo
+        }
+        state Closed of ^ClosedState is {
             handler ClosedStoreHandler is {???}
         }
     }
 
     entity Catalog is {
-        state Catalog is {
-            fields {
-                catalogId: CatalogId,
-                name: String,
-                products: ProductId+
-            }
+        record CatalogState is {
+            catalogId: CatalogId,
+            name: String,
+            products: ProductId+
+        }
+        state Catalog of CatalogState is {
             handler CatalogHandler is {???}
         }
     }
     entity Category is {
-        state Category is {
-            fields {
-                categoryId: CategoryId,
-                name: String,
-                products: ProductId+
-            }
+        record CategoryState is {
+            categoryId: CategoryId,
+            name: String,
+            products: ProductId+
+        }
+        state Category of ^CategoryState is {
             handler CategoryHandler is {???}
         }
     }
     entity Product is {
-        state Active is {
-            fields {
-                sku: String,
-                productInfo: ProductInfo
-                //kits i.e. combo meal - future scope
-                //condiments - catsup, mustard, jalapenos, etc. - future scope
-            }
+
+        record ActiveState is {
+            sku: String,
+            productInfo: ProductInfo
+            //kits i.e. combo meal - future scope
+            //condiments - catsup, mustard, jalapenos, etc. - future scope
+        }
+        state Active of ^ActiveState is {
             handler ActiveProductHandler is {???}
         }
-        state Inactive is {
-            fields {
-                sku: String,
-                productInfo: ProductInfo
-                //kits i.e. combo meal
-                //condiments - catsup, mustard, jalapenos, etc.
-            }
+
+        record InactiveState is {
+            sku: String,
+            productInfo: ProductInfo
+            //kits i.e. combo meal
+            //condiments - catsup, mustard, jalapenos, etc.
+        }
+        state Inactive of ^InactiveState is {
             handler InactiveProductHandler is {???}
         }
     }

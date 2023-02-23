@@ -12,7 +12,8 @@ context EventContext is {
         handler EventHandler is {
             on command ScheduleEvent {
                 then morph entity Event to state Scheduled with
-                  record ^^ScheduledState()
+                  record ^^ScheduledState(eventInfo = EventInfo(),
+                  eventMetaInfo = EventMetaInfo(), reservation = ReservationId())
             }
             on other {then error "You must first create an event using ScheduleEvent command."}
         }

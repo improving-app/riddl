@@ -27,11 +27,12 @@ context TenantContext is {
                 }
             }
         }
-        state DraftTenant is {
-            fields {
-                info: TenantContext.Info,
-                meta: TenantContext.MetaInfo
-            }
+
+        record DraftTenantState is  {
+            info: TenantContext.Info,
+            meta: TenantContext.MetaInfo
+        }
+        state DraftTenant of ^DraftTenantState is {
             handler DraftTenantHandler is {
                 on command TenantContext.EditInfo {
                     then "Copy fields from TenantContext.EditInfo into Draft info fields"
@@ -116,11 +117,12 @@ context TenantContext is {
                 on other { then error "Command not allowed in Draft state" }
             }
         }
-        state ActiveTenant is {
-            fields {
-                info: TenantContext.Info,
-                meta: TenantContext.MetaInfo
-            }
+
+        record ActiveState is {
+            info: TenantContext.Info,
+            meta: TenantContext.MetaInfo
+        }
+        state ActiveTenant of ^ActiveState is {
             handler ActiveTenantHandler is {
                  on command TenantContext.UpdateStatus {
                     example Success {
@@ -196,11 +198,12 @@ context TenantContext is {
                 on other { then error "Command not allowed in Active state" }
             }
         }
-        state SuspendedTenant is {
-            fields {
-                info: TenantContext.Info,
-                meta: TenantContext.MetaInfo
-            }
+
+        record SuspendedState is {
+            info: TenantContext.Info,
+            meta: TenantContext.MetaInfo
+        }
+        state SuspendedTenant of ^SuspendedState is {
             handler SuspendedTenantHandler is {
                  on command TenantContext.UpdateStatus {
                     example Success {
