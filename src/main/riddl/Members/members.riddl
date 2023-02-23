@@ -231,12 +231,11 @@ context MembersContext  is {
             //}
         }
 
-        state Draft is {
-          fields {
-            info: MembersContext.Info,
-            meta: MembersContext.MetaInfo
-          }
-
+        record DraftState is {
+          info: MembersContext.Info,
+          meta: MembersContext.MetaInfo
+        }
+        state Draft of ^DraftState is {
           handler DraftMemberHandler {
             on command RegisterMember {then error "Member has already been registered."}
             on command ActivateMember {
@@ -339,12 +338,11 @@ context MembersContext  is {
           |member can transition to any state other than Draft.
         }
 
-        state Inactive is {
-          fields {
-            info: MembersContext.Info,
-            meta: MembersContext.MetaInfo
-          }
-
+        record InactiveState is {
+          info: MembersContext.Info,
+          meta: MembersContext.MetaInfo
+        }
+        state Inactive of ^InactiveState is {
           handler InactiveMemberHandler {
             on command RegisterMember {then error "Member has already been registered."}
             on command ActivateMember {
@@ -383,13 +381,12 @@ context MembersContext  is {
           |keep the record.
         }
 
-        state Suspended is {
-          fields {
-            info: MembersContext.Info,
-            meta: MembersContext.MetaInfo,
-            suspensionReason: String
-          }
-
+        record SuspendedState is {
+          info: MembersContext.Info,
+          meta: MembersContext.MetaInfo,
+          suspensionReason: String
+        }
+        state Suspended of ^SuspendedState is {
           handler SuspendedMemberHandler {
             on command RegisterMember {then error "Member has already been registered."}
             on command ActivateMember {
