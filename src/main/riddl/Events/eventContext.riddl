@@ -15,7 +15,9 @@ context EventContext is {
                   record ^^ScheduledState(eventInfo = EventInfo(),
                   eventMetaInfo = EventMetaInfo(), reservation = ReservationId())
             }
-            on other {then error "You must first create an event using ScheduleEvent command."}
+            on other {
+            then error "You must first create an event using ScheduleEvent command."
+            }
         }
 
         record ScheduledState is {
