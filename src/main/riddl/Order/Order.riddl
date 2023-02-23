@@ -52,11 +52,11 @@ context OrderContext is {
       on other {then error "Only CreateOrder is allowed in the default state"}
     }
 
-    state Draft is {
-      fields {
-        info: OrderInfo,
-        meta: OrderMetaInfo
-      }
+    record DraftState is {
+      info: OrderInfo,
+      meta: OrderMetaInfo
+    }
+    state Draft of ^DraftState is {
       handler DraftOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
         on command UpdateOrderStatus {
@@ -90,11 +90,12 @@ context OrderContext is {
         on query GetOrderInfo {then "yeild OrderInfoResult message"}
       }
     }
-    state Pending is {
-      fields {
-        info: OrderInfo,
-        meta: OrderMetaInfo
-      }
+
+    record PendingState is {
+      info: OrderInfo,
+      meta: OrderMetaInfo
+    }
+    state Pending of ^PendingState is {
       handler PendingOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
         on command UpdateOrderStatus {
@@ -128,11 +129,12 @@ context OrderContext is {
         on query GetOrderInfo {then "yeild OrderInfoResult message"}
       }
     }
-    state InProcess is {
-      fields {
-        info: OrderInfo,
-        meta: OrderMetaInfo
-      }
+
+    record InProcessState is {
+      info: OrderInfo,
+      meta: OrderMetaInfo
+    }
+    state InProcess of ^InProcessState is {
       handler InProcessOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
         on command UpdateOrderStatus {
@@ -152,11 +154,12 @@ context OrderContext is {
         on query GetOrderInfo {then "yeild OrderInfoResult message"}
       }
     }
-    state Ready is {
-      fields {
-        info: OrderInfo,
-        meta: OrderMetaInfo
-      }
+
+    record ReadyState is {
+      info: OrderInfo,
+      meta: OrderMetaInfo
+    }
+    state Ready of ^ReadyState is {
       handler ReadyOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
         on command UpdateOrderStatus {
@@ -176,11 +179,12 @@ context OrderContext is {
         on query GetOrderInfo {then "yeild OrderInfoResult message"}
       }
     }
-    state Delivered is {
-      fields {
-        info: OrderInfo,
-        meta: OrderMetaInfo
-      }
+
+    record DeliveredState is {
+      info: OrderInfo,
+      meta: OrderMetaInfo
+    }
+    state Delivered of ^DeliveredState is {
       handler DeliveredOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
         on command UpdateOrderStatus {???}
@@ -189,11 +193,12 @@ context OrderContext is {
         on query GetOrderInfo {then "yeild OrderInfoResult message"}
       }
     }
-    state Cancelled is {
-      fields {
-        info: OrderInfo,
-        meta: OrderMetaInfo
-      }
+
+    record CancelledState is {
+      info: OrderInfo,
+      meta: OrderMetaInfo
+    }
+    state Cancelled of ^CancelledState is {
       handler CancelledOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
         on command UpdateOrderStatus {???}
