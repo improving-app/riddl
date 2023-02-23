@@ -23,5 +23,5 @@ jobs:
       run: |
         echo RIDDLC = "$RIDDLC"
         which riddlc
-        riddlc from "src/main/riddl/KalixStudy.conf" validate
+        riddlc from "src/main/riddl/ImprovingApp.conf" validate
       shell: bash
