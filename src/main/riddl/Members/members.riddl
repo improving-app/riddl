@@ -1,7 +1,7 @@
 type MemberId is Id(ImprovingApp.MembersContext.Member)
   briefly "Unique identifier for Tenant Entity"
 
-  type MemberMap is mapping from MemberId to MembersContext.Info
+type MemberMap is mapping from MemberId to MembersContext.Info
 
 context MembersContext  is {
     //Member Details
@@ -223,6 +223,8 @@ context MembersContext  is {
             //on command RegisterMemberList {
             //    //TODO: list operations on the following:
             //    then morph entity Member to state Member.Active
+            //      with record ^^ActiveState(info = MembersContext.Info(),
+            //        meta = MembersContext.MetaInfo())
             //    //TODO: How do you reference members of a mapping?
             //    //and set Active.memberId to @RegisterMemberList.MemberList.memberId
             //    //and set Active.info to @RegisterMemberList.MemberList.info
@@ -276,11 +278,11 @@ context MembersContext  is {
           |back to Draft.
         }
 
-        state Active is {
-            fields {
-                info: MembersContext.Info,
-                meta: MembersContext.MetaInfo
-            }
+        record ActiveState is {
+            info: MembersContext.Info,
+            meta: MembersContext.MetaInfo
+        }
+        state Active of ^ActiveState is {
             invariant time_sanity is {
               <=(@Active.meta.createdOn, @Active.meta.lastModifiedOn)
             }
@@ -432,10 +434,10 @@ context MembersContext  is {
         }
 
 
-        state Terminated is {
-            fields {
-                memberId: MemberId // needed for compilation - RIDDL requires fields object and fields object requires at least one field
-            }
+        record TerminatedState is {
+            memberId: MemberId // needed for compilation - RIDDL requires fields object and fields object requires at least one field
+        }
+        state Terminated of ^TerminatedState is {
             handler TerminatedMemberHandler is {
                 on other { then error "Terminated members cannot process messages" }
             }

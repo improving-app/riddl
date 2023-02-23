@@ -18,11 +18,11 @@ context LocationContext is {
 		        on other { then error "Only EstablishLocation command is allowed in the default state"}
 		    }
 
-		    state Draft is {
-		        fields {
-		            locationInfo: LocationContext.Info,
-		            locationMeta: LocationContext.MetaInfo
-		        }
+        record DraftState is {
+            locationInfo: LocationContext.Info,
+            locationMeta: LocationContext.MetaInfo
+        }
+		    state Draft of ^DraftState is {
 		        handler DraftLocation is {
 		            on command EstablishLocation {
 		                then error "Location already established"
@@ -44,11 +44,11 @@ context LocationContext is {
 		        }
 		    }
 
-		    state Open is {
-		        fields {
-		            locationInfo: LocationContext.Info,
-		            locationMeta: LocationContext.MetaInfo
-		        }
+        record OpenState is {
+            locationInfo: LocationContext.Info,
+            locationMeta: LocationContext.MetaInfo
+        }
+		    state Open of ^OpenState is {
 		        handler OpenLocation is {
 		            on command EstablishLocation {
 		                then error "Location already established"
@@ -65,11 +65,11 @@ context LocationContext is {
 		        }
 		    }
 
-		    state Closed is {
-		        fields {
-		            locationInfo: LocationContext.Info,
-		            locationMeta: LocationContext.MetaInfo
-		        }
+        record ClosedState is {
+            locationInfo: LocationContext.Info,
+            locationMeta: LocationContext.MetaInfo
+        }
+		    state Closed of ^ClosedState is {
 		        handler ClosedLocation is {
 		            on command EstablishLocation {
 		                then error "Location already established"
