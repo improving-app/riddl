@@ -120,7 +120,8 @@ context MembersContext  is {
             }
             on command RegisterMemberList {
                 //TODO: list operations on the following:
-                then morph entity Member to state Member.Active
+                then morph entity Member to state Member.Active with
+                record Foo()
                 //TODO: How do you reference members of a mapping?
                 //and set Active.memberId to @RegisterMemberList.MemberList.memberId
                 //and set Active.info to @RegisterMemberList.MemberList.info
