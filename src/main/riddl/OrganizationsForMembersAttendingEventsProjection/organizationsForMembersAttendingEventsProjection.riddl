@@ -29,9 +29,6 @@ context OrganizationsForMembersAttendingEventsProjections is  {
             and "create row in org-member table with attendingMemberOrgId set to MemberRegistered.info.organizationMembership.head"
             and "set attendingMemberId to MemberRegistered.memberId"
         }
-        on event MemberStatusUpdated {
-          then "update row in member table with the new status"
-        }
         //on event MembersAddedToOrganization {
         //    then "create rows in org-member table with attendingMemberOrg set to MembersAddedToOrganization.orgId and attendingMembers set to MembersAddedToOrganization.newMembers"
         //}
