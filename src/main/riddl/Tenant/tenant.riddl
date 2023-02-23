@@ -84,6 +84,28 @@ context TenantContext is {
                         then error "Tenant name is already in use"
                     }
                 }
+                on command AddOrganizations {
+                    example Success {
+                        then "add orgs to info's list of tenant orgs"
+                        and "Set Tenant meta data to reflect change"
+                        and "yield OrganizationsAdded event"
+                    }
+                    example OrganizationsNameAlreadyInList {
+                        when "This organizations already belongs to this tenant"
+                        then error "Organizations already belongs to tenant"
+                    }
+                }
+                on command RemoveOrganizations {
+                   example Success {
+                       then "remove organizations from info's list of tenant orgs"
+                       and "Set Tenant meta data to reflect change"
+                       and "yield OrganizationsRemoved event"
+                   }
+                   example OrganizationsNameNotInListAlready {
+                       when "This tenant already doesn't belong to this organizations"
+                       then error "Tenant doesn't belongs to organizations already"
+                   }
+                }
                 // on command SwapBillingAccount {
                 //     example Success {
                 //         then "Update the BillingAccountId"
@@ -165,6 +187,28 @@ context TenantContext is {
                         then error "User is not authorized to modify Tenant"
                     }
                 }
+	            on command AddOrganizations {
+	                example Success {
+	                    then "add orgs to info's list of tenant orgs"
+	                    and "Set Tenant meta data to reflect change"
+	                    and "yield OrganizationsAdded event"
+	                }
+	                example OrganizationsNameAlreadyInList {
+	                    when "This organizations already belongs to this tenant"
+	                    then error "Organizations already belongs to tenant"
+	                }
+	            }
+	            on command RemoveOrganizations {
+	               example Success {
+	                   then "remove organizations from info's list of tenant orgs"
+	                   and "Set Tenant meta data to reflect change"
+	                   and "yield OrganizationsRemoved event"
+	               }
+	               example OrganizationsNameNotInListAlready {
+	                   when "This tenant already doesn't belong to this organizations"
+	                   then error "Tenant doesn't belongs to organizations already"
+	               }
+	            }
                 // on command SwapBillingAccount {
                 //     example Success {
                 //         then "Update the BillingAccountId"
