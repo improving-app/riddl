@@ -1,4 +1,5 @@
 context TestGateway by author Reid is {
+  option gateway
 
   include "messages"
   include "handler"
