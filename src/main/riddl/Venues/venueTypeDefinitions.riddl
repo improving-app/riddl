@@ -5,7 +5,7 @@ type Info is {
   name: String,
   address: Address,
   isPrivate: Boolean briefly "Is this location accessible outside of the organization owning its venue?
-                              Note: would require a query connecting this value to a projection of all parents and children of orgId"
+                              Note: would require a query connecting this value to a projector of all parents and children of orgId"
 }
 
 type UpdateInfo is {

@@ -1,5 +1,5 @@
 context OrganizationsProjection is  {
-  projection OrganizationsView is {
+  projector OrganizationsView is {
      record Fields {
         orgId: OrganizationId, //org-owner & org-member correlation tables
         orgOwner: MemberId,    //org-owner correlation table

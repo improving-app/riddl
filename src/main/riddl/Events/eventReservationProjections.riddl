@@ -5,7 +5,7 @@ result NoReservationForEvent is {}
 result NoLocationForEventReservation is {}
 
 context EventReservationProjections is  {
-  projection EventReservationView is {
+  projector EventReservationView is {
      record EventReservationFields {
         event: EventId,
         location: LocationId,

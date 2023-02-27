@@ -26,7 +26,7 @@ application UserInterface is {
     from context ImprovingApp.OrganizationContext {
       then {
         tell result ImprovingApp.OrganizationContext.OrganizationCreated to
-          projection ImprovingApp.OrganizationContext.OrganizationViews,
+          projector ImprovingApp.OrganizationContext.OrganizationViews,
         "present Organization.DisplayOrganization"
       }
     }

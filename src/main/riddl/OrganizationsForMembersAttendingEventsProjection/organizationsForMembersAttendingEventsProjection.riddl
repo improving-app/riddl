@@ -5,7 +5,7 @@ type OrgMembersEvents is mapping from OrganizationId to {orgName: String, member
 result OrgsByMembersForEvents is {orgEventMembers: OrgMembersEvents+}
 
 context OrganizationsForMembersAttendingEventsProjections is  {
-  projection OrganizationsForMembersAttendingEventsView is {
+  projector OrganizationsForMembersAttendingEventsView is {
      record OrganizationsForMembersAttendingEventsFields {
         event: EventId,     //event table, ticket-event correlation table
         eventName: String,  //event table

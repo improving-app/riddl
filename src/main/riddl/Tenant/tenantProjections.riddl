@@ -5,7 +5,7 @@ result TenantByName is {
 }
 result NoTenantWithName {}
 
-projection TenantViews is {
+projector TenantViews is {
     record TenantFields {
         tenant: TenantId,
         tenantName: String,

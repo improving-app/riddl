@@ -52,7 +52,7 @@ context ProductContext is {
   event ProductInactivated is {sku: SKU}
   query GetProductInfo is {sku: SKU}
   result ProductInfoResult is {info: ProductInfo, meta: ProductMetaInfo}
-  query GetTicketsForEvent is {event: EventId} //TODO: Move this query/result to a projection?
+  query GetTicketsForEvent is {event: EventId} //TODO: Move this query/result to a projector?
   result TicketsForEvent is {event: EventId, tickets: SKU*}
 
   entity Product is {

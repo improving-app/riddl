@@ -1,4 +1,4 @@
-projection VenueLocationsReservationsView is {
+projector VenueLocationsReservationsView is {
     record Fields {
         venueId: VenueId,
         locationId: LocationId
@@ -8,12 +8,12 @@ projection VenueLocationsReservationsView is {
             then "set venueId to VenueEstablished.VenueId"
         }
         on event LocationEstablished {
-            given "LocationEstablished.locationInfo.venueId exists in this projection"
+            given "LocationEstablished.locationInfo.venueId exists in this projector"
             then "set locationId to LocationEstablished.locationId"
             else error "Location cannot be established because the venueId requested does not exist already"
         }
         on query GetVenueLocations {
-            given "LocationEstablished.locationInfo.venueId exists in this projection"
+            given "LocationEstablished.locationInfo.venueId exists in this projector"
             then "set locationId to LocationEstablished.locationId"
             else error "Location cannot be established because the venueId requested does not exist already"
         }
