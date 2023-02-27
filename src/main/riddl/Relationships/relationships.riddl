@@ -11,11 +11,11 @@ context Relationships is {
             distributionAccount: DistributionAccountId?
         }
     }
-    projection OrganizationViews is {
+    projector OrganizationViews is {
         //which organizations does a member own
         contains {
-            orgId: OrganizationId, 
-            owners: MemberId+, 
+            orgId: OrganizationId,
+            owners: MemberId+,
             members: MemberId*,
             subOrganizations: OrganizationId*
         }
@@ -26,7 +26,7 @@ context Relationships is {
         on query FindOrganizationsByMember {???}
         on query FindOrganizationsByOwner {???}
     }
-    
+
     //from member.riddl
     entity MemberRelationships is {
         state MemberRelationships is {
@@ -34,10 +34,10 @@ context Relationships is {
             organizations: OrganizationId*
         }
     }
-    
+
     //relatedMembers: String, //Primary use case is parent/student. I am sure there are others. Might be a better way to document such a relationship.
 //from organization.riddl
-    
+
 //from event.riddl
     eventStores: StoreId* //TODO: Do we want the association of Event<->Store here or on Store?
     participatingOrgs: OrganizationId*,

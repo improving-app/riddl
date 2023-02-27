@@ -19,7 +19,7 @@ query GetAllSkus is {}
 result AllSkus is {skus: SKU*}
 
 context AllIdsProjections is  {
-  projection AllTenantIdsView is {
+  projector AllTenantIdsView is {
      record AllTenantIdsFields {
         tenant: TenantId
         //tenantStatus: TenantContext.Status
@@ -37,7 +37,7 @@ context AllIdsProjections is  {
     }
   }
 
-  projection AllOrgIdsView is {
+  projector AllOrgIdsView is {
      record AllOrgIdsFields {
         org: OrganizationId
         //orgStatus: OrganizationContext.Status
@@ -55,7 +55,7 @@ context AllIdsProjections is  {
     }
   }
 
-  projection AllEventIdsView is {
+  projector AllEventIdsView is {
      record AllEventIdsFields{
         event: EventId
         //eventStatus: EventContext.Status
@@ -85,7 +85,7 @@ context AllIdsProjections is  {
     }
   }
 
-  projection AllMemberIdsView is {
+  projector AllMemberIdsView is {
      record AllMemberIdsFields {
         member: MemberId,
         memberStatus: MembersContext.Status
@@ -103,7 +103,7 @@ context AllIdsProjections is  {
     }
   }
 
-  projection AllStoreIdsView is {
+  projector AllStoreIdsView is {
      record AllStoreIdsFields {
         store: StoreId
     }
@@ -117,7 +117,7 @@ context AllIdsProjections is  {
     }
   }
 
-  projection AllSkusView is {
+  projector AllSkusView is {
      record AllSkusFields {
         sku: SKU
     }

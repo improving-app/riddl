@@ -9,7 +9,7 @@ result EasyEventNoAvailability is {}
 result EasyScheduledEvent is {locations: LocationId+}
 
 context LocationsReservationsProjections is  {
-  projection LocationsReservationsView is {
+  projector LocationsReservationsView is {
      record LocationsReservationsFields {
         venueId: VenueId,
         orgId: OrganizationId,

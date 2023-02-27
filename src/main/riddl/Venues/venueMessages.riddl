@@ -84,7 +84,7 @@ result VenueInfo is {
 
 query GetVenueCapacityOverview is {
 	venueId: VenueId
-} briefly "This will operate on a projection that provides the min and max capacity across locations in venues"
+} briefly "This will operate on a projector that provides the min and max capacity across locations in venues"
 result VenueCapacityOverview is {
 	venueId: VenueId,
   venueInfo: VenueContext.Info,

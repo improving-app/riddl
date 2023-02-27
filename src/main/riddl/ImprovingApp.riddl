@@ -19,4 +19,5 @@ domain ImprovingApp is {
     include "Venues/venue"
     include "use-cases/application"
     include "use-cases/stories"
+    include "test/TestGateway"
 } described in file "ImprovingApp.md"

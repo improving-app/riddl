@@ -1,6 +1,0 @@
-handler TestGateway is {
-  on command CreateTenants {
-    given "each of the TenantInfo values provided in CreateTenants"
-    then "create a tenant with matching content, 0 members, and 0 organizations"
-  }
-}

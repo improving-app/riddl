@@ -42,7 +42,7 @@ context OrganizationContext is {
                 on command UpdateParent {
                     example Success is {
                         then "Update the parent field with the value provided in UpdateParent"
-                        // TODO: should adjust this to reflect design pattern to provide children in a projection. The next two AND statements would be handled in the projection handler for ParentUpdated event
+                        // TODO: should adjust this to reflect design pattern to provide children in a projector. The next two AND statements would be handled in the projection handler for ParentUpdated event
                         and "remove orgId from the list of children in the 'old' parent"
                         and "add orgId to the list of children in the 'new' parent"
                         and "set MetaInfo to capture change data"
