@@ -19,19 +19,23 @@ described by {
   |about the tenant.
 }
 
-command UpdateStatus is {
+command ActivateTenant is {
 	tenantId: TenantId,
 	updatingUser: String
-} briefly "A command that updates a tenant's status"
-described by {
-  |Given a TenantId, the tenant status is updated. This command yields a
-  |TenantStatusUpdated event.
 }
-event StatusUpdated is {
+event TenantActivated is {
   tenantId: TenantId,
-  newStatus: ^TenantContext.Status,
   meta: TenantContext.MetaInfo
-} briefly "The event resulting from updating a Tenant's status"
+}
+
+command SuspendTenant is {
+	tenantId: TenantId,
+	updatingUser: String
+}
+event TenantSuspended is {
+  tenantId: TenantId,
+  meta: TenantContext.MetaInfo
+}
 
 command EditInfo {
   tenantId: TenantId briefly "The unique Id of the tenant to create",

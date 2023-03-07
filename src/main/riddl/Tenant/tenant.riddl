@@ -39,24 +39,15 @@ context TenantContext is {
                     and "adjust meta fields to reflect the change set"
                     and "yield event TenantContext.InfoUpdated"
                 }
-                on command TenantContext.UpdateStatus {
-                    example Success {
-                        then "Morph Tenant to Active state"
-                        and "Set Tenant meta data to reflect the change"
-                        and "yield TenantContext.StatusUpdated event"
-                    }
-                    // example NoBillingAccount {
-                    //     when "Desired status is Active and BillingAccount is null"
-                    //     then error "Tenant must have a BillingAccount to be Activated"
-                    // }
-                    // example NoDistributionAccount {
-                    //     when "Desired status is Active and DistributionAccount is null"
-                    //     then error "Tenant must have a DistributionAccount to be Activated"
-                    // }
-                    example NotAuthorized {
-                        when "Desired status is Active and updating user is not authorized to activate the tenant"
-                        then error "User is not authorized to Activate Tenant"
-                    }
+                on command ActivateTenant {
+                    then "morph Tenant to Active state"
+                    and "Set Tenant meta data to reflect the change"
+                    and "yield event TenantActivated"
+                }
+                on command SuspendTenant {
+                    then "morph Tenant to Suspend state"
+                    and "Set Tenant meta data to reflect the change"
+                    and "yield event TenantSuspended"
                 }
                 on command UpdatePrimaryContact {
                     example Success {
@@ -146,16 +137,13 @@ context TenantContext is {
         }
         state ActiveTenant of ^ActiveState is {
             handler ActiveTenantHandler is {
-                 on command TenantContext.UpdateStatus {
-                    example Success {
-                        then "Morph Tenant to Suspended state"
-                        and "Set Tenant meta data to reflect the change"
-                        and "yield TenantContext.StatusUpdated event"
-                    }
-                    example NotAuthorized {
-                        when "updating user is not authorized to suspend tenant"
-                        then error "User is not authorized to suspend Tenant"
-                    }
+                on command ActivateTenant {
+                    then error "Active tenants may not transition to the Active state"
+                }
+                on command SuspendTenant {
+                    then "morph Tenant to Suspend state"
+                    and "Set Tenant meta data to reflect the change"
+                    and "yield event TenantSuspended"
                 }
                 on command UpdatePrimaryContact {
                     example Success {
@@ -249,16 +237,13 @@ context TenantContext is {
         }
         state SuspendedTenant of ^SuspendedState is {
             handler SuspendedTenantHandler is {
-                 on command TenantContext.UpdateStatus {
-                    example Success {
-                        then "Morph Tenant to Active state"
-                        and "Set Tenant meta data to reflect the change"
-                        and "yield TenantContext.StatusUpdated event"
-                    }
-                    example NotAuthorized {
-                        when "updating user is not authorized to activate the tenant"
-                        then error "User is not authorized to Activate Tenant"
-                    }
+                on command ActivateTenant {
+                    then "morph Tenant to Active state"
+                    and "Set Tenant meta data to reflect the change"
+                    and "yield event TenantActivated"
+                }
+                on command SuspendTenant {
+                    then error "Suspended tenants may not transition to the Suspended state"
                 }
                 on other { then error "Command not allowed in Suspended state" }
             }
