@@ -20,7 +20,4 @@ domain ImprovingApp by author James is {
     include "LocationsReservationsProjections/locationsReservationsProjections"
     include "OrganizationsForMembersAttendingEventsProjection/organizationsForMembersAttendingEventsProjection"
     include "MembersAttendingEventsForAnOrganizationProjection/membersAttendingEventsForAnOrganizationProjection"
-    include "use-cases/application"
-    include "use-cases/stories"
-    include "Test/TestGateway"
 } described in file "ImprovingApp.md"

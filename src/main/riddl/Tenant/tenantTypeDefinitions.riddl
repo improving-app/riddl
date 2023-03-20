@@ -2,7 +2,7 @@ type Info is {
   name: String,
   primaryContact: Contact,
   address: Address,
-  orgs: Organization*
+  orgs: OrganizationId*
 } briefly "Information about the tenant"
 
 type MetaInfo is {
