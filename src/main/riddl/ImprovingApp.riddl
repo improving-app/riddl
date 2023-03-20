@@ -16,6 +16,7 @@ domain ImprovingApp is {
     //include "Vendors/vendor"
     include "Members/members"
     include "Organization/organization"
+    include "Order/order"
     include "Tenant/tenant"
     include "Events/event"
     include "Venues/venue"
