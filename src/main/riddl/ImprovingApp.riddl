@@ -4,6 +4,8 @@
 // It merely includes the subodmains and bounded contexts that make up the full domain.
 domain ImprovingApp is {
     include "authors"
+    include "Epics/epics"
+    include "Applications/application"
     include "Common/Contact"
     // include "Common/UniqueIds"
     include "Common/Chrono"
@@ -17,7 +19,5 @@ domain ImprovingApp is {
     include "Tenant/tenant"
     include "Vendors/vendor"
     include "Venues/venue"
-    include "use-cases/application"
-    include "use-cases/stories"
     include "test/TestGateway"
 } described in file "ImprovingApp.md"
