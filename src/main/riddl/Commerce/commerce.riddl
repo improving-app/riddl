@@ -8,23 +8,6 @@ context Commerce is {
         action: String
     }
     type PaymentId is Id( Payment )
-    type LineItem is {
-        productId: ProductId,
-        quantity: Number,
-        promotion: PromotionId,
-        extendedPrice: Number //Price of product after promotion has been applied
-        //TODO: At doTERRA we calculated tax at the LineItem Level
-    }
-    type OrderId is Id( Order )
-    type OrderInfo is {
-        customerId: MemberId, //TODO: This should be CustomerId but not sure how to model that in RIDDL
-        lineItems: LineItem+,
-        itemTotal: Number,
-        taxTotal: Number,
-        deliveryTotal: Number, //TODO: Should delivery just be a LineItem?
-        grandTotal: Number,
-        paymentId: PaymentId
-    }
     type DeliveryId is Id( Delivery )
     type DeliveryInfo is {
         orderId: OrderId,
@@ -55,19 +38,6 @@ context Commerce is {
         }
     }
     entity Cart is {???} //develop as a future feature - Persistant Cart - Training exercise
-
-    entity Order is {
-        state Placed of ^^NullState is {???}
-        handler PlacedOrderHandler is {???}
-        state InProcess of ^^NullState is {???}
-        handler InProcessOrderHandler is {???}
-        state Ready of ^^NullState is {???}
-        handler ReadyOrderHandler is {???}
-        state Delivered of ^^NullState is {???}
-        handler DeliveredOrderHandler is {???}
-        state Cancelled of ^^NullState is {???}
-        handler CancelledOrderHandler is {???}
-    }
 
     entity Delivery is {
         state Pending of ^^NullState is {???}
