@@ -59,7 +59,7 @@ context TenantContext is {
         //            }
         //            example NotSufficient {
         //                when "Desired status is Active and info fields are not entirely filled out"
-        //                then error "User is not authorized to Activate Tenant"
+        //                then error "State is not sufficiently filled out to Activate Tenant"
         //            }
         //        }
         //        on command UpdatePrimaryContact {

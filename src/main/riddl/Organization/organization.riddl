@@ -20,8 +20,8 @@ context OrganizationContext is {
             on other { then error "Only EstablishOrganization command is allowed in the default state" }
         }
 
-        record DraftState is {
-            info: OrganizationContext.Info,
+        record DraftTenantState is {
+            info: OrganizationContext.OptionalInfo,
             parent: OrganizationId?,
             members: MemberId+,
             owners: MemberId+,
@@ -29,7 +29,7 @@ context OrganizationContext is {
             // accounts: OrganizationContext.AccountList,
             meta: OrganizationContext.MetaInfo
         }
-        state Draft of ^DraftState is {
+        state Draft of DraftTenantState is {
             handler DraftOrganizationHandler is {
                 on command EstablishOrganization {
                     then error "Organization already established"
@@ -170,16 +170,23 @@ context OrganizationContext is {
                 //         then error "EditingMember is not authorized to make this change."
                 //     }
                 // }
-                on command UpdateOrganizationStatus {
-                    then "morph Organization to the state provided in UpdateOrganizationStatus"
-                    and "set MetaInfo to capture change data"
-                    and "yield event OrganizationStatusUpdated"
+                on command ActivateOrganization {
+                    example Success {
+                        when "all required fields in state are present"
+                        then "morph Organization to the Active state"
+                        and "set MetaInfo to capture change data"
+                        and "yield event OrganizationStatusUpdated"
+                    }
+                    example NotSufficient {
+                        when "all required fields in state are not present"
+                        then error "state is not sufficiently filled out to activate organization"
+                    }
                 }
                 on other { then error "No other commands allowed in Draft state" }
             }
         }
 
-        record ActiveState is {
+        record OrganizationState is {
             info: OrganizationContext.Info,
             parent: OrganizationId?,
             members: MemberId+,
@@ -188,14 +195,19 @@ context OrganizationContext is {
             // accounts: OrganizationContext.AccountList,
             orgMeta: OrganizationContext.MetaInfo
         }
-        state Active of ^ActiveState is {
-            handler ActiveOrganization is {
+        state Organization of OrganizationState is {
+            handler Organization is {
                 on command EstablishOrganization {
                     then error "Organization already established"
                 }
                 on command EditOrganizationInfo {
-                    then "set Active organization fields according to the data provided in EdietOrganizationInfo"
-                    and "yield event OrganizationInfoUpdated"
+                    example Success {
+                        then "set Active organization fields according to the data provided in EditOrganizationInfo"
+                        and "yield event OrganizationInfoUpdated"
+                    }
+                    example Suspended {
+                        then error "Move organization to the Active state in order to edit details about organization."
+                    }
                 }
                 on command UpdateParent {
                     example Success is {
@@ -214,6 +226,9 @@ context OrganizationContext is {
                     example NotAuthorized is {
                         when "editingMember is not Authorized"
                         then error "EditingMember is not authorized to make this change."
+                    }
+                    example Suspended {
+                        then error "Move organization to the Active state in order to edit details about organization."
                     }
                 }
                 on command AddMembersToOrganization {
@@ -241,6 +256,9 @@ context OrganizationContext is {
                         when "editingMember is not Authorized"
                         then error "EditingMember is not authorized to make this change."
                     }
+                    example Suspended {
+                        then error "Move organization to the Active state in order to edit details about organization."
+                    }
                 }
                 on command RemoveMembersFromOrganization {
                     example Success is {
@@ -251,6 +269,9 @@ context OrganizationContext is {
                     example NotAuthorized is {
                         when "editingMember is not Authorized"
                         then error "EditingMember is not authorized to make this change."
+                    }
+                    example Suspended {
+                        then error "Move organization to the Active state in order to edit details about organization."
                     }
                 }
                 on command AddOwnersToOrganization {
@@ -278,6 +299,9 @@ context OrganizationContext is {
                     example NotAuthorized is {
                         when "editingMember is not Authorized"
                         then error "EditingMember is not authorized to make this change."
+                    }
+                    example Suspended {
+                        then error "Move organization to the Active state in order to edit details about organization."
                     }
                 }
                 on command RemoveOwnersFromOrganization {
@@ -317,6 +341,9 @@ context OrganizationContext is {
                         when "editingMember is not Authorized"
                         then error "EditingMember is not authorized to make this change."
                     }
+                    example Suspended {
+                        then error "Move organization to the Active state in order to edit details about organization."
+                    }
                 }
                 // on command UpdateOrganizationAccounts {
                 //     example NotAuthorized is {
@@ -329,37 +356,18 @@ context OrganizationContext is {
                     and "set Meta data to reflect the change"
                     and "yield event OrganizationStatusUpdated"
                 }
+                on command TerminateOrganization {
+                    then "morph entity Organization to state TerminatedTenantState"
+                }
                 on other { then error "No other commands allowed in Active state" }
             }
         }
 
-        record SuspendedState is {
-            info: OrganizationContext.Info,
-            parent: OrganizationId?,
-            members: MemberId+,
-            owners: MemberId+,
-            contacts: Contacts?,
-            // accounts: OrganizationContext.AccountList,
-            orgMeta: OrganizationContext.MetaInfo
+        record TerminatedOrganizationState is {
+            name: String,
+            meta: OrganizationContext.MetaInfo
         }
-        state Suspended of ^SuspendedState is {
-            handler SuspendedOrganization is {
-                on command EstablishOrganization {
-                    then error "Organization already established"
-                }
-                on command UpdateOrganizationStatus {
-                    then "morph Organization to the status provided in UpdateOrganiztionStatus"
-                    and "update the meta info to reflect the change"
-                    and "yield event OrganizationStatusUpdated"
-                }
-                on other { then error "Move organization to the Active state in order to edit details about organization."}
-            }
-        }
-
-        record TerminatedState is {
-            name: String
-        }
-        state Terminated of ^TerminatedState is {
+        state Terminated of TerminatedOrganizationState is {
             handler TerminatedOrganization is {
                 on other {then error "No commands allowed in Terminated state"}
             }
