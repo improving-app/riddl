@@ -19,6 +19,12 @@ described by {
   |about the tenant.
 }
 
+event StatusUpdated is {
+  tenantId: TenantId,
+  newStatus: ^TenantContext.StatusUpdates,
+  meta: TenantContext.MetaInfo
+} briefly "The event resulting from updating a Tenant's status"
+
 command UpdateStatus is {
 	tenantId: TenantId,
 	updatingUser: String
@@ -27,11 +33,20 @@ described by {
   |Given a TenantId, the tenant status is updated. This command yields a
   |TenantStatusUpdated event.
 }
-event StatusUpdated is {
+
+command TerminateTenant is {
+	tenantId: TenantId,
+	terminatingUser: String
+} briefly "A command that terminates a tenant bny deleting all data except its ID"
+described by {
+  |Given a TenantId, the tenant terminated. This command yields a
+  |TenantTerminated event.
+}
+
+event TenantTerminated is {
   tenantId: TenantId,
-  newStatus: ^TenantContext.Status,
   meta: TenantContext.MetaInfo
-} briefly "The event resulting from updating a Tenant's status"
+} briefly "The event resulting from updating a Tenant's status to terminated"
 
 command EditInfo {
   tenantId: TenantId briefly "The unique Id of the tenant to create",

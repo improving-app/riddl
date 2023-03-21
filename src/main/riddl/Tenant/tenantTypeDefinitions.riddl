@@ -25,10 +25,10 @@ type MetaInfo is {
         |This may also be a system user. i.e. they are two months late on
         |payment so the system determines to suspend the tenant.
       },
-    currentStatus: TenantContext.Status
+    currentStatus: TenantContext.StatusUpdates
       briefly "The current state of this tenant"
       described as {
-        |Valid states include Draft, Active, and Suspended.
+        |Valid states include Active and Suspended.
       }
 } briefly "Meta information about a tenant"
 described as {
@@ -37,8 +37,7 @@ described as {
   |in the Info type."
 }
 
-type Status is any of {
-  Draft briefly "Tenant is inactive, in process of being created/defined",
+type StatusUpdates is any of {
   Active briefly "Tenant is active and suitable for use",
   Suspended briefly "Tenant is created but administratively suspended"
 }
