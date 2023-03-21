@@ -35,7 +35,7 @@ event StatusUpdated is {
 
 command EditInfo {
   tenantId: TenantId briefly "The unique Id of the tenant to create",
-  newInfo: ^TenantContext.UpdateInfo briefly "The information about the tenant",
+  newInfo: TenantContext.OptionalInfo briefly "The information about the tenant",
   updatingUser: String
 } briefly "A command to edit the values of an Tenant's Info "
 event InfoUpdated is {

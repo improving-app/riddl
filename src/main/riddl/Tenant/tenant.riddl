@@ -13,7 +13,7 @@ context TenantContext is {
         handler TenantHandler is {
             on command EstablishTenant {
                 example Success {
-                    then "Set fields from EstablishTenant for tenant"
+                    then "Set fields from EstablishTenant for DraftTenantState"
                     and "Set meta data to reflect change"
                     and "yield TenantEstablished event"
                 }
@@ -29,13 +29,13 @@ context TenantContext is {
         }
 
         record DraftTenantState is  {
-            info: TenantContext.Info,
+            info: TenantContext.OptionalInfo,
             meta: TenantContext.MetaInfo
         }
-        state DraftTenant of ^DraftTenantState is {
+        state DraftTenant of DraftTenantState is {
             handler DraftTenantHandler is {
                 on command TenantContext.EditInfo {
-                    then "Copy fields from TenantContext.EditInfo into Draft info fields"
+                    then "Copy fields which are present from TenantContext.EditInfo.newInfo into Draft info fields"
                     and "adjust meta fields to reflect the change set"
                     and "yield event TenantContext.InfoUpdated"
                 }
@@ -55,6 +55,10 @@ context TenantContext is {
                     // }
                     example NotAuthorized {
                         when "Desired status is Active and updating user is not authorized to activate the tenant"
+                        then error "User is not authorized to Activate Tenant"
+                    }
+                    example NotSufficient {
+                        when "Desired status is Active and info fields are not entirely filled out"
                         then error "User is not authorized to Activate Tenant"
                     }
                 }
@@ -140,11 +144,11 @@ context TenantContext is {
             }
         }
 
-        record ActiveState is {
+        record ActiveTenantState is {
             info: TenantContext.Info,
             meta: TenantContext.MetaInfo
         }
-        state ActiveTenant of ^ActiveState is {
+        state ActiveTenant of ActiveTenantState is {
             handler ActiveTenantHandler is {
                  on command TenantContext.UpdateStatus {
                     example Success {
@@ -243,11 +247,11 @@ context TenantContext is {
             }
         }
 
-        record SuspendedState is {
+        record SuspendedTenantState is {
             info: TenantContext.Info,
             meta: TenantContext.MetaInfo
         }
-        state SuspendedTenant of ^SuspendedState is {
+        state SuspendedTenant of SuspendedTenantState is {
             handler SuspendedTenantHandler is {
                  on command TenantContext.UpdateStatus {
                     example Success {
