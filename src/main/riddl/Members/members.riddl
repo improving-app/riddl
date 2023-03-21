@@ -37,7 +37,7 @@ context MembersContext  is {
       |of the Member with demographics, contact info, and various options
       |like notifications and group membership the Member can opt in to.
     }
-    type UpdateInfo is {
+    type OptionalInfo is {
         handle: String?
           briefly "username. Must be unique.",
         avatar: URL?
@@ -118,7 +118,7 @@ context MembersContext  is {
     //  registeringMember: MemberId
     //}
 
-    command UpdateMemberInfo is {memberId: MemberId, info: MembersContext.UpdateInfo, actingMember: MemberId}
+    command UpdateMemberInfo is {memberId: MemberId, info: MembersContext.OptionalInfo, actingMember: MemberId}
     briefly "Update info of a member"
     described as {
       |This command will overwrite the values of attributes provided in UpdateInfo.
@@ -217,7 +217,7 @@ context MembersContext  is {
         }
 
         record DraftState is {
-          info: MembersContext.Info,
+          info: MembersContext.OptionalInfo,
           meta: MembersContext.MetaInfo
         }
         state Draft of ^DraftState is {
@@ -298,7 +298,7 @@ context MembersContext  is {
                     and "yield event MemberStatusUpdated"
                 }
                 on command TerminateMember {
-                    then morph entity Member to state MemberTerminated with @ActiveMemberState.meta
+                    then morph entity Member to state MemberTerminated with !TerminatedMemberState(lastMeta = @ActiveMemberState.meta)
                 }
                 on query GetMemberData {
                     then "yield Info for entity"
@@ -310,7 +310,7 @@ context MembersContext  is {
         }
 
         record TerminatedMemberState is {
-            meta: MembersContext.MetaInfo
+            lastMeta: MembersContext.MetaInfo
         }
         state MemberTerminated of TerminatedMemberState is {
             handler TerminatedMemberHandler is {

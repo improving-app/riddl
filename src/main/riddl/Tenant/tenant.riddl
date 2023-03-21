@@ -231,7 +231,7 @@ context TenantContext is {
 	            }
 	            on command TerminateTenant {
 	               example Success {
-	                   then morph entity Tenant to state TerminatedTenant with @ActiveTenantState.meta
+	                   then morph entity Tenant to state TerminatedTenant with !TerminatedTenantState(lastMeta = @ActiveTenantState.meta)
 	               }
                    example NotAuthorized {
                        when "terminating user is not authorized to make changes to the tenant"
@@ -273,7 +273,7 @@ context TenantContext is {
         }
 
         record TerminatedTenantState is {
-            meta: TenantContext.MetaInfo
+            lastMeta: TenantContext.MetaInfo
         } briefly "Tenant is is terminated, all data has been deleted"
         state TerminatedTenant of TerminatedTenantState is {
             handler TerminatedTenantHandler is {

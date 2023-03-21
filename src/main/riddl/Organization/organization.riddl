@@ -357,7 +357,7 @@ context OrganizationContext is {
                     and "yield event OrganizationStatusUpdated"
                 }
                 on command TerminateOrganization {
-                    then morph entity Organization to state TerminatedOrganization with @orgMeta
+                    then morph entity Organization to state TerminatedOrganization with !TerminatedOrganizationState(lastMeta = @orgMeta)
                 }
                 on other { then error "No other commands allowed in Active state" }
             }
