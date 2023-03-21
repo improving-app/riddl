@@ -144,11 +144,11 @@ context TenantContext is {
         //    }
         //}
 
-        record TenantState is {
+        record ActiveTenantState is {
             info: TenantContext.Info,
             meta: TenantContext.MetaInfo
         } briefly "Tenant is active and suitable for use"
-        state Tenant of TenantState is {
+        state ActiveTenant of ActiveTenantState is {
             handler TenantHandler is {
                  on command TenantContext.UpdateStatus {
                     example Success {
@@ -229,10 +229,9 @@ context TenantContext is {
                        then error "Command not allowed in Suspended state"
                    }
 	            }
-
 	            on command TerminateTenant {
 	               example Success {
-	                   then "morph from TenantState to TerminatedTenantState"
+	                   then morph entity Tenant to state TerminatedTenant with @ActiveTenantState.meta
 	               }
                    example NotAuthorized {
                        when "terminating user is not authorized to make changes to the tenant"

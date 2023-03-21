@@ -5,6 +5,7 @@ type MemberMap is mapping from MemberId to MembersContext.Info
 
 context MembersContext  is {
     //Member Details
+    type StatusUpdates is any of {Active, Inactive, Suspended} briefly "Internal status of an Organization."
 
     type NotificationPreference is any of { Email, SMS, Application } described
     as {
@@ -146,30 +147,14 @@ context MembersContext  is {
       |that the member is now active.
     }
 
-    command InactivateMember is {memberId: MemberId, actingMember: MemberId}
-    briefly "Update state of member to Inactive"
-    described as {
-      |This command inactivates the member.
+    command UpdateMemberStatus is {
+      memberId: MemberId,
+      status: ^MemberContext.StatusUpdates,
+      updatingMember: MemberId
     }
-
-    event MemberInactivated is {memberId: MemberId, meta: MembersContext.MetaInfo}
-    briefly "Event issued after InactivateMember"
-    described as {
-      |This event is issued after InactivateMember to denote
-      |that the member is now inactive.
-    }
-
-    command SuspendMember is {memberId: MemberId, actingMember: MemberId, suspensionReason: String}
-    briefly "Update state of member to Suspended"
-    described as {
-      |This command suspends the member.
-    }
-
-    event MemberSuspended is {memberId: MemberId, meta: MembersContext.MetaInfo}
-    briefly "Event issued after SuspendMember"
-    described as {
-      |This event is issued after SuspendMember to denote
-      |that the member is now suspended.
+    event MemberStatusUpdated is {
+      memberId: MemberId,
+      newStatus: ^MemberContext.StatusUpdates
     }
 
     command TerminateMember is {memberId: MemberId, actingMember: MemberId}
@@ -245,12 +230,6 @@ context MembersContext  is {
               and "set entity lastModifiedOn to today()"
               and "yield event MemberActivated"
             }
-            on command InactivateMember {
-              then error "Cannot set state to Inactive on a member that is not active"
-            }
-            on command SuspendMember {
-              then error "Cannot set state to Suspended on a member that is not active"
-            }
             on command TerminateMember {
               given "entity has non-empty required fields"
               then "morph Member entity to Terminated state"
@@ -277,19 +256,19 @@ context MembersContext  is {
           |back to Draft.
         }
 
-        record ActiveState is {
+        record ActiveMemberState is {
             info: MembersContext.Info,
             meta: MembersContext.MetaInfo
         }
-        state Active of ^ActiveState is {
-            invariant time_sanity is {
-              <=(@Active.meta.createdOn, @Active.meta.lastModifiedOn)
-            }
+        state ActiveMember of ActiveMemberState is {
+            //invariant time_sanity is {
+            //  <=(@ActiveMemberState.meta.createdOn, @ActiveMemberState.meta.lastModifiedOn)
+            //}
             invariant firstName is {
-              >=(length(@Active.info.firstName), 3)
+              >=(length(@ActiveMemberState.info.firstName), 3)
             }
             invariant lastName is {
-              >=(length(@Active.info.firstName), 3)
+              >=(length(@ActiveMemberState.info.firstName), 3)
             }
 
 /*
@@ -313,21 +292,13 @@ context MembersContext  is {
                     and "set entity lastModifiedOn to today()"
                     and "yield event MemberInfoUpdated"
                 }
-                on command ActivateMember {
-                  then error "Cannot activate a member that is already activated"
-                }
-                on command InactivateMember {
-                  then "morph Member entity to Inactive state"
-                }
-                on command SuspendMember {
-                  given "entity has suspensionReason non-empty"
-                  then "morph Member entity to Suspended state"
-                  and "set entity lastModifiedBy to actingMember from message"
-                  and "set entity lastModifiedOn to today()"
-                  and "yield event MemberSuspended"
+                on command UpdateMemberStatus {
+                    then "morph entity Member to state provided in UpdateMemberStatus"
+                    and "set Meta data to reflect the change"
+                    and "yield event MemberStatusUpdated"
                 }
                 on command TerminateMember {
-                  then "morph Member entity to Terminated state"
+                    then morph entity Member to state MemberTerminated with @ActiveMemberState.meta
                 }
                 on query GetMemberData {
                     then "yield Info for entity"
@@ -338,103 +309,10 @@ context MembersContext  is {
           |member can transition to any state other than Draft.
         }
 
-        record InactiveState is {
-          info: MembersContext.Info,
-          meta: MembersContext.MetaInfo
+        record TerminatedMemberState is {
+            meta: MembersContext.MetaInfo
         }
-        state Inactive of ^InactiveState is {
-          handler InactiveMemberHandler {
-            on command RegisterMember {then error "Member has already been registered."}
-            on command ActivateMember {
-              given "entity has non-empty required fields"
-              then "morph Member entity to Active state"
-              and "set entity lastModifiedBy to actingMember from message"
-              and "set entity lastModifiedOn to today()"
-              and "yield event MemberActivated"
-            }
-            on command InactivateMember {
-              then error "Cannot set a member to inactive that is already inactivated"
-            }
-            on command SuspendMember {
-              then error "Cannot set an inactive member to suspended"
-            }
-            on command TerminateMember {
-              given "entity has non-empty required fields"
-              then "morph Member entity to Terminated state"
-              and "set entity lastModifiedBy to actingMember from message"
-              and "set entity lastModifiedOn to today()"
-              and "yield event MemberTerminated"
-            }
-            on command UpdateMemberInfo {
-              then "set entity Info to non-Empty fields in UpdateInfo from message"
-              and "set entity lastModifiedBy to actingMember from message"
-              and "set entity lastModifiedOn to today()"
-              and "yield event MemberInfoUpdated"
-            }
-            on query GetMemberData {
-              then "yield Info for entity"
-            }
-          }
-        } described as {
-          |This state describes that the member will no longer be active.
-          |One example is when a student graduates but the admin wants to
-          |keep the record.
-        }
-
-        record SuspendedState is {
-          info: MembersContext.Info,
-          meta: MembersContext.MetaInfo,
-          suspensionReason: String
-        }
-        state Suspended of ^SuspendedState is {
-          handler SuspendedMemberHandler {
-            on command RegisterMember {then error "Member has already been registered."}
-            on command ActivateMember {
-              given "entity has non-empty required fields"
-              then "morph Member entity to Active state"
-              and "set entity lastModifiedBy to actingMember from message"
-              and "set entity lastModifiedOn to today()"
-              and "yield event MemberActivated"
-            }
-            on command InactivateMember {
-              then error "Cannot set a suspended member to inactive"
-            }
-            on command SuspendMember {
-              given "entity has suspensionReason non-empty"
-              then "morph Member entity to Active state"
-              and "set entity lastModifiedBy to actingMember from message"
-              and "set entity lastModifiedOn to today()"
-              and "yield event MemberSuspended"
-            } briefly "A suspension reason can be updated by re-issuing the command"
-            on command TerminateMember {
-              given "entity has non-empty required fields"
-              then "morph Member entity to Terminated state"
-              and "set entity lastModifiedBy to actingMember from message"
-              and "set entity lastModifiedOn to today()"
-              and "yield event MemberTerminated"
-            }
-            on command UpdateMemberInfo {
-              then "set entity Info to non-Empty fields in UpdateInfo from message"
-              and "set entity lastModifiedBy to actingMember from message"
-              and "set entity lastModifiedOn to today()"
-              and "yield event MemberInfoUpdated"
-            }
-            on query GetMemberData {
-              then "yield Info for entity"
-            }
-          }
-        } described as {
-          |This state describes that a member cannot access anything due
-          |to being a bad actor. This state transition is only possible
-          |as a command issued by an administrator and therefore can only
-          |be removed from the suspended state by an administrator.
-        }
-
-
-        record TerminatedState is {
-            memberId: MemberId // needed for compilation - RIDDL requires fields object and fields object requires at least one field
-        }
-        state Terminated of ^TerminatedState is {
+        state MemberTerminated of TerminatedMemberState is {
             handler TerminatedMemberHandler is {
                 on other { then error "Terminated members cannot process messages" }
             }

@@ -186,7 +186,7 @@ context OrganizationContext is {
             }
         }
 
-        record OrganizationState is {
+        record ActiveOrganizationState is {
             info: OrganizationContext.Info,
             parent: OrganizationId?,
             members: MemberId+,
@@ -195,8 +195,8 @@ context OrganizationContext is {
             // accounts: OrganizationContext.AccountList,
             orgMeta: OrganizationContext.MetaInfo
         }
-        state Organization of OrganizationState is {
-            handler Organization is {
+        state ActiveOrganization of ActiveOrganizationState is {
+            handler ActiveOrganization is {
                 on command EstablishOrganization {
                     then error "Organization already established"
                 }
@@ -352,22 +352,21 @@ context OrganizationContext is {
                 //     }
                 // }
                 on command UpdateOrganizationStatus {
-                    then "morph entity Organization to state provided in UpdateOrganizationStatus"
+                    then "change entity Info.Status to status provided in UpdateOrganizationStatus"
                     and "set Meta data to reflect the change"
                     and "yield event OrganizationStatusUpdated"
                 }
                 on command TerminateOrganization {
-                    then "morph entity Organization to state TerminatedTenantState"
+                    then morph entity Organization to state TerminatedOrganization with @orgMeta
                 }
                 on other { then error "No other commands allowed in Active state" }
             }
         }
 
         record TerminatedOrganizationState is {
-            name: String,
-            meta: OrganizationContext.MetaInfo
+            lastMeta: OrganizationContext.MetaInfo
         }
-        state Terminated of TerminatedOrganizationState is {
+        state TerminatedOrganization of TerminatedOrganizationState is {
             handler TerminatedOrganization is {
                 on other {then error "No commands allowed in Terminated state"}
             }
