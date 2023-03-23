@@ -1,4 +1,4 @@
-type OrganizationStates is any of {Active, Suspended} briefly "Internal status of an Organization."
+type OrganizationStates is any of {Draft, Active, Suspended} briefly "Internal status of an Organization."
 type Contacts is {
     primaryContacts: MemberId+,
     billingContacts: MemberId*,

@@ -26,7 +26,7 @@ command EditOrganizationInfo is {
 } briefly "A command to edit the values of an Organization's Info "
 described in file "editOrganizationInfo.md"
 
-event OrganizationInfoUpdated is {
+event OrganizationInfoEdited {
   orgId: OrganizationId,
   info: OrganizationContext.Info,
   meta: OrganizationContext.MetaInfo
@@ -97,7 +97,7 @@ event OrganizationContactsUpdated is {
 
 command ActivateOrganization is {
   orgId: OrganizationId,
-  updatingMember: MemberId
+  activatingMember: MemberId
 }
 event OrganizationActivated is {
   orgId: OrganizationId,
@@ -106,7 +106,7 @@ event OrganizationActivated is {
 
 command SuspendOrganization is {
   orgId: OrganizationId,
-  updatingMember: MemberId
+  suspendingMember: MemberId
 }
 event OrganizationSuspended is {
   orgId: OrganizationId,
@@ -115,7 +115,7 @@ event OrganizationSuspended is {
 
 command TerminateOrganization is {
   orgId: OrganizationId,
-  updatingMember: MemberId
+  terminatingMember: MemberId
 }
 event OrganizationTerminated is {
   orgId: OrganizationId,
