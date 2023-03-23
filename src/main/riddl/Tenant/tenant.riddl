@@ -231,7 +231,8 @@ context TenantContext is {
 	            }
 	            on command TerminateTenant {
 	               example Success {
-	                   then morph entity Tenant to state TerminatedTenant with !TerminatedTenantState(lastMeta = @EstablishedTenantState.meta)
+                       then "update the meta info to reflect the change"
+	                   and morph entity Tenant to state TerminatedTenant with !TerminatedTenantState(lastMeta = @EstablishedTenantState.meta)
 	               }
                    example NotAuthorized {
                        when "terminating user is not authorized to make changes to the tenant"
@@ -281,6 +282,16 @@ context TenantContext is {
                         when "updating user is not authorized to activate the tenant"
                         then error "User is not authorized to Activate Tenant"
                     }
+                }
+                on command TerminateTenant {
+                   example Success {
+                       then "update the meta info to reflect the change"
+                       and morph entity Tenant to state TerminatedTenant with !TerminatedTenantState(lastMeta = @EstablishedTenantState.meta)
+                   }
+                   example NotAuthorized {
+                       when "terminating user is not authorized to make changes to the tenant"
+                       then error "User is not authorized to modify Tenant"
+                   }
                 }
                 on other { then error "Command not allowed in Suspended state" }
             }

@@ -350,7 +350,8 @@ context OrganizationContext is {
                     and "yield event OrganizationSuspended"
                 }
                 on command TerminateOrganization {
-                    then morph entity Organization to state TerminatedOrganization with !TerminatedOrganizationState(lastMeta = @EstablishedOrganizationState.orgMeta)
+                    then "update the meta info to reflect the change"
+                    and morph entity Organization to state TerminatedOrganization with !TerminatedOrganizationState(lastMeta = @EstablishedOrganizationState.orgMeta)
                 }
                 on other { then error "No other commands allowed in Active state" }
             }
@@ -362,6 +363,10 @@ context OrganizationContext is {
                     then become entity Organization to handler ActiveOrganizationHandler
                     and "update the meta info to reflect the change"
                     and "yield event OrganizationActivated"
+                }
+                on command TerminateOrganization {
+                    then "update the meta info to reflect the change"
+                    and morph entity Organization to state TerminatedOrganization with !TerminatedOrganizationState(lastMeta = @EstablishedOrganizationState.orgMeta)
                 }
                 on other { then error "Move organization to the Active state in order to edit details about organization."}
             }
