@@ -364,6 +364,13 @@ context OrganizationContext is {
                     and "update the meta info to reflect the change"
                     and "yield event OrganizationActivated"
                 }
+                 on command SuspendOrganization {
+                    given "entity has suspensionReason non-empty"
+                    then "morph Organization entity to Active state"
+                    and "set entity lastModifiedBy to actingMember from message"
+                    and "set entity lastModifiedOn to today()"
+                    and "yield event OrganizationSuspended"
+                } briefly "A suspension reason can be updated by re-issuing the command"
                 on command TerminateOrganization {
                     then "update the meta info to reflect the change"
                     and morph entity Organization to state TerminatedOrganization with !TerminatedOrganizationState(lastMeta = @EstablishedOrganizationState.orgMeta)
