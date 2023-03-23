@@ -12,7 +12,7 @@ context OrganizationContext is {
 
         handler OrganizationHandler is {
             on command EstablishOrganization {
-                then "morph Organization to Draft state"
+                then "morph Organization to DraftOrganization state"
                 and "Copy fields from the command into Draft fields"
                 and "adjust meta fields to reflect the change set"
                 and "yield event OrganizationEstablished"
@@ -20,22 +20,18 @@ context OrganizationContext is {
             on other { then error "Only EstablishOrganization command is allowed in the default state" }
         }
 
-        record DraftTenantState is {
-            info: OrganizationContext.OptionalInfo,
-            parent: OrganizationId?,
-            members: MemberId+,
-            owners: MemberId+,
-            contacts: Contact?,
-            // accounts: OrganizationContext.AccountList,
-            meta: OrganizationContext.MetaInfo
+        record DraftOrganizationState is {
+            requiredInfo: OrganizationContext.RequiredDraftInfo,
+            optionalInfo: OrganizationContext.OptionalDraftInfo,
+            orgMeta: OrganizationContext.MetaInfo
         }
-        state Draft of DraftTenantState is {
+        state DraftOrganization of DraftOrganizationState is {
             handler DraftOrganizationHandler is {
                 on command EstablishOrganization {
                     then error "Organization already established"
                 }
                 on command EditOrganizationInfo {
-                    then "Copy fields from EditOrganzationInfo into Draft info fields"
+                    then "Copy fields from EditOrganizationInfo into Draft info appropriate fields of requiredInfo & optionalInfo"
                     and "adjust meta fields to reflect the change set"
                     and "yield event OrganizationInfoUpdated"
                 }
@@ -172,9 +168,24 @@ context OrganizationContext is {
                 // }
                 on command ActivateOrganization {
                     example Success {
-                        when "all required fields in state are present"
-                        then "morph Organization to the Active state"
-                        and "set MetaInfo to capture change data"
+                        when "all required fields in requiredInfo are not None or Empty"
+                        then morph entity Organization to state EstablishedOrganization
+                            with !EstablishedOrganizationState(
+                                info = !OrganizationContext.Info(
+                                    name = @DraftOrganizationState.requiredInfo,
+                                    shortName = @DraftOrganizationState.optionalInfo,
+                                    address = @DraftOrganizationState.optionalInfo,
+                                    isPrivate = @DraftOrganizationState.requiredInfo,
+                                    url = @DraftOrganizationState.optionalInfo,
+                                    logo = @DraftOrganizationState.optionalInfo,
+                                    tenant = @DraftOrganizationState.requiredInfo
+                                ),
+                                parent = @DraftOrganizationState.optionalInfo,
+                                members = @DraftOrganizationState.requiredInfo,
+                                owners = @DraftOrganizationState.requiredInfo,
+                                contact = @DraftOrganizationState.optionalInfo,
+                                orgMeta = @DraftOrganizationState.orgMeta
+                            )
                         and "yield event OrganizationStatusUpdated"
                     }
                     example NotSufficient {
@@ -186,7 +197,7 @@ context OrganizationContext is {
             }
         }
 
-        record ActiveOrganizationState is {
+        record EstablishedOrganizationState is {
             info: OrganizationContext.Info,
             parent: OrganizationId?,
             members: MemberId+,
@@ -195,8 +206,8 @@ context OrganizationContext is {
             // accounts: OrganizationContext.AccountList,
             orgMeta: OrganizationContext.MetaInfo
         }
-        state ActiveOrganization of ActiveOrganizationState is {
-            handler ActiveOrganization is {
+        state EstablishedOrganization of EstablishedOrganizationState is {
+            handler ActiveOrganizationHandler is {
                 on command EstablishOrganization {
                     then error "Organization already established"
                 }
@@ -204,9 +215,6 @@ context OrganizationContext is {
                     example Success {
                         then "set Active organization fields according to the data provided in EditOrganizationInfo"
                         and "yield event OrganizationInfoUpdated"
-                    }
-                    example Suspended {
-                        then error "Move organization to the Active state in order to edit details about organization."
                     }
                 }
                 on command UpdateParent {
@@ -226,9 +234,6 @@ context OrganizationContext is {
                     example NotAuthorized is {
                         when "editingMember is not Authorized"
                         then error "EditingMember is not authorized to make this change."
-                    }
-                    example Suspended {
-                        then error "Move organization to the Active state in order to edit details about organization."
                     }
                 }
                 on command AddMembersToOrganization {
@@ -256,9 +261,6 @@ context OrganizationContext is {
                         when "editingMember is not Authorized"
                         then error "EditingMember is not authorized to make this change."
                     }
-                    example Suspended {
-                        then error "Move organization to the Active state in order to edit details about organization."
-                    }
                 }
                 on command RemoveMembersFromOrganization {
                     example Success is {
@@ -269,9 +271,6 @@ context OrganizationContext is {
                     example NotAuthorized is {
                         when "editingMember is not Authorized"
                         then error "EditingMember is not authorized to make this change."
-                    }
-                    example Suspended {
-                        then error "Move organization to the Active state in order to edit details about organization."
                     }
                 }
                 on command AddOwnersToOrganization {
@@ -299,9 +298,6 @@ context OrganizationContext is {
                     example NotAuthorized is {
                         when "editingMember is not Authorized"
                         then error "EditingMember is not authorized to make this change."
-                    }
-                    example Suspended {
-                        then error "Move organization to the Active state in order to edit details about organization."
                     }
                 }
                 on command RemoveOwnersFromOrganization {
@@ -341,9 +337,6 @@ context OrganizationContext is {
                         when "editingMember is not Authorized"
                         then error "EditingMember is not authorized to make this change."
                     }
-                    example Suspended {
-                        then error "Move organization to the Active state in order to edit details about organization."
-                    }
                 }
                 // on command UpdateOrganizationAccounts {
                 //     example NotAuthorized is {
@@ -351,15 +344,26 @@ context OrganizationContext is {
                 //         then error "EditingMember is not authorized to make this change."
                 //     }
                 // }
-                on command UpdateOrganizationStatus {
-                    then "change entity Info.Status to status provided in UpdateOrganizationStatus"
-                    and "set Meta data to reflect the change"
-                    and "yield event OrganizationStatusUpdated"
+                on command SuspendOrganization {
+                    then become entity Organization to handler SuspendedOrganizationHandler
+                    and "update the meta info to reflect the change"
+                    and "yield event OrganizationSuspended"
                 }
                 on command TerminateOrganization {
-                    then morph entity Organization to state TerminatedOrganization with !TerminatedOrganizationState(lastMeta = @orgMeta)
+                    then morph entity Organization to state TerminatedOrganization with !TerminatedOrganizationState(lastMeta = @EstablishedOrganizationState.orgMeta)
                 }
                 on other { then error "No other commands allowed in Active state" }
+            }
+            handler SuspendedOrganizationHandler is {
+                on command EstablishOrganization {
+                    then error "Organization already established"
+                }
+                on command ActivateOrganization {
+                    then become entity Organization to handler ActiveOrganizationHandler
+                    and "update the meta info to reflect the change"
+                    and "yield event OrganizationActivated"
+                }
+                on other { then error "Move organization to the Active state in order to edit details about organization."}
             }
         }
 
