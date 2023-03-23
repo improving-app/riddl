@@ -1,7 +1,9 @@
 type PublicOrganizationEvent is one of {
     OrganizationEstablished,
+    OrganizationActivated,
+    OrganizationSuspended,
+    OrganizationTerminated,
     OrganizationInfoUpdated,
-    OrganizationStatusUpdated,
     MembersAddedToOrganization,
     OwnersAddedToOrganization,
     OrganizationContactsUpdated,
