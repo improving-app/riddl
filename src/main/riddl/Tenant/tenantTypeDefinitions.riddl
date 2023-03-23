@@ -1,9 +1,9 @@
-type OptionalInfo is {
-  name: String?,
-  primaryContact: Contact?,
-  address: Address?,
-  orgs: Organization*
-} briefly "Information about the tenant"
+//type OptionalInfo is {
+//  name: String?,
+//  primaryContact: Contact?,
+//  address: Address?,
+//  orgs: Organization*
+//} briefly "Information about the tenant"
 
 type Info is {
   name: String,

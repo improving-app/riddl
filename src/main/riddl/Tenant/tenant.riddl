@@ -13,9 +13,17 @@ context TenantContext is {
         handler TenantHandler is {
             on command EstablishTenant {
                 example Success {
-                    then "Set fields from EstablishTenant for TenantState"
-                    and "Set meta data to reflect change"
-                    and "yield TenantEstablished event"
+                    then send event TenantEstablished(
+                        tenantId = @EstablishTenant.tenantId,
+                        tenantInfo = @EstablishTenant.tenantInfo,
+                        metaInfo = !TenantContext.MetaInfo(
+                            createdOn = now(),
+                            createdBy = @EstablishTenant.establishingMember,
+                            lastUpdatedOn = now(),
+                            lastUpdatedBy = @EstablishTenant.establishingMember,
+                            currentState = @TenantStates.Active
+                        )
+                    ) to outlet TenantEvents.Events
                 }
                 example NameAlreadyTaken{
                     when "name is being used for another tenant"
@@ -152,9 +160,19 @@ context TenantContext is {
             handler ActiveTenantHandler is {
                  on command SuspendTenant {
                     example Success {
-                        then "Set Tenant meta data to reflect the change, including new TenantState in currentState"
+                        then set EstablishedTenantState.meta to !TenantContext.MetaInfo(
+                            createdOn = @EstablishedTenantState.meta,
+                            createdBy = @EstablishedTenantState.meta,
+                            lastUpdated = now(),
+                            lastUpdatedBy = @SuspendTenant.suspendingUser,
+                            currentState = @TenantStates.Suspended
+                        )
+                        and send event TenantContext.TenantSuspended(
+                            tenantId = @Tenant.id,
+                            info = @EstablishedTenantState.info,
+                            meta = @EstablishedTenantState.meta
+                        ) to outlet TenantEvents.Events
                         and become entity Tenant to handler SuspendedTenantHandler
-                        and "yield TenantContext.StatusUpdated event"
                     }
                     example NotAuthorized {
                         when "updating user is not authorized to suspend tenant"
@@ -274,9 +292,19 @@ context TenantContext is {
             handler SuspendedTenantHandler is {
                  on command ActivateTenant {
                     example Success {
-                        then "Set Tenant meta data to reflect the change"
+                        then set EstablishedTenantState.meta to !TenantContext.MetaInfo(
+                            createdOn = @EstablishedTenantState.meta,
+                            createdBy = @EstablishedTenantState.meta,
+                            lastUpdated = now(),
+                            lastUpdatedBy = @ActivateTenant.activatingUser,
+                            currentState = @TenantStates.Active
+                        )
+                        and send event TenantContext.TenantSuspended(
+                            tenantId = @Tenant.id,
+                            info = @EstablishedTenantState.info,
+                            meta = @EstablishedTenantState.meta
+                        ) to outlet TenantEvents.Events
                         and become entity Tenant to handler ActiveTenantHandler
-                        and "yield TenantContext.StatusUpdated event"
                     }
                     example NotAuthorized {
                         when "updating user is not authorized to activate the tenant"
@@ -285,7 +313,17 @@ context TenantContext is {
                 }
                 on command TerminateTenant {
                    example Success {
-                       then "update the meta info to reflect the change"
+                       then set EstablishedTenantState.meta to !TenantContext.MetaInfo(
+                           createdOn = @EstablishedTenantState.meta,
+                           createdBy = @EstablishedTenantState.meta,
+                           lastUpdated = now(),
+                           lastUpdatedBy = @ActivateTenant.activatingUser,
+                           currentState = @EstablishedTenantState.meta
+                       )
+                       and send event TenantContext.TenantTerminated(
+                           tenantId = @Tenant.id,
+                           meta = @EstablishedTenantState.meta
+                       ) to outlet TenantEvents.Events
                        and morph entity Tenant to state TerminatedTenant with !TerminatedTenantState(lastMeta = @EstablishedTenantState.meta)
                    }
                    example NotAuthorized {
