@@ -144,16 +144,16 @@ context TenantContext is {
         //    }
         //}
 
-        record ActiveTenantState is {
+        record EstablishedTenantState is {
             info: TenantContext.Info,
             meta: TenantContext.MetaInfo
         } briefly "Tenant is active and suitable for use"
-        state ActiveTenant of ActiveTenantState is {
-            handler TenantHandler is {
-                 on command TenantContext.UpdateStatus {
+        state EstablishedTenant of EstablishedTenantState is {
+            handler ActiveTenantHandler is {
+                 on command SuspendTenant {
                     example Success {
-                        then "Morph Tenant to desired state"
-                        and "Set Tenant meta data to reflect the change"
+                        then "Set Tenant meta data to reflect the change, including new TenantState in currentState"
+                        and become entity Tenant to handler SuspendedTenantHandler
                         and "yield TenantContext.StatusUpdated event"
                     }
                     example NotAuthorized {
@@ -231,7 +231,7 @@ context TenantContext is {
 	            }
 	            on command TerminateTenant {
 	               example Success {
-	                   then morph entity Tenant to state TerminatedTenant with !TerminatedTenantState(lastMeta = @ActiveTenantState.meta)
+	                   then morph entity Tenant to state TerminatedTenant with !TerminatedTenantState(lastMeta = @EstablishedTenantState.meta)
 	               }
                    example NotAuthorized {
                        when "terminating user is not authorized to make changes to the tenant"
@@ -269,6 +269,20 @@ context TenantContext is {
                 //     }
                 // }
                 on other { then error "Command not allowed in Active state" }
+            }
+            handler SuspendedTenantHandler is {
+                 on command ActivateTenant {
+                    example Success {
+                        then "Set Tenant meta data to reflect the change"
+                        and become entity Tenant to handler ActiveTenantHandler
+                        and "yield TenantContext.StatusUpdated event"
+                    }
+                    example NotAuthorized {
+                        when "updating user is not authorized to activate the tenant"
+                        then error "User is not authorized to Activate Tenant"
+                    }
+                }
+                on other { then error "Command not allowed in Suspended state" }
             }
         }
 

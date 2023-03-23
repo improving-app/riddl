@@ -12,37 +12,49 @@ event TenantEstablished is {
   metaInfo: TenantContext.MetaInfo,
   name: String,
   primaryContact: Contact,
-  meta: ^TenantContext.MetaInfo
+  meta: TenantContext.MetaInfo
 } briefly "The event resulting from creating a new Tenant"
 described by {
   |When a Tenant is created, this event is raised to provide information
   |about the tenant.
 }
 
-event StatusUpdated is {
-  tenantId: TenantId,
-  newStatus: ^TenantContext.StatusUpdates,
-  meta: TenantContext.MetaInfo
-} briefly "The event resulting from updating a Tenant's status"
-
-command UpdateStatus is {
+command ActivateTenant is {
 	tenantId: TenantId,
-	updatingUser: String
-} briefly "A command that updates a tenant's status"
+	activatingUser: MemberId
+} briefly "A command that activates a tenant so that operations can be allowed"
 described by {
-  |Given a TenantId, the tenant status is updated. This command yields a
-  |TenantStatusUpdated event.
+  |Given a TenantId, the tenant is activated so that certain user functions can be performed.
+  |This command yields a TenantSuspended event.
 }
+event TenantActivated is {
+  tenantId: TenantId,
+  info: TenantContext.Info,
+  meta: TenantContext.MetaInfo
+} briefly "The event resulting from updating a Tenant's state to Active"
+
+command SuspendTenant is {
+	tenantId: TenantId,
+	suspendingUser: MemberId
+} briefly "A command that suspends a tenant so that many operations are not allowed"
+described by {
+  |Given a TenantId, the tenant is suspended so that certain user functions cannot be performed.
+  |This command yields a TenantSuspended event.
+}
+event TenantSuspended is {
+  tenantId: TenantId,
+  info: TenantContext.Info,
+  meta: TenantContext.MetaInfo
+} briefly "The event resulting from updating a Tenant's state to Suspended"
 
 command TerminateTenant is {
 	tenantId: TenantId,
-	terminatingUser: String
-} briefly "A command that terminates a tenant bny deleting all data except its ID"
+	terminatingUser: MemberId
+} briefly "A command that terminates a tenant by deleting all data except its ID"
 described by {
-  |Given a TenantId, the tenant terminated. This command yields a
-  |TenantTerminated event.
+  |Given a TenantId, the tenant is terminated per GDPR requirement, resulting in deletion of all PII.
+  |This command yields a TenantTerminated event.
 }
-
 event TenantTerminated is {
   tenantId: TenantId,
   meta: TenantContext.MetaInfo
@@ -55,8 +67,8 @@ command EditInfo {
 } briefly "A command to edit the values of an Tenant's Info "
 event InfoUpdated is {
   tenantId: TenantId,
-  info: ^TenantContext.Info,
-  meta: ^TenantContext.MetaInfo
+  info: TenantContext.Info,
+  meta: TenantContext.MetaInfo
 }
 command AddOrganizations is { tenantId: TenantId, orgId: OrganizationId*, updatingUser: String }
 event OrganizationsAdded is { tenantId: TenantId, newOrgsList: OrganizationId*, meta: TenantContext.MetaInfo }
