@@ -168,7 +168,7 @@ context TenantContext is {
         } briefly "Tenant is active and suitable for use"
         state EstablishedTenant of EstablishedTenantState is {
             handler ActiveTenantHandler is {
-                 on command SuspendTenant {
+                on command SuspendTenant {
                     example Success {
                         then set EstablishedTenantState.meta to !TenantContext.MetaInfo(
                             createdOn = @EstablishedTenantState.meta,
@@ -203,10 +203,6 @@ context TenantContext is {
                         when "updating user is not authorized to make changes to the tenant"
                         then error "User is not authorized to modify Tenant"
                     }
-                    example TenantSuspended {
-                        when "tenant is in Suspended state"
-                        then error "Command not allowed in Suspended state"
-                    }
                 }
                 on command ChangeTenantName {
                     example Success {
@@ -222,10 +218,6 @@ context TenantContext is {
                         when "updating user is not authorized to make changes to the tenant"
                         then error "User is not authorized to modify Tenant"
                     }
-                    example TenantSuspended {
-                        when "tenant is in Suspended state"
-                        then error "Command not allowed in Suspended state"
-                    }
                 }
 	            on command AddOrganizations {
 	                example Success {
@@ -237,10 +229,6 @@ context TenantContext is {
 	                    when "This organizations already belongs to this tenant"
 	                    then error "Organizations already belongs to tenant"
 	                }
-                    example TenantSuspended {
-                        when "tenant is in Suspended state"
-                        then error "Command not allowed in Suspended state"
-                    }
 	            }
 	            on command RemoveOrganizations {
 	               example Success {
@@ -252,10 +240,6 @@ context TenantContext is {
 	                   when "This tenant already doesn't belong to this organizations"
 	                   then error "Tenant doesn't belongs to organizations already"
 	               }
-                   example TenantSuspended {
-                       when "tenant is in Suspended state"
-                       then error "Command not allowed in Suspended state"
-                   }
 	            }
 	            on command TerminateTenant {
 	               example Success {

@@ -256,7 +256,7 @@ context OrganizationContext is {
                                 createdBy = @DraftOrganizationState.orgMeta,
                                 lastUpdatedOn = now(),
                                 lastUpdatedBy = @EditOrganizationInfo.editingMember,
-                                currentState = @OrganizationStates.Draft
+                                currentState = @OrganizationStates.Active
                             )
                         ) to outlet OrganizationEvents.Events
                         and morph entity Organization to state EstablishedOrganization

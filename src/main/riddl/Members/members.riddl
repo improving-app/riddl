@@ -18,7 +18,7 @@ context MembersContext  is {
     } explained as "This is a source for Organization Events"
 
     //Member Details
-    type MemberStatuses is any of {Active, Suspended} briefly "Internal status of an Organization."
+    type MemberStates is any of {Draft, Active, Suspended} briefly "Internal status of an Organization."
 
     type NotificationPreference is any of { Email, SMS, Application } described
     as {
@@ -159,7 +159,7 @@ context MembersContext  is {
     //  registeringMember: MemberId
     //}
 
-    command EditMemberInfo is {memberId: MemberId, info: MembersContext.EditableInfo, actingMember: MemberId}
+    command EditMemberInfo is {memberId: MemberId, info: MembersContext.EditableInfo, editingMember: MemberId}
     briefly "Edit info of a member"
     described as {
       |This command will overwrite the values of attributes provided in UpdateInfo.
@@ -175,7 +175,7 @@ context MembersContext  is {
       |This event occurs whenever a member's information is edited.
     }
 
-    command ActivateMember is {memberId: MemberId, actingMember: MemberId}
+    command ActivateMember is {memberId: MemberId, activatingMember: MemberId}
     briefly "Update state of member to Active"
     described as {
       |This command activates the member.
@@ -202,7 +202,7 @@ context MembersContext  is {
       |that the member is now suspended.
     }
 
-    command TerminateMember is {memberId: MemberId, actingMember: MemberId}
+    command TerminateMember is {memberId: MemberId, terminatingMember: MemberId}
     briefly "Update state of member to Terminated"
     described as {
       |This command terminates the member.
@@ -299,24 +299,82 @@ context MembersContext  is {
           handler DraftMemberHandler {
             on command RegisterMember {then error "Member has already been registered."}
             on command ActivateMember {
-              given "entity has non-empty required fields"
-              then "morph Member entity to Active state"
-              and "set entity lastModifiedBy to actingMember from message"
-              and "set entity lastModifiedOn to today()"
-              and "yield event MemberActivated"
-            }
-            on command TerminateMember {
-              given "entity has non-empty required fields"
-              then "morph Member entity to Terminated state"
-              and "set entity lastModifiedBy to actingMember from message"
-              and "set entity lastModifiedOn to today()"
-              and "yield event MemberTerminated"
+              example Success {
+                  when "all required fields in requiredInfo are not None or Empty"
+                  then send event MemberRegistered(
+                      memberId = @Member.id,
+                      info = !MemberContext.Info(
+                         contact = @DraftMemberState.requiredInfo,
+                         handle = @DraftMemberState.requiredInfo,
+                         avatar = @DraftMemberState.requiredInfo,
+                         firstName = @DraftMemberState.requiredInfo,
+                         lastName = @DraftMemberState.requiredInfo,
+                         notificationPreference = @DraftMemberState.optionalInfo,
+                         organizationMembership = @DraftMemberState.optionalInfo,
+                         tenant = @DraftMemberState.requiredInfo
+                      ),
+                      meta = MembersContext.MetaInfo(
+                          createdOn = @DraftMemberState.meta,
+                          createdBy = @DraftMemberState.meta,
+                          lastUpdatedOn = now(),
+                          lastUpdatedBy = @EditOrganizationInfo.editingMember,
+                          currentState = @OrganizationStates.Active
+                      )
+                  ) to outlet MemberEvents.Events
+                  and morph entity Member to state RegisteredMember
+                      with !RegisteredMemberState(
+                          info = !MembersContext.Info(
+                              contact = @DraftMemberState.requiredInfo,
+                              handle = @DraftMemberState.requiredInfo,
+                              avatar = @DraftMemberState.requiredInfo,
+                              firstName = @DraftMemberState.requiredInfo,
+                              lastName = @DraftMemberState.requiredInfo,
+                              notificationPreference = @DraftMemberState.optionalInfo,
+                              organizationMembership = @DraftMemberState.optionalInfo,
+                              tenant = @DraftMemberState.requiredInfo
+                          ),
+                          orgMeta = @DraftMemberState.meta
+                      )
+              }
+              example NotSufficient {
+                  when "all required fields in state are not present"
+                  then error "state is not sufficiently filled out to activate organization"
+              }
             }
             on command EditMemberInfo {
-              then "set entity Info to non-Empty fields in UpdateInfo from message"
-              and "set entity lastModifiedBy to actingMember from message"
-              and "set entity lastModifiedOn to today()"
-              and "yield event MemberInfoUpdated"
+              then set DraftMemberState.requiredInfo to !MembersContext.RequiredDraftInfo(
+                   contact = @EditMemberInfo.info,
+                   handle = @EditMemberInfo.info,
+                   avatar = @EditMemberInfo.info,
+                   firstName = @EditMemberInfo.info,
+                   lastName = @EditMemberInfo.info,
+                   tenant = @EditMemberInfo.info
+               )
+              and set DraftMemberState.optionalInfo to !MembersContext.OptionalDraftInfo(
+                   notificationPreference = @EditMemberInfo.info,
+                   organizationMembership = @EditMemberInfo.info
+              )
+              and set DraftMemberState.meta to !MembersContext.MetaInfo(
+                  createdOn = @DraftMemberState.meta,
+                  createdBy = @DraftMemberState.meta,
+                  lastUpdatedOn = now(),
+                  lastUpdatedBy = @EditMemberInfo.editingMember,
+                  currentState = @MemberStates.Draft
+              )
+              and send event MemberInfoEdited(
+                  memberId = @Member.id,
+                  info = !MembersContext.Info(
+                      contact = @DraftMemberState.requiredInfo,
+                      handle = @DraftMemberState.requiredInfo,
+                      avatar = @DraftMemberState.requiredInfo,
+                      firstName = @DraftMemberState.requiredInfo,
+                      lastName = @DraftMemberState.requiredInfo,
+                      notificationPreference = @DraftMemberState.optionalInfo,
+                      organizationMembership = @DraftMemberState.optionalInfo,
+                      tenant = @DraftMemberState.requiredInfo
+                  ),
+                  meta = @DraftMemberState.meta
+              ) to outlet MemberEvents.Events
             }
             // For GetMemberData, eventually probably only admins and self should be able to make this call. Also
             // potentially allow other roles to get some limited information (this will require adding another
@@ -362,18 +420,73 @@ context MembersContext  is {
             handler ActiveMemberHandler {
                 on command RegisterMember {then error "Member has already been registered."}
                 on command EditMemberInfo {
-                    then "set entity Info to non-Empty fields in UpdateInfo from message"
-                    and "set entity lastModifiedBy to actingMember from message"
-                    and "set entity lastModifiedOn to today()"
-                    and "yield event MemberInfoUpdated"
+                    then set RegisteredMemberState.info to !MembersContext.Info(
+                       contact = @EditMemberInfo.info,
+                       handle = @EditMemberInfo.info,
+                       avatar = @EditMemberInfo.info,
+                       firstName = @EditMemberInfo.info,
+                       lastName = @EditMemberInfo.info,
+                       notificationPreference = @EditMemberInfo.info,
+                       organizationMembership = @EditMemberInfo.info,
+                       tenant = @EditMemberInfo.info
+                    )
+                    and set RegisteredMemberState.meta to !MembersContext.MetaInfo(
+                        createdOn = @RegisteredMemberState.meta,
+                        createdBy = @RegisteredMemberState.meta,
+                        lastUpdatedOn = now(),
+                        lastUpdatedBy = @EditMemberInfo.editingMember,
+                        currentState = @MemberStates.Draft
+                    )
+                    and send event MemberInfoEdited(
+                        memberId = @Member.id,
+                        info = !MembersContext.Info(
+                            contact = @RegisteredMemberState.info,
+                            handle = @RegisteredMemberState.info,
+                            avatar = @RegisteredMemberState.info,
+                            firstName = @RegisteredMemberState.info,
+                            lastName = @RegisteredMemberState.info,
+                            notificationPreference = @RegisteredMemberState.info,
+                            organizationMembership = @RegisteredMemberState.info,
+                            tenant = @RegisteredMemberState.info
+                        ),
+                        meta = @RegisteredMemberState.meta
+                    ) to outlet MemberEvents.Events
                 }
                 on command SuspendMember {
-                    then become entity Organization to handler SuspendedOrganizationHandler
-                    and "update the meta info to reflect the change"
-                    and "yield event OrganizationSuspended"
+                    example Success {
+                        when "all required fields in requiredInfo are not None or Empty"
+                        then send event MemberSuspended(
+                            memberId = @Member.id,
+                            info = @RegisteredMemberState.info,
+                            meta = MembersContext.MetaInfo(
+                                createdOn = @RegisteredMemberState.meta,
+                                createdBy = @RegisteredMemberState.meta,
+                                lastUpdatedOn = now(),
+                                lastUpdatedBy = @SuspendMember.suspendingMember,
+                                currentState = @MemberStates.Suspended
+                            )
+                        ) to outlet MemberEvents.Events
+                        and morph entity Member to state RegisteredMember
+                            with !RegisteredMemberState(
+                                info = @RegisteredMemberState.info,
+                                meta = !MembersContext.MetaInfo(
+                                    createdOn = @RegisteredMemberState.meta,
+                                    createdBy = @RegisteredMemberState.meta,
+                                    lastUpdatedOn = now(),
+                                    lastUpdatedBy = @SuspendMember.suspendingMember,
+                                    currentState = @MemberStates.Suspended
+                                )
+                            )
+                    }
                 }
                 on command TerminateMember {
-                    then "update the meta info to reflect the change"
+                    then set RegisteredMemberState.meta to !MembersContext.MetaInfo(
+                        createdOn = @RegisteredMemberState.meta,
+                        createdBy = @RegisteredMemberState.meta,
+                        lastUpdatedOn = now(),
+                        lastUpdatedBy = @TerminateMember.terminatingMember,
+                        currentState = @RegisteredMemberState.meta
+                    )
                     and morph entity Member to state TerminatedMember with !TerminatedMemberState(lastMeta = @RegisteredMemberState.meta)
                 }
                 on query GetMemberData {
@@ -383,25 +496,60 @@ context MembersContext  is {
             handler SuspendedMemberHandler {
                 on command RegisterMember {then error "Member has already been registered."}
                 on command ActivateMember {
-                  given "entity has non-empty required fields"
-                  then "morph Member entity to Active state"
-                  and "set entity lastModifiedBy to actingMember from message"
-                  and "set entity lastModifiedOn to today()"
-                  and "yield event MemberActivated"
+                   example Success {
+                      then send event MemberActivated(
+                          memberId = @Member.id,
+                          info = @RegisteredMemberState.info,
+                          meta = MembersContext.MetaInfo(
+                              createdOn = @RegisteredMemberState.meta,
+                              createdBy = @RegisteredMemberState.meta,
+                              lastUpdatedOn = now(),
+                              lastUpdatedBy = @ActivateMember.activatingMember,
+                              currentState = @MemberStates.Active
+                          )
+                      ) to outlet MemberEvents.Events
+                      and morph entity Member to state RegisteredMember
+                          with !RegisteredMemberState(
+                              info = @RegisteredMemberState.info,
+                              meta = !MembersContext.MetaInfo(
+                                  createdOn = @RegisteredMemberState.meta,
+                                  createdBy = @RegisteredMemberState.meta,
+                                  lastUpdatedOn = now(),
+                                  lastUpdatedBy = @ActivateMember.activatingMember,
+                                  currentState = @MemberStates.Active
+                              )
+                          )
+                   }
                 }
                 on command SuspendMember {
-                  given "entity has suspensionReason non-empty"
-                  then "morph Member entity to Active state"
-                  and "set entity lastModifiedBy to actingMember from message"
-                  and "set entity lastModifiedOn to today()"
-                  and "yield event MemberSuspended"
+                   then set RegisteredMemberState.meta to !MembersContext.MetaInfo(
+                       createdOn = @RegisteredMemberState.meta,
+                       createdBy = @RegisteredMemberState.meta,
+                       lastUpdatedOn = now(),
+                       lastUpdatedBy = @SuspendMember.suspendingMember,
+                       currentState = @MemberStates.Suspended
+                   )
+                   and send event MemberSuspended(
+                       memberId = @Member.id,
+                       info = @RegisteredMemberState.info,
+                       meta = MembersContext.MetaInfo(
+                           createdOn = @RegisteredMemberState.meta,
+                           createdBy = @RegisteredMemberState.meta,
+                           lastUpdatedOn = now(),
+                           lastUpdatedBy = @SuspendMember.suspendingMember,
+                           currentState = @MemberStates.Suspended
+                       )
+                   ) to outlet MemberEvents.Events
                 } briefly "A suspension reason can be updated by re-issuing the command"
                 on command TerminateMember {
-                  given "entity has non-empty required fields"
-                  then "morph Member entity to Terminated state"
-                  and "set entity lastModifiedBy to actingMember from message"
-                  and "set entity lastModifiedOn to today()"
-                  and "yield event MemberTerminated"
+                  then set RegisteredMemberState.meta to !MembersContext.MetaInfo(
+                      createdOn = @RegisteredMemberState.meta,
+                      createdBy = @RegisteredMemberState.meta,
+                      lastUpdatedOn = now(),
+                      lastUpdatedBy = @TerminateMember.terminatingMember,
+                      currentState = @RegisteredMemberState.meta
+                  )
+                  and morph entity Member to state TerminatedMember with !TerminatedMemberState(lastMeta = @RegisteredMemberState.meta)
                 }
                 on query GetMemberData {
                   then "yield Info for entity"
