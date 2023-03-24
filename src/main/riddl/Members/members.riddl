@@ -4,6 +4,19 @@ type MemberId is Id(ImprovingApp.MembersContext.Member)
 type MemberMap is mapping from MemberId to MembersContext.Info
 
 context MembersContext  is {
+    type PublicMemberEvent is one of {
+        MemberRegistered,
+        MemberActivated,
+        MemberSuspended,
+        MemberTerminated,
+        MemberInfoEdited,
+        MemberData
+    }
+
+    source MemberEvents is {
+        outlet Events is type PublicMemberEvent
+    } explained as "This is a source for Organization Events"
+
     //Member Details
     type MemberStatuses is any of {Active, Suspended} briefly "Internal status of an Organization."
 
@@ -233,9 +246,38 @@ context MembersContext  is {
 
         handler MemberHandler is {
             on command RegisterMember {
-                then "morph entity Member to state Member.Active"
-                and "set Member.Active.entityId to @RegisterMember.memberId"
-                and "set Member.Active.info to @RegisterMember.info"
+                then send event MemberRegistered(
+                    memberId = @RegisterMember.memberId,
+                    info = @RegisterMember.info,
+                    meta = !MembersContext.MetaInfo(
+                        createdOn = now(),
+                        createdBy = @RegisterMember.registeringMember,
+                        lastUpdatedOn = now(),
+                        lastUpdatedBy = @RegisterMember.registeringMember,
+                        currentState = @MemberStates.Draft
+                    )
+                ) to outlet MemberEvents.Events
+                and morph entity Member to state DraftMember with !DraftMemberState(
+                    requiredInfo = !MembersContext.RequiredDraftInfo(
+                        contact = @RegisterMember.info,
+                        handle = @RegisterMember.info,
+                        avatar = @RegisterMember.info,
+                        firstName = @RegisterMember.info,
+                        lastName = @RegisterMember.info,
+                        tenant = @RegisterMember.info
+                    ),
+                    optionalInfo = !OrganizationContext.OptionalDraftInfo(
+                        notificationPreference = @RegisterMember.info,
+                        organizationMembership = @RegisterMember.info
+                    ),
+                    meta = !MembersContext.MetaInfo(
+                        createdOn = now(),
+                        createdBy = @RegisterMember.registeringMember,
+                        lastUpdatedOn = now(),
+                        lastUpdatedBy = @RegisterMember.registeringMember,
+                        currentState = @OrganizationStates.Draft
+                    )
+                )
             }
             //on command RegisterMemberList {
             //    //TODO: list operations on the following:

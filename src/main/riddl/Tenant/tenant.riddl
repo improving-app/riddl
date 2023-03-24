@@ -24,6 +24,16 @@ context TenantContext is {
                             currentState = @TenantStates.Active
                         )
                     ) to outlet TenantEvents.Events
+	                and morph entity Tenant to state EstablishedTenant with !EstablishedTenantState(
+	                    info = @EstablishTenant.tenantInfo,
+                        meta = !TenantContext.MetaInfo(
+                            createdOn = now(),
+                            createdBy = @EstablishTenant.establishingMember,
+                            lastUpdatedOn = now(),
+                            lastUpdatedBy = @EstablishTenant.establishingMember,
+                            currentState = @TenantStates.Active
+                        )
+                    )
                 }
                 example NameAlreadyTaken{
                     when "name is being used for another tenant"
