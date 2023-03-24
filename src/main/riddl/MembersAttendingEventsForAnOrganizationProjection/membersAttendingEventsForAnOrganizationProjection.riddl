@@ -8,7 +8,6 @@ context MembersAttendingEventsForAnOrganizationProjection is  {
         event: EventId,     //ticket-event & org-event correlation tables, event table
         eventName: String,  //event table
         eventDate: Date,     //event table
-        eventStatus: EventContext.Status, //event table
         eventOrg: OrganizationId, //org-event correlation table
         ticketSku: SKU, // ticket-event & ticket-member correlation tables
         attendingMember: MemberId, //ticket-member correlation table & member table
@@ -29,10 +28,6 @@ context MembersAttendingEventsForAnOrganizationProjection is  {
         on event EventCancelled {
             then "remove row in row in event table with event corresponding to EventCancelled.eventId"
             and "remove row in org-event table with event set to EventScheduled.eventId, eventOrg set to set to EventScheduled.info.sponsoringOrg"
-        }
-        on event EventTerminated {
-            then "remove row in row in event table with event corresponding to EventTerminated.eventId"
-            and "remove row in org-event table with event set to EventTerminated.eventId"
         }
         on event ProductCreated {
             then "if product is ticket, create row in ticket-event table with sku as ticketSku & productDetails.eventId as event"
