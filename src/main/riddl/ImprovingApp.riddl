@@ -28,4 +28,5 @@ domain ImprovingApp is {
     include "LocationsReservationsProjections/locationsReservationsProjections"
     include "OrganizationsForMembersAttendingEventsProjection/organizationsForMembersAttendingEventsProjection"
     include "MembersAttendingEventsForAnOrganizationProjection/membersAttendingEventsForAnOrganizationProjection"
+    include "test/TestGateway"
 } described in file "ImprovingApp.md"
