@@ -259,7 +259,17 @@ context TenantContext is {
 	            }
 	            on command TerminateTenant {
 	               example Success {
-                       then "update the meta info to reflect the change"
+                       then set EstablishedTenantState.meta to !TenantContext.MetaInfo(
+                           createdOn = @EstablishedTenantState.meta,
+                           createdBy = @EstablishedTenantState.meta,
+                           lastUpdated = now(),
+                           lastUpdatedBy = @TerminateTenant.terminatingUser,
+                           currentState = @EstablishedTenantState.meta
+                       )
+                       and send event TenantContext.TenantTerminated(
+                           tenantId = @Tenant.id,
+                           meta = @EstablishedTenantState.meta
+                       ) to outlet TenantEvents.Events
 	                   and morph entity Tenant to state TerminatedTenant with !TerminatedTenantState(lastMeta = @EstablishedTenantState.meta)
 	               }
                    example NotAuthorized {
@@ -327,7 +337,7 @@ context TenantContext is {
                            createdOn = @EstablishedTenantState.meta,
                            createdBy = @EstablishedTenantState.meta,
                            lastUpdated = now(),
-                           lastUpdatedBy = @ActivateTenant.activatingUser,
+                           lastUpdatedBy = @TerminateTenant.terminatingUser,
                            currentState = @EstablishedTenantState.meta
                        )
                        and send event TenantContext.TenantTerminated(

@@ -66,29 +66,27 @@ context OrganizationContext is {
                     then error "Organization already established"
                 }
                 on command EditOrganizationInfo {
-                    then morph entity Organization to state DraftOrganization with !DraftOrganizationState(
-                         requiredInfo = !OrganizationContext.RequiredDraftInfo(
-                             name = @EditOrganizationInfo.newInfo,
-                             isPrivate = @EditOrganizationInfo.newInfo,
-                             tenant = @EditOrganizationInfo.newInfo,
-                             members = @DraftOrganizationState.requiredInfo,
-                             owners = @DraftOrganizationState.requiredInfo
-                         ),
-                         optionalInfo = !OrganizationContext.OptionalDraftInfo(
-                             shortName = @EditOrganizationInfo.newInfo,
-                             address = @EditOrganizationInfo.newInfo,
-                             url = @EditOrganizationInfo.newInfo,
-                             logo = @EditOrganizationInfo.newInfo,
-                             parent = @DraftOrganizationState.optionalInfo,
-                             contacts = @DraftOrganizationState.optionalInfo
-                         ),
-                         meta = !OrganizationContext.MetaInfo(
-                             createdOn = @DraftOrganizationState.orgMeta,
-                             createdBy = @DraftOrganizationState.orgMeta,
-                             lastUpdatedOn = now(),
-                             lastUpdatedBy = @EditOrganizationInfo.editingMember,
-                             currentState = @OrganizationStates.Draft
-                         )
+                    then set DraftOrganizationState.requiredInfo to !OrganizationContext.RequiredDraftInfo(
+                         name = @EditOrganizationInfo.newInfo,
+                         isPrivate = @EditOrganizationInfo.newInfo,
+                         tenant = @EditOrganizationInfo.newInfo,
+                         members = @DraftOrganizationState.requiredInfo,
+                         owners = @DraftOrganizationState.requiredInfo
+                     )
+                    and set DraftOrganizationState.optionalInfo to !OrganizationContext.OptionalDraftInfo(
+                         shortName = @EditOrganizationInfo.newInfo,
+                         address = @EditOrganizationInfo.newInfo,
+                         url = @EditOrganizationInfo.newInfo,
+                         logo = @EditOrganizationInfo.newInfo,
+                         parent = @DraftOrganizationState.optionalInfo,
+                         contacts = @DraftOrganizationState.optionalInfo
+                     )
+                     and set DraftOrganizationState.orgMeta to !OrganizationContext.MetaInfo(
+                         createdOn = @DraftOrganizationState.orgMeta,
+                         createdBy = @DraftOrganizationState.orgMeta,
+                         lastUpdatedOn = now(),
+                         lastUpdatedBy = @EditOrganizationInfo.editingMember,
+                         currentState = @OrganizationStates.Draft
                      )
                     and send event OrganizationInfoEdited(
                         orgId = @Organization.id,
@@ -238,7 +236,30 @@ context OrganizationContext is {
                 on command ActivateOrganization {
                     example Success {
                         when "all required fields in requiredInfo are not None or Empty"
-                        then morph entity Organization to state EstablishedOrganization
+                        then send event OrganizationEstablished(
+                            orgId = @Organization.id,
+                            info = !OrganizationContext.Info(
+                               name = @DraftOrganizationState.requiredInfo,
+                               shortName = @DraftOrganizationState.optionalInfo,
+                               address = @DraftOrganizationState.optionalInfo,
+                               isPrivate = @DraftOrganizationState.requiredInfo,
+                               url = @DraftOrganizationState.optionalInfo,
+                               logo = @DraftOrganizationState.optionalInfo,
+                               tenant = @DraftOrganizationState.requiredInfo
+                            ),
+                            parent = @DraftOrganizationState.optionalInfo,
+                            members = @DraftOrganizationState.requiredInfo,
+                            owners = @DraftOrganizationState.requiredInfo,
+                            contacts = @DraftOrganizationState.optionalInfo,
+                            meta = OrganizationContext.MetaInfo(
+                                createdOn = @DraftOrganizationState.orgMeta,
+                                createdBy = @DraftOrganizationState.orgMeta,
+                                lastUpdatedOn = now(),
+                                lastUpdatedBy = @EditOrganizationInfo.editingMember,
+                                currentState = @OrganizationStates.Draft
+                            )
+                        ) to outlet OrganizationEvents.Events
+                        and morph entity Organization to state EstablishedOrganization
                             with !EstablishedOrganizationState(
                                 info = !OrganizationContext.Info(
                                     name = @DraftOrganizationState.requiredInfo,
@@ -255,7 +276,6 @@ context OrganizationContext is {
                                 contact = @DraftOrganizationState.optionalInfo,
                                 orgMeta = @DraftOrganizationState.orgMeta
                             )
-                        and "yield event OrganizationStatusUpdated"
                     }
                     example NotSufficient {
                         when "all required fields in state are not present"
@@ -282,8 +302,29 @@ context OrganizationContext is {
                 }
                 on command EditOrganizationInfo {
                     example Success {
-                        then "set Active organization fields according to the data provided in EditOrganizationInfo"
-                        and "yield event OrganizationInfoUpdated"
+                        then set EstablishedOrganizationState.info to !OrganizationContext.Info(
+                                name = @EditOrganizationInfo.newInfo,
+                                shortName = @EditOrganizationInfo.newInfo,
+                                address = @EditOrganizationInfo.newInfo,
+                                isPrivate = @EditOrganizationInfo.newInfo,
+                                url = @EditOrganizationInfo.newInfo,
+                                logo = @EditOrganizationInfo.newInfo,
+                                tenant = @EditOrganizationInfo.newInfo
+                             )
+                         and set EstablishedOrganizationState.orgMeta to !OrganizationContext.MetaInfo(
+                             meta = !OrganizationContext.MetaInfo(
+                                createdOn = @EstablishedOrganizationState.orgMeta,
+                                createdBy = @EstablishedOrganizationState.orgMeta,
+                                lastUpdatedOn = now(),
+                                lastUpdatedBy = @EditOrganizationInfo.editingMember,
+                                currentState = @OrganizationStates.Draft
+                             )
+                        )
+                        and send event OrganizationInfoEdited(
+                            orgId = @Organization.id,
+                            info = @DraftOrganizationState.info,
+                            meta = @DraftOrganizationState.orgMeta
+                        ) to outlet OrganizationEvents.Events
                     }
                 }
                 on command UpdateParent {
@@ -414,12 +455,27 @@ context OrganizationContext is {
                 //     }
                 // }
                 on command SuspendOrganization {
-                    then become entity Organization to handler SuspendedOrganizationHandler
-                    and "update the meta info to reflect the change"
-                    and "yield event OrganizationSuspended"
+                    then set EstablishedOrganizationState.orgMeta to !OrganizationContext.MetaInfo(
+                         createdOn = @DraftOrganizationState.orgMeta,
+                         createdBy = @DraftOrganizationState.orgMeta,
+                         lastUpdatedOn = now(),
+                         lastUpdatedBy = @SuspendOrganization.suspendingMember,
+                         currentState = @OrganizationStates.Suspended
+                     )
+                    and send event OrganizationSuspended(
+                        orgId = @Organization.id,
+                        meta = @EstablishedOrganizationState.orgMeta
+                    ) to outlet OrganizationEvents.Events
+                    and become entity Organization to handler SuspendedOrganizationHandler
                 }
                 on command TerminateOrganization {
-                    then "update the meta info to reflect the change"
+                    then set EstablishedOrganizationState.orgMeta to !OrganizationContext.MetaInfo(
+                         createdOn = @DraftOrganizationState.orgMeta,
+                         createdBy = @DraftOrganizationState.orgMeta,
+                         lastUpdatedOn = now(),
+                         lastUpdatedBy = @TerminateOrganization.terminatingMember,
+                         currentState = @DraftOrganizationState.orgMeta
+                     )
                     and morph entity Organization to state TerminatedOrganization with !TerminatedOrganizationState(lastMeta = @EstablishedOrganizationState.orgMeta)
                 }
                 on other { then error "No other commands allowed in Active state" }
@@ -429,19 +485,41 @@ context OrganizationContext is {
                     then error "Organization already established"
                 }
                 on command ActivateOrganization {
-                    then become entity Organization to handler ActiveOrganizationHandler
-                    and "update the meta info to reflect the change"
-                    and "yield event OrganizationActivated"
+                    then set EstablishedOrganizationState.orgMeta to !OrganizationContext.MetaInfo(
+                         createdOn = @DraftOrganizationState.orgMeta,
+                         createdBy = @DraftOrganizationState.orgMeta,
+                         lastUpdatedOn = now(),
+                         lastUpdatedBy = @ActivateOrganization.activatingMember,
+                         currentState = @OrganizationStates.Active
+                     )
+                    and send event OrganizationActivated(
+                        orgId = @Organization.id,
+                        meta = @EstablishedOrganizationState.orgMeta
+                    ) to outlet OrganizationEvents.Events
+                    and become entity Organization to handler ActiveOrganizationHandler
                 }
                  on command SuspendOrganization {
-                    given "entity has suspensionReason non-empty"
-                    then "morph Organization entity to Active state"
-                    and "set entity lastModifiedBy to actingMember from message"
-                    and "set entity lastModifiedOn to today()"
-                    and "yield event OrganizationSuspended"
+                    then set EstablishedOrganizationState.orgMeta to !OrganizationContext.MetaInfo(
+                         createdOn = @DraftOrganizationState.orgMeta,
+                         createdBy = @DraftOrganizationState.orgMeta,
+                         lastUpdatedOn = now(),
+                         lastUpdatedBy = @SuspendOrganization.suspendingMember,
+                         currentState = @OrganizationStates.Suspended
+                     )
+                    and send event OrganizationSuspended(
+                        orgId = @Organization.id,
+                        meta = @EstablishedOrganizationState.orgMeta
+                    ) to outlet OrganizationEvents.Events
+                    and become entity Organization to handler SuspendedOrganizationHandler
                 } briefly "A suspension reason can be updated by re-issuing the command"
                 on command TerminateOrganization {
-                    then "update the meta info to reflect the change"
+                    then set EstablishedOrganizationState.orgMeta to !OrganizationContext.MetaInfo(
+                         createdOn = @DraftOrganizationState.orgMeta,
+                         createdBy = @DraftOrganizationState.orgMeta,
+                         lastUpdatedOn = now(),
+                         lastUpdatedBy = @TerminateOrganization.terminatingMember,
+                         currentState = @OrganizationStates.Suspended
+                     )
                     and morph entity Organization to state TerminatedOrganization with !TerminatedOrganizationState(lastMeta = @EstablishedOrganizationState.orgMeta)
                 }
                 on other { then error "Move organization to the Active state in order to edit details about organization."}
