@@ -78,7 +78,7 @@ context MembersContext  is {
       |of the Member with demographics, contact info, and various options
       |like notifications and group membership the Member can opt in to.
     }
-    type EditInfo is {
+    type EditableInfo is {
         handle: String?
           briefly "username. Must be unique.",
         avatar: URL?
@@ -159,7 +159,7 @@ context MembersContext  is {
     //  registeringMember: MemberId
     //}
 
-    command EditMemberInfo is {memberId: MemberId, info: MembersContext.EditInfo, actingMember: MemberId}
+    command EditMemberInfo is {memberId: MemberId, info: MembersContext.EditableInfo, actingMember: MemberId}
     briefly "Edit info of a member"
     described as {
       |This command will overwrite the values of attributes provided in UpdateInfo.

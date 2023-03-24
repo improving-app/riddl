@@ -40,7 +40,7 @@ type Info is {
     //calendar: Calendar
 } briefly "Essential information about an organization that is expected to evolve over time."
 
-type EditInfo is {
+type EditableInfo is {
     name: String? briefly "i.e. Provo High School. Must be unique within the organizational structure.",
     shortName: String? briefly "i.e. PHS. Must be unique within the organizational structure.",
     address: Address? briefly "Required for BaseOrg. Optional for all other organizations.",

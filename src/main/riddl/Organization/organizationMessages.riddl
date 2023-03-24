@@ -21,7 +21,7 @@ event OrganizationEstablished is {
 
 command EditOrganizationInfo is {
   orgId: OrganizationId briefly "The unique Id of the organization to create",
-  newInfo: OrganizationContext.EditInfo briefly "The information about the organization",
+  newInfo: OrganizationContext.EditableInfo briefly "The information about the organization",
   editingMember: MemberId briefly "Id of the member who is creating the organization"
 } briefly "A command to edit the values of an Organization's Info "
 described in file "editOrganizationInfo.md"
