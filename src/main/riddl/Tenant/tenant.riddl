@@ -168,6 +168,21 @@ context TenantContext is {
         } briefly "Tenant is active and suitable for use"
         state EstablishedTenant of EstablishedTenantState is {
             handler ActiveTenantHandler is {
+                on command TenantContext.EditInfo {
+                    then "Copy fields which are present from TenantContext.EditInfo.newInfo into Draft info fields"
+                    and set EstablishedTenantState.meta to !TenantContext.MetaInfo(
+                        createdOn = @EstablishedTenantState.meta,
+                        createdBy = @EstablishedTenantState.meta,
+                        lastUpdated = now(),
+                        lastUpdatedBy = @TenantContext.EditInfo.suspendingUser,
+                        currentState = @EstablishedTenantState.meta
+                    )
+                    and send event TenantContext.InfoEdited(
+                        tenantId = @Tenant.id,
+                        info = @EstablishedTenantState.info,
+                        meta = @EstablishedTenantState.meta
+                    ) to outlet TenantEvents.Events
+                }
                 on command SuspendTenant {
                     example Success {
                         then set EstablishedTenantState.meta to !TenantContext.MetaInfo(

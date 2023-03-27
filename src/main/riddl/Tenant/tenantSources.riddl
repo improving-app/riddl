@@ -1,5 +1,5 @@
 type PublicTenantEvent is one of {
-    //^TenantContext.InfoUpdated,
+    ^TenantContext.InfoEdited,
     ^TenantContext.TenantActivated,
     ^TenantContext.TenantSuspended,
     ^TenantContext.TenantTerminated,

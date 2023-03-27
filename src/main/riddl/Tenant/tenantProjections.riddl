@@ -17,11 +17,11 @@ projector TenantViews is {
             and "set tenantName to TenantEstablished.info.name"
             and "set tenantInfo to TenantEstablished.info"
         }
-        //on event TenantContext.InfoUpdated {
-        //    then "find tenant set to TenantEstablished.tenantId"
-        //    and "if name has changed, set tenantName to TenantEstablished.info.name"
-        //    and "set tenantInfo to TenantEstablished.info"
-        //}
+        on event TenantContext.InfoEdited {
+            then "find tenant set to TenantEstablished.tenantId"
+            and "if name has changed, set tenantName to TenantEstablished.info.name"
+            and "set tenantInfo to TenantEstablished.info"
+        }
         on query TenantContext.FindTenantByName {
             then "find by member equals FindTenantsByName.name and return TenantByName containing tenant and its info - or NoTenantWithName if empty"
         }

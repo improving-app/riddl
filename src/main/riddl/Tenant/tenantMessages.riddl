@@ -58,16 +58,16 @@ event TenantTerminated is {
   meta: TenantContext.MetaInfo
 } briefly "The event resulting from updating a Tenant's status to terminated"
 
-//command EditInfo {
-//  tenantId: TenantId briefly "The unique Id of the tenant to create",
-//  newInfo: TenantContext.OptionalInfo briefly "The information about the tenant",
-//  updatingUser: String
-//} briefly "A command to edit the values of an Tenant's Info "
-//event InfoUpdated is {
-//  tenantId: TenantId,
-//  info: TenantContext.Info,
-//  meta: TenantContext.MetaInfo
-//}
+command EditInfo {
+  tenantId: TenantId briefly "The unique Id of the tenant to create",
+  newInfo: TenantContext.OptionalInfo briefly "The information about the tenant",
+  updatingUser: String
+} briefly "A command to edit the values of an Tenant's Info "
+event InfoEdited is {
+  tenantId: TenantId,
+  info: TenantContext.Info,
+  meta: TenantContext.MetaInfo
+}
 command AddOrganizations is { tenantId: TenantId, orgId: OrganizationId*, updatingUser: String }
 event OrganizationsAdded is { tenantId: TenantId, newOrgsList: OrganizationId*, meta: TenantContext.MetaInfo }
 command RemoveOrganizations is { tenantId: TenantId, orgId: OrganizationId*, updatingUser: String }
