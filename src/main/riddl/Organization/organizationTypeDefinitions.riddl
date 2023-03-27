@@ -1,4 +1,4 @@
-type Status is any of {Draft, Active, Suspended, Terminated} briefly "Internal status of an Organization."
+type OrganizationStates is any of {Draft, Active, Suspended} briefly "Internal status of an Organization."
 type Contacts is {
     primaryContacts: MemberId+,
     billingContacts: MemberId*,
@@ -11,6 +11,23 @@ described in file "organizationContacts.md"
 } briefly "Accounts are used to move money between Improving.App and an organization, or between suborganizations defined within an organization."
 described in file "../Accounting/accounts.md"
 */
+type RequiredDraftInfo is {
+    name: String briefly "i.e. Provo High School. Must be unique within the organizational structure.",
+    isPrivate: Boolean briefly "defaults to true",
+    tenant: TenantId,
+    members: MemberId*,
+    owners: MemberId*
+} briefly "Essential information about an organization that is expected to evolve over time."
+
+type OptionalDraftInfo is {
+    shortName: String? briefly "i.e. PHS. Must be unique within the organizational structure.",
+    address: Address? briefly "Required for BaseOrg. Optional for all other organizations.",
+    url: URL?,
+    logo: URL?,
+    parent: OrganizationId?,
+    contacts: Contact?
+}
+
 type Info is {
     name: String briefly "i.e. Provo High School. Must be unique within the organizational structure.",
     shortName: String? briefly "i.e. PHS. Must be unique within the organizational structure.",
@@ -22,8 +39,8 @@ type Info is {
     //color scheme
     //calendar: Calendar
 } briefly "Essential information about an organization that is expected to evolve over time."
-// TODO: We added this UpdateInfo definition for the UpdateOrganizationInfo command. This definition makes everything optional.
-type UpdateInfo is {
+
+type EditableInfo is {
     name: String? briefly "i.e. Provo High School. Must be unique within the organizational structure.",
     shortName: String? briefly "i.e. PHS. Must be unique within the organizational structure.",
     address: Address? briefly "Required for BaseOrg. Optional for all other organizations.",
@@ -39,7 +56,7 @@ type MetaInfo is {
     createdBy: MemberId briefly "The member who created this organization",
     lastUpdated: TimeStamp briefly "The Date/Time this organization was last modified.",
     lastUpdatedBy: MemberId briefly "The member who last modified this organization. This may also be a system user. i.e. they are two months late on payment so the system determines to suspend the organization.",
-    currentStatus: OrganizationContext.Status briefly "The current state of this organization. Valid states include Draft, Active, Suspended, and Terminated",
+    currentState: OrganizationStates briefly "The current state of this organization. Valid states include Draft, Active, Suspended, and Terminated",
     children: OrganizationId* briefly "If an organization has a parent it is a child organization. A school may be the parent to the football team. The football team may have child organizations of Varsity, Junior Varsity, and Freshman football teams. Rather than editing this list of children directly it is suggested that you update the parent reference in the target suborganization and let that handler update this child list."
 } briefly "Meta data kept about an organization that the user does not directly modify. Instead the system updates this info as a Member Owner updates details in the Info type."
 type Parent: OrganizationId briefly "BaseOrganizations do not have a parent. All other organizations must have a parent. The BaseOrganization (only one per organizational structure) is the financially responsible party. As such it MUST have a BillingAccount defined. BaseOrg remains in Draft state until fully defined."
