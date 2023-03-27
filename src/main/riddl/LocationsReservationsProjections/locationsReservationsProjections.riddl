@@ -1,6 +1,6 @@
 query ScheduleEasyEvent is {
     maxAttendance: Integer,
-    event: EventInfo,
+    event: EventContext.Info,
     bufferStartMins: Integer,
     bufferEndMins: Integer,
     schedulingMember: MemberId
