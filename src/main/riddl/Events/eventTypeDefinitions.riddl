@@ -18,13 +18,13 @@ type EventType is {
 }
 */
 
-type EventStatus is any of {Scheduled, InProgress, Past, Cancelled, Delayed}
+type EventStates is any of {Draft, Scheduled, InProgress, Past, Cancelled, Delayed}
 
-type EventInfo is {
+type Info is {
     eventName: String,
     description: String,
     eventURL: URL,
-    geoLocation: Location,
+    //geoLocation: Location,
     sponsoringOrg: OrganizationId,
     expectedStart: DateTime,
     expectedEnd: DateTime,
@@ -32,12 +32,24 @@ type EventInfo is {
     //eventType: EventType
     //eventTags: String+,// List of relevant, searchable tags that identify/describe this event
 }
-type EventMetaInfo is {
+type EditableInfo is {
+    eventName: String?,
+    description: String?,
+    eventURL: URL?,
+    //geoLocation: Location?,
+    sponsoringOrg: OrganizationId?,
+    expectedStart: DateTime?,
+    expectedEnd: DateTime?,
+    isPrivate: Boolean?
+    //eventType: EventType
+    //eventTags: String+,// List of relevant, searchable tags that identify/describe this event
+}
+type MetaInfo is {
     scheduledBy: MemberId,
     scheduledOn: DateTime,
     lastModifiedBy: MemberId,
     lastModifiedOn: DateTime,
     actualStart: DateTime,
     actualEnd: DateTime,
-    status: EventStatus
+    status: EventStates
 }

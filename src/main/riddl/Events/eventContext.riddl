@@ -10,31 +10,86 @@ context EventContext is {
         option is aggregate
 
         handler EventHandler is {
-            on command ScheduleEvent {
-                then morph entity Event to state Scheduled with
-                  !^^ScheduledState(
-                    eventInfo = !EventInfo(),
-                    eventMetaInfo = !EventMetaInfo(),
-                    reservation = !ReservationId()
+            on command CreateEvent {
+                then morph entity Event to state DraftEvent with
+                  !DraftEventState(
+                     eventInfo = @CreateEvent.info,
+                     eventMetaInfo =  !EventContext.MetaInfo(
+                         createdOn = now(),
+                         createdBy = @CreateEvent.creatingMember,
+                         lastUpdatedOn = now(),
+                         lastUpdatedBy = @CreateEvent.creatingMember,
+                         currentState = @EventStates.Draft
+                     ),
+                     reservation = false
                   )
             }
             on other {
-            then error "You must first create an event using ScheduleEvent command."
+                then error "You must first create an event using ScheduleEvent command."
             }
         }
 
-        record ScheduledState is {
-          eventInfo: EventInfo,
-          eventMetaInfo: EventMetaInfo,
+        record DraftEventState is {
+          editableInfo: EventContext.EditableInfo,
+          eventMetaInfo: EventContext.MetaInfo,
           reservation: ReservationId?
         }
-        state Scheduled of ^ScheduledState is {
+        state DraftEvent of DraftEventState is {
+            handler DraftEventHandler {
+                on command ScheduleEvent{
+                    example Success{
+                        when "all editableInfo fields are set & reservation is set"
+                        then morph entity Event to state ScheduledEvent with !ScheduledEventState(
+                            eventInfo = !EventContext.Info(
+                                eventName = @DraftEventState.editableInfo,//.eventName,
+                                description = @DraftEventState.editableInfo,//.description,
+                                eventURL = @DraftEventState.editableInfo,//.eventURL,
+                                geoLocation = @DraftEventState.editableInfo,//.geoLocation,
+                                sponsoringOrg = @DraftEventState.editableInfo,//.sponsoringOrg,
+                                expectedStart = @DraftEventState.editableInfo,//.expectedStart,
+                                expectedEnd = @DraftEventState.editableInfo,//.expectedEnd,
+                                isPrivate = @DraftEventState.editableInfo//.isPrivate
+                            ),
+                            eventMetaInfo =  !EventContext.MetaInfo(
+                                createdOn = now(),
+                                createdBy = @ScheduleEvent.schedulingMember,
+                                lastUpdatedOn = now(),
+                                lastUpdatedBy = @ScheduleEvent.schedulingMember,
+                                currentState = @EventStates.Draft
+                            ),
+                            reservation = @DraftEventState.reservation
+                        )
+                    }
+                    example NotSufficient {
+                        when "all required fields in state are not present"
+                        then error "state is not sufficiently filled out to schedule event"
+                    }
+                }
+                on command AddReservationToEvent {
+                    then "set reservation to AddReservationToEvent.reservation"
+                }
+                on command UpdateEventInfo{
+                    then "set entity eventInfo to message info"
+                    and "set entity lastModifiedBy to Event.cancellingMember"
+                    and "set entity lastModifiedOn to today()"
+                }
+                on command AddLiveUpdate{???}
+                on other { then error "this command is not allowed while the Event is in Draft state" }
+            }
+        }
+
+        record ScheduledEventState is {
+          eventInfo: EventContext.Info,
+          eventMetaInfo: EventContext.MetaInfo,
+          reservation: ReservationId?
+        }
+        state ScheduledEvent of ScheduledEventState is {
             handler ScheduledEventHandler {
                 on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
                 on command AddReservationToEvent {
                     then "set reservation to AddReservationToEvent.reservation"
                 }
-                on command ChangeEventInfo{
+                on command UpdateEventInfo{
                     then "set entity eventInfo to message info"
                     and "set entity lastModifiedBy to Event.cancellingMember"
                     and "set entity lastModifiedOn to today()"
@@ -69,118 +124,87 @@ context EventContext is {
                 on command AddLiveUpdate{???}
             }
         }
-        record InProgressState is {
-          eventInfo: EventInfo,
-          eventMetaInfo: EventMetaInfo,
-          reservation: ReservationId
-        }
-        state InProgress of ^InProgressState is {
-            handler InProgressEventHandler is {
-                on command ScheduleEvent{
-                    then error "Event is already in progress, cannot be scheduled"
-                }
-                on command AddReservationToEvent{
-                    then error "Event is already in progress, cannot accept new reservation"
-                }
-                on command ChangeEventInfo{
-                    then error "Event is already in progress, info cannot be modified"
-                }
-                on command CancelEvent{
-                    then error "Event is already in progress, cannot be cancelled"
-                }
-                on command RescheduleEvent{
-                    then error "Event is already in progress, must be delayed to be rescheduled"
-                }
-                on command DelayEvent{
-                    then "morph Event entity to EventStatus.Delayed"
-                    and "set entity lastModifiedBy to Event.delayingMember"
-                    and "set entity lastModifiedOn to today()"
-                }
-                on command StartEvent{
-                  then error "Event is already started. Cannot start an event that is already in progress"
-                }
-                on command EndEvent{
-				  then "morph Event entity to EventStatus.Past"
-                  and "set entity lastModifiedBy to Event.endingMember"
-                  and "set entity lastModifiedOn to today()"
-                }
-                on command AddLiveUpdate{???}
+        handler InProgressEventHandler is {
+            on command ScheduleEvent{
+                then error "Event is already in progress, cannot be scheduled"
             }
-            //score, period, etc...
-        }
-        record DelayedState is {
-          eventInfo: EventInfo,
-          reason: String,
-          eventMetaInfo: EventMetaInfo,
-          reservation: ReservationId
-          //finalScore
-        }
-        state Delayed of ^DelayedState is {
-            handler DelayedEventHandler is {
-                on command ScheduleEvent{
-				  then error "Cannot schedule a delayed event, please reschedule"
-                }
-                on command AddReservationToEvent{
-                    then error "Event cannot accept new reservation in delayed state - please try exte4nding the reservation"
-                }
-                on command ChangeEventInfo{
-                  then "set entity eventInfo to message info"
-                  and "set entity lastModifiedBy to Event.changingMember"
-                  and "set entity lastModifiedOn to today()"
-                }
-                on command CancelEvent{
-				  then "morph Event entity to EventStatus.Cancelled"
-                  and "set entity lastModifiedBy to Event.cancellingMember"
-                  and "set entity lastModifiedOn to today()"
-                }
-                on command RescheduleEvent{
-                  then "set entity evenInfo.expectedStart to Event.start"
-                  and "set entity evenInfo.expectedEnd to Event.end"
-                  and "set entity lastModifiedBy to Event.reschedulingMember"
-                  and "set entity lastModifiedOn to today()"
-                }
-                on command DelayEvent{
-                  then error "Cannot delay a delayed event again, must be rescheduled"
-                }
-                on command StartEvent{
-                  then "morph Event entity to EventStatus.InProgress"
-                  and "set entity lastModifiedBy to Event.startingMember"
-                  and "set entity lastModifiedOn to today()"
-                }
-                on command EndEvent{
-				  then error "Only events that are InProgress may be ended. If you wish to end this event it must be started first. If you wish to cancel the event, please use the CancelEvent Command."
-                }
-                on command AddLiveUpdate{???}
+            on command AddReservationToEvent{
+                then error "Event is already in progress, cannot accept new reservation"
             }
-        }
-        record PastState {
-            eventInfo: EventInfo,
-            eventMetaInfo: EventMetaInfo,
-            reservation: ReservationId?
-            //finalScore
-        }
-        state Past of ^PastState is {
-            handler PastEventHandler is {
-              on other {then error "No actions are permitted on a Past event"}
+            on command UpdateEventInfo{
+                then error "Event is already in progress, info cannot be modified"
             }
-        }
-        record CancelledState {
-            eventInfo: EventInfo,
-            eventMetaInfo: EventMetaInfo,
-            reservation: ReservationId?
-            //reason
+            on command CancelEvent{
+                then error "Event is already in progress, cannot be cancelled"
+            }
+            on command RescheduleEvent{
+                then error "Event is already in progress, must be delayed to be rescheduled"
+            }
+            on command DelayEvent{
+                then "morph Event entity to EventStatus.Delayed"
+                and "set entity lastModifiedBy to Event.delayingMember"
+                and "set entity lastModifiedOn to today()"
+            }
+            on command StartEvent{
+              then error "Event is already started. Cannot start an event that is already in progress"
+            }
+            on command EndEvent{
+              then "morph Event entity to EventStatus.Past"
+              and "set entity lastModifiedBy to Event.endingMember"
+              and "set entity lastModifiedOn to today()"
+            }
+            on command AddLiveUpdate{???}
         }
 
-        state Cancelled of ^CancelledState is {
-            handler CancelledEventHandler is {
-                on command RescheduleEvent{
-                  then "set entity evenInfo.expectedStart to RescheduleEvent.info.start"
-                  and "set entity evenInfo.expectedEnd to RescheduleEvent.info.end"
-                  and "set entity lastModifiedBy to RescheduleEvent.reschedulingMember"
-                  and "set entity lastModifiedOn to today()"
-                }
-                on other { then error "Event is delayed, the only available command is RescheduleEvent" }
+        handler DelayedEventHandler is {
+            on command ScheduleEvent{
+              then error "Cannot schedule a delayed event, please reschedule"
             }
+            on command AddReservationToEvent{
+                then error "Event cannot accept new reservation in delayed state - please try exte4nding the reservation"
+            }
+            on command UpdateEventInfo{
+              then "set entity eventInfo to message info"
+              and "set entity lastModifiedBy to Event.changingMember"
+              and "set entity lastModifiedOn to today()"
+            }
+            on command CancelEvent{
+              then "morph Event entity to EventStatus.Cancelled"
+              and "set entity lastModifiedBy to Event.cancellingMember"
+              and "set entity lastModifiedOn to today()"
+            }
+            on command RescheduleEvent{
+              then "set entity evenInfo.expectedStart to Event.start"
+              and "set entity evenInfo.expectedEnd to Event.end"
+              and "set entity lastModifiedBy to Event.reschedulingMember"
+              and "set entity lastModifiedOn to today()"
+            }
+            on command DelayEvent{
+              then error "Cannot delay a delayed event again, must be rescheduled"
+            }
+            on command StartEvent{
+              then "morph Event entity to EventStatus.InProgress"
+              and "set entity lastModifiedBy to Event.startingMember"
+              and "set entity lastModifiedOn to today()"
+            }
+            on command EndEvent{
+              then error "Only events that are InProgress may be ended. If you wish to end this event it must be started first. If you wish to cancel the event, please use the CancelEvent Command."
+            }
+            on command AddLiveUpdate{???}
+        }
+
+        handler PastEventHandler is {
+          on other {then error "No actions are permitted on a Past event"}
+        }
+
+        handler CancelledEventHandler is {
+            on command RescheduleEvent{
+              then "set entity evenInfo.expectedStart to RescheduleEvent.info.start"
+              and "set entity evenInfo.expectedEnd to RescheduleEvent.info.end"
+              and "set entity lastModifiedBy to RescheduleEvent.reschedulingMember"
+              and "set entity lastModifiedOn to today()"
+            }
+            on other { then error "Event is delayed, the only available command is RescheduleEvent" }
         }
         //also consider postponed, delayed
     }
