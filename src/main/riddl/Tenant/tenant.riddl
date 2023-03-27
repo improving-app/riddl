@@ -13,9 +13,27 @@ context TenantContext is {
         handler TenantHandler is {
             on command EstablishTenant {
                 example Success {
-                    then "Set fields from EstablishTenant for tenant"
-                    and "Set meta data to reflect change"
-                    and "yield TenantEstablished event"
+                    then send event TenantEstablished(
+                        tenantId = @EstablishTenant.tenantId,
+                        tenantInfo = @EstablishTenant.tenantInfo,
+                        metaInfo = !TenantContext.MetaInfo(
+                            createdOn = now(),
+                            createdBy = @EstablishTenant.establishingMember,
+                            lastUpdatedOn = now(),
+                            lastUpdatedBy = @EstablishTenant.establishingMember,
+                            currentState = @TenantStates.Active
+                        )
+                    ) to outlet TenantEvents.Events
+	                and morph entity Tenant to state EstablishedTenant with !EstablishedTenantState(
+	                    info = @EstablishTenant.tenantInfo,
+                        meta = !TenantContext.MetaInfo(
+                            createdOn = now(),
+                            createdBy = @EstablishTenant.establishingMember,
+                            lastUpdatedOn = now(),
+                            lastUpdatedBy = @EstablishTenant.establishingMember,
+                            currentState = @TenantStates.Active
+                        )
+                    )
                 }
                 example NameAlreadyTaken{
                     when "name is being used for another tenant"
@@ -28,129 +46,158 @@ context TenantContext is {
             }
         }
 
-        record DraftTenantState is  {
-            info: TenantContext.Info,
-            meta: TenantContext.MetaInfo
-        }
-        state DraftTenant of ^DraftTenantState is {
-            handler DraftTenantHandler is {
-                on command TenantContext.EditInfo {
-                    then "Copy fields from TenantContext.EditInfo into Draft info fields"
-                    and "adjust meta fields to reflect the change set"
-                    and "yield event TenantContext.InfoUpdated"
-                }
-                on command TenantContext.UpdateStatus {
-                    example Success {
-                        then "Morph Tenant to Active state"
-                        and "Set Tenant meta data to reflect the change"
-                        and "yield TenantContext.StatusUpdated event"
-                    }
-                    // example NoBillingAccount {
-                    //     when "Desired status is Active and BillingAccount is null"
-                    //     then error "Tenant must have a BillingAccount to be Activated"
-                    // }
-                    // example NoDistributionAccount {
-                    //     when "Desired status is Active and DistributionAccount is null"
-                    //     then error "Tenant must have a DistributionAccount to be Activated"
-                    // }
-                    example NotAuthorized {
-                        when "Desired status is Active and updating user is not authorized to activate the tenant"
-                        then error "User is not authorized to Activate Tenant"
-                    }
-                }
-                on command UpdatePrimaryContact {
-                    example Success {
-                        then "update info's primary contact details with arguments from UpdatePrimaryContact"
-                        and "set Tenant meta data to reflect the change"
-                        and "yield UpdatedPrimaryContactEvent"
-                    }
-                    example IncompleteContactInfo {
-                        when "incoming primary contact info does not have all fields"
-                        then error "primary contact info is not complete"
-                    }
-                    example NotAuthorized {
-                        when "updating user is not authorized to make changes to the tenant"
-                        then error "User is not authorized to modify Tenant"
-                    }
-                }
-                on command ChangeTenantName {
-                    example Success {
-                        then "update info's tenant name"
-                        and "Set Tenant meta data to reflect change"
-                        and "yield TenantNameChanged event"
-                    }
-                    example TenantNameAlreadyExists {
-                        when "Another Tenant is already using the provided name"
-                        then error "Tenant name is already in use"
-                    }
-                }
-                on command AddOrganizations {
-                    example Success {
-                        then "add orgs to info's list of tenant orgs"
-                        and "Set Tenant meta data to reflect change"
-                        and "yield OrganizationsAdded event"
-                    }
-                    example OrganizationsNameAlreadyInList {
-                        when "This organizations already belongs to this tenant"
-                        then error "Organizations already belongs to tenant"
-                    }
-                }
-                on command RemoveOrganizations {
-                   example Success {
-                       then "remove organizations from info's list of tenant orgs"
-                       and "Set Tenant meta data to reflect change"
-                       and "yield OrganizationsRemoved event"
-                   }
-                   example OrganizationsNameNotInListAlready {
-                       when "This tenant already doesn't belong to this organizations"
-                       then error "Tenant doesn't belongs to organizations already"
-                   }
-                }
-                // on command SwapBillingAccount {
-                //     example Success {
-                //         then "Update the BillingAccountId"
-                //         and "set tenant meta data to reflect change"
-                //         and "yield BillingAccountSwapped event"
-                //     }
-                //     example InvalidBillingAccount {
-                //         when "BillingAccount ID does not exist"
-                //         then error "BillingAccount ID does not exist"
-                //     }
-                //     example NotAuthorized {
-                //         when "updating user is not authorized to make changes to the tenant"
-                //         then error "User is not authorized to modify Tenant"
-                //     }
-                // }
-                // on command SwapDistributionAccount {
-                //     example Success {
-                //         then "Update the DistributionAccountId"
-                //         and "set tenant meta data to reflect change"
-                //         and "yield DistributionAccountSwapped event"
-                //     }
-                //     example InvalidBillingAccount {
-                //         when "DistributionAccount ID does not exist"
-                //         then error "DistributionAccount ID does not exist"
-                //     }
-                //     example NotAuthorized {
-                //         when "updating user is not authorized to make changes to the tenant"
-                //         then error "User is not authorized to modify Tenant"
-                //     }
-                // }
-                on other { then error "Command not allowed in Draft state" }
-            }
-        }
+        //record DraftTenantState is  {
+        //    info: TenantContext.OptionalInfo,
+        //    meta: TenantContext.MetaInfo
+        //} briefly "Tenant is inactive, in process of being created/defined",
+        //state DraftTenant of DraftTenantState is {
+        //    handler DraftTenantHandler is {
+        //        on command TenantContext.EditInfo {
+        //            then "Copy fields which are present from TenantContext.EditInfo.newInfo into Draft info fields"
+        //            and "adjust meta fields to reflect the change set"
+        //            and "yield event TenantContext.InfoUpdated"
+        //        }
+        //        on command TenantContext.UpdateStatus {
+        //            example Success {
+        //                then "Morph Tenant to Active state"
+        //                and "Set Tenant meta data to reflect the change"
+        //                and "yield TenantContext.StatusUpdated event"
+        //            }
+        //            // example NoBillingAccount {
+        //            //     when "Desired status is Active and BillingAccount is null"
+        //            //     then error "Tenant must have a BillingAccount to be Activated"
+        //            // }
+        //            // example NoDistributionAccount {
+        //            //     when "Desired status is Active and DistributionAccount is null"
+        //            //     then error "Tenant must have a DistributionAccount to be Activated"
+        //            // }
+        //            example NotAuthorized {
+        //                when "Desired status is Active and updating user is not authorized to activate the tenant"
+        //                then error "User is not authorized to Activate Tenant"
+        //            }
+        //            example NotSufficient {
+        //                when "Desired status is Active and info fields are not entirely filled out"
+        //                then error "State is not sufficiently filled out to Activate Tenant"
+        //            }
+        //        }
+        //        on command UpdatePrimaryContact {
+        //            example Success {
+        //                then "update info's primary contact details with arguments from UpdatePrimaryContact"
+        //                and "set Tenant meta data to reflect the change"
+        //                and "yield UpdatedPrimaryContactEvent"
+        //            }
+        //            example IncompleteContactInfo {
+        //                when "incoming primary contact info does not have all fields"
+        //                then error "primary contact info is not complete"
+        //            }
+        //            example NotAuthorized {
+        //                when "updating user is not authorized to make changes to the tenant"
+        //                then error "User is not authorized to modify Tenant"
+        //            }
+        //        }
+        //        on command ChangeTenantName {
+        //            example Success {
+        //                then "update info's tenant name"
+        //                and "Set Tenant meta data to reflect change"
+        //                and "yield TenantNameChanged event"
+        //            }
+        //            example TenantNameAlreadyExists {
+        //                when "Another Tenant is already using the provided name"
+        //                then error "Tenant name is already in use"
+        //            }
+        //        }
+        //        on command AddOrganizations {
+        //            example Success {
+        //                then "add orgs to info's list of tenant orgs"
+        //                and "Set Tenant meta data to reflect change"
+        //                and "yield OrganizationsAdded event"
+        //            }
+        //            example OrganizationsNameAlreadyInList {
+        //                when "This organizations already belongs to this tenant"
+        //                then error "Organizations already belongs to tenant"
+        //            }
+        //        }
+        //        on command RemoveOrganizations {
+        //           example Success {
+        //               then "remove organizations from info's list of tenant orgs"
+        //               and "Set Tenant meta data to reflect change"
+        //               and "yield OrganizationsRemoved event"
+        //           }
+        //           example OrganizationsNameNotInListAlready {
+        //               when "This tenant already doesn't belong to this organizations"
+        //               then error "Tenant doesn't belongs to organizations already"
+        //           }
+        //        }
+        //        // on command SwapBillingAccount {
+        //        //     example Success {
+        //        //         then "Update the BillingAccountId"
+        //        //         and "set tenant meta data to reflect change"
+        //        //         and "yield BillingAccountSwapped event"
+        //        //     }
+        //        //     example InvalidBillingAccount {
+        //        //         when "BillingAccount ID does not exist"
+        //        //         then error "BillingAccount ID does not exist"
+        //        //     }
+        //        //     example NotAuthorized {
+        //        //         when "updating user is not authorized to make changes to the tenant"
+        //        //         then error "User is not authorized to modify Tenant"
+        //        //     }
+        //        // }
+        //        // on command SwapDistributionAccount {
+        //        //     example Success {
+        //        //         then "Update the DistributionAccountId"
+        //        //         and "set tenant meta data to reflect change"
+        //        //         and "yield DistributionAccountSwapped event"
+        //        //     }
+        //        //     example InvalidBillingAccount {
+        //        //         when "DistributionAccount ID does not exist"
+        //        //         then error "DistributionAccount ID does not exist"
+        //        //     }
+        //        //     example NotAuthorized {
+        //        //         when "updating user is not authorized to make changes to the tenant"
+        //        //         then error "User is not authorized to modify Tenant"
+        //        //     }
+        //        // }
+        //        on other { then error "Command not allowed in Draft state" }
+        //    }
+        //}
 
-        record ActiveState is {
+        record EstablishedTenantState is {
             info: TenantContext.Info,
             meta: TenantContext.MetaInfo
-        }
-        state ActiveTenant of ^ActiveState is {
+        } briefly "Tenant is active and suitable for use"
+        state EstablishedTenant of EstablishedTenantState is {
             handler ActiveTenantHandler is {
-                 on command TenantContext.UpdateStatus {
+                on command TenantContext.EditInfo {
+                    then "Copy fields which are present from TenantContext.EditInfo.newInfo into Draft info fields"
+                    and set EstablishedTenantState.meta to !TenantContext.MetaInfo(
+                        createdOn = @EstablishedTenantState.meta,
+                        createdBy = @EstablishedTenantState.meta,
+                        lastUpdated = now(),
+                        lastUpdatedBy = @TenantContext.EditInfo.suspendingUser,
+                        currentState = @EstablishedTenantState.meta
+                    )
+                    and send event TenantContext.InfoEdited(
+                        tenantId = @Tenant.id,
+                        info = @EstablishedTenantState.info,
+                        meta = @EstablishedTenantState.meta
+                    ) to outlet TenantEvents.Events
+                }
+                on command SuspendTenant {
                     example Success {
-                        then "Morph Tenant to Suspended state"
-                        and "Set Tenant meta data to reflect the change"
-                        and "yield TenantContext.StatusUpdated event"
+                        then set EstablishedTenantState.meta to !TenantContext.MetaInfo(
+                            createdOn = @EstablishedTenantState.meta,
+                            createdBy = @EstablishedTenantState.meta,
+                            lastUpdated = now(),
+                            lastUpdatedBy = @SuspendTenant.suspendingUser,
+                            currentState = @TenantStates.Suspended
+                        )
+                        and send event TenantContext.TenantSuspended(
+                            tenantId = @Tenant.id,
+                            info = @EstablishedTenantState.info,
+                            meta = @EstablishedTenantState.meta
+                        ) to outlet TenantEvents.Events
+                        and become entity Tenant to handler SuspendedTenantHandler
                     }
                     example NotAuthorized {
                         when "updating user is not authorized to suspend tenant"
@@ -209,6 +256,26 @@ context TenantContext is {
 	                   then error "Tenant doesn't belongs to organizations already"
 	               }
 	            }
+	            on command TerminateTenant {
+	               example Success {
+                       then set EstablishedTenantState.meta to !TenantContext.MetaInfo(
+                           createdOn = @EstablishedTenantState.meta,
+                           createdBy = @EstablishedTenantState.meta,
+                           lastUpdated = now(),
+                           lastUpdatedBy = @TerminateTenant.terminatingUser,
+                           currentState = @EstablishedTenantState.meta
+                       )
+                       and send event TenantContext.TenantTerminated(
+                           tenantId = @Tenant.id,
+                           meta = @EstablishedTenantState.meta
+                       ) to outlet TenantEvents.Events
+	                   and morph entity Tenant to state TerminatedTenant with !TerminatedTenantState(lastMeta = @EstablishedTenantState.meta)
+	               }
+                   example NotAuthorized {
+                       when "terminating user is not authorized to make changes to the tenant"
+                       then error "User is not authorized to modify Tenant"
+                   }
+	            }
                 // on command SwapBillingAccount {
                 //     example Success {
                 //         then "Update the BillingAccountId"
@@ -241,26 +308,58 @@ context TenantContext is {
                 // }
                 on other { then error "Command not allowed in Active state" }
             }
-        }
-
-        record SuspendedState is {
-            info: TenantContext.Info,
-            meta: TenantContext.MetaInfo
-        }
-        state SuspendedTenant of ^SuspendedState is {
             handler SuspendedTenantHandler is {
-                 on command TenantContext.UpdateStatus {
+                 on command ActivateTenant {
                     example Success {
-                        then "Morph Tenant to Active state"
-                        and "Set Tenant meta data to reflect the change"
-                        and "yield TenantContext.StatusUpdated event"
+                        then set EstablishedTenantState.meta to !TenantContext.MetaInfo(
+                            createdOn = @EstablishedTenantState.meta,
+                            createdBy = @EstablishedTenantState.meta,
+                            lastUpdated = now(),
+                            lastUpdatedBy = @ActivateTenant.activatingUser,
+                            currentState = @TenantStates.Active
+                        )
+                        and send event TenantContext.TenantSuspended(
+                            tenantId = @Tenant.id,
+                            info = @EstablishedTenantState.info,
+                            meta = @EstablishedTenantState.meta
+                        ) to outlet TenantEvents.Events
+                        and become entity Tenant to handler ActiveTenantHandler
                     }
                     example NotAuthorized {
                         when "updating user is not authorized to activate the tenant"
                         then error "User is not authorized to Activate Tenant"
                     }
                 }
+                on command TerminateTenant {
+                   example Success {
+                       then set EstablishedTenantState.meta to !TenantContext.MetaInfo(
+                           createdOn = @EstablishedTenantState.meta,
+                           createdBy = @EstablishedTenantState.meta,
+                           lastUpdated = now(),
+                           lastUpdatedBy = @TerminateTenant.terminatingUser,
+                           currentState = @EstablishedTenantState.meta
+                       )
+                       and send event TenantContext.TenantTerminated(
+                           tenantId = @Tenant.id,
+                           meta = @EstablishedTenantState.meta
+                       ) to outlet TenantEvents.Events
+                       and morph entity Tenant to state TerminatedTenant with !TerminatedTenantState(lastMeta = @EstablishedTenantState.meta)
+                   }
+                   example NotAuthorized {
+                       when "terminating user is not authorized to make changes to the tenant"
+                       then error "User is not authorized to modify Tenant"
+                   }
+                }
                 on other { then error "Command not allowed in Suspended state" }
+            }
+        }
+
+        record TerminatedTenantState is {
+            lastMeta: TenantContext.MetaInfo
+        } briefly "Tenant is is terminated, all data has been deleted"
+        state TerminatedTenant of TerminatedTenantState is {
+            handler TerminatedTenantHandler is {
+                on other { then error "Command not allowed in Terminated state" }
             }
         }
     }

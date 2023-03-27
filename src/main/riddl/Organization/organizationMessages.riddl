@@ -21,21 +21,17 @@ event OrganizationEstablished is {
 
 command EditOrganizationInfo is {
   orgId: OrganizationId briefly "The unique Id of the organization to create",
-  newInfo: OrganizationContext.UpdateInfo briefly "The information about the organization",
+  newInfo: OrganizationContext.EditableInfo briefly "The information about the organization",
   editingMember: MemberId briefly "Id of the member who is creating the organization"
 } briefly "A command to edit the values of an Organization's Info "
 described in file "editOrganizationInfo.md"
 
-// TODO: Alex and I had a conversation on this block of commands. Several ideas came out that we should discuss:
-// 1. Should UpdateOrganizationInfo, AddMembersToOrganization, AddOwnersToOrganization, etc. all simply yield an OrganizationInfoUpdated event?
-// 2. Or should OrganizationInfoUpdated have the info type be OrganizationContext.UpdateInfo so we can put only what changed in the event?
-// 3. Or should we have matching events as it is desctibed below? AddMembersToOrganization/MembersAddedToOrganization
-// 4. Or should events which result in changes to OrganizationInfo only inlcude the changed fields (listed individually)
-event OrganizationInfoUpdated is {
+event OrganizationInfoEdited {
   orgId: OrganizationId,
   info: OrganizationContext.Info,
   meta: OrganizationContext.MetaInfo
 }
+
 command UpdateParent is {
   orgId: OrganizationId,
   newParent: OrganizationId
@@ -98,15 +94,34 @@ event OrganizationContactsUpdated is {
   contacts: Contacts,
   meta: OrganizationContext.MetaInfo
 }
-command UpdateOrganizationStatus is {
+
+command ActivateOrganization is {
   orgId: OrganizationId,
-  status: OrganizationContext.Status,
-  updatingMember: MemberId
+  activatingMember: MemberId
 }
-event OrganizationStatusUpdated is {
+event OrganizationActivated is {
   orgId: OrganizationId,
-  newStatus: OrganizationContext.Status
+  meta: OrganizationContext.MetaInfo
 }
+
+command SuspendOrganization is {
+  orgId: OrganizationId,
+  suspendingMember: MemberId
+}
+event OrganizationSuspended is {
+  orgId: OrganizationId,
+  meta: OrganizationContext.MetaInfo
+}
+
+command TerminateOrganization is {
+  orgId: OrganizationId,
+  terminatingMember: MemberId
+}
+event OrganizationTerminated is {
+  orgId: OrganizationId,
+  meta: OrganizationContext.MetaInfo
+}
+
 command UpdateOrganizationAccounts is {
   orgId: OrganizationId
   /*,
