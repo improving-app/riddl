@@ -31,9 +31,9 @@ type CapacityOverview is {
 
 type MetaInfo is {
   createdOn: TimeStamp briefly "The Date/Time this venue was created.",
-  createdBy: MemberId briefly "The member who created this venue",
+  createdBy: ^MembersContext.MemberId briefly "The member who created this venue",
   lastUpdated: TimeStamp briefly "The Date/Time this venue was last modified.",
-  lastUpdatedBy: MemberId briefly "The member who last modified this venue. This may also be a system user. i.e. they are two months late on payment so the system determines to suspend the venue.",
+  lastUpdatedBy: ^MembersContext.MemberId briefly "The member who last modified this venue. This may also be a system user. i.e. they are two months late on payment so the system determines to suspend the venue.",
   currentStatus: VenueContext.Status,
-  currentOwner: MemberId
+  currentOwner: ^MembersContext.MemberId
 } briefly "Meta data kept about an venue that the user does not directly modify. Instead the system updates this info as a Member Owner updates details in the Info type."

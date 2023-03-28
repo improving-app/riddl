@@ -10,7 +10,7 @@ context MembersAttendingEventsForAnOrganizationProjection is  {
         eventDate: Date,     //event table
         eventOrg: OrganizationId, //org-event correlation table
         ticketSku: SKU, // ticket-event & ticket-member correlation tables
-        attendingMember: MemberId, //ticket-member correlation table & member table
+        attendingMember: ^MembersContext.MemberId, //ticket-member correlation table & member table
         attendingMemberName: String //member table
     }
     handler MembersAttendingEventsForAnOrganizationEventsViewHandler is {

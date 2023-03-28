@@ -40,9 +40,9 @@ context StoreContext is {
     sponsoringOrg: OrganizationId
   }
   type MetaInfo is {
-    createdBy: MemberId,
+    createdBy: ^MembersContext.MemberId,
     createdOn: Date,
-    lastModifiedBy: MemberId,
+    lastModifiedBy: ^MembersContext.MemberId,
     lastModifiedOn: Date,
     state: StoreStates
   }
@@ -56,23 +56,23 @@ context StoreContext is {
     sponsoringOrg: OrganizationId?
   }
 
-  command CreateStore is {storeId: StoreId, info: StoreContext.Info, creatingMember: MemberId}
+  command CreateStore is {storeId: StoreId, info: StoreContext.Info, creatingMember: ^MembersContext.MemberId}
   event StoreCreated is {storeId: StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
-  command EditStoreInfo is {storeId: StoreId, info: StoreContext.EditableInfo, updatingMember: MemberId}
+  command EditStoreInfo is {storeId: StoreId, info: StoreContext.EditableInfo, updatingMember: ^MembersContext.MemberId}
   event StoreInfoEdited {storeId: StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
-  command MakeStoreReady is {storeId: StoreId, updatingMember: MemberId}
+  command MakeStoreReady is {storeId: StoreId, updatingMember: ^MembersContext.MemberId}
   event StoreIsReady is {storeId: StoreId, meta: StoreContext.MetaInfo}
-  command DeleteStore is {storeId: StoreId, deletingMember: MemberId}
+  command DeleteStore is {storeId: StoreId, deletingMember: ^MembersContext.MemberId}
   event StoreDeleted is {storeId: StoreId, meta: StoreContext.MetaInfo}
-  command OpenStore is {storeId: StoreId, openingMember: MemberId}
+  command OpenStore is {storeId: StoreId, openingMember: ^MembersContext.MemberId}
   event StoreOpened is {storeId: StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
-  command CloseStore is {storeId: StoreId, closingMember: MemberId}
+  command CloseStore is {storeId: StoreId, closingMember: ^MembersContext.MemberId}
   event StoreClosed is {storeId: StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
-  command TerminateStore is {storeId: StoreId, terminatingMember: MemberId}
+  command TerminateStore is {storeId: StoreId, terminatingMember: ^MembersContext.MemberId}
   event StoreTerminated is {storeId: StoreId, lastMeta: StoreContext.MetaInfo}
-  command AddProductsToStore is {storeId: StoreId, products: SKU+, addingMember: MemberId}
+  command AddProductsToStore is {storeId: StoreId, products: SKU+, addingMember: ^MembersContext.MemberId}
   event ProductsAddedToStore is {storeId: StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
-  command RemoveProductsFromStore is {storeId: StoreId, product: SKU+, removingMember: MemberId}
+  command RemoveProductsFromStore is {storeId: StoreId, product: SKU+, removingMember: ^MembersContext.MemberId}
   event ProductsRemovedFromStore is {storeId: StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
   //command IncrementProductInventory is {???} //TODO: Should we pull in the Nike Inventory demo that Sean built?
   //command DecrementProductInventory is {???}

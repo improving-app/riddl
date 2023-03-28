@@ -40,7 +40,7 @@ story WithdrawCoins is {
         briefly "Gateway creates the order in the Order Service"
       step from ImprovingApp.Order send command Store.CollectPayment to ImprovingApp.StoreContext.Store
         briefly "Store Authorized to Collect Payment"
-      step from ImprovingApp.StoreContext.Store send DebitAccount to ImprovingApp.MemberContext.IAppCoinAccount
+      step from ImprovingApp.StoreContext.Store send DebitAccount to ImprovingApp.MembersContext.IAppCoinAccount
         briefly "Store Collects Payment"
       step from ImprovingApp.Member.IAppCoinAccount send event IAppCoinAccount.AccountDebited
         briefly "Payment was successfully made"

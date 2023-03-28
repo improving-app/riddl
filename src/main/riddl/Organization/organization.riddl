@@ -289,8 +289,8 @@ context OrganizationContext is {
         record EstablishedOrganizationState is {
             info: OrganizationContext.Info,
             parent: OrganizationId?,
-            members: MemberId+,
-            owners: MemberId+,
+            members: ^MembersContext.MemberId+,
+            owners: ^MembersContext.MemberId+,
             contacts: Contact?,
             // accounts: OrganizationContext.AccountList,
             orgMeta: OrganizationContext.MetaInfo

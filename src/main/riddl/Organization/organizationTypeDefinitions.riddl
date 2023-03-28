@@ -1,8 +1,8 @@
 type OrganizationStates is any of {Draft, Active, Suspended} briefly "Internal status of an Organization."
 type Contacts is {
-    primaryContacts: MemberId+,
-    billingContacts: MemberId*,
-    distributionContacts: MemberId*
+    primaryContacts: ^MembersContext.MemberId+,
+    billingContacts: ^MembersContext.MemberId*,
+    distributionContacts: ^MembersContext.MemberId*
 } briefly "The contacts for a given organization."
 described in file "organizationContacts.md"
 /*type Accounts is {
@@ -15,8 +15,8 @@ type RequiredDraftInfo is {
     name: String briefly "i.e. Provo High School. Must be unique within the organizational structure.",
     isPrivate: Boolean briefly "defaults to true",
     tenant: TenantId,
-    members: MemberId*,
-    owners: MemberId*
+    members: ^MembersContext.MemberId*,
+    owners: ^MembersContext.MemberId*
 } briefly "Essential information about an organization that is expected to evolve over time."
 
 type OptionalDraftInfo is {
@@ -53,9 +53,9 @@ type EditableInfo is {
 } briefly "Essential information about an organization that is expected to evolve over time."
 type MetaInfo is {
     createdOn: TimeStamp briefly "The Date/Time this organization was created.",
-    createdBy: MemberId briefly "The member who created this organization",
+    createdBy: ^MembersContext.MemberId briefly "The member who created this organization",
     lastUpdated: TimeStamp briefly "The Date/Time this organization was last modified.",
-    lastUpdatedBy: MemberId briefly "The member who last modified this organization. This may also be a system user. i.e. they are two months late on payment so the system determines to suspend the organization.",
+    lastUpdatedBy: ^MembersContext.MemberId briefly "The member who last modified this organization. This may also be a system user. i.e. they are two months late on payment so the system determines to suspend the organization.",
     currentState: OrganizationStates briefly "The current state of this organization. Valid states include Draft, Active, Suspended, and Terminated",
     children: OrganizationId* briefly "If an organization has a parent it is a child organization. A school may be the parent to the football team. The football team may have child organizations of Varsity, Junior Varsity, and Freshman football teams. Rather than editing this list of children directly it is suggested that you update the parent reference in the target suborganization and let that handler update this child list."
 } briefly "Meta data kept about an organization that the user does not directly modify. Instead the system updates this info as a Member Owner updates details in the Info type."

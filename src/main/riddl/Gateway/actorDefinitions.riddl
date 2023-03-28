@@ -1,3 +1,3 @@
 actor Member is "The person that is being enrolled"
 actor App is "The applicaiton the user is using to perform this action"
-actor GatewayAPI is "The interface that accepts the request for processing by the backend"
+actor GatewayAction is "The interface that accepts the request for processing by the backend"

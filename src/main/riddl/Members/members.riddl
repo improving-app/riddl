@@ -1,9 +1,8 @@
-type MemberId is Id(ImprovingApp.MembersContext.Member)
-  briefly "Unique identifier for Tenant Entity"
 
-type MemberMap is mapping from MemberId to MembersContext.Info
+context MembersContext is {
+    type MemberId is Id(^MembersContext.Member)
+      briefly "Unique identifier for Tenant Entity"
 
-context MembersContext  is {
     type PublicMemberEvent is one of {
         MemberRegistered,
         MemberActivated,
@@ -12,10 +11,11 @@ context MembersContext  is {
         MemberInfoEdited,
         MemberData
     }
-
     source MemberEvents is {
         outlet Events is type PublicMemberEvent
     } explained as "This is a source for Organization Events"
+
+    type MemberMap is mapping from MembersContext.MemberId to MembersContext.Info
 
     //Member Details
     type MemberStates is any of {Draft, Active, Suspended} briefly "Internal status of an Organization."
@@ -103,21 +103,21 @@ context MembersContext  is {
     type MetaInfo is {
         createdOn: TimeStamp
           briefly "The timestamp the member was created",
-        createdBy: MemberId
+        createdBy: MembersContext.MemberId
           briefly "The member that created this member",
         lastModifiedOn: TimeStamp
           briefly "The timestamp the member was last modified",
-        lastModifiedBy: MemberId
+        lastModifiedBy: MembersContext.MemberId
           briefly "The member that last modified this member"
     }
     type MetaInfoQuery is {
         createdOn: TimeStamp?
           briefly "Optionally the timestamp to match a member's creation timestamp against",
-        createdBy: MemberId?
+        createdBy: MembersContext.MemberId?
           briefly "Optionally the member id to match a member's creator against",
         lastModifiedOn: TimeStamp?
           briefly "Optionally the timestamp to match a member's last modification timestamp against",
-        lastModifiedBy: MemberId?
+        lastModifiedBy: MembersContext.MemberId?
           briefly "Optionally the member id to match a member's last modifier against"
     }
 

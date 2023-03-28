@@ -15,11 +15,11 @@ story RegisterMember is {
         briefly "initial invocation",
       step from actor App send command Member.EnrollMember to actor GatewayAPI
         briefly "send creation message",
-    //   step from actor GatewayAPI "Register Member" to entity ImprovingApp.MemberContext.Member
+    //   step from actor GatewayAPI "Register Member" to entity ImprovingApp.MembersContext.Member
     //     briefly "add new organization",
-    //   step from entity ImprovingApp.MemberContext.Member "MemberRegistered" to pipe ImprovingApp.MemberContext.MemberEvents
+    //   step from entity ImprovingApp.MembersContext.Member "MemberRegistered" to pipe ImprovingApp.MembersContext.MemberEvents
     //     briefly "organization added"
-    //   step from pipe ImprovingApp.MemberContext.MemberEvents "MemberEnrolled" to actor App
+    //   step from pipe ImprovingApp.MembersContext.MemberEvents "MemberEnrolled" to actor App
     }
     //example Foo is {...}
   }

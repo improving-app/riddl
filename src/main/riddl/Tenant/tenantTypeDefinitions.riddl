@@ -19,7 +19,7 @@ type MetaInfo is {
       briefly "The person who created this tenant",
     lastUpdated: TimeStamp
       briefly "The Date/Time this tenant was last modified.",
-    lastUpdatedBy: MemberId
+    lastUpdatedBy: ^MembersContext.MemberId
       briefly "The member who last modified this Tenant."
       described as {
         |This may also be a system user. i.e. they are two months late on

@@ -14,6 +14,7 @@ domain ImprovingApp is {
     //include "Commerce/commerce"
     //include "Inventory/inventory"
     //include "Vendors/vendor"
+    include "Gateway/gateway"
     include "Members/members"
     include "Organization/organization"
     include "Order/Order"
