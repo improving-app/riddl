@@ -46,6 +46,7 @@ context TenantContext is {
             }
         }
 
+        // TODO: Do we want to have Draft state or not for Tenant? Needs to be approved by James
         //record DraftTenantState is  {
         //    info: TenantContext.OptionalInfo,
         //    meta: TenantContext.MetaInfo
@@ -276,6 +277,7 @@ context TenantContext is {
                        then error "User is not authorized to modify Tenant"
                    }
 	            }
+	            // TODO: These need to be updated once we get around to payments
                 // on command SwapBillingAccount {
                 //     example Success {
                 //         then "Update the BillingAccountId"
