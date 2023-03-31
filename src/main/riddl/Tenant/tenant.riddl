@@ -16,7 +16,7 @@ context TenantContext is {
                     then send event TenantEstablished(
                         tenantId = @EstablishTenant.tenantId,
                         tenantInfo = @EstablishTenant.tenantInfo,
-                        metaInfo = !TenantContext.MetaInfo(
+                        metaInfo = !TenantContext.TenantMetaInfo(
                             createdOn = now(),
                             createdBy = @EstablishTenant.establishingMember,
                             lastUpdatedOn = now(),
@@ -26,7 +26,7 @@ context TenantContext is {
                     ) to outlet TenantEvents.Events
 	                and morph entity Tenant to state EstablishedTenant with !EstablishedTenantState(
 	                    info = @EstablishTenant.tenantInfo,
-                        meta = !TenantContext.MetaInfo(
+                        meta = !TenantContext.TenantMetaInfo(
                             createdOn = now(),
                             createdBy = @EstablishTenant.establishingMember,
                             lastUpdatedOn = now(),
@@ -48,7 +48,7 @@ context TenantContext is {
 
         //record DraftTenantState is  {
         //    info: TenantContext.OptionalInfo,
-        //    meta: TenantContext.MetaInfo
+        //    meta: TenantContext.TenantMetaInfo
         //} briefly "Tenant is inactive, in process of being created/defined",
         //state DraftTenant of DraftTenantState is {
         //    handler DraftTenantHandler is {
@@ -163,14 +163,14 @@ context TenantContext is {
         //}
 
         record EstablishedTenantState is {
-            info: TenantContext.Info,
-            meta: TenantContext.MetaInfo
+            info: TenantContext.TenantInfo,
+            meta: TenantContext.TenantMetaInfo
         } briefly "Tenant is active and suitable for use"
         state EstablishedTenant of EstablishedTenantState is {
             handler ActiveTenantHandler is {
                 on command TenantContext.EditInfo {
                     then "Copy fields which are present from TenantContext.EditInfo.newInfo into Draft info fields"
-                    and set EstablishedTenantState.meta to !TenantContext.MetaInfo(
+                    and set EstablishedTenantState.meta to !TenantContext.TenantMetaInfo(
                         createdOn = @EstablishedTenantState.meta,
                         createdBy = @EstablishedTenantState.meta,
                         lastUpdated = now(),
@@ -185,7 +185,7 @@ context TenantContext is {
                 }
                 on command SuspendTenant {
                     example Success {
-                        then set EstablishedTenantState.meta to !TenantContext.MetaInfo(
+                        then set EstablishedTenantState.meta to !TenantContext.TenantMetaInfo(
                             createdOn = @EstablishedTenantState.meta,
                             createdBy = @EstablishedTenantState.meta,
                             lastUpdated = now(),
@@ -258,7 +258,7 @@ context TenantContext is {
 	            }
 	            on command TerminateTenant {
 	               example Success {
-                       then set EstablishedTenantState.meta to !TenantContext.MetaInfo(
+                       then set EstablishedTenantState.meta to !TenantContext.TenantMetaInfo(
                            createdOn = @EstablishedTenantState.meta,
                            createdBy = @EstablishedTenantState.meta,
                            lastUpdated = now(),
@@ -311,7 +311,7 @@ context TenantContext is {
             handler SuspendedTenantHandler is {
                  on command ActivateTenant {
                     example Success {
-                        then set EstablishedTenantState.meta to !TenantContext.MetaInfo(
+                        then set EstablishedTenantState.meta to !TenantContext.TenantMetaInfo(
                             createdOn = @EstablishedTenantState.meta,
                             createdBy = @EstablishedTenantState.meta,
                             lastUpdated = now(),
@@ -332,7 +332,7 @@ context TenantContext is {
                 }
                 on command TerminateTenant {
                    example Success {
-                       then set EstablishedTenantState.meta to !TenantContext.MetaInfo(
+                       then set EstablishedTenantState.meta to !TenantContext.TenantMetaInfo(
                            createdOn = @EstablishedTenantState.meta,
                            createdBy = @EstablishedTenantState.meta,
                            lastUpdated = now(),
@@ -355,7 +355,7 @@ context TenantContext is {
         }
 
         record TerminatedTenantState is {
-            lastMeta: TenantContext.MetaInfo
+            lastMeta: TenantContext.TenantMetaInfo
         } briefly "Tenant is is terminated, all data has been deleted"
         state TerminatedTenant of TerminatedTenantState is {
             handler TerminatedTenantHandler is {

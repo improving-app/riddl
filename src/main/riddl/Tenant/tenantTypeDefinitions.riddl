@@ -5,14 +5,14 @@ type OptionalInfo is {
   orgs: Organization*
 } briefly "Information about the tenant"
 
-type Info is {
+type TenantInfo is {
   name: String,
   primaryContact: Contact,
   address: Address,
   orgs: OrganizationId*
 } briefly "Information about the tenant"
 
-type MetaInfo is {
+type TenantMetaInfo is {
     createdOn: TimeStamp
       briefly "The Date/Time this tenant was created.",
     createdBy: Contact
