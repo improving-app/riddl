@@ -143,6 +143,7 @@ context MembersContext is {
       |RegisterMemberList one event per member in the list is published.
     }
 
+    // TODO: DO we still want this? Needs to be discussed, not sure why it was taken out - Alex
     //command RegisterMemberList is {
     //  memberList: MemberMap,
     //  registeringMember: MemberId
@@ -403,19 +404,6 @@ context MembersContext is {
             invariant lastName is {
               >=(length(@RegisteredMemberState.info.firstName), 3)
             }
-
-/*
-                    handle: String briefly "username. Must be unique.",
-                    avatar: URL briefly "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
-                    firstName: String,
-                    lastName: String,
-                    mobileNumber: MobileNumber?,
-                    emailAddress: EmailAddress?,
-                    notificationPreference: NotificationPreference?
-                      briefly "if this is set it is assumed that the user has opted in.",
-                    organizationMembership: OrganizationId*
-                      briefly "A list of organizations this member belongs to."
-*/
 
             handler ActiveMemberHandler {
                 on command RegisterMember {then error "Member has already been registered."}
