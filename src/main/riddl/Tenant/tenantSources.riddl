@@ -2,11 +2,7 @@ type PublicTenantEvent is one of {
     ^TenantContext.InfoEdited,
     ^TenantContext.TenantActivated,
     ^TenantContext.TenantSuspended,
-    ^TenantContext.TenantTerminated,
-    ^TenantContext.OrganizationsAdded,
-    ^TenantContext.OrganizationsRemoved,
-    ^TenantContext.PrimaryContactUpdated,
-    ^TenantContext.TenantNameChanged
+    ^TenantContext.TenantTerminated
 }
 
 source TenantEvents is {
