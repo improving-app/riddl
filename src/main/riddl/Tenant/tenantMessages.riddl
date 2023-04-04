@@ -65,19 +65,10 @@ command EditInfo {
 } briefly "A command to edit the values of an Tenant's Info "
 event InfoEdited is {
   tenantId: TenantId,
-  info: TenantContext.TenantInfo,
+  oldInfo: TenantContext.TenantInfo,
+  newInfo: TenantContext.TenantInfo,
   meta: TenantContext.TenantMetaInfo
 }
-command AddOrganizations is { tenantId: TenantId, orgId: OrganizationId*, updatingUser: String }
-event OrganizationsAdded is { tenantId: TenantId, newOrgsList: OrganizationId*, meta: TenantContext.TenantMetaInfo }
-command RemoveOrganizations is { tenantId: TenantId, orgId: OrganizationId*, updatingUser: String }
-event OrganizationsRemoved is { tenantId: TenantId, newOrgsList: OrganizationId*, newContact: Contact, meta: TenantContext.TenantMetaInfo }
-
-command UpdatePrimaryContact is { tenantId: TenantId, newContact: Contact, updatingUser: String }
-event PrimaryContactUpdated is { tenantId: TenantId, oldContact: Contact, newContact: Contact, meta: TenantContext.TenantMetaInfo }
-
-command ChangeTenantName is { tenantId: TenantId, newName: String, updatingUser: String }
-event TenantNameChanged is { tenantId: TenantId, oldName: String, newName: String, meta: TenantContext.TenantMetaInfo }
 
 // command SwapBillingAccount is { tenantId: TenantId, newBillingAccount: BillingAccountId, updatingUser: String }
 // event BillingAccountSwapped is { tenantId: TenantId, name: String, oldAccount: BillingAccountId, newAccount: BillingAccountId, meta: TenantContext.TenantMetaInfo }
