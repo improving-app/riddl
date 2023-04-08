@@ -71,7 +71,7 @@ context ProductContext is {
       info: ProductInfo,
       meta: ProductMetaInfo
     }
-    state Draft of ^DraftState is {
+    state Draft of Product.DraftState is {
       handler ActiveProductHandler is {
         on command CreateProduct {
           then error "Product already created."
@@ -105,7 +105,7 @@ context ProductContext is {
       info: ProductInfo,
       meta: ProductMetaInfo
     }
-    state Active of ^ActiveState is {
+    state Active of Product.ActiveState is {
       handler ActiveProductHandler is {
         on command CreateProduct {
           then error "Product already created."
@@ -139,7 +139,7 @@ context ProductContext is {
       info: ProductInfo,
       meta: ProductMetaInfo
     }
-    state Inactive of ^InactiveState is {
+    state Inactive of Product.InactiveState is {
       handler InactiveProductHandler is {
         on command CreateProduct {
           then error "Product already created."
@@ -173,7 +173,7 @@ context ProductContext is {
       sku: SKU,
       name: String
     }
-    state Deleted of ^DeletedState is {
+    state Deleted of Product.DeletedState is {
       handler DeletedProductHandler is {
         on command CreateProduct {
           then error "Product already created."

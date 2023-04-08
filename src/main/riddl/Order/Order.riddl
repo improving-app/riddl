@@ -69,7 +69,7 @@ context OrderContext is {
       info: OrderInfo,
       meta: OrderMetaInfo
     }
-    state Draft of ^DraftState is {
+    state Draft of Order.DraftState is {
       handler DraftOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
         on command UpdateOrderInfo {
@@ -104,7 +104,7 @@ context OrderContext is {
       info: OrderInfo,
       meta: OrderMetaInfo
     }
-    state Pending of ^PendingState is {
+    state Pending of Order.PendingState is {
       handler PendingOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
         on command UpdateOrderInfo {
@@ -139,7 +139,7 @@ context OrderContext is {
       info: OrderInfo,
       meta: OrderMetaInfo
     }
-    state InProcess of ^InProcessState is {
+    state InProcess of Order.InProcessState is {
       handler InProcessOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
         on command UpdateOrderInfo {then error "InProcess Orders may not be modified."}
@@ -166,7 +166,7 @@ context OrderContext is {
       info: OrderInfo,
       meta: OrderMetaInfo
     }
-    state Ready of ^ReadyState is {
+    state Ready of Order.ReadyState is {
       handler ReadyOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
         on command UpdateOrderInfo {then error "Ready Orders may not be modified."}
@@ -193,7 +193,7 @@ context OrderContext is {
       info: OrderInfo,
       meta: OrderMetaInfo
     }
-    state Delivered of ^DeliveredState is {
+    state Delivered of Order.DeliveredState is {
       handler DeliveredOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
         on command UpdateOrderInfo {then error "Delivered Orders may not be modified."}
@@ -220,7 +220,7 @@ context OrderContext is {
       info: OrderInfo,
       meta: OrderMetaInfo
     }
-    state Cancelled of ^CancelledState is {
+    state Cancelled of Order.CancelledState is {
       handler CancelledOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
         on command UpdateOrderInfo {then error "Cancelled Orders may not be modified."}
