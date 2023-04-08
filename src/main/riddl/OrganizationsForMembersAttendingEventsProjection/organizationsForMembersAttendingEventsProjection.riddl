@@ -18,10 +18,10 @@ context OrganizationsForMembersAttendingEventsProjections is  {
     handler OrganizationsForMembersAttendingEventsViewHandler is {
         on event OrganizationEstablished {
             then "create row in org table with orgId set to OrganizationEstablished.info.orgId"
-            and "set previous row's attendingMemberOrgName to OrganizationEstablished.info.name"
+            and "set row's attendingMemberOrgName to OrganizationEstablished.info.name"
         }
-        on event OrganizationStatusUpdated {
-            then "set row in org table with the new status"
+        on event OrganizationTerminated {
+            then "remove row from table"
         }
         on event MemberRegistered {
             then "create rows in member table with attendingMember set to MemberRegistered.id"

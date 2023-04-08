@@ -1,60 +1,76 @@
 command EstablishTenant is {
   tenantId: TenantId,
-  tenantInfo: TenantContext.Info
+  tenantInfo: TenantContext.TenantInfo,
+  establishingMember: MemberId
 } brief "A command that creates a new Tenant"
 described by {
-  |Given a TenantId and the corresponding Info, the tenant is created and
+  |Given a TenantId and the corresponding TenantInfo, the tenant is created and
   |set to the active state. This command yields a TenantEstablished event.
 }
 event TenantEstablished is {
   tenantId: TenantId,
-  tenantInfo: TenantContext.Info,
-  metaInfo: TenantContext.MetaInfo,
-  name: String,
-  primaryContact: Contact,
-  meta: ^TenantContext.MetaInfo
+  tenantInfo: TenantContext.TenantInfo,
+  metaInfo: TenantContext.TenantMetaInfo
 } briefly "The event resulting from creating a new Tenant"
 described by {
   |When a Tenant is created, this event is raised to provide information
   |about the tenant.
 }
 
-command UpdateStatus is {
+command ActivateTenant is {
 	tenantId: TenantId,
-	updatingUser: String
-} briefly "A command that updates a tenant's status"
+	activatingUser: MemberId
+} briefly "A command that activates a tenant so that operations can be allowed"
 described by {
-  |Given a TenantId, the tenant status is updated. This command yields a
-  |TenantStatusUpdated event.
+  |Given a TenantId, the tenant is activated so that certain user functions can be performed.
+  |This command yields a TenantSuspended event.
 }
-event StatusUpdated is {
+event TenantActivated is {
   tenantId: TenantId,
-  newStatus: ^TenantContext.Status,
-  meta: TenantContext.MetaInfo
-} briefly "The event resulting from updating a Tenant's status"
+  info: TenantContext.TenantInfo,
+  meta: TenantContext.TenantMetaInfo
+} briefly "The event resulting from updating a Tenant's state to Active"
+
+command SuspendTenant is {
+	tenantId: TenantId,
+	suspendingUser: MemberId
+} briefly "A command that suspends a tenant so that many operations are not allowed"
+described by {
+  |Given a TenantId, the tenant is suspended so that certain user functions cannot be performed.
+  |This command yields a TenantSuspended event.
+}
+event TenantSuspended is {
+  tenantId: TenantId,
+  info: TenantContext.TenantInfo,
+  meta: TenantContext.TenantMetaInfo
+} briefly "The event resulting from updating a Tenant's state to Suspended"
+
+command TerminateTenant is {
+	tenantId: TenantId,
+	terminatingUser: MemberId
+} briefly "A command that terminates a tenant by deleting all data except its ID"
+described by {
+  |Given a TenantId, the tenant is terminated per GDPR requirement, resulting in deletion of all PII.
+  |This command yields a TenantTerminated event.
+}
+event TenantTerminated is {
+  tenantId: TenantId,
+  meta: TenantContext.TenantMetaInfo
+} briefly "The event resulting from updating a Tenant's status to terminated"
 
 command EditInfo {
   tenantId: TenantId briefly "The unique Id of the tenant to create",
-  newInfo: ^TenantContext.UpdateInfo briefly "The information about the tenant",
+  newInfo: TenantContext.OptionalInfo briefly "The information about the tenant",
   updatingUser: String
 } briefly "A command to edit the values of an Tenant's Info "
-event InfoUpdated is {
+event InfoEdited is {
   tenantId: TenantId,
-  info: ^TenantContext.Info,
-  meta: ^TenantContext.MetaInfo
+  oldInfo: TenantContext.TenantInfo,
+  newInfo: TenantContext.TenantInfo,
+  meta: TenantContext.TenantMetaInfo
 }
-command AddOrganizations is { tenantId: TenantId, orgId: OrganizationId*, updatingUser: String }
-event OrganizationsAdded is { tenantId: TenantId, newOrgsList: OrganizationId*, meta: TenantContext.MetaInfo }
-command RemoveOrganizations is { tenantId: TenantId, orgId: OrganizationId*, updatingUser: String }
-event OrganizationsRemoved is { tenantId: TenantId, newOrgsList: OrganizationId*, newContact: Contact, meta: TenantContext.MetaInfo }
-
-command UpdatePrimaryContact is { tenantId: TenantId, newContact: Contact, updatingUser: String }
-event PrimaryContactUpdated is { tenantId: TenantId, oldContact: Contact, newContact: Contact, meta: TenantContext.MetaInfo }
-
-command ChangeTenantName is { tenantId: TenantId, newName: String, updatingUser: String }
-event TenantNameChanged is { tenantId: TenantId, oldName: String, newName: String, meta: TenantContext.MetaInfo }
 
 // command SwapBillingAccount is { tenantId: TenantId, newBillingAccount: BillingAccountId, updatingUser: String }
-// event BillingAccountSwapped is { tenantId: TenantId, name: String, oldAccount: BillingAccountId, newAccount: BillingAccountId, meta: TenantContext.MetaInfo }
+// event BillingAccountSwapped is { tenantId: TenantId, name: String, oldAccount: BillingAccountId, newAccount: BillingAccountId, meta: TenantContext.TenantMetaInfo }
 // command SwapDistributionAccount is { tenantId: TenantId, newDistributionAccount: DistributionAccountId, updatingUser: String }
-// event DistributionAccountSwapped is { tenantId: TenantId, name: String, oldAccount: DistributionAccountId, newAccount: DistributionAccountId, meta: TenantContext.MetaInfo }
+// event DistributionAccountSwapped is { tenantId: TenantId, name: String, oldAccount: DistributionAccountId, newAccount: DistributionAccountId, meta: TenantContext.TenantMetaInfo }

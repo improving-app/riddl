@@ -1,7 +1,7 @@
 query FindTenantByName is {name: String} briefly "Get info for a tenant searching by name"
 result TenantByName is {
   tenants: TenantId,
-  info: TenantContext.Info
+  info: TenantContext.TenantInfo
 }
 result NoTenantWithName {}
 
@@ -9,7 +9,7 @@ projector TenantViews is {
     record TenantFields {
         tenant: TenantId,
         tenantName: String,
-        tenantInfo: TenantContext.Info
+        tenantInfo: TenantContext.TenantInfo
     }
     handler TenantViewsHandler is {
         on event TenantEstablished {
@@ -17,7 +17,7 @@ projector TenantViews is {
             and "set tenantName to TenantEstablished.info.name"
             and "set tenantInfo to TenantEstablished.info"
         }
-        on event TenantContext.InfoUpdated {
+        on event TenantContext.InfoEdited {
             then "find tenant set to TenantEstablished.tenantId"
             and "if name has changed, set tenantName to TenantEstablished.info.name"
             and "set tenantInfo to TenantEstablished.info"
