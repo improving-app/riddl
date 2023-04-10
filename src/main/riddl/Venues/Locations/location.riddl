@@ -22,7 +22,7 @@ context LocationContext is {
             locationInfo: LocationContext.Info,
             locationMeta: LocationContext.MetaInfo
         }
-		    state Draft of ^DraftState is {
+		    state Draft of Location.DraftState is {
 		        handler DraftLocation is {
 		            on command EstablishLocation {
 		                then error "Location already established"
@@ -48,7 +48,7 @@ context LocationContext is {
             locationInfo: LocationContext.Info,
             locationMeta: LocationContext.MetaInfo
         }
-		    state Open of ^OpenState is {
+		    state Open of Location.OpenState is {
 		        handler OpenLocation is {
 		            on command EstablishLocation {
 		                then error "Location already established"
@@ -69,7 +69,7 @@ context LocationContext is {
             locationInfo: LocationContext.Info,
             locationMeta: LocationContext.MetaInfo
         }
-		    state Closed of ^ClosedState is {
+		    state Closed of Location.ClosedState is {
 		        handler ClosedLocation is {
 		            on command EstablishLocation {
 		                then error "Location already established"
