@@ -1,4 +1,5 @@
 command EstablishOrganization is {
+  orgId: OrganizationId,
   info: OrganizationContext.Info briefly "Details about an organization required for it to exist. See OrganizationContext.Organization.Info for details.",
   tenant: TenantId,
   parent: Parent?,
