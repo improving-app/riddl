@@ -6,7 +6,7 @@ command EstablishOrganization is {
   members: MemberList,
   owners: OwnerList,
   contacts: ContactList,
-  establishingMember: ^MembersContext.MemberId briefly "The Id of the Member who is issuing the create command."
+  establishingMember: MembersContext.MemberId briefly "The Id of the Member who is issuing the create command."
 } briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
 described in file "establishOrganization.md"
 
@@ -23,7 +23,7 @@ event OrganizationEstablished is {
 command EditOrganizationInfo is {
   orgId: OrganizationId briefly "The unique Id of the organization to create",
   newInfo: OrganizationContext.EditableInfo briefly "The information about the organization",
-  editingMember: ^MembersContext.MemberId briefly "Id of the member who is creating the organization"
+  editingMember: MemberId briefly "Id of the member who is creating the organization"
 } briefly "A command to edit the values of an Organization's Info "
 described in file "editOrganizationInfo.md"
 
@@ -44,51 +44,51 @@ event ParentUpdated is {
 }
 command AddMembersToOrganization is {
   orgId: OrganizationId,
-  membersToAdd: ^MembersContext.MemberId+,
-  updatingMember: ^MembersContext.MemberId
+  membersToAdd: MemberId+,
+  updatingMember: MemberId
   // TODO: orgId: OrganizationId briefly @orgId,
-  // TODO: members: ^MembersContext.MemberId+ briefly @membersList
+  // TODO: members: MemberId+ briefly @membersList
 }
 // TODO: Should members be a list of the all members (including new), or should it be only the new members (relevant for #2 and 4 above)
 event MembersAddedToOrganization is {
   orgId: OrganizationId,
-  newMembers: ^MembersContext.MemberId+,
+  newMembers: MemberId+,
   meta: OrganizationContext.MetaInfo
 }
 command RemoveMembersFromOrganization is {
   orgId: OrganizationId,
-  membersToRemove: ^MembersContext.MemberId+,
-  updatingMember: ^MembersContext.MemberId
+  membersToRemove: MemberId+,
+  updatingMember: MemberId
 }
 event MembersRemovedFromOrganization is {
   orgId: OrganizationId,
-  removedMembers: ^MembersContext.MemberId+,
-  updatingMember: ^MembersContext.MemberId
+  removedMembers: MemberId+,
+  updatingMember: MemberId
 }
 command AddOwnersToOrganization is {
   orgId: OrganizationId,
-  ownersToAdd: ^MembersContext.MemberId+,
-  updatingMember: ^MembersContext.MemberId
+  ownersToAdd: MemberId+,
+  updatingMember: MemberId
 }
 event OwnersAddedToOrganization is {
   orgId: OrganizationId,
-  newOwners: ^MembersContext.MemberId+,
+  newOwners: MemberId+,
   meta: OrganizationContext.MetaInfo
 }
 command RemoveOwnersFromOrganization is {
   orgId: OrganizationId,
-  ownersToRemove: ^MembersContext.MemberId+,
-  updatingMember: ^MembersContext.MemberId
+  ownersToRemove: MemberId+,
+  updatingMember: MemberId
 }
 event OwnersRemovedFromOrganization is {
   orgId: OrganizationId,
-  removedOwners: ^MembersContext.MemberId+,
+  removedOwners: MemberId+,
   meta: OrganizationContext.MetaInfo
 }
 command UpdateOrganizationContacts is {
   orgId: OrganizationId,
   contacts: Contacts,
-  updatingMember: ^MembersContext.MemberId
+  updatingMember: MemberId
 }
 event OrganizationContactsUpdated is {
   orgId: OrganizationId,
@@ -98,7 +98,7 @@ event OrganizationContactsUpdated is {
 
 command ActivateOrganization is {
   orgId: OrganizationId,
-  activatingMember: ^MembersContext.MemberId
+  activatingMember: MemberId
 }
 event OrganizationActivated is {
   orgId: OrganizationId,
@@ -107,7 +107,7 @@ event OrganizationActivated is {
 
 command SuspendOrganization is {
   orgId: OrganizationId,
-  suspendingMember: ^MembersContext.MemberId
+  suspendingMember: MemberId
 }
 event OrganizationSuspended is {
   orgId: OrganizationId,
@@ -116,7 +116,7 @@ event OrganizationSuspended is {
 
 command TerminateOrganization is {
   orgId: OrganizationId,
-  terminatingMember: ^MembersContext.MemberId
+  terminatingMember: MemberId
 }
 event OrganizationTerminated is {
   orgId: OrganizationId,
@@ -134,9 +134,9 @@ event OrganizationAccountsUpdated is {
   meta: OrganizationContext.MetaInfo
 }
 
-query FindOrganizationsByMemberOrOwner is {memberOrOwner: ^MembersContext.MemberId, isMember: Boolean} briefly "Get a list of organizations that a member belongs to."
+query FindOrganizationsByMemberOrOwner is {memberOrOwner: MemberId, isMember: Boolean} briefly "Get a list of organizations that a member belongs to."
 result OrganizationListByMemberOrOwner is {
-  memberOrOwner: ^MembersContext.MemberId,
+  memberOrOwner: MemberId,
   isMember: Boolean,
   organizations: OrganizationId*
 }

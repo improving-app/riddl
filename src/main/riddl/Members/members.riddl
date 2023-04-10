@@ -1,6 +1,6 @@
 
 context MembersContext is {
-    type MemberId is Id(^MembersContext.Member)
+    type MemberId is Id(MembersContext.Member)
       briefly "Unique identifier for Tenant Entity"
 
     type PublicMemberEvent is one of {

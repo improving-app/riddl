@@ -3,7 +3,7 @@ query ScheduleEasyEvent is {
     event: EventInfo,
     bufferStartMins: Integer,
     bufferEndMins: Integer,
-    schedulingMember: ^MembersContext.MemberId
+    schedulingMember: MemberId
 }
 result EasyEventNoAvailability is {}
 result EasyScheduledEvent is {locations: LocationId+}

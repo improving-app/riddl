@@ -35,20 +35,20 @@ context ProductContext is {
     store: StoreId?
   }
   type ProductMetaInfo is {
-    createdBy: ^MembersContext.MemberId,
+    createdBy: MemberId,
     createdOn: Date,
-    lastModifiedBy: ^MembersContext.MemberId,
+    lastModifiedBy: MemberId,
     lastModifiedOn: Date
   }
-  command CreateProduct is {sku: SKU, info: ProductInfo, creatingMember: ^MembersContext.MemberId}
+  command CreateProduct is {sku: SKU, info: ProductInfo, creatingMember: MemberId}
   event ProductCreated is {sku: SKU, info: ProductInfo, meta: ProductMetaInfo}
-  command UpdateProductInfo is {sku: SKU, info: ProductInfoUpdate, updatingMember: ^MembersContext.MemberId}
+  command UpdateProductInfo is {sku: SKU, info: ProductInfoUpdate, updatingMember: MemberId}
   event ProductInfoUpdated is {sku: SKU, info: ProductInfo, meta: ProductMetaInfo}
-  command DeleteProduct is {sku: SKU, deletingMember: ^MembersContext.MemberId}
+  command DeleteProduct is {sku: SKU, deletingMember: MemberId}
   event ProductDeleted is {sku: SKU}
-  command ActivateProduct is {sku: SKU, activatingMember: ^MembersContext.MemberId}
+  command ActivateProduct is {sku: SKU, activatingMember: MemberId}
   event ProductActivated is {sku: SKU}
-  command InactivateProduct is {sku: SKU, inactivatingMember: ^MembersContext.MemberId}
+  command InactivateProduct is {sku: SKU, inactivatingMember: MemberId}
   event ProductInactivated is {sku: SKU}
   query GetProductInfo is {sku: SKU}
   result ProductInfoResult is {info: ProductInfo, meta: ProductMetaInfo}

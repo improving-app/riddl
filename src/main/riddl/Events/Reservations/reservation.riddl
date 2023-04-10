@@ -20,7 +20,7 @@ context ReservationContext is {
 
         record DraftState {
             reservationInfo: ReservationContext.Info,
-            attendees: ^MembersContext.MemberId*,
+            attendees: MemberId*,
             reservationMeta: ReservationContext.MetaInfo
         }
 		    state Draft of Reservation.DraftState is {

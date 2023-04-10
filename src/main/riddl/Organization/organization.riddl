@@ -291,8 +291,8 @@ context OrganizationContext is {
             id: OrganizationId,
             info: OrganizationContext.Info,
             parent: OrganizationId?,
-            members: ^MembersContext.MemberId+,
-            owners: ^MembersContext.MemberId+,
+            members: MemberId+,
+            owners: MemberId+,
             contacts: Contact?,
             // accounts: OrganizationContext.AccountList,
             orgMeta: OrganizationContext.MetaInfo

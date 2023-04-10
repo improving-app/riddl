@@ -31,7 +31,7 @@ event LocationReservationsAdded is {
 command UpdateLocationStatus is {
   locationId: LocationId,
   status: LocationContext.Status,
-  updatingMember: ^MembersContext.MemberId
+  updatingMember: MemberId
 }
 event LocationStatusUpdated is {
   locationId: LocationId,
@@ -41,7 +41,7 @@ event LocationStatusUpdated is {
 command EditLocationInfo is {
   locationId: LocationId briefly "The unique Id of the location to create",
   newInfo: LocationContext.UpdateInfo briefly "The information about the location",
-  editingMember: ^MembersContext.MemberId briefly "Id of the member who is creating the location"
+  editingMember: MemberId briefly "Id of the member who is creating the location"
 } briefly "A command to edit the values of an Reservation's Info "
 event LocationInfoUpdated is {
   locationId: LocationId,

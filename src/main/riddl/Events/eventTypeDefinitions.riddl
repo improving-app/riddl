@@ -33,9 +33,9 @@ type EventInfo is {
     //eventTags: String+,// List of relevant, searchable tags that identify/describe this event
 }
 type EventMetaInfo is {
-    scheduledBy: ^MembersContext.MemberId,
+    scheduledBy: MemberId,
     scheduledOn: DateTime,
-    lastModifiedBy: ^MembersContext.MemberId,
+    lastModifiedBy: MemberId,
     lastModifiedOn: DateTime,
     actualStart: DateTime,
     actualEnd: DateTime,
