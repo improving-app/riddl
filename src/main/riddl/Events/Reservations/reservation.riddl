@@ -23,7 +23,7 @@ context ReservationContext is {
             attendees: ^MembersContext.MemberId*,
             reservationMeta: ReservationContext.MetaInfo
         }
-		    state Draft of ^DraftState is {
+		    state Draft of Reservation.DraftState is {
 		        handler DraftReservation is {
 		            on command EstablishReservation {
 		                then error "Reservation already established"
@@ -43,7 +43,7 @@ context ReservationContext is {
             reservationInfo: ReservationContext.Info,
             reservationMeta: ReservationContext.MetaInfo
         }
-		    state OnHold of ^OnHoldState is {
+		    state OnHold of Reservation.OnHoldState is {
 		        handler OnHoldReservation is {
 		            on command EstablishReservation {
 		                then error "Reservation already established"
@@ -63,7 +63,7 @@ context ReservationContext is {
             reservationInfo: ReservationContext.Info,
             reservationMeta: ReservationContext.MetaInfo
         }
-		    state Reserved of ReservedState is {
+		    state Reserved of Reservation.ReservedState is {
 		        handler ReservedReservation is {
 		            on command EstablishReservation {
 		                then error "Reservation already established"
@@ -82,7 +82,7 @@ context ReservationContext is {
             reservationInfo: ReservationContext.Info,
             reservationMeta: ReservationContext.MetaInfo
         }
-		    state Past of ^PastState is {
+		    state Past of Reservation.PastState is {
 		        handler PastReservation is {
 		            on other {then error "No modification commands allowed in Past state"}
 		        }
@@ -92,7 +92,7 @@ context ReservationContext is {
             reservationInfo: ReservationContext.Info,
             reservationMeta: ReservationContext.MetaInfo
         }
-		    state Cancelled of ^CancelledState is {
+		    state Cancelled of Reservation.CancelledState is {
 		        handler PastReservation is {
 		            on other {then error "No modification commands allowed in Cancelled state"}
 		        }

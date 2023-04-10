@@ -164,6 +164,7 @@ context TenantContext is {
         //}
 
         record EstablishedTenantState is {
+            id: TenantId,
             info: TenantContext.TenantInfo,
             meta: TenantContext.TenantMetaInfo
         } briefly "Tenant is active and suitable for use"
@@ -180,7 +181,7 @@ context TenantContext is {
                             currentState = @EstablishedTenantState.meta
                         )
                         and send event TenantContext.InfoEdited(
-                            tenantId = @Tenant.id,
+                            tenantId = @EstablishedTenantState.id,
                             oldInfo = @EstablishedTenantState.info,
                             newInfo = @EstablishedTenantState.info,
                             meta = @EstablishedTenantState.meta
@@ -197,7 +198,7 @@ context TenantContext is {
                             currentState = @TenantStates.Suspended
                         )
                         and send event TenantContext.TenantSuspended(
-                            tenantId = @Tenant.id,
+                            tenantId = @EstablishedTenantState.id,
                             info = @EstablishedTenantState.info,
                             meta = @EstablishedTenantState.meta
                         ) to outlet TenantEvents.Events
@@ -218,7 +219,7 @@ context TenantContext is {
                            currentState = @EstablishedTenantState.meta
                        )
                        and send event TenantContext.TenantTerminated(
-                           tenantId = @Tenant.id,
+                           tenantId = @EstablishedTenantState.id,
                            meta = @EstablishedTenantState.meta
                        ) to outlet TenantEvents.Events
 	                   and morph entity Tenant to state TerminatedTenant with !TerminatedTenantState(lastMeta = @EstablishedTenantState.meta)
@@ -273,7 +274,7 @@ context TenantContext is {
                             currentState = @EstablishedTenantState.meta
                         )
                         and send event TenantContext.InfoEdited(
-                            tenantId = @Tenant.id,
+                            tenantId = @EstablishedTenantState.id,
                             oldInfo = @EstablishedTenantState.info,
                             newInfo = @EstablishedTenantState.info,
                             meta = @EstablishedTenantState.meta
@@ -290,7 +291,7 @@ context TenantContext is {
                             currentState = @TenantStates.Active
                         )
                         and send event TenantContext.TenantSuspended(
-                            tenantId = @Tenant.id,
+                            tenantId = @EstablishedTenantState.id,
                             info = @EstablishedTenantState.info,
                             meta = @EstablishedTenantState.meta
                         ) to outlet TenantEvents.Events
@@ -311,7 +312,7 @@ context TenantContext is {
                            currentState = @EstablishedTenantState.meta
                        )
                        and send event TenantContext.TenantTerminated(
-                           tenantId = @Tenant.id,
+                           tenantId = @EstablishedTenantState.id,
                            meta = @EstablishedTenantState.meta
                        ) to outlet TenantEvents.Events
                        and morph entity Tenant to state TerminatedTenant with !TerminatedTenantState(lastMeta = @EstablishedTenantState.meta)

@@ -12,7 +12,7 @@ context EventContext is {
         handler EventHandler is {
             on command ScheduleEvent {
                 then morph entity Event to state Scheduled with
-                  !^^ScheduledState(
+                  !Event.ScheduledState(
                     eventInfo = !EventInfo(),
                     eventMetaInfo = !EventMetaInfo(),
                     reservation = !ReservationId()
@@ -28,7 +28,7 @@ context EventContext is {
           eventMetaInfo: EventMetaInfo,
           reservation: ReservationId?
         }
-        state Scheduled of ^ScheduledState is {
+        state Scheduled of Event.ScheduledState is {
             handler ScheduledEventHandler {
                 on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
                 on command AddReservationToEvent {
@@ -74,7 +74,7 @@ context EventContext is {
           eventMetaInfo: EventMetaInfo,
           reservation: ReservationId
         }
-        state InProgress of ^InProgressState is {
+        state InProgress of Event.InProgressState is {
             handler InProgressEventHandler is {
                 on command ScheduleEvent{
                     then error "Event is already in progress, cannot be scheduled"
@@ -115,7 +115,7 @@ context EventContext is {
           reservation: ReservationId
           //finalScore
         }
-        state Delayed of ^DelayedState is {
+        state Delayed of Event.DelayedState is {
             handler DelayedEventHandler is {
                 on command ScheduleEvent{
 				  then error "Cannot schedule a delayed event, please reschedule"
@@ -159,7 +159,7 @@ context EventContext is {
             reservation: ReservationId?
             //finalScore
         }
-        state Past of ^PastState is {
+        state Past of Event.PastState is {
             handler PastEventHandler is {
               on other {then error "No actions are permitted on a Past event"}
             }
@@ -171,7 +171,7 @@ context EventContext is {
             //reason
         }
 
-        state Cancelled of ^CancelledState is {
+        state Cancelled of Event.CancelledState is {
             handler CancelledEventHandler is {
                 on command RescheduleEvent{
                   then "set entity evenInfo.expectedStart to RescheduleEvent.info.start"

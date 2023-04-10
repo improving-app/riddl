@@ -24,7 +24,7 @@ context VenueContext is {
             locations: LocationId*,
             venueMeta: VenueContext.MetaInfo
         }
-		    state Draft of ^DraftState is {
+		    state Draft of Venue.DraftState is {
 		        handler DraftVenue is {
 		            on command EstablishVenue {
 		                then error "Venue already established"
@@ -51,7 +51,7 @@ context VenueContext is {
             locations: LocationId*,
             venueMeta: VenueContext.MetaInfo
         }
-		    state Open of ^OpenState is {
+		    state Open of Venue.OpenState is {
 		        handler OpenVenue is {
 		            on command EstablishVenue {
 		                then error "Venue already established"
@@ -78,7 +78,7 @@ context VenueContext is {
             locations: LocationId*,
             venueMeta: VenueContext.MetaInfo
         }
-		    state Closed of ^ClosedState is {
+		    state Closed of Venue.ClosedState is {
 		        handler ClosedVenue is {
 		            on command EstablishVenue {
 		                then error "Venue already established"

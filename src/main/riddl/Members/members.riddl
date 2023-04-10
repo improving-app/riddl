@@ -292,6 +292,7 @@ context MembersContext is {
         }
 
         record DraftMemberState is {
+          id: MemberId,
           requiredInfo: MembersContext.RequiredDraftInfo,
           optionalInfo: MembersContext.OptionalDraftInfo,
           meta: MembersContext.MetaInfo
@@ -303,8 +304,8 @@ context MembersContext is {
               example Success {
                   when "all required fields in requiredInfo are not None or Empty"
                   then send event MemberRegistered(
-                      memberId = @Member.id,
-                      info = !MemberContext.Info(
+                      memberId = @DraftMemberState.id,
+                      info = !MembersContext.Info(
                          contact = @DraftMemberState.requiredInfo,
                          handle = @DraftMemberState.requiredInfo,
                          avatar = @DraftMemberState.requiredInfo,
@@ -314,7 +315,7 @@ context MembersContext is {
                          organizationMembership = @DraftMemberState.optionalInfo,
                          tenant = @DraftMemberState.requiredInfo
                       ),
-                      meta = MembersContext.MetaInfo(
+                      meta = !MembersContext.MetaInfo(
                           createdOn = @DraftMemberState.meta,
                           createdBy = @DraftMemberState.meta,
                           lastUpdatedOn = now(),
@@ -363,7 +364,7 @@ context MembersContext is {
                   currentState = @MemberStates.Draft
               )
               and send event MemberInfoEdited(
-                  memberId = @Member.id,
+                  memberId = @DraftMemberState.id,
                   info = !MembersContext.Info(
                       contact = @DraftMemberState.requiredInfo,
                       handle = @DraftMemberState.requiredInfo,
@@ -391,6 +392,7 @@ context MembersContext is {
         }
 
         record RegisteredMemberState is {
+            id: MemberId,
             info: MembersContext.Info,
             meta: MembersContext.MetaInfo
         }
@@ -426,7 +428,7 @@ context MembersContext is {
                         currentState = @MemberStates.Draft
                     )
                     and send event MemberInfoEdited(
-                        memberId = @Member.id,
+                        memberId = @DraftMemberState.id,
                         info = !MembersContext.Info(
                             contact = @RegisteredMemberState.info,
                             handle = @RegisteredMemberState.info,
@@ -444,9 +446,9 @@ context MembersContext is {
                     example Success {
                         when "all required fields in requiredInfo are not None or Empty"
                         then send event MemberSuspended(
-                            memberId = @Member.id,
+                            memberId = @RegisteredMemberState.id,
                             info = @RegisteredMemberState.info,
-                            meta = MembersContext.MetaInfo(
+                            meta = !MembersContext.MetaInfo(
                                 createdOn = @RegisteredMemberState.meta,
                                 createdBy = @RegisteredMemberState.meta,
                                 lastUpdatedOn = now(),
@@ -486,9 +488,9 @@ context MembersContext is {
                 on command ActivateMember {
                    example Success {
                       then send event MemberActivated(
-                          memberId = @Member.id,
+                          memberId = @RegisteredMemberState.id,
                           info = @RegisteredMemberState.info,
-                          meta = MembersContext.MetaInfo(
+                          meta = !MembersContext.MetaInfo(
                               createdOn = @RegisteredMemberState.meta,
                               createdBy = @RegisteredMemberState.meta,
                               lastUpdatedOn = now(),
@@ -518,9 +520,9 @@ context MembersContext is {
                        currentState = @MemberStates.Suspended
                    )
                    and send event MemberSuspended(
-                       memberId = @Member.id,
+                       memberId = @RegisteredMemberState.id,
                        info = @RegisteredMemberState.info,
-                       meta = MembersContext.MetaInfo(
+                       meta = !MembersContext.MetaInfo(
                            createdOn = @RegisteredMemberState.meta,
                            createdBy = @RegisteredMemberState.meta,
                            lastUpdatedOn = now(),

@@ -56,6 +56,7 @@ context OrganizationContext is {
         }
 
         record DraftOrganizationState is {
+            id: OrganizationId,
             requiredInfo: OrganizationContext.RequiredDraftInfo,
             optionalInfo: OrganizationContext.OptionalDraftInfo,
             orgMeta: OrganizationContext.MetaInfo
@@ -89,7 +90,7 @@ context OrganizationContext is {
                          currentState = @OrganizationStates.Draft
                      )
                     and send event OrganizationInfoEdited(
-                        orgId = @Organization.id,
+                        orgId = @DraftOrganizationState.id,
                         info = !OrganizationContext.Info(
                             name = @DraftOrganizationState.requiredInfo,
                             shortName = @DraftOrganizationState.optionalInfo,
@@ -237,7 +238,7 @@ context OrganizationContext is {
                     example Success {
                         when "all required fields in requiredInfo are not None or Empty"
                         then send event OrganizationEstablished(
-                            orgId = @Organization.id,
+                            orgId = @DraftOrganizationState.id,
                             info = !OrganizationContext.Info(
                                name = @DraftOrganizationState.requiredInfo,
                                shortName = @DraftOrganizationState.optionalInfo,
@@ -251,7 +252,7 @@ context OrganizationContext is {
                             members = @DraftOrganizationState.requiredInfo,
                             owners = @DraftOrganizationState.requiredInfo,
                             contacts = @DraftOrganizationState.optionalInfo,
-                            meta = OrganizationContext.MetaInfo(
+                            meta = !OrganizationContext.MetaInfo(
                                 createdOn = @DraftOrganizationState.orgMeta,
                                 createdBy = @DraftOrganizationState.orgMeta,
                                 lastUpdatedOn = now(),
@@ -287,6 +288,7 @@ context OrganizationContext is {
         }
 
         record EstablishedOrganizationState is {
+            id: OrganizationId,
             info: OrganizationContext.Info,
             parent: OrganizationId?,
             members: ^MembersContext.MemberId+,
@@ -321,9 +323,9 @@ context OrganizationContext is {
                              )
                         )
                         and send event OrganizationInfoEdited(
-                            orgId = @Organization.id,
-                            info = @DraftOrganizationState.info,
-                            meta = @DraftOrganizationState.orgMeta
+                            orgId = @EstablishedOrganizationState.id,
+                            info = @EstablishedOrganizationState.info,
+                            meta = @EstablishedOrganizationState.orgMeta
                         ) to outlet OrganizationEvents.Events
                     }
                 }
@@ -463,7 +465,7 @@ context OrganizationContext is {
                          currentState = @OrganizationStates.Suspended
                      )
                     and send event OrganizationSuspended(
-                        orgId = @Organization.id,
+                        orgId = @EstablishedOrganizationState.id,
                         meta = @EstablishedOrganizationState.orgMeta
                     ) to outlet OrganizationEvents.Events
                     and become entity Organization to handler SuspendedOrganizationHandler
@@ -493,7 +495,7 @@ context OrganizationContext is {
                          currentState = @OrganizationStates.Active
                      )
                     and send event OrganizationActivated(
-                        orgId = @Organization.id,
+                        orgId = @EstablishedOrganizationState.id,
                         meta = @EstablishedOrganizationState.orgMeta
                     ) to outlet OrganizationEvents.Events
                     and become entity Organization to handler ActiveOrganizationHandler
@@ -507,7 +509,7 @@ context OrganizationContext is {
                          currentState = @OrganizationStates.Suspended
                      )
                     and send event OrganizationSuspended(
-                        orgId = @Organization.id,
+                        orgId = @EstablishedOrganizationState.id,
                         meta = @EstablishedOrganizationState.orgMeta
                     ) to outlet OrganizationEvents.Events
                     and become entity Organization to handler SuspendedOrganizationHandler
