@@ -297,7 +297,7 @@ context MembersContext  is {
           optionalInfo: MembersContext.OptionalDraftInfo,
           meta: MembersContext.MetaInfo
         }
-        state DraftMember of DraftMemberState is {
+        state DraftMember of record DraftMemberState is {
           handler DraftMemberHandler {
             on command RegisterMember {then error "Member has already been registered."}
             on command ActivateMember {
@@ -546,7 +546,7 @@ context MembersContext  is {
                 }
               } described as {
               |This state describes that a member cannot access anything due
-              |to being a bad actor. This state transition is only possible
+              |to being a bad user. This state transition is only possible
               |as a command issued by an administrator and therefore can only
               |be removed from the suspended state by an administrator.
             }
