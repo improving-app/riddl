@@ -1,22 +1,22 @@
-actor OrgOwner is "the person that owns the organization"
-actor Member is "any member (user) of the system"
+user OrgOwner is "the person that owns the organization"
+user Member is "any member (user) of the system"
 
 epic EstablishOrganization by author Reid is {
-  actor ImprovingApp.OrgOwner wants "to establish an organization" so that
+  user ImprovingApp.OrgOwner wants "to establish an organization" so that
     "they can conduct business as that organization"
   case primary is {
-    step from actor OrgOwner "creates an Organization" to input
-        ImprovingApp.UserInterface.OrganizationInfo briefly "fill out form",
+    step from user OrgOwner "creates an Organization" to input
+        ImprovingApp.UserInterface.Organization.CreateOrganization briefly "fill out form",
     step
-      from output OrganizationContext.Organization
+      from output ImprovingApp.UserInterface.Organization.DisplayOrganization
       "organizationAdded"
-      to actor OrgOwner briefly "organization added"
+      to user OrgOwner briefly "organization added"
   }
 } briefly "A story about establishing an organization in Improving.app"
   described as "This is the story of how an organization comes to existence"
 
 epic RegisterMemberToOrganization by author Reid is {
-  actor ImprovingApp.OrgOwner wants "to register a member" so that
+  user ImprovingApp.OrgOwner wants "to register a member" so that
     "they can fill the roster for their organization"
   case primary is { ??? }
 } briefly "A story about registering a member into an organization"

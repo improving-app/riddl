@@ -11,15 +11,15 @@ story RegisterMember is {
     title: "Enroll a new Member"
     scope domain {ImprovingApp}
     interaction is {
-      step from actor Member "EnrollMember" to actor App
+      step from user Member "EnrollMember" to user App
         briefly "initial invocation",
-      step from actor App send command Member.EnrollMember to actor GatewayAPI
+      step from user App send command Member.EnrollMember to user GatewayAPI
         briefly "send creation message",
-    //   step from actor GatewayAPI "Register Member" to entity ImprovingApp.MemberContext.Member
+    //   step from user GatewayAPI "Register Member" to entity ImprovingApp.MemberContext.Member
     //     briefly "add new organization",
     //   step from entity ImprovingApp.MemberContext.Member "MemberRegistered" to pipe ImprovingApp.MemberContext.MemberEvents
     //     briefly "organization added"
-    //   step from pipe ImprovingApp.MemberContext.MemberEvents "MemberEnrolled" to actor App
+    //   step from pipe ImprovingApp.MemberContext.MemberEvents "MemberEnrolled" to user App
     }
     //example Foo is {...}
   }
@@ -50,17 +50,17 @@ As an Owner of an Organization I would like to find a Location, Reserve the Loca
 
 story EventBookingEasyButton is {
   case primary is {
-    step from actor Owner "presses easy button to make a reservation" to
+    step from user Owner "presses easy button to make a reservation" to
       input ImprovingApp.Improving_app.MyEventsPages.easy
       briefly "make a reservation by searching for a location - includes max attendance, start/end time, already created event info"
     step from output ImprovingApp.Improving_app.MyEventsPage.show
-      "presented" to actor Owner
+      "presented" to user Owner
       briefly "location(s) will appear as that honour max attendance and event info parameters in the nearest time to start and end available"
-    step from actor Owner "selects a location" to
+    step from user Owner "selects a location" to
       input ImprovingApp.Improving_app.MyEventsPages.easy
       briefly "user selects a location based on the list that appeared in the previous step & requests gateway to create reservation"
     step from output ImprovingApp.Improving_app.MyEventsPage.show
-      "presented" to actor Owner
+      "presented" to user Owner
       briefly "notify user that event now has a reservation in selected location"
   }
 } briefly "A story about scheduling an event with the easy button in Improving.app"

@@ -1,5 +1,5 @@
 domain GatewayAPI is {
-    include "actorDefinitions.riddl"
+    include "userDefinitions.riddl"
     include "EventGateway/eventStories.riddl"
     include "MemberGateway/memberStories.riddl"
     include "NotificationGateway/notificationStories.riddl"

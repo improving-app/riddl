@@ -112,6 +112,7 @@ context StoreContext is {
     }
 
     record DraftStoreState is {
+      id: StoreId,
       requiredInfo: StoreContext.RequiredDraftInfo,
       optionalInfo: StoreContext.OptionalDraftInfo,
       meta: StoreContext.MetaInfo
@@ -188,6 +189,7 @@ context StoreContext is {
     }
 
     record CreatedStoreState is {
+      id: StoreId,
       info: StoreContext.Info,
       meta: StoreContext.MetaInfo
     }
@@ -216,7 +218,7 @@ context StoreContext is {
             currentState = @StoreStates.Open
           )
           and send event StoreOpened(
-            storeId = @Store.id,
+            storeId = @CreatedStoreState.id,
             info = @CreatedStoreState.info,
             meta = @CreatedStoreState.meta
           ) to outlet StoreEvents.Events
@@ -232,7 +234,7 @@ context StoreContext is {
             currentState = @StoreStates.Closed
           )
           and send event StoreClosed(
-            storeId = @Store.id,
+            storeId = @CreatedStoreState.id,
             info = @CreatedStoreState.info,
             meta = @CreatedStoreState.meta
           ) to outlet StoreEvents.Events
@@ -290,7 +292,7 @@ context StoreContext is {
               currentState = @StoreStates.Closed
             )
             and send event StoreClosed(
-              storeId = @Store.id,
+              storeId = @CreatedStoreState.id,
               info = @CreatedStoreState.info,
               meta = @CreatedStoreState.meta
             ) to outlet StoreEvents.Events
@@ -341,7 +343,7 @@ context StoreContext is {
               currentState = @StoreStates.Deleted
             )
             and send event StoreDeleted(
-              storeId = @Store.id,
+              storeId = @CreatedStoreState.id,
               info = @CreatedStoreState.info,
               meta = @CreatedStoreState.meta
             ) to outlet StoreEvents.Events
@@ -362,8 +364,8 @@ context StoreContext is {
               lastUpdatedBy = @OpenStore.openingMember,
               currentState = @StoreStates.Open
             )
-            and send event StoreClosed(
-              storeId = @Store.id,
+            and send event StoreOpened(
+              storeId = @CreatedStoreState.id,
               info = @CreatedStoreState.info,
               meta = @CreatedStoreState.meta
             ) to outlet StoreEvents.Events
