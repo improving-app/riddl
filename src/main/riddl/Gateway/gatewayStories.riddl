@@ -11,7 +11,7 @@ story RegisterMember is {
     title: "Enroll a new Member"
     scope domain {ImprovingApp}
     interaction is {
-      step from actor Member "EnrollMember" to user App
+      step from user Member "EnrollMember" to user App
         briefly "initial invocation",
       step from user App send command Member.EnrollMember to user GatewayAPI
         briefly "send creation message",

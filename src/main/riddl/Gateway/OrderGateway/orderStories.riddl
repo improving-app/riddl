@@ -13,7 +13,7 @@ story DepositCoins is {
     title "Deposit Coin"
     scope domain ImprovingApp
     interaction is {
-      step from actor Member "Deposit Coin" to user App
+      step from user Member "Deposit Coin" to user App
         briefly "Member clicks Deposit button on the deposit form"
       step from user App send command Member.DepositCoin to user GatewayAPI //ImprovingApp.Gateway.MemberGateway.IAppCoinAccount
         briefly "App tells the Gateway to deposit coins to their iAppCoin Account"
@@ -32,7 +32,7 @@ story WithdrawCoins is {
     title "Withdraw Coin"
     scope domain ImprovingApp
     interaction is {
-      step from actor Member "Buy things" to user App
+      step from user Member "Buy things" to user App
         briefly "Member clicks the buy button on the order page"
       step from user App send command Order.ProcessOrder to user GatewayAPI //ImprovingApp.Gateway.OrderGateway.Order
         briefly "App tells the Gateway to process the Order"

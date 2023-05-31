@@ -1,7 +1,7 @@
-actor Member is "A user of ImprovingApp"
+user Member is "A user of ImprovingApp"
 
 story CreateVenue is {
-  actor Member wants to "create a Venue" so that "I can manage my Venue in ImprovingApp"
+  user Member wants to "create a Venue" so that "I can manage my Venue in ImprovingApp"
 	capability is "Create a Venue"
   benefit is "So Members can create Venues in ImprovingApp"
   author Alex is {
@@ -12,7 +12,7 @@ story CreateVenue is {
     title: "Create a new Venue"
     scope domain {ImprovingApp}
     interaction is {
-      arbitrary step from actor Member "provide venue information" to user App
+      arbitrary step from user Member "provide venue information" to user App
         briefly "initial invocation",
       arbitrary step from user App send command Venue.CreateVenue to user GatewayAPI
         briefly "send creation message",
@@ -36,7 +36,7 @@ story CreateVenue is {
   described as "This is the story of how a venue comes into existence"
 
 story CreateLocation is {
-  As actor Member wants to "create a Venue" so that "I can manage my Locations in ImprovingApp"
+  As user Member wants to "create a Venue" so that "I can manage my Locations in ImprovingApp"
   benefit is "So Members can create Locations for Venues in ImprovingApp"
   author Alex is {
     name: "Alex Weinstein"
@@ -46,7 +46,7 @@ story CreateLocation is {
     title: "Create a new Location"
     scope domain {ImprovingApp}
     interaction is {
-      arbitrary step from actor Member "Location information" to user App
+      arbitrary step from user Member "Location information" to user App
         briefly "initial invocation",
       arbitrary step from user App send command Location.CreateLocation to user GatewayAPI
         briefly "send creation message",
@@ -70,7 +70,7 @@ story CreateLocation is {
   described as "This is the story of how a location comes into existence"
 
 story UpdateLocationStatus is {
-  As actor Member wants to "update a Location's status" so that "I can manage my Location statuses in ImprovingApp"
+  As user Member wants to "update a Location's status" so that "I can manage my Location statuses in ImprovingApp"
 	capability is "Make a Location Available for Reservation"
   benefit is "So Members can allow other Members to make Reservations in their Locations in ImprovingApp"
   author Alex is {
@@ -81,7 +81,7 @@ story UpdateLocationStatus is {
     title: "Update Location Status to Available"
     scope domain {ImprovingApp}
     interaction is {
-      arbitrary step from actor Member "presses button to update Location status to Available" to user App
+      arbitrary step from user Member "presses button to update Location status to Available" to user App
         briefly "initial invocation",
       arbitrary step from user App send command Location.UpdateLocationStatus to user GatewayAPI
         briefly "send update status message",
@@ -105,7 +105,7 @@ story UpdateLocationStatus is {
   described as "This is the story of how a location becomes available"
 
 story SearchAvailableLocations is {
-  As actor Member wants to "search for available Locations given specific parameters" so that "I can make a Reservation in an available Location in ImprovingApp"
+  As user Member wants to "search for available Locations given specific parameters" so that "I can make a Reservation in an available Location in ImprovingApp"
 	capability is "Search (parameterized) for a Location that is available for Reservation"
   benefit is "So Members can find Locations for making Reservations in ImprovingApp according to desired specifications"
   author Alex is {
@@ -116,7 +116,7 @@ story SearchAvailableLocations is {
     title: "Search for available Locations according to time range parameters"
     scope domain {ImprovingApp}
     interaction is {
-      arbitrary step from actor Member "searches for location availability with time based parameters" to user App
+      arbitrary step from user Member "searches for location availability with time based parameters" to user App
         briefly "initial invocation",
       arbitrary step from user App send command Location.SearchAvailableLocations to user GatewayAPI
         briefly "send search message",
@@ -140,7 +140,7 @@ story SearchAvailableLocations is {
     title: "Search for available Locations according to capacity parameters"
     scope domain {ImprovingApp}
     interaction is {
-      arbitrary step from actor Member "SearchAvailableLocations" to user App
+      arbitrary step from user Member "SearchAvailableLocations" to user App
         briefly "initial invocation",
       arbitrary step from user App send command Location.SearchAvailableLocations to user GatewayAPI
         briefly "send search message",
