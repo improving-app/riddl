@@ -17,28 +17,16 @@ context StoreContext is {
   type StoreStates is any of {Draft, Ready, Open, Closed, Deleted}
   type StoreId is Id(StoreContext.Store)
 
-  type RequiredDraftInfo is {
-    name: String?,
-    description: String?,
-    products: SKU*,
-    venue: VenueId?,
-    location: LocationId?,
-    sponsoringOrg: OrganizationId?
-  }
-
-  type OptionalDraftInfo is {
-    event: EventId?
-  }
-
   type Info is {
-    name: String,
-    description: String,
-    products: SKU+,
+    name: String briefly "Required",
+    description: String briefly "Required",
+    products: SKU+ briefly "Required",
     event: EventId?,
-    venue: VenueId,
-    location: LocationId,
-    sponsoringOrg: OrganizationId
+    venue: VenueId briefly "Required",
+    location: LocationId briefly "Required",
+    sponsoringOrg: OrganizationId briefly "Required"
   }
+
   type MetaInfo is {
     createdBy: MemberId,
     createdOn: Date,
@@ -46,6 +34,7 @@ context StoreContext is {
     lastModifiedOn: Date,
     state: StoreStates
   }
+
   type EditableInfo is {
     name: String?,
     description: String?,
@@ -56,8 +45,8 @@ context StoreContext is {
     sponsoringOrg: OrganizationId?
   }
 
-  command CreateStore is {storeId: StoreId, info: StoreContext.Info, creatingMember: MemberId}
-  event StoreCreated is {storeId: StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
+  command CreateStore is {storeId: StoreId, info: StoreContext.EditableInfo, creatingMember: MemberId}
+  event StoreCreated is {storeId: StoreId, info: StoreContext.EditableInfo, meta: StoreContext.MetaInfo}
   command EditStoreInfo is {storeId: StoreId, info: StoreContext.EditableInfo, updatingMember: MemberId}
   event StoreInfoEdited {storeId: StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
   command MakeStoreReady is {storeId: StoreId, updatingMember: MemberId}
@@ -113,8 +102,7 @@ context StoreContext is {
 
     record DraftStoreState is {
       id: StoreId,
-      requiredInfo: StoreContext.RequiredDraftInfo,
-      optionalInfo: StoreContext.OptionalDraftInfo,
+      info: StoreContext.EditableInfo,
       meta: StoreContext.MetaInfo
     }
     state DraftStore of DraftStoreState is {

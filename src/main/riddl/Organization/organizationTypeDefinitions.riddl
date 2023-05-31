@@ -11,31 +11,15 @@ described in file "organizationContacts.md"
 } briefly "Accounts are used to move money between Improving.App and an organization, or between suborganizations defined within an organization."
 described in file "../Accounting/accounts.md"
 */
-type RequiredDraftInfo is {
-    name: String briefly "i.e. Provo High School. Must be unique within the organizational structure.",
-    isPrivate: Boolean briefly "defaults to true",
-    tenant: TenantId,
-    members: MemberId*,
-    owners: MemberId*
-} briefly "Essential information about an organization that is expected to evolve over time."
-
-type OptionalDraftInfo is {
-    shortName: String? briefly "i.e. PHS. Must be unique within the organizational structure.",
-    address: Address? briefly "Required for BaseOrg. Optional for all other organizations.",
-    url: URL?,
-    logo: URL?,
-    parent: OrganizationId?,
-    contacts: Contact?
-}
 
 type Info is {
     name: String briefly "i.e. Provo High School. Must be unique within the organizational structure.",
     shortName: String? briefly "i.e. PHS. Must be unique within the organizational structure.",
     address: Address? briefly "Required for BaseOrg. Optional for all other organizations.",
-    isPrivate: Boolean briefly "defaults to true",
+    isPrivate: Boolean briefly "Required - defaults to true",
     url: URL?,
     logo: URL?,
-    tenant: TenantId
+    tenant: TenantId briefly "Required"
     //color scheme
     //calendar: Calendar
 } briefly "Essential information about an organization that is expected to evolve over time."

@@ -28,20 +28,14 @@ context OrganizationContext is {
                     )
                 ) to outlet OrganizationEvents.Events
                 and morph entity Organization to state DraftOrganization with !DraftOrganizationState(
-                    requiredInfo = !OrganizationContext.RequiredDraftInfo(
-                        name = @EstablishOrganization.info,
-                        isPrivate = @EstablishOrganization.info,
-                        tenant = @EstablishOrganization.info,
-                        members = @EstablishOrganization.members,
-                        owners = @EstablishOrganization.owners
-                    ),
-                    optionalInfo = !OrganizationContext.OptionalDraftInfo(
-                        shortName = @EstablishOrganization.info,
-                        address = @EstablishOrganization.info,
-                        url = @EstablishOrganization.info,
-                        logo = @EstablishOrganization.info,
-                        parent = @EstablishOrganization.parent,
-                        contacts = @EstablishOrganization.contacts
+                    requiredInfo = !OrganizationContext.EditableInfo(
+                        name = @EstablishOrganization.info.name,
+                        shortName = @EstablishOrganization.info.shortName,
+                        address = @EstablishOrganization.info.address,
+                        isPrivate = @EstablishOrganization.info.isPrivate,
+                        url = @EstablishOrganization.info.url,
+                        logo = @EstablishOrganization.info.logo,
+                        tenant = @EstablishOrganization.info.tenant
                     ),
                     meta = !OrganizationContext.MetaInfo(
                         createdOn = now(),
@@ -57,8 +51,12 @@ context OrganizationContext is {
 
         record DraftOrganizationState is {
             id: OrganizationId,
-            requiredInfo: OrganizationContext.RequiredDraftInfo,
-            optionalInfo: OrganizationContext.OptionalDraftInfo,
+            info: OrganizationContext.EditableInfo,
+            parent: OrganizationId?,
+            members: MemberId+ briefly "Required",
+            owners: MemberId+ briefly "Required",
+            contacts: Contact?,
+            // accounts: OrganizationContext.AccountList,
             orgMeta: OrganizationContext.MetaInfo
         }
         state DraftOrganization of DraftOrganizationState is {
@@ -67,20 +65,14 @@ context OrganizationContext is {
                     then error "Organization already established"
                 }
                 on command EditOrganizationInfo {
-                    then set DraftOrganizationState.requiredInfo to !OrganizationContext.RequiredDraftInfo(
+                    then set DraftOrganizationState.info to !OrganizationContext.Info(
                          name = @EditOrganizationInfo.newInfo,
-                         isPrivate = @EditOrganizationInfo.newInfo,
-                         tenant = @EditOrganizationInfo.newInfo,
-                         members = @DraftOrganizationState.requiredInfo,
-                         owners = @DraftOrganizationState.requiredInfo
-                     )
-                    and set DraftOrganizationState.optionalInfo to !OrganizationContext.OptionalDraftInfo(
                          shortName = @EditOrganizationInfo.newInfo,
                          address = @EditOrganizationInfo.newInfo,
+                         isPrivate = @EditOrganizationInfo.newInfo,
                          url = @EditOrganizationInfo.newInfo,
                          logo = @EditOrganizationInfo.newInfo,
-                         parent = @DraftOrganizationState.optionalInfo,
-                         contacts = @DraftOrganizationState.optionalInfo
+                         tenant = @EditOrganizationInfo.newInfo
                      )
                      and set DraftOrganizationState.orgMeta to !OrganizationContext.MetaInfo(
                          createdOn = @DraftOrganizationState.orgMeta,
@@ -236,25 +228,26 @@ context OrganizationContext is {
                 // }
                 on command ActivateOrganization {
                     example Success {
-                        when "all required fields in requiredInfo are not None or Empty"
+                        when "all required fields in info are not None or Empty"
+                        and "required non-info fields are present"
                         then send event OrganizationEstablished(
                             orgId = @DraftOrganizationState.id,
                             info = !OrganizationContext.Info(
-                               name = @DraftOrganizationState.requiredInfo,
-                               shortName = @DraftOrganizationState.optionalInfo,
-                               address = @DraftOrganizationState.optionalInfo,
-                               isPrivate = @DraftOrganizationState.requiredInfo,
-                               url = @DraftOrganizationState.optionalInfo,
-                               logo = @DraftOrganizationState.optionalInfo,
-                               tenant = @DraftOrganizationState.requiredInfo
+                               name = @DraftOrganizationState.info.name,
+                               shortName = @DraftOrganizationState.info.shortName,
+                               address = @DraftOrganizationState.info.address,
+                               isPrivate = @DraftOrganizationState.info.isPrivate,
+                               url = @DraftOrganizationState.info.url,
+                               logo = @DraftOrganizationState.info.logo,
+                               tenant = @DraftOrganizationState.inf0.tenant
                             ),
-                            parent = @DraftOrganizationState.optionalInfo,
-                            members = @DraftOrganizationState.requiredInfo,
-                            owners = @DraftOrganizationState.requiredInfo,
-                            contacts = @DraftOrganizationState.optionalInfo,
+                            parent = @DraftOrganizationState.parent,
+                            members = @DraftOrganizationState.members,
+                            owners = @DraftOrganizationState.owners,
+                            contacts = @DraftOrganizationState.contacts,
                             meta = !OrganizationContext.MetaInfo(
-                                createdOn = @DraftOrganizationState.orgMeta,
-                                createdBy = @DraftOrganizationState.orgMeta,
+                                createdOn = @DraftOrganizationState.orgMeta.createdOn,
+                                createdBy = @DraftOrganizationState.orgMeta.createdBy,
                                 lastUpdatedOn = now(),
                                 lastUpdatedBy = @EditOrganizationInfo.editingMember,
                                 currentState = @OrganizationStates.Active
@@ -263,18 +256,18 @@ context OrganizationContext is {
                         and morph entity Organization to state EstablishedOrganization
                             with !EstablishedOrganizationState(
                                 info = !OrganizationContext.Info(
-                                    name = @DraftOrganizationState.requiredInfo,
-                                    shortName = @DraftOrganizationState.optionalInfo,
-                                    address = @DraftOrganizationState.optionalInfo,
-                                    isPrivate = @DraftOrganizationState.requiredInfo,
-                                    url = @DraftOrganizationState.optionalInfo,
-                                    logo = @DraftOrganizationState.optionalInfo,
-                                    tenant = @DraftOrganizationState.requiredInfo
+                                    name = @DraftOrganizationState.info.name,
+                                    shortName = @DraftOrganizationState.info.shortName,
+                                    address = @DraftOrganizationState.info.address,
+                                    isPrivate = @DraftOrganizationState.info.isPrivate,
+                                    url = @DraftOrganizationState.info.url,
+                                    logo = @DraftOrganizationState.info.logo,
+                                    tenant = @DraftOrganizationState.info.tenant
                                 ),
-                                parent = @DraftOrganizationState.optionalInfo,
-                                members = @DraftOrganizationState.requiredInfo,
-                                owners = @DraftOrganizationState.requiredInfo,
-                                contact = @DraftOrganizationState.optionalInfo,
+                                parent = @DraftOrganizationState.parent,
+                                members = @DraftOrganizationState.members,
+                                owners = @DraftOrganizationState.owners,
+                                contact = @DraftOrganizationState.contact,
                                 orgMeta = @DraftOrganizationState.orgMeta
                             )
                     }
@@ -291,8 +284,8 @@ context OrganizationContext is {
             id: OrganizationId,
             info: OrganizationContext.Info,
             parent: OrganizationId?,
-            members: MemberId+,
-            owners: MemberId+,
+            members: MemberId+ briefly "Required",
+            owners: MemberId+ briefly "Required",
             contacts: Contact?,
             // accounts: OrganizationContext.AccountList,
             orgMeta: OrganizationContext.MetaInfo
