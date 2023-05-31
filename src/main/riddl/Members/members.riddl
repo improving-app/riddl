@@ -305,7 +305,7 @@ context MembersContext  is {
               }
             }
             on command EditMemberInfo {
-              then set DraftMemberState.info to !MembersContext.Editable(
+              then set DraftMemberState.info to !MembersContext.EditableInfo(
                    contact = @EditMemberInfo.info.contact,
                    handle = @EditMemberInfo.info.handle,
                    avatar = @EditMemberInfo.info.avatar,
