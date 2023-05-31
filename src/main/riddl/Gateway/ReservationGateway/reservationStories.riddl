@@ -1,6 +1,6 @@
 //Reservation Gateway Stories
 story CreateReservation {
-	As user Member wants to "Create a Reservation" so that "I can manage my Reservations & book them in ImprovingApp"
+	As actor Member wants to "Create a Reservation" so that "I can manage my Reservations & book them in ImprovingApp"
   author Alex is {
     name: "Alex Weinstein"
     email: "alex.weinstin@improving.com"
@@ -9,7 +9,7 @@ story CreateReservation {
     title: "Create a new Reservation without booking it"
     scope domain {ImprovingApp}
     interaction is {
-      step from user Member "provides a ReservationId" to user App
+      step from actor Member "provides a ReservationId" to user App
         briefly "initial invocation",
       step from user App send command Reservation.CreateReservation to user GatewayAPI
     //    briefly "send creation message",
@@ -33,7 +33,7 @@ story CreateReservation {
   described as "This is the story of how a reservation comes into existence"
 
 story BookReservation is {
-  As user Member wants to "Book a Reservation" so that "I can book my Reservations in ImprovingApp"
+  As actor Member wants to "Book a Reservation" so that "I can book my Reservations in ImprovingApp"
   author Alex is {
     name: "Alex Weinstein"
     email: "alex.weinstin@improving.com"
@@ -42,7 +42,7 @@ story BookReservation is {
     title: "Book a new Reservation by picking from a list, given time parameters"
     scope domain {ImprovingApp}
     interaction is {
-      step from user Member "provide time range" to user App
+      step from actor Member "provide time range" to user App
         briefly "initial invocation",
       step from user App send command Reservation.FindLocationsAvailability to user GatewayAPI
         briefly "send availability query",
@@ -51,7 +51,7 @@ story BookReservation is {
     //  step from entity ImprovingApp.LocationContext.Locations "LocationsAvailabilityResults" to pipe ImprovingApp.LocationContext.LocationEvents
     //    briefly "return results of query"
     //  step from pipe ImprovingApp.LocationContext.LocationEvents "LocationsAvailabilityResults" to user App
-    //  step from user Member "provides a ReservationId from the list of results" to user App
+    //  step from actor Member "provides a ReservationId from the list of results" to user App
     //    briefly "booking invocation",
     //  step from user App send command Reservation.CreateReservation to user GatewayAPI
     //    briefly "send booking message",
@@ -81,7 +81,7 @@ story BookReservation is {
     title: "Book a new Reservation by picking from a list, given maxCapacity parameter"
     scope domain {ImprovingApp}
     interaction is {
-      step from user Member "provide maxCapacity" to user App
+      step from actor Member "provide maxCapacity" to user App
         briefly "initial invocation",
       step from user App send command Reservation.FindLocationsAvailability to user GatewayAPI
         briefly "send availability query",
@@ -90,7 +90,7 @@ story BookReservation is {
     //  step from entity ImprovingApp.LocationContext.Locations "LocationsAvailabilityResults" to pipe ImprovingApp.LocationContext.LocationEvents
     //    briefly "return results of query"
     //  step from pipe ImprovingApp.LocationContext.LocationEvents "LocationsAvailabilityResults" to user App
-    //  step from user Member "provides a ReservationId from the list of results" to user App
+    //  step from actor Member "provides a ReservationId from the list of results" to user App
     //    briefly "booking invocation",
     //  step from user App send command Reservation.CreateReservation to user GatewayAPI
     //    briefly "send booking message",
@@ -120,7 +120,7 @@ story BookReservation is {
     title: "Book a new Reservation automatically based on what is available next, parameterized by Reservation info"
     scope domain {ImprovingApp}
     interaction is {
-      step from user Member "asks to book next Reservation with search parameters based ReservationInfo in a provided ReservationId" to user App
+      step from actor Member "asks to book next Reservation with search parameters based ReservationInfo in a provided ReservationId" to user App
         briefly "initial invocation",
       step from user App send command Location.BookNextAvailable to user GatewayAPI
         briefly "send smart booking query",
