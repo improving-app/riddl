@@ -278,8 +278,7 @@ context OrganizationContext is {
                 }
                 on query GetOrganizationInfo {
                     example Success {
-                        when "Parent field is present (non-empty)"
-                        then return OrganizationParent(
+                        then return !OrganizationInfo(
                             orgId = @DraftOrganizationState.orgId,
                             info = @DraftOrganizationState.info
                         )
@@ -288,7 +287,7 @@ context OrganizationContext is {
                 on query GetOrganizationParent {
                     example Success {
                         when "Parent field is present (non-empty)"
-                        then return OrganizationParent(
+                        then return !OrganizationParent(
                             orgId = @DraftOrganizationState.orgId,
                             parent = @DraftOrganizationState.parent
                         )
@@ -301,7 +300,7 @@ context OrganizationContext is {
                 on query GetOrganizationMembers {
                     example Success {
                         when "Members field is present (non-empty)"
-                        then return OrganizationMembers(
+                        then return !OrganizationMembers(
                             orgId = @DraftOrganizationState.orgId,
                             members = @DraftOrganizationState.members
                         )
@@ -314,7 +313,7 @@ context OrganizationContext is {
                 on query GetOrganizationOwners {
                     example Success {
                         when "Owners field is present (non-empty)"
-                        then return OrganizationOwners(
+                        then return !OrganizationOwners(
                             orgId = @DraftOrganizationState.orgId,
                             owners = @DraftOrganizationState.owners
                         )
@@ -327,7 +326,7 @@ context OrganizationContext is {
                 on query GetOrganizationContacts {
                     example Success {
                         when "Contacts field is present (non-empty)"
-                        then return OrganizationContacts(
+                        then return !OrganizationContacts(
                             orgId = @DraftOrganizationState.orgId,
                             contacts = @DraftOrganizationState.contacts
                         )
@@ -339,21 +338,16 @@ context OrganizationContext is {
                 }
                 on query GetOrganizationMeta {
                     example Success {
-                        when "Meta field is present (non-empty)"
-                        then return OrganizationMeta(
+                        then return !OrganizationMeta(
                             orgId = @DraftOrganizationState.orgId,
                             metaInfo = @DraftOrganizationState.metaInfo
                         )
-                    }
-                    example DraftError {
-                        when "in Draft state and metaInfo is not empty in editableInfo"
-                        then error "Meta field is not present in current state of Draft"
                     }
                 }
                  on query GetOrganizationState {
                     example Success {
                         when "State field is present (non-empty)"
-                        then return OrganizationState(
+                        then return !OrganizationState(
                             orgId = @DraftOrganizationState.orgId,
                             info = @DraftOrganizationState.info,
                             parent = @DraftOrganizationState.parent,
@@ -563,8 +557,7 @@ context OrganizationContext is {
                 }
                 on query GetOrganizationInfo {
                     example Success {
-                        when "Parent field is present (non-empty)"
-                        then return OrganizationParent(
+                        then return !OrganizationInfo(
                             orgId = @DraftOrganizationState.orgId,
                             info = @DraftOrganizationState.info
                         )
@@ -572,8 +565,7 @@ context OrganizationContext is {
                 }
                 on query GetOrganizationParent {
                     example Success {
-                        when "Parent field is present (non-empty)"
-                        then return OrganizationParent(
+                        then return !OrganizationParent(
                             orgId = @DraftOrganizationState.orgId,
                             parent = @DraftOrganizationState.parent
                         )
@@ -581,8 +573,7 @@ context OrganizationContext is {
                 }
                 on query GetOrganizationMembers {
                     example Success {
-                        when "Members field is present (non-empty)"
-                        then return OrganizationMembers(
+                        then return !OrganizationMembers(
                             orgId = @DraftOrganizationState.orgId,
                             members = @DraftOrganizationState.members
                         )
@@ -590,8 +581,7 @@ context OrganizationContext is {
                 }
                 on query GetOrganizationOwners {
                     example Success {
-                        when "Owners field is present (non-empty)"
-                        then return OrganizationOwners(
+                        then return !OrganizationOwners(
                             orgId = @DraftOrganizationState.orgId,
                             owners = @DraftOrganizationState.owners
                         )
@@ -599,8 +589,7 @@ context OrganizationContext is {
                 }
                 on query GetOrganizationContacts {
                     example Success {
-                        when "Contacts field is present (non-empty)"
-                        then return OrganizationContacts(
+                        then return !OrganizationContacts(
                             orgId = @DraftOrganizationState.orgId,
                             contacts = @DraftOrganizationState.contacts
                         )
@@ -608,8 +597,7 @@ context OrganizationContext is {
                 }
                 on query GetOrganizationMeta {
                     example Success {
-                        when "Meta field is present (non-empty)"
-                        then return OrganizationMeta(
+                        then return !OrganizationMeta(
                             orgId = @DraftOrganizationState.orgId,
                             metaInfo = @DraftOrganizationState.metaInfo
                         )
@@ -617,8 +605,7 @@ context OrganizationContext is {
                 }
                  on query GetOrganizationState {
                     example Success {
-                        when "State field is present (non-empty)"
-                        then return OrganizationState(
+                        then return !OrganizationState(
                             orgId = @DraftOrganizationState.orgId,
                             info = @DraftOrganizationState.info,
                             parent = @DraftOrganizationState.parent,
@@ -675,8 +662,7 @@ context OrganizationContext is {
                 }
                 on query GetOrganizationInfo {
                     example Success {
-                        when "Parent field is present (non-empty)"
-                        then return OrganizationParent(
+                        then return !OrganizationInfo(
                             orgId = @DraftOrganizationState.orgId,
                             info = @DraftOrganizationState.info
                         )
@@ -684,8 +670,7 @@ context OrganizationContext is {
                 }
                 on query GetOrganizationParent {
                     example Success {
-                        when "Parent field is present (non-empty)"
-                        then return OrganizationParent(
+                        then return !OrganizationParent(
                             orgId = @DraftOrganizationState.orgId,
                             parent = @DraftOrganizationState.parent
                         )
@@ -693,8 +678,7 @@ context OrganizationContext is {
                 }
                 on query GetOrganizationMembers {
                     example Success {
-                        when "Members field is present (non-empty)"
-                        then return OrganizationMembers(
+                        then return !OrganizationMembers(
                             orgId = @DraftOrganizationState.orgId,
                             members = @DraftOrganizationState.members
                         )
@@ -702,8 +686,7 @@ context OrganizationContext is {
                 }
                 on query GetOrganizationOwners {
                     example Success {
-                        when "Owners field is present (non-empty)"
-                        then return OrganizationOwners(
+                        then return !OrganizationOwners(
                             orgId = @DraftOrganizationState.orgId,
                             owners = @DraftOrganizationState.owners
                         )
@@ -711,8 +694,7 @@ context OrganizationContext is {
                 }
                 on query GetOrganizationContacts {
                     example Success {
-                        when "Contacts field is present (non-empty)"
-                        then return OrganizationContacts(
+                        then return !OrganizationContacts(
                             orgId = @DraftOrganizationState.orgId,
                             contacts = @DraftOrganizationState.contacts
                         )
@@ -720,8 +702,7 @@ context OrganizationContext is {
                 }
                 on query GetOrganizationMeta {
                     example Success {
-                        when "Meta field is present (non-empty)"
-                        then return OrganizationMeta(
+                        then return !OrganizationMeta(
                             orgId = @DraftOrganizationState.orgId,
                             metaInfo = @DraftOrganizationState.metaInfo
                         )
@@ -729,8 +710,7 @@ context OrganizationContext is {
                 }
                  on query GetOrganizationState {
                     example Success {
-                        when "State field is present (non-empty)"
-                        then return OrganizationState(
+                        then return !OrganizationState(
                             orgId = @DraftOrganizationState.orgId,
                             info = @DraftOrganizationState.info,
                             parent = @DraftOrganizationState.parent,
