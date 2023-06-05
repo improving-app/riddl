@@ -232,7 +232,7 @@ context MembersContext  is {
                     )
                 ) to outlet MemberEvents.Events
                 and morph entity Member to state DraftMember with !DraftMemberState(
-                    requiredInfo = !MembersContext.EditableInfo(
+                    info = !MembersContext.EditableInfo(
                          contact = @DraftMemberState.info.contact,
                          handle = @DraftMemberState.info.handle,
                          avatar = @DraftMemberState.info.avatar,
@@ -316,8 +316,8 @@ context MembersContext  is {
                    organizationMembership = @EditMemberInfo.info.organizationMembership
               )
               and set DraftMemberState.meta to !MembersContext.MetaInfo(
-                  createdOn = @DraftMemberState.meta,
-                  createdBy = @DraftMemberState.meta,
+                  createdOn = @DraftMemberState.meta.createdOn,
+                  createdBy = @DraftMemberState.meta.createdBy,
                   lastUpdatedOn = now(),
                   lastUpdatedBy = @EditMemberInfo.editingMember,
                   currentState = @MemberStates.Draft
@@ -371,8 +371,8 @@ context MembersContext  is {
                        tenant = @EditMemberInfo.info.tenant
                     )
                     and set RegisteredMemberState.meta to !MembersContext.MetaInfo(
-                        createdOn = @RegisteredMemberState.meta,
-                        createdBy = @RegisteredMemberState.meta,
+                        createdOn = @RegisteredMemberState.meta.createdOn,
+                        createdBy = @RegisteredMemberState.meta.createdBy,
                         lastUpdatedOn = now(),
                         lastUpdatedBy = @EditMemberInfo.editingMember,
                         currentState = @MemberStates.Draft
@@ -399,8 +399,8 @@ context MembersContext  is {
                             memberId = @RegisteredMemberState.id,
                             info = @RegisteredMemberState.info,
                             meta = !MembersContext.MetaInfo(
-                                createdOn = @RegisteredMemberState.meta,
-                                createdBy = @RegisteredMemberState.meta,
+                                createdOn = @RegisteredMemberState.meta.createdOn,
+                                createdBy = @RegisteredMemberState.meta.createdBy,
                                 lastUpdatedOn = now(),
                                 lastUpdatedBy = @SuspendMember.suspendingMember,
                                 currentState = @MemberStates.Suspended
@@ -410,8 +410,8 @@ context MembersContext  is {
                             with !RegisteredMemberState(
                                 info = @RegisteredMemberState.info,
                                 meta = !MembersContext.MetaInfo(
-                                    createdOn = @RegisteredMemberState.meta,
-                                    createdBy = @RegisteredMemberState.meta,
+                                    createdOn = @RegisteredMemberState.meta.createdOn,
+                                    createdBy = @RegisteredMemberState.meta.createdBy,
                                     lastUpdatedOn = now(),
                                     lastUpdatedBy = @SuspendMember.suspendingMember,
                                     currentState = @MemberStates.Suspended
@@ -441,8 +441,8 @@ context MembersContext  is {
                           memberId = @RegisteredMemberState.id,
                           info = @RegisteredMemberState.info,
                           meta = !MembersContext.MetaInfo(
-                              createdOn = @RegisteredMemberState.meta,
-                              createdBy = @RegisteredMemberState.meta,
+                              createdOn = @RegisteredMemberState.meta.createdOn,
+                              createdBy = @RegisteredMemberState.meta.createdBy,
                               lastUpdatedOn = now(),
                               lastUpdatedBy = @ActivateMember.activatingMember,
                               currentState = @MemberStates.Active
@@ -452,8 +452,8 @@ context MembersContext  is {
                           with !RegisteredMemberState(
                               info = @RegisteredMemberState.info,
                               meta = !MembersContext.MetaInfo(
-                                  createdOn = @RegisteredMemberState.meta,
-                                  createdBy = @RegisteredMemberState.meta,
+                                  createdOn = @RegisteredMemberState.meta.createdOn,
+                                  createdBy = @RegisteredMemberState.meta.createdBy,
                                   lastUpdatedOn = now(),
                                   lastUpdatedBy = @ActivateMember.activatingMember,
                                   currentState = @MemberStates.Active
@@ -463,8 +463,8 @@ context MembersContext  is {
                 }
                 on command SuspendMember {
                    then set RegisteredMemberState.meta to !MembersContext.MetaInfo(
-                       createdOn = @RegisteredMemberState.meta,
-                       createdBy = @RegisteredMemberState.meta,
+                       createdOn = @RegisteredMemberState.meta.createdOn,
+                       createdBy = @RegisteredMemberState.meta.createdBy,
                        lastUpdatedOn = now(),
                        lastUpdatedBy = @SuspendMember.suspendingMember,
                        currentState = @MemberStates.Suspended
@@ -473,8 +473,8 @@ context MembersContext  is {
                        memberId = @RegisteredMemberState.id,
                        info = @RegisteredMemberState.info,
                        meta = !MembersContext.MetaInfo(
-                           createdOn = @RegisteredMemberState.meta,
-                           createdBy = @RegisteredMemberState.meta,
+                           createdOn = @RegisteredMemberState.meta.createdOn,
+                           createdBy = @RegisteredMemberState.meta.createdBy,
                            lastUpdatedOn = now(),
                            lastUpdatedBy = @SuspendMember.suspendingMember,
                            currentState = @MemberStates.Suspended
@@ -483,8 +483,8 @@ context MembersContext  is {
                 } briefly "A suspension reason can be updated by re-issuing the command"
                 on command TerminateMember {
                   then set RegisteredMemberState.meta to !MembersContext.MetaInfo(
-                      createdOn = @RegisteredMemberState.meta,
-                      createdBy = @RegisteredMemberState.meta,
+                      createdOn = @RegisteredMemberState.meta.createdOn,
+                      createdBy = @RegisteredMemberState.meta.createdBy,
                       lastUpdatedOn = now(),
                       lastUpdatedBy = @TerminateMember.terminatingMember,
                       currentState = @RegisteredMemberState.meta

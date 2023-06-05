@@ -145,3 +145,39 @@ result OrganizationInfo is {
   orgId: OrganizationId,
   info: OrganizationContext.Info
 }
+query GetOrganizationParent is {orgId: OrganizationId}
+result OrganizationParent is {
+  orgId: OrganizationId,
+  parent: OrganizationId?
+}
+query GetOrganizationMembers is {orgId: OrganizationId}
+result OrganizationMembers is {
+  orgId: OrganizationId,
+  members: MemberId+
+}
+query GetOrganizationOwners is {orgId: OrganizationId}
+result OrganizationOwners is {
+  orgId: OrganizationId,
+  owners: MemberId+
+}
+query GetOrganizationContacts is {orgId: OrganizationId}
+result OrganizationInfo is {
+  orgId: OrganizationId,
+  contacts: Contact*
+}
+query GetOrganizationMeta is {orgId: OrganizationId}
+result OrganizationMeta is {
+  orgId: OrganizationId,
+  meta: OrganizationContext.MetaInfo?
+}
+query GetOrganizationState is {orgId: OrganizationId}
+result OrganizationState is {
+  id: OrganizationId,
+  info: OrganizationContext.EditableInfo,
+  parent: OrganizationId?,
+  members: MemberId* briefly "Required",
+  owners: MemberId* briefly "Required",
+  contacts: Contact*,
+  // accounts: OrganizationContext.AccountList,
+  orgMeta: OrganizationContext.MetaInfo
+}

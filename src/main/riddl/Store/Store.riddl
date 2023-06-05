@@ -120,7 +120,7 @@ context StoreContext is {
           and "adjust meta fields to reflect change"
           and "yield the StoreDeleted event"
           and morph entity Store to state DeletedStore with !DeletedStoreState(
-            storeName = @DraftStoreState.requiredInfo,
+            storeName = @DraftStoreState.info.storeName,
             event = @DraftStoreState.optionalInfo,
             venue = @DraftStoreState.requiredInfo,
             location = @DraftStoreState.requiredInfo,
@@ -336,18 +336,18 @@ context StoreContext is {
               meta = @CreatedStoreState.meta
             ) to outlet StoreEvents.Events
             and morph entity Store to state DeletedStore with !DeletedStoreState(
-              storeName = @CreatedStoreState.info,
-              event = @CreatedStoreState.info,
-              venue = @CreatedStoreState.info,
-              location = @CreatedStoreState.info,
-              sponsoringOrg = @CreatedStoreState.info,
+              storeName = @CreatedStoreState.info.storeName,
+              event = @CreatedStoreState.info.event,
+              venue = @CreatedStoreState.info.venue,
+              location = @CreatedStoreState.info.location,
+              sponsoringOrg = @CreatedStoreState.info.sponsoringOrg,
               meta = @CreatedStoreState.meta
             )
           }
           on command OpenStore {
             then set CreatedStoreState.meta to !StoreContext.MetaInfo(
-              createdOn = @CreatedStoreState.meta,
-              createdBy = @CreatedStoreState.meta,
+              createdOn = @CreatedStoreState.meta.ceratedOn,
+              createdBy = @CreatedStoreState.meta.ceratedBy,
               lastUpdated = now(),
               lastUpdatedBy = @OpenStore.openingMember,
               currentState = @StoreStates.Open
@@ -376,8 +376,8 @@ context StoreContext is {
           }
           on command TerminateStore {
           then set CreatedStoreState.meta to !StoreContext.MetaInfo(
-              createdOn = @CreatedStoreState.meta,
-              createdBy = @CreatedStoreState.meta,
+              createdOn = @CreatedStoreState.meta.createdOn,
+              createdBy = @CreatedStoreState.meta.createdBy,
               lastUpdatedOn = now(),
               lastUpdatedBy = @TerminateStore.terminatingMember,
               currentState = @CreatedStoreState.meta
@@ -399,8 +399,8 @@ context StoreContext is {
       handler DeletedStoreHandler is {
         on command TerminateStore {
           then set DeletedStoreState.meta to !StoreContext.MetaInfo(
-              createdOn = @DeletedStoreState.meta,
-              createdBy = @DeletedStoreState.meta,
+              createdOn = @DeletedStoreState.meta.createdOn,
+              createdBy = @DeletedStoreState.meta.createdBy,
               lastUpdatedOn = now(),
               lastUpdatedBy = @TerminateStore.terminatingMember,
               currentState = @DeletedStoreState.meta
