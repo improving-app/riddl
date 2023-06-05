@@ -161,7 +161,7 @@ result OrganizationOwners is {
   owners: MemberId+
 }
 query GetOrganizationContacts is {orgId: OrganizationId}
-result OrganizationInfo is {
+result OrganizationContacts is {
   orgId: OrganizationId,
   contacts: Contact*
 }
