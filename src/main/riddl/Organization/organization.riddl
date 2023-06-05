@@ -276,7 +276,7 @@ context OrganizationContext is {
                         then error "state is not sufficiently filled out to activate organization"
                     }
                 }
-                on command GetOrganizationInfo {
+                on query GetOrganizationInfo {
                     example Success {
                         when "Parent field is present (non-empty)"
                         then return OrganizationParent(
@@ -285,7 +285,7 @@ context OrganizationContext is {
                         )
                     }
                 }
-                on command GetOrganizationParent {
+                on query GetOrganizationParent {
                     example Success {
                         when "Parent field is present (non-empty)"
                         then return OrganizationParent(
@@ -298,7 +298,7 @@ context OrganizationContext is {
                         then error "Parent field is not present in current state of Draft"
                     }
                 }
-                on command GetOrganizationMembers {
+                on query GetOrganizationMembers {
                     example Success {
                         when "Members field is present (non-empty)"
                         then return OrganizationMembers(
@@ -311,7 +311,7 @@ context OrganizationContext is {
                         then error "Members field is not present in current state of Draft"
                     }
                 }
-                on command GetOrganizationOwners {
+                on query GetOrganizationOwners {
                     example Success {
                         when "Owners field is present (non-empty)"
                         then return OrganizationOwners(
@@ -324,7 +324,7 @@ context OrganizationContext is {
                         then error "Owners field is not present in current state of Draft"
                     }
                 }
-                on command GetOrganizationContacts {
+                on query GetOrganizationContacts {
                     example Success {
                         when "Contacts field is present (non-empty)"
                         then return OrganizationContacts(
@@ -337,7 +337,7 @@ context OrganizationContext is {
                         then error "Contacts field is not present in current state of Draft"
                     }
                 }
-                on command GetOrganizationMeta {
+                on query GetOrganizationMeta {
                     example Success {
                         when "Meta field is present (non-empty)"
                         then return OrganizationMeta(
@@ -350,7 +350,7 @@ context OrganizationContext is {
                         then error "Meta field is not present in current state of Draft"
                     }
                 }
-                 on commandGetOrganizationState {
+                 on query GetOrganizationState {
                     example Success {
                         when "State field is present (non-empty)"
                         then return OrganizationState(
@@ -561,7 +561,7 @@ context OrganizationContext is {
                      )
                     and morph entity Organization to state TerminatedOrganization with !TerminatedOrganizationState(lastMeta = @EstablishedOrganizationState.orgMeta)
                 }
-                on command GetOrganizationInfo {
+                on query GetOrganizationInfo {
                     example Success {
                         when "Parent field is present (non-empty)"
                         then return OrganizationParent(
@@ -570,7 +570,7 @@ context OrganizationContext is {
                         )
                     }
                 }
-                on command GetOrganizationParent {
+                on query GetOrganizationParent {
                     example Success {
                         when "Parent field is present (non-empty)"
                         then return OrganizationParent(
@@ -579,7 +579,7 @@ context OrganizationContext is {
                         )
                     }
                 }
-                on command GetOrganizationMembers {
+                on query GetOrganizationMembers {
                     example Success {
                         when "Members field is present (non-empty)"
                         then return OrganizationMembers(
@@ -588,7 +588,7 @@ context OrganizationContext is {
                         )
                     }
                 }
-                on command GetOrganizationOwners {
+                on query GetOrganizationOwners {
                     example Success {
                         when "Owners field is present (non-empty)"
                         then return OrganizationOwners(
@@ -597,7 +597,7 @@ context OrganizationContext is {
                         )
                     }
                 }
-                on command GetOrganizationContacts {
+                on query GetOrganizationContacts {
                     example Success {
                         when "Contacts field is present (non-empty)"
                         then return OrganizationContacts(
@@ -606,7 +606,7 @@ context OrganizationContext is {
                         )
                     }
                 }
-                on command GetOrganizationMeta {
+                on query GetOrganizationMeta {
                     example Success {
                         when "Meta field is present (non-empty)"
                         then return OrganizationMeta(
@@ -615,7 +615,7 @@ context OrganizationContext is {
                         )
                     }
                 }
-                 on commandGetOrganizationState {
+                 on query GetOrganizationState {
                     example Success {
                         when "State field is present (non-empty)"
                         then return OrganizationState(
@@ -673,7 +673,7 @@ context OrganizationContext is {
                      )
                     and morph entity Organization to state TerminatedOrganization with !TerminatedOrganizationState(lastMeta = @EstablishedOrganizationState.orgMeta)
                 }
-                on command GetOrganizationInfo {
+                on query GetOrganizationInfo {
                     example Success {
                         when "Parent field is present (non-empty)"
                         then return OrganizationParent(
@@ -682,7 +682,7 @@ context OrganizationContext is {
                         )
                     }
                 }
-                on command GetOrganizationParent {
+                on query GetOrganizationParent {
                     example Success {
                         when "Parent field is present (non-empty)"
                         then return OrganizationParent(
@@ -691,7 +691,7 @@ context OrganizationContext is {
                         )
                     }
                 }
-                on command GetOrganizationMembers {
+                on query GetOrganizationMembers {
                     example Success {
                         when "Members field is present (non-empty)"
                         then return OrganizationMembers(
@@ -700,7 +700,7 @@ context OrganizationContext is {
                         )
                     }
                 }
-                on command GetOrganizationOwners {
+                on query GetOrganizationOwners {
                     example Success {
                         when "Owners field is present (non-empty)"
                         then return OrganizationOwners(
@@ -709,7 +709,7 @@ context OrganizationContext is {
                         )
                     }
                 }
-                on command GetOrganizationContacts {
+                on query GetOrganizationContacts {
                     example Success {
                         when "Contacts field is present (non-empty)"
                         then return OrganizationContacts(
@@ -718,7 +718,7 @@ context OrganizationContext is {
                         )
                     }
                 }
-                on command GetOrganizationMeta {
+                on query GetOrganizationMeta {
                     example Success {
                         when "Meta field is present (non-empty)"
                         then return OrganizationMeta(
@@ -727,7 +727,7 @@ context OrganizationContext is {
                         )
                     }
                 }
-                 on commandGetOrganizationState {
+                 on query GetOrganizationState {
                     example Success {
                         when "State field is present (non-empty)"
                         then return OrganizationState(
