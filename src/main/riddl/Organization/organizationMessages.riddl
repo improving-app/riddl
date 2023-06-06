@@ -168,7 +168,7 @@ result OrganizationContacts is {
 query GetOrganizationMeta is {orgId: OrganizationId}
 result OrganizationMeta is {
   orgId: OrganizationId,
-  meta: OrganizationContext.MetaInfo?
+  meta: OrganizationContext.MetaInfo
 }
 query GetOrganizationState is {orgId: OrganizationId}
 result OrganizationState is {
