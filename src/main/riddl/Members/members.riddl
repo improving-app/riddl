@@ -195,7 +195,7 @@ context MembersContext  is {
       |This query gets the data of a member if it exists.
     }
 
-    result MemberData is {memberId: MemberId, info: MembersContext.Info, meta: MembersContext.MetaInfo}
+    result MemberData is {info: MembersContext.Info, meta: MembersContext.MetaInfo}
     briefly "The data of the member returned from the GetMemberData query"
     described as {
       |This result contains the member id, member information, and member metadata.

@@ -68,7 +68,7 @@ context StoreContext is {
   query GetStoreInfo is {???}
   result StoreInfoResult is {???}
   query GetProductsInStore is {store: StoreId}
-  result ProductsInStore is {store: StoreId, products: SKU*}
+  result ProductsInStore is {products: SKU*}
 
   entity Store is {
     options (event-sourced, available)
