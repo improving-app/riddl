@@ -359,7 +359,7 @@ context OrganizationContext is {
         record EstablishedOrganizationState is {
             id: OrganizationId,
             info: OrganizationContext.Info,
-            parent: OrganizationId?,
+            parent: OrganizationId,
             members: MemberId+ briefly "Required",
             owners: MemberId+ briefly "Required",
             contacts: Contact*,

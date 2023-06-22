@@ -148,7 +148,7 @@ result OrganizationInfo is {
 query GetOrganizationParent is {orgId: OrganizationId}
 result OrganizationParent is {
   orgId: OrganizationId,
-  parent: OrganizationId?
+  parent: OrganizationId
 }
 query GetOrganizationMembers is {orgId: OrganizationId}
 result OrganizationMembers is {
