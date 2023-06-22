@@ -346,8 +346,8 @@ context StoreContext is {
           }
           on command OpenStore {
             then set CreatedStoreState.meta to !StoreContext.MetaInfo(
-              createdOn = @CreatedStoreState.meta.ceratedOn,
-              createdBy = @CreatedStoreState.meta.ceratedBy,
+              createdOn = @CreatedStoreState.meta.createdOn,
+              createdBy = @CreatedStoreState.meta.createdBy,
               lastUpdated = now(),
               lastUpdatedBy = @OpenStore.openingMember,
               currentState = @StoreStates.Open

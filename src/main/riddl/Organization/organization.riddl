@@ -226,20 +226,20 @@ context OrganizationContext is {
                 //         then error "EditingMember is not authorized to make this change."
                 //     }
                 // }
-                on command ActivateOrganization {
+                on command activate: ActivateOrganization {
                     example Success {
                         when "all required fields in info are not None or Empty"
                         and "required non-info fields are present"
                         then send event OrganizationEstablished(
                             orgId = @DraftOrganizationState.id,
                             info = !OrganizationContext.Info(
-                               name = @DraftOrganizationState.info.name,
+                               name = @activate.info.sss,
                                shortName = @DraftOrganizationState.info.shortName,
                                address = @DraftOrganizationState.info.address,
                                isPrivate = @DraftOrganizationState.info.isPrivate,
                                url = @DraftOrganizationState.info.url,
                                logo = @DraftOrganizationState.info.logo,
-                               tenant = @DraftOrganizationState.inf0.tenant
+                               tenant = @DraftOrganizationState.info.tenant
                             ),
                             parent = @DraftOrganizationState.parent,
                             members = @DraftOrganizationState.members,
@@ -348,13 +348,7 @@ context OrganizationContext is {
                     example Success {
                         when "State field is present (non-empty)"
                         then return !OrganizationState(
-                            orgId = @DraftOrganizationState.orgId,
-                            info = @DraftOrganizationState.info,
-                            parent = @DraftOrganizationState.parent,
-                            members = @DraftOrganizationState.members,
-                            owners = @DraftOrganizationState.owners,
-                            contacts = @DraftOrganizationState.contacts,
-                            orgMeta = @DraftOrganizationState.metaInfo
+                            currentState = @DraftOrganizationState.metaInfo.currentState
                         )
                     }
                 }
@@ -606,13 +600,7 @@ context OrganizationContext is {
                  on query GetOrganizationState {
                     example Success {
                         then return !OrganizationState(
-                            orgId = @DraftOrganizationState.orgId,
-                            info = @DraftOrganizationState.info,
-                            parent = @DraftOrganizationState.parent,
-                            members = @DraftOrganizationState.members,
-                            owners = @DraftOrganizationState.owners,
-                            contacts = @DraftOrganizationState.contacts,
-                            orgMeta = @DraftOrganizationState.metaInfo
+                            currentState = @DraftOrganizationState.metaInfo.currentState
                         )
                     }
                 }
@@ -711,13 +699,7 @@ context OrganizationContext is {
                  on query GetOrganizationState {
                     example Success {
                         then return !OrganizationState(
-                            orgId = @DraftOrganizationState.orgId,
-                            info = @DraftOrganizationState.info,
-                            parent = @DraftOrganizationState.parent,
-                            members = @DraftOrganizationState.members,
-                            owners = @DraftOrganizationState.owners,
-                            contacts = @DraftOrganizationState.contacts,
-                            orgMeta = @DraftOrganizationState.metaInfo
+                            currentState = @DraftOrganizationState.metaInfo.currentState
                         )
                     }
                 }

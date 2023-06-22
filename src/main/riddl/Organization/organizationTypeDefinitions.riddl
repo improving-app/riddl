@@ -13,7 +13,7 @@ described in file "../Accounting/accounts.md"
 */
 
 type Info is {
-    name: String briefly "i.e. Provo High School. Must be unique within the organizational structure.",
+    name: String briefly "Required - i.e. Provo High School. Must be unique within the organizational structure.",
     shortName: String? briefly "i.e. PHS. Must be unique within the organizational structure.",
     address: Address? briefly "Required for BaseOrg. Optional for all other organizations.",
     isPrivate: Boolean briefly "Required - defaults to true",

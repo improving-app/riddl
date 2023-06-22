@@ -172,12 +172,5 @@ result OrganizationMeta is {
 }
 query GetOrganizationState is {orgId: OrganizationId}
 result OrganizationState is {
-  id: OrganizationId,
-  info: OrganizationContext.EditableInfo,
-  parent: OrganizationId?,
-  members: MemberId* briefly "Required",
-  owners: MemberId* briefly "Required",
-  contacts: Contact*,
-  // accounts: OrganizationContext.AccountList,
-  orgMeta: OrganizationContext.MetaInfo
+  currentState: OrganizationState
 }
