@@ -28,20 +28,14 @@ context OrganizationContext is {
                     )
                 ) to outlet OrganizationEvents.Events
                 and morph entity Organization to state DraftOrganization with !DraftOrganizationState(
-                    requiredInfo = !OrganizationContext.RequiredDraftInfo(
-                        name = @EstablishOrganization.info,
-                        isPrivate = @EstablishOrganization.info,
-                        tenant = @EstablishOrganization.info,
-                        members = @EstablishOrganization.members,
-                        owners = @EstablishOrganization.owners
-                    ),
-                    optionalInfo = !OrganizationContext.OptionalDraftInfo(
-                        shortName = @EstablishOrganization.info,
-                        address = @EstablishOrganization.info,
-                        url = @EstablishOrganization.info,
-                        logo = @EstablishOrganization.info,
-                        parent = @EstablishOrganization.parent,
-                        contacts = @EstablishOrganization.contacts
+                    info = !OrganizationContext.EditableInfo(
+                        name = @EstablishOrganization.info.name,
+                        shortName = @EstablishOrganization.info.shortName,
+                        address = @EstablishOrganization.info.address,
+                        isPrivate = @EstablishOrganization.info.isPrivate,
+                        url = @EstablishOrganization.info.url,
+                        logo = @EstablishOrganization.info.logo,
+                        tenant = @EstablishOrganization.info.tenant
                     ),
                     meta = !OrganizationContext.MetaInfo(
                         createdOn = now(),
@@ -57,8 +51,12 @@ context OrganizationContext is {
 
         record DraftOrganizationState is {
             id: OrganizationId,
-            requiredInfo: OrganizationContext.RequiredDraftInfo,
-            optionalInfo: OrganizationContext.OptionalDraftInfo,
+            info: OrganizationContext.EditableInfo,
+            parent: OrganizationId?,
+            members: MemberId* briefly "Required",
+            owners: MemberId* briefly "Required",
+            contacts: Contact*,
+            // accounts: OrganizationContext.AccountList,
             orgMeta: OrganizationContext.MetaInfo
         }
         state DraftOrganization of DraftOrganizationState is {
@@ -67,24 +65,18 @@ context OrganizationContext is {
                     then error "Organization already established"
                 }
                 on command EditOrganizationInfo {
-                    then set DraftOrganizationState.requiredInfo to !OrganizationContext.RequiredDraftInfo(
-                         name = @EditOrganizationInfo.newInfo,
-                         isPrivate = @EditOrganizationInfo.newInfo,
-                         tenant = @EditOrganizationInfo.newInfo,
-                         members = @DraftOrganizationState.requiredInfo,
-                         owners = @DraftOrganizationState.requiredInfo
-                     )
-                    and set DraftOrganizationState.optionalInfo to !OrganizationContext.OptionalDraftInfo(
-                         shortName = @EditOrganizationInfo.newInfo,
-                         address = @EditOrganizationInfo.newInfo,
-                         url = @EditOrganizationInfo.newInfo,
-                         logo = @EditOrganizationInfo.newInfo,
-                         parent = @DraftOrganizationState.optionalInfo,
-                         contacts = @DraftOrganizationState.optionalInfo
+                    then set DraftOrganizationState.info to !OrganizationContext.Info(
+                         name = @EditOrganizationInfo.newInfo.name,
+                         shortName = @EditOrganizationInfo.newInfo.shortName,
+                         address = @EditOrganizationInfo.newInfo.address,
+                         isPrivate = @EditOrganizationInfo.newInfo.isPrivate,
+                         url = @EditOrganizationInfo.newInfo.url,
+                         logo = @EditOrganizationInfo.newInfo.logo,
+                         tenant = @EditOrganizationInfo.newInfo.tenant
                      )
                      and set DraftOrganizationState.orgMeta to !OrganizationContext.MetaInfo(
-                         createdOn = @DraftOrganizationState.orgMeta,
-                         createdBy = @DraftOrganizationState.orgMeta,
+                         createdOn = @DraftOrganizationState.orgMeta.createdOn,
+                         createdBy = @DraftOrganizationState.orgMeta.createdBy,
                          lastUpdatedOn = now(),
                          lastUpdatedBy = @EditOrganizationInfo.editingMember,
                          currentState = @OrganizationStates.Draft
@@ -92,13 +84,13 @@ context OrganizationContext is {
                     and send event OrganizationInfoEdited(
                         organizationId = @DraftOrganizationState.id,
                         info = !OrganizationContext.Info(
-                            name = @DraftOrganizationState.requiredInfo,
-                            shortName = @DraftOrganizationState.optionalInfo,
-                            address = @DraftOrganizationState.optionalInfo,
-                            isPrivate = @DraftOrganizationState.requiredInfo,
-                            url = @DraftOrganizationState.optionalInfo,
-                            logo = @DraftOrganizationState.optionalInfo,
-                            tenant = @DraftOrganizationState.requiredInfo
+                            name = @DraftOrganizationState.info.name,
+                            shortName = @DraftOrganizationState.info.shortName,
+                            address = @DraftOrganizationState.info.address,
+                            isPrivate = @DraftOrganizationState.info.isPrivate,
+                            url = @DraftOrganizationState.info.url,
+                            logo = @DraftOrganizationState.info.logo,
+                            tenant = @DraftOrganizationState.info.tenant
                         ),
                         meta = @DraftOrganizationState.orgMeta
                     ) to outlet OrganizationEvents.Events
@@ -234,27 +226,28 @@ context OrganizationContext is {
                 //         then error "EditingMember is not authorized to make this change."
                 //     }
                 // }
-                on command ActivateOrganization {
+                on command activate: ActivateOrganization {
                     example Success {
-                        when "all required fields in requiredInfo are not None or Empty"
+                        when "all required fields in info are not None or Empty"
+                        and "required non-info fields are present"
                         then send event OrganizationEstablished(
                             organizationId = @DraftOrganizationState.id,
                             info = !OrganizationContext.Info(
-                               name = @DraftOrganizationState.requiredInfo,
-                               shortName = @DraftOrganizationState.optionalInfo,
-                               address = @DraftOrganizationState.optionalInfo,
-                               isPrivate = @DraftOrganizationState.requiredInfo,
-                               url = @DraftOrganizationState.optionalInfo,
-                               logo = @DraftOrganizationState.optionalInfo,
-                               tenant = @DraftOrganizationState.requiredInfo
+                               name = @activate.info.sss,
+                               shortName = @DraftOrganizationState.info.shortName,
+                               address = @DraftOrganizationState.info.address,
+                               isPrivate = @DraftOrganizationState.info.isPrivate,
+                               url = @DraftOrganizationState.info.url,
+                               logo = @DraftOrganizationState.info.logo,
+                               tenant = @DraftOrganizationState.info.tenant
                             ),
-                            parent = @DraftOrganizationState.optionalInfo,
-                            members = @DraftOrganizationState.requiredInfo,
-                            owners = @DraftOrganizationState.requiredInfo,
-                            contacts = @DraftOrganizationState.optionalInfo,
+                            parent = @DraftOrganizationState.parent,
+                            members = @DraftOrganizationState.members,
+                            owners = @DraftOrganizationState.owners,
+                            contacts = @DraftOrganizationState.contacts,
                             meta = !OrganizationContext.MetaInfo(
-                                createdOn = @DraftOrganizationState.orgMeta,
-                                createdBy = @DraftOrganizationState.orgMeta,
+                                createdOn = @DraftOrganizationState.orgMeta.createdOn,
+                                createdBy = @DraftOrganizationState.orgMeta.createdBy,
                                 lastUpdatedOn = now(),
                                 lastUpdatedBy = @EditOrganizationInfo.editingMember,
                                 currentState = @OrganizationStates.Active
@@ -263,24 +256,100 @@ context OrganizationContext is {
                         and morph entity Organization to state EstablishedOrganization
                             with !EstablishedOrganizationState(
                                 info = !OrganizationContext.Info(
-                                    name = @DraftOrganizationState.requiredInfo,
-                                    shortName = @DraftOrganizationState.optionalInfo,
-                                    address = @DraftOrganizationState.optionalInfo,
-                                    isPrivate = @DraftOrganizationState.requiredInfo,
-                                    url = @DraftOrganizationState.optionalInfo,
-                                    logo = @DraftOrganizationState.optionalInfo,
-                                    tenant = @DraftOrganizationState.requiredInfo
+                                    name = @DraftOrganizationState.info.name,
+                                    shortName = @DraftOrganizationState.info.shortName,
+                                    address = @DraftOrganizationState.info.address,
+                                    isPrivate = @DraftOrganizationState.info.isPrivate,
+                                    url = @DraftOrganizationState.info.url,
+                                    logo = @DraftOrganizationState.info.logo,
+                                    tenant = @DraftOrganizationState.info.tenant
                                 ),
-                                parent = @DraftOrganizationState.optionalInfo,
-                                members = @DraftOrganizationState.requiredInfo,
-                                owners = @DraftOrganizationState.requiredInfo,
-                                contact = @DraftOrganizationState.optionalInfo,
+                                parent = @DraftOrganizationState.parent,
+                                members = @DraftOrganizationState.members,
+                                owners = @DraftOrganizationState.owners,
+                                contact = @DraftOrganizationState.contact,
                                 orgMeta = @DraftOrganizationState.orgMeta
                             )
                     }
                     example NotSufficient {
                         when "all required fields in state are not present"
                         then error "state is not sufficiently filled out to activate organization"
+                    }
+                }
+                on query GetOrganizationInfo {
+                    example Success {
+                        then return !OrganizationInfo(
+                            orgId = @DraftOrganizationState.orgId,
+                            info = @DraftOrganizationState.info
+                        )
+                    }
+                }
+                on query GetOrganizationParent {
+                    example Success {
+                        when "Parent field is present (non-empty)"
+                        then return !OrganizationParent(
+                            orgId = @DraftOrganizationState.orgId,
+                            parent = @DraftOrganizationState.parent
+                        )
+                    }
+                    example DraftError {
+                        when "in Draft state and Parent is not empty in editableInfo"
+                        then error "Parent field is not present in current state of Draft"
+                    }
+                }
+                on query GetOrganizationMembers {
+                    example Success {
+                        when "Members field is present (non-empty)"
+                        then return !OrganizationMembers(
+                            orgId = @DraftOrganizationState.orgId,
+                            members = @DraftOrganizationState.members
+                        )
+                    }
+                    example DraftError {
+                        when "in Draft state and Members is not empty in editableInfo"
+                        then error "Members field is not present in current state of Draft"
+                    }
+                }
+                on query GetOrganizationOwners {
+                    example Success {
+                        when "Owners field is present (non-empty)"
+                        then return !OrganizationOwners(
+                            orgId = @DraftOrganizationState.orgId,
+                            owners = @DraftOrganizationState.owners
+                        )
+                    }
+                    example DraftError {
+                        when "in Draft state and Owners is not empty in editableInfo"
+                        then error "Owners field is not present in current state of Draft"
+                    }
+                }
+                on query GetOrganizationContacts {
+                    example Success {
+                        when "Contacts field is present (non-empty)"
+                        then return !OrganizationContacts(
+                            orgId = @DraftOrganizationState.orgId,
+                            contacts = @DraftOrganizationState.contacts
+                        )
+                    }
+                    example DraftError {
+                        when "in Draft state and contacts is not empty in editableInfo"
+                        then error "Contacts field is not present in current state of Draft"
+                    }
+                }
+                on query GetOrganizationMeta {
+                    example Success {
+                        then return !OrganizationMeta(
+                            orgId = @DraftOrganizationState.orgId,
+                            metaInfo = @DraftOrganizationState.metaInfo
+                        )
+                    }
+                }
+                 on query GetOrganizationState {
+                    example Success {
+                        when "State field is present (non-empty)"
+                        then return !OrganizationState(
+                            currentState = @DraftOrganizationState.metaInfo.currentState
+                        )
                     }
                 }
                 on other { then error "No other commands allowed in Draft state" }
@@ -290,10 +359,10 @@ context OrganizationContext is {
         record EstablishedOrganizationState is {
             id: OrganizationId,
             info: OrganizationContext.Info,
-            parent: OrganizationId?,
-            members: MemberId+,
-            owners: MemberId+,
-            contacts: Contact?,
+            parent: OrganizationId,
+            members: MemberId+ briefly "Required",
+            owners: MemberId+ briefly "Required",
+            contacts: Contact*,
             // accounts: OrganizationContext.AccountList,
             orgMeta: OrganizationContext.MetaInfo
         }
@@ -305,18 +374,18 @@ context OrganizationContext is {
                 on command EditOrganizationInfo {
                     example Success {
                         then set EstablishedOrganizationState.info to !OrganizationContext.Info(
-                                name = @EditOrganizationInfo.newInfo,
-                                shortName = @EditOrganizationInfo.newInfo,
-                                address = @EditOrganizationInfo.newInfo,
-                                isPrivate = @EditOrganizationInfo.newInfo,
-                                url = @EditOrganizationInfo.newInfo,
-                                logo = @EditOrganizationInfo.newInfo,
-                                tenant = @EditOrganizationInfo.newInfo
+                                name = @EditOrganizationInfo.newInfo.name,
+                                shortName = @EditOrganizationInfo.newInfo.shortName,
+                                address = @EditOrganizationInfo.newInfo.address,
+                                isPrivate = @EditOrganizationInfo.newInfo.isPrivate,
+                                url = @EditOrganizationInfo.newInfo.url,
+                                logo = @EditOrganizationInfo.newInfo.logo,
+                                tenant = @EditOrganizationInfo.newInfo.tenant
                              )
                          and set EstablishedOrganizationState.orgMeta to !OrganizationContext.MetaInfo(
                              meta = !OrganizationContext.MetaInfo(
-                                createdOn = @EstablishedOrganizationState.orgMeta,
-                                createdBy = @EstablishedOrganizationState.orgMeta,
+                                createdOn = @EstablishedOrganizationState.orgMeta.createdOn,
+                                createdBy = @EstablishedOrganizationState.orgMeta.createdBy,
                                 lastUpdatedOn = now(),
                                 lastUpdatedBy = @EditOrganizationInfo.editingMember,
                                 currentState = @OrganizationStates.Draft
@@ -458,8 +527,8 @@ context OrganizationContext is {
                 // }
                 on command SuspendOrganization {
                     then set EstablishedOrganizationState.orgMeta to !OrganizationContext.MetaInfo(
-                         createdOn = @DraftOrganizationState.orgMeta,
-                         createdBy = @DraftOrganizationState.orgMeta,
+                         createdOn = @DraftOrganizationState.orgMeta.createdOn,
+                         createdBy = @DraftOrganizationState.orgMeta.createdBy,
                          lastUpdatedOn = now(),
                          lastUpdatedBy = @SuspendOrganization.suspendingMember,
                          currentState = @OrganizationStates.Suspended
@@ -472,13 +541,68 @@ context OrganizationContext is {
                 }
                 on command TerminateOrganization {
                     then set EstablishedOrganizationState.orgMeta to !OrganizationContext.MetaInfo(
-                         createdOn = @DraftOrganizationState.orgMeta,
-                         createdBy = @DraftOrganizationState.orgMeta,
+                         createdOn = @DraftOrganizationState.orgMeta.createdOn,
+                         createdBy = @DraftOrganizationState.orgMeta.createdBy,
                          lastUpdatedOn = now(),
                          lastUpdatedBy = @TerminateOrganization.terminatingMember,
                          currentState = @DraftOrganizationState.orgMeta
                      )
                     and morph entity Organization to state TerminatedOrganization with !TerminatedOrganizationState(lastMeta = @EstablishedOrganizationState.orgMeta)
+                }
+                on query GetOrganizationInfo {
+                    example Success {
+                        then return !OrganizationInfo(
+                            orgId = @DraftOrganizationState.orgId,
+                            info = @DraftOrganizationState.info
+                        )
+                    }
+                }
+                on query GetOrganizationParent {
+                    example Success {
+                        then return !OrganizationParent(
+                            orgId = @DraftOrganizationState.orgId,
+                            parent = @DraftOrganizationState.parent
+                        )
+                    }
+                }
+                on query GetOrganizationMembers {
+                    example Success {
+                        then return !OrganizationMembers(
+                            orgId = @DraftOrganizationState.orgId,
+                            members = @DraftOrganizationState.members
+                        )
+                    }
+                }
+                on query GetOrganizationOwners {
+                    example Success {
+                        then return !OrganizationOwners(
+                            orgId = @DraftOrganizationState.orgId,
+                            owners = @DraftOrganizationState.owners
+                        )
+                    }
+                }
+                on query GetOrganizationContacts {
+                    example Success {
+                        then return !OrganizationContacts(
+                            orgId = @DraftOrganizationState.orgId,
+                            contacts = @DraftOrganizationState.contacts
+                        )
+                    }
+                }
+                on query GetOrganizationMeta {
+                    example Success {
+                        then return !OrganizationMeta(
+                            orgId = @DraftOrganizationState.orgId,
+                            metaInfo = @DraftOrganizationState.metaInfo
+                        )
+                    }
+                }
+                 on query GetOrganizationState {
+                    example Success {
+                        then return !OrganizationState(
+                            currentState = @DraftOrganizationState.metaInfo.currentState
+                        )
+                    }
                 }
                 on other { then error "No other commands allowed in Active state" }
             }
@@ -488,8 +612,8 @@ context OrganizationContext is {
                 }
                 on command ActivateOrganization {
                     then set EstablishedOrganizationState.orgMeta to !OrganizationContext.MetaInfo(
-                         createdOn = @DraftOrganizationState.orgMeta,
-                         createdBy = @DraftOrganizationState.orgMeta,
+                         createdOn = @DraftOrganizationState.orgMeta.createdOn,
+                         createdBy = @DraftOrganizationState.orgMeta.createdBy,
                          lastUpdatedOn = now(),
                          lastUpdatedBy = @ActivateOrganization.activatingMember,
                          currentState = @OrganizationStates.Active
@@ -502,8 +626,8 @@ context OrganizationContext is {
                 }
                  on command SuspendOrganization {
                     then set EstablishedOrganizationState.orgMeta to !OrganizationContext.MetaInfo(
-                         createdOn = @DraftOrganizationState.orgMeta,
-                         createdBy = @DraftOrganizationState.orgMeta,
+                         createdOn = @DraftOrganizationState.orgMeta.createdOn,
+                         createdBy = @DraftOrganizationState.orgMeta.createdBy,
                          lastUpdatedOn = now(),
                          lastUpdatedBy = @SuspendOrganization.suspendingMember,
                          currentState = @OrganizationStates.Suspended
@@ -516,13 +640,68 @@ context OrganizationContext is {
                 } briefly "A suspension reason can be updated by re-issuing the command"
                 on command TerminateOrganization {
                     then set EstablishedOrganizationState.orgMeta to !OrganizationContext.MetaInfo(
-                         createdOn = @DraftOrganizationState.orgMeta,
-                         createdBy = @DraftOrganizationState.orgMeta,
+                         createdOn = @DraftOrganizationState.orgMeta.createdOn,
+                         createdBy = @DraftOrganizationState.orgMeta.createdBy,
                          lastUpdatedOn = now(),
                          lastUpdatedBy = @TerminateOrganization.terminatingMember,
                          currentState = @OrganizationStates.Suspended
                      )
                     and morph entity Organization to state TerminatedOrganization with !TerminatedOrganizationState(lastMeta = @EstablishedOrganizationState.orgMeta)
+                }
+                on query GetOrganizationInfo {
+                    example Success {
+                        then return !OrganizationInfo(
+                            orgId = @DraftOrganizationState.orgId,
+                            info = @DraftOrganizationState.info
+                        )
+                    }
+                }
+                on query GetOrganizationParent {
+                    example Success {
+                        then return !OrganizationParent(
+                            orgId = @DraftOrganizationState.orgId,
+                            parent = @DraftOrganizationState.parent
+                        )
+                    }
+                }
+                on query GetOrganizationMembers {
+                    example Success {
+                        then return !OrganizationMembers(
+                            orgId = @DraftOrganizationState.orgId,
+                            members = @DraftOrganizationState.members
+                        )
+                    }
+                }
+                on query GetOrganizationOwners {
+                    example Success {
+                        then return !OrganizationOwners(
+                            orgId = @DraftOrganizationState.orgId,
+                            owners = @DraftOrganizationState.owners
+                        )
+                    }
+                }
+                on query GetOrganizationContacts {
+                    example Success {
+                        then return !OrganizationContacts(
+                            orgId = @DraftOrganizationState.orgId,
+                            contacts = @DraftOrganizationState.contacts
+                        )
+                    }
+                }
+                on query GetOrganizationMeta {
+                    example Success {
+                        then return !OrganizationMeta(
+                            orgId = @DraftOrganizationState.orgId,
+                            metaInfo = @DraftOrganizationState.metaInfo
+                        )
+                    }
+                }
+                 on query GetOrganizationState {
+                    example Success {
+                        then return !OrganizationState(
+                            currentState = @DraftOrganizationState.metaInfo.currentState
+                        )
+                    }
                 }
                 on other { then error "Move organization to the Active state in order to edit details about organization."}
             }

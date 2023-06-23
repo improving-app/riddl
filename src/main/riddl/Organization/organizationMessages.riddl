@@ -119,7 +119,6 @@ command TerminateOrganization is {
   onBehalfOf: MemberId
 }
 event OrganizationTerminated is {
-  organizationId: OrganizationId,
   meta: OrganizationContext.MetaInfo
 }
 
@@ -129,7 +128,6 @@ command UpdateOrganizationAccounts is {
   accounts: Accounts */
 }
 event OrganizationAccountsUpdated is {
-  organizationId: OrganizationId,
   info: OrganizationContext.Info,
   meta: OrganizationContext.MetaInfo
 }
@@ -142,11 +140,30 @@ result OrganizationListByMemberOrOwner is {
 }
 query GetOrganizationInfo is {organizationId: OrganizationId}
 result OrganizationInfo is {
-  organizationId: OrganizationId,
   info: OrganizationContext.Info
 }
-
-query GetOrganizationContacts is {organizationId: OrganizationId}
+query GetOrganizationParent is {orgId: OrganizationId}
+result OrganizationParent is {
+  parent: OrganizationId
+}
+query GetOrganizationMembers is {orgId: OrganizationId}
+result OrganizationMembers is {
+  members: MemberId+
+}
+query GetOrganizationOwners is {orgId: OrganizationId}
+result OrganizationOwners is {
+  owners: MemberId+
+}
+query GetOrganizationContacts is {orgId: OrganizationId}
 result OrganizationContacts is {
+  orgId: OrganizationId,
   contacts: Contact*
+}
+query GetOrganizationMeta is {orgId: OrganizationId}
+result OrganizationMeta is {
+  meta: OrganizationContext.MetaInfo
+}
+query GetOrganizationState is {orgId: OrganizationId}
+result OrganizationState is {
+  currentState: OrganizationState
 }

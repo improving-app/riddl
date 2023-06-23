@@ -26,44 +26,17 @@ context MembersContext  is {
       | be notified of changes.
     }
 
-    type RequiredDraftInfo is {
-        contact: Contact
-          briefly "Contact information of the member",
-        handle: String
-          briefly "username. Must be unique.",
-        avatar: URL
-          briefly "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
-        firstName: String
-          briefly "Real first name of the member",
-        lastName: String
-          briefly "Real last name of the member",
-        tenant: TenantId
-          briefly "Tenant id of the member"
-    } described as {
-      |This type provides the basic information about members that is
-      |required for transitioning to Established state. The fields of this type form the profile
-      |of the Member with demographics, contact info, and various options
-      |like notifications and group membership the Member can opt in to.
-    }
-
-    type OptionalDraftInfo is {
-        notificationPreference: NotificationPreference?
-            briefly "if this is set it is assumed that the user has opted in.",
-        organizationMembership: OrganizationId*
-            briefly "A possibly empty list of organizations this member belongs to."
-    }
-
     type Info is {
         contact: Contact
-          briefly "Contact information of the member",
+          briefly "Required - Contact information of the member",
         handle: String
-          briefly "username. Must be unique.",
+          briefly "Required - username. Must be unique.",
         avatar: URL
-          briefly "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
+          briefly "Required - thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
         firstName: String
-          briefly "Real first name of the member",
+          briefly "Required - Real first name of the member",
         lastName: String
-          briefly "Real last name of the member",
+          briefly "Required - Real last name of the member",
         //mobileNumber: MobileNumber? briefly "Optional mobile phone number",
         //emailAddress: EmailAddress? briefly "Optional email address",
         notificationPreference: NotificationPreference?
@@ -71,7 +44,7 @@ context MembersContext  is {
         organizationMembership: OrganizationId*
           briefly "A possibly empty list of organizations this member belongs to.",
         tenant: TenantId
-          briefly "Tenant id of the member"
+          briefly "Required - Tenant id of the member"
     } described as {
       |This type provides the basic information about members that is
       |retained by the Member entity. The fields of this type form the profile
@@ -123,7 +96,7 @@ context MembersContext  is {
 
     command RegisterMember is {
       memberId: MemberId briefly "Unique identifier for the new member",
-      info: MembersContext.Info briefly "Info needed for registration",
+      info: MembersContext.EditableInfo briefly "Info needed for registration",
       registeringMember: MemberId briefly "Member that registered new member"
     } briefly "Create a single new member"
       described as {
@@ -134,7 +107,7 @@ context MembersContext  is {
 
     event MemberRegistered is {
       memberId: MemberId briefly "Unique identifier for the registered member",
-      info: MembersContext.Info briefly "Info describing the member",
+      info: MembersContext.EditableInfo briefly "Info describing the member",
       meta: MembersContext.MetaInfo
     } briefly "Event issued after RegisterMember or RegisterMemberList"
     described as {
@@ -222,7 +195,7 @@ context MembersContext  is {
       |This query gets the data of a member if it exists.
     }
 
-    result MemberData is {memberId: MemberId, info: MembersContext.Info, meta: MembersContext.MetaInfo}
+    result MemberData is {info: MembersContext.Info, meta: MembersContext.MetaInfo}
     briefly "The data of the member returned from the GetMemberData query"
     described as {
       |This result contains the member id, member information, and member metadata.
@@ -259,23 +232,21 @@ context MembersContext  is {
                     )
                 ) to outlet MemberEvents.Events
                 and morph entity Member to state DraftMember with !DraftMemberState(
-                    requiredInfo = !MembersContext.RequiredDraftInfo(
-                        contact = @RegisterMember.info,
-                        handle = @RegisterMember.info,
-                        avatar = @RegisterMember.info,
-                        firstName = @RegisterMember.info,
-                        lastName = @RegisterMember.info,
-                        tenant = @RegisterMember.info
-                    ),
-                    optionalInfo = !OrganizationContext.OptionalDraftInfo(
-                        notificationPreference = @RegisterMember.info,
-                        organizationMembership = @RegisterMember.info
+                    info = !MembersContext.EditableInfo(
+                         contact = @DraftMemberState.info.contact,
+                         handle = @DraftMemberState.info.handle,
+                         avatar = @DraftMemberState.info.avatar,
+                         firstName = @DraftMemberState.info.firstName,
+                         lastName = @DraftMemberState.info.lastName,
+                         notificationPreference = @DraftMemberState.info.notificationPreference,
+                         organizationMembership = @DraftMemberState.info.organizationMembership,
+                         tenant = @DraftMemberState.info.tenant
                     ),
                     meta = !MembersContext.MetaInfo(
                         createdOn = now(),
-                        createdBy = @RegisterMember.registeringMember,
+                        createdBy = @RegisterMember.registeringMember.createdBy,
                         lastUpdatedOn = now(),
-                        lastUpdatedBy = @RegisterMember.registeringMember,
+                        lastUpdatedBy = @RegisterMember.registeringMember.lastUpdatedBy,
                         currentState = @OrganizationStates.Draft
                     )
                 )
@@ -293,8 +264,7 @@ context MembersContext  is {
 
         record DraftMemberState is {
           id: MemberId,
-          requiredInfo: MembersContext.RequiredDraftInfo,
-          optionalInfo: MembersContext.OptionalDraftInfo,
+          info: MembersContext.EditableInfo,
           meta: MembersContext.MetaInfo
         }
         state DraftMember of record DraftMemberState is {
@@ -305,19 +275,19 @@ context MembersContext  is {
                   when "all required fields in requiredInfo are not None or Empty"
                   then send event MemberRegistered(
                       memberId = @DraftMemberState.id,
-                      info = !MembersContext.Info(
-                         contact = @DraftMemberState.requiredInfo,
-                         handle = @DraftMemberState.requiredInfo,
-                         avatar = @DraftMemberState.requiredInfo,
-                         firstName = @DraftMemberState.requiredInfo,
-                         lastName = @DraftMemberState.requiredInfo,
-                         notificationPreference = @DraftMemberState.optionalInfo,
-                         organizationMembership = @DraftMemberState.optionalInfo,
-                         tenant = @DraftMemberState.requiredInfo
+                      info = !MembersContext.EditableInfo(
+                         contact = @DraftMemberState.info.contact,
+                         handle = @DraftMemberState.info.handle,
+                         avatar = @DraftMemberState.info.avatar,
+                         firstName = @DraftMemberState.info.firstName,
+                         lastName = @DraftMemberState.info.lastName,
+                         notificationPreference = @DraftMemberState.info.notificationPreference,
+                         organizationMembership = @DraftMemberState.info.organizationMembership,
+                         tenant = @DraftMemberState.info.tenant
                       ),
                       meta = !MembersContext.MetaInfo(
-                          createdOn = @DraftMemberState.meta,
-                          createdBy = @DraftMemberState.meta,
+                          createdOn = @DraftMemberState.meta.createdOn,
+                          createdBy = @DraftMemberState.meta.createdBy,
                           lastUpdatedOn = now(),
                           lastUpdatedBy = @EditOrganizationInfo.editingMember,
                           currentState = @OrganizationStates.Active
@@ -325,16 +295,7 @@ context MembersContext  is {
                   ) to outlet MemberEvents.Events
                   and morph entity Member to state RegisteredMember
                       with !RegisteredMemberState(
-                          info = !MembersContext.Info(
-                              contact = @DraftMemberState.requiredInfo,
-                              handle = @DraftMemberState.requiredInfo,
-                              avatar = @DraftMemberState.requiredInfo,
-                              firstName = @DraftMemberState.requiredInfo,
-                              lastName = @DraftMemberState.requiredInfo,
-                              notificationPreference = @DraftMemberState.optionalInfo,
-                              organizationMembership = @DraftMemberState.optionalInfo,
-                              tenant = @DraftMemberState.requiredInfo
-                          ),
+                          info = @DraftMemberState.info,
                           orgMeta = @DraftMemberState.meta
                       )
               }
@@ -344,37 +305,26 @@ context MembersContext  is {
               }
             }
             on command EditMemberInfo {
-              then set DraftMemberState.requiredInfo to !MembersContext.RequiredDraftInfo(
-                   contact = @EditMemberInfo.info,
-                   handle = @EditMemberInfo.info,
-                   avatar = @EditMemberInfo.info,
-                   firstName = @EditMemberInfo.info,
-                   lastName = @EditMemberInfo.info,
-                   tenant = @EditMemberInfo.info
-               )
-              and set DraftMemberState.optionalInfo to !MembersContext.OptionalDraftInfo(
-                   notificationPreference = @EditMemberInfo.info,
-                   organizationMembership = @EditMemberInfo.info
+              then set DraftMemberState.info to !MembersContext.EditableInfo(
+                   contact = @EditMemberInfo.info.contact,
+                   handle = @EditMemberInfo.info.handle,
+                   avatar = @EditMemberInfo.info.avatar,
+                   firstName = @EditMemberInfo.info.firstName,
+                   lastName = @EditMemberInfo.info.lastName,
+                   tenant = @EditMemberInfo.info.tenant,
+                   notificationPreference = @EditMemberInfo.info.notificationPreference,
+                   organizationMembership = @EditMemberInfo.info.organizationMembership
               )
               and set DraftMemberState.meta to !MembersContext.MetaInfo(
-                  createdOn = @DraftMemberState.meta,
-                  createdBy = @DraftMemberState.meta,
+                  createdOn = @DraftMemberState.meta.createdOn,
+                  createdBy = @DraftMemberState.meta.createdBy,
                   lastUpdatedOn = now(),
                   lastUpdatedBy = @EditMemberInfo.editingMember,
                   currentState = @MemberStates.Draft
               )
               and send event MemberInfoEdited(
                   memberId = @DraftMemberState.id,
-                  info = !MembersContext.Info(
-                      contact = @DraftMemberState.requiredInfo,
-                      handle = @DraftMemberState.requiredInfo,
-                      avatar = @DraftMemberState.requiredInfo,
-                      firstName = @DraftMemberState.requiredInfo,
-                      lastName = @DraftMemberState.requiredInfo,
-                      notificationPreference = @DraftMemberState.optionalInfo,
-                      organizationMembership = @DraftMemberState.optionalInfo,
-                      tenant = @DraftMemberState.requiredInfo
-                  ),
+                  info = @DraftMemberState.info,
                   meta = @DraftMemberState.meta
               ) to outlet MemberEvents.Events
             }
@@ -411,18 +361,18 @@ context MembersContext  is {
                 on command RegisterMember {then error "Member has already been registered."}
                 on command EditMemberInfo {
                     then set RegisteredMemberState.info to !MembersContext.Info(
-                       contact = @EditMemberInfo.info,
-                       handle = @EditMemberInfo.info,
-                       avatar = @EditMemberInfo.info,
-                       firstName = @EditMemberInfo.info,
-                       lastName = @EditMemberInfo.info,
-                       notificationPreference = @EditMemberInfo.info,
-                       organizationMembership = @EditMemberInfo.info,
-                       tenant = @EditMemberInfo.info
+                       contact = @EditMemberInfo.info.contact,
+                       handle = @EditMemberInfo.info.handle,
+                       avatar = @EditMemberInfo.info.avatar,
+                       firstName = @EditMemberInfo.info.firstName,
+                       lastName = @EditMemberInfo.info.lastName,
+                       notificationPreference = @EditMemberInfo.info.notificationPreference,
+                       organizationMembership = @EditMemberInfo.info.organizationMembership,
+                       tenant = @EditMemberInfo.info.tenant
                     )
                     and set RegisteredMemberState.meta to !MembersContext.MetaInfo(
-                        createdOn = @RegisteredMemberState.meta,
-                        createdBy = @RegisteredMemberState.meta,
+                        createdOn = @RegisteredMemberState.meta.createdOn,
+                        createdBy = @RegisteredMemberState.meta.createdBy,
                         lastUpdatedOn = now(),
                         lastUpdatedBy = @EditMemberInfo.editingMember,
                         currentState = @MemberStates.Draft
@@ -430,14 +380,14 @@ context MembersContext  is {
                     and send event MemberInfoEdited(
                         memberId = @DraftMemberState.id,
                         info = !MembersContext.Info(
-                            contact = @RegisteredMemberState.info,
-                            handle = @RegisteredMemberState.info,
-                            avatar = @RegisteredMemberState.info,
-                            firstName = @RegisteredMemberState.info,
-                            lastName = @RegisteredMemberState.info,
-                            notificationPreference = @RegisteredMemberState.info,
-                            organizationMembership = @RegisteredMemberState.info,
-                            tenant = @RegisteredMemberState.info
+                            contact = @RegisteredMemberState.info.contact,
+                            handle = @RegisteredMemberState.info.handle,
+                            avatar = @RegisteredMemberState.info.avatar,
+                            firstName = @RegisteredMemberState.info.firstName,
+                            lastName = @RegisteredMemberState.info.lastName,
+                            notificationPreference = @RegisteredMemberState.info.notificationPreference,
+                            organizationMembership = @RegisteredMemberState.info.organizationMembership,
+                            tenant = @RegisteredMemberState.info.tenant
                         ),
                         meta = @RegisteredMemberState.meta
                     ) to outlet MemberEvents.Events
@@ -449,8 +399,8 @@ context MembersContext  is {
                             memberId = @RegisteredMemberState.id,
                             info = @RegisteredMemberState.info,
                             meta = !MembersContext.MetaInfo(
-                                createdOn = @RegisteredMemberState.meta,
-                                createdBy = @RegisteredMemberState.meta,
+                                createdOn = @RegisteredMemberState.meta.createdOn,
+                                createdBy = @RegisteredMemberState.meta.createdBy,
                                 lastUpdatedOn = now(),
                                 lastUpdatedBy = @SuspendMember.suspendingMember,
                                 currentState = @MemberStates.Suspended
@@ -460,8 +410,8 @@ context MembersContext  is {
                             with !RegisteredMemberState(
                                 info = @RegisteredMemberState.info,
                                 meta = !MembersContext.MetaInfo(
-                                    createdOn = @RegisteredMemberState.meta,
-                                    createdBy = @RegisteredMemberState.meta,
+                                    createdOn = @RegisteredMemberState.meta.createdOn,
+                                    createdBy = @RegisteredMemberState.meta.createdBy,
                                     lastUpdatedOn = now(),
                                     lastUpdatedBy = @SuspendMember.suspendingMember,
                                     currentState = @MemberStates.Suspended
@@ -491,8 +441,8 @@ context MembersContext  is {
                           memberId = @RegisteredMemberState.id,
                           info = @RegisteredMemberState.info,
                           meta = !MembersContext.MetaInfo(
-                              createdOn = @RegisteredMemberState.meta,
-                              createdBy = @RegisteredMemberState.meta,
+                              createdOn = @RegisteredMemberState.meta.createdOn,
+                              createdBy = @RegisteredMemberState.meta.createdBy,
                               lastUpdatedOn = now(),
                               lastUpdatedBy = @ActivateMember.activatingMember,
                               currentState = @MemberStates.Active
@@ -502,8 +452,8 @@ context MembersContext  is {
                           with !RegisteredMemberState(
                               info = @RegisteredMemberState.info,
                               meta = !MembersContext.MetaInfo(
-                                  createdOn = @RegisteredMemberState.meta,
-                                  createdBy = @RegisteredMemberState.meta,
+                                  createdOn = @RegisteredMemberState.meta.createdOn,
+                                  createdBy = @RegisteredMemberState.meta.createdBy,
                                   lastUpdatedOn = now(),
                                   lastUpdatedBy = @ActivateMember.activatingMember,
                                   currentState = @MemberStates.Active
@@ -513,8 +463,8 @@ context MembersContext  is {
                 }
                 on command SuspendMember {
                    then set RegisteredMemberState.meta to !MembersContext.MetaInfo(
-                       createdOn = @RegisteredMemberState.meta,
-                       createdBy = @RegisteredMemberState.meta,
+                       createdOn = @RegisteredMemberState.meta.createdOn,
+                       createdBy = @RegisteredMemberState.meta.createdBy,
                        lastUpdatedOn = now(),
                        lastUpdatedBy = @SuspendMember.suspendingMember,
                        currentState = @MemberStates.Suspended
@@ -523,8 +473,8 @@ context MembersContext  is {
                        memberId = @RegisteredMemberState.id,
                        info = @RegisteredMemberState.info,
                        meta = !MembersContext.MetaInfo(
-                           createdOn = @RegisteredMemberState.meta,
-                           createdBy = @RegisteredMemberState.meta,
+                           createdOn = @RegisteredMemberState.meta.createdOn,
+                           createdBy = @RegisteredMemberState.meta.createdBy,
                            lastUpdatedOn = now(),
                            lastUpdatedBy = @SuspendMember.suspendingMember,
                            currentState = @MemberStates.Suspended
@@ -533,8 +483,8 @@ context MembersContext  is {
                 } briefly "A suspension reason can be updated by re-issuing the command"
                 on command TerminateMember {
                   then set RegisteredMemberState.meta to !MembersContext.MetaInfo(
-                      createdOn = @RegisteredMemberState.meta,
-                      createdBy = @RegisteredMemberState.meta,
+                      createdOn = @RegisteredMemberState.meta.createdOn,
+                      createdBy = @RegisteredMemberState.meta.createdBy,
                       lastUpdatedOn = now(),
                       lastUpdatedBy = @TerminateMember.terminatingMember,
                       currentState = @RegisteredMemberState.meta
