@@ -183,7 +183,7 @@ context TenantContext is {
                         and send event TenantContext.InfoEdited(
                             tenantId = @EstablishedTenantState.id,
                             oldInfo = @EstablishedTenantState.info,
-                            newInfo = @EstablishedTenantState.info,
+                            newInfo = @EstablishedTenantState.info, // copied object from above
                             meta = @EstablishedTenantState.meta
                         ) to outlet TenantEvents.Events
                     }
@@ -276,7 +276,7 @@ context TenantContext is {
                         and send event TenantContext.InfoEdited(
                             tenantId = @EstablishedTenantState.id,
                             oldInfo = @EstablishedTenantState.info,
-                            newInfo = @EstablishedTenantState.info,
+                            newInfo = @EstablishedTenantState.info, // copied object from above
                             meta = @EstablishedTenantState.meta
                         ) to outlet TenantEvents.Events
                     }
