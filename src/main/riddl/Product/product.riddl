@@ -96,26 +96,24 @@ context ProductContext is {
           and "yield ProductInfoUpdated event with new info"
         }
         on command TerminateProduct{
-          on command TerminateProduct{
-            example Success {
-              then set DraftProductState.meta to !ProductContext.ProductMetaInfo(
-                createdOn = @DraftProductState.meta.createdOn,
-                createdBy = @DraftProductState.meta.createdBy,
-                lastUpdated = now(),
-                lastUpdatedBy = @TerminateProduct.onBehalfOf,
-                currentState = @ProductStates.Terminated
-              )
-              and send event ProductTerminated(
-                sku = @DraftProductState.sku,
-                info = @DraftProductState.info,
-                meta = @DraftProductState.meta
-              ) to outlet ProductEvents.Events
-              and morph entity Product to state TerminatedProduct with !TerminatedProductState(
-                sku = @DraftProductState.sku,
-                name = @DraftProductState.info.name,
-                lastMeta = @DraftProductState.meta
-              )
-            }
+          example Success {
+            then set DraftProductState.meta to !ProductContext.ProductMetaInfo(
+              createdOn = @DraftProductState.meta.createdOn,
+              createdBy = @DraftProductState.meta.createdBy,
+              lastUpdated = now(),
+              lastUpdatedBy = @TerminateProduct.onBehalfOf,
+              currentState = @ProductStates.Terminated
+            )
+            and send event ProductTerminated(
+              sku = @DraftProductState.sku,
+              info = @DraftProductState.info,
+              meta = @DraftProductState.meta
+            ) to outlet ProductEvents.Events
+            and morph entity Product to state TerminatedProduct with !TerminatedProductState(
+              sku = @DraftProductState.sku,
+              name = @DraftProductState.info.name,
+              lastMeta = @DraftProductState.meta
+            )
           }
         }
         on command ActivateProduct{
