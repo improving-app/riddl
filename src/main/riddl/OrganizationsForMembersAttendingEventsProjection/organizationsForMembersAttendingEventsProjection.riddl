@@ -51,7 +51,7 @@ context OrganizationsForMembersAttendingEventsProjections is  {
         on event ProductInactivated {
             then "update row in ticket-event table with the Inactive status"
         }
-        on event ProductTerminated {
+        on event ProductDeleted {
             then "remove row in ticket-event table"
         }
         on event OrderCreated {
