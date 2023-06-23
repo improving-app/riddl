@@ -1,7 +1,20 @@
 context ProductContext is {
-  type ProductDetails is any of {ReservedTicket, RestrictedTicket, OpenTicket}
-  type ProductStatus is any of {Draft, Active, InActive, Deleted}
+  type PublicProductEvent is one of {
+      ProductCreated,
+      ProductInfoUpdated,
+      ProductTerminated,
+      ProductActivated,
+      ProductInactivated
+  }
+
+  source ProductEvents is {
+      outlet Events is type PublicProductEvent
+  } explained as "This is a source for Product Events"
+
+  type ProductDetails is any of {TicketDetails}
+  type ProductStatus is any of {Draft, Active, InActive, Terminate}
   type SKU is Id(Product)
+  type TicketDetails is any of {ReservedTicket, RestrictedTicket, OpenTicket}
 
   type ReservedTicket is {
     section: String,
@@ -17,13 +30,13 @@ context ProductContext is {
     event: EventId
   }
   type ProductInfo is {
-    name: String,
-    description: String,
-    productDetails: ProductDetails,
+    name: String briefly "Required for non-Draft state",
+    description: String briefly "Required for non-Draft state",
+    productDetails: ProductDetails briefly "Required for non-Draft state",
     image: String*,
-    price: Number,
-    cost: Number,
-    store: StoreId
+    price: Number briefly "Required for non-Draft state",
+    cost: Number briefly "Required for non-Draft state",
+    store: StoreId briefly "Required for non-Draft state"
   }
   type ProductInfoUpdate is {
     name: String?,
@@ -40,15 +53,15 @@ context ProductContext is {
     lastModifiedBy: MemberId,
     lastModifiedOn: Date
   }
-  command CreateProduct is {sku: SKU, info: ProductInfo, creatingMember: MemberId}
+  command CreateProduct is {sku: SKU, info: ProductInfo, onBehalfOf: MemberId}
   event ProductCreated is {sku: SKU, info: ProductInfo, meta: ProductMetaInfo}
-  command UpdateProductInfo is {sku: SKU, info: ProductInfoUpdate, updatingMember: MemberId}
+  command UpdateProductInfo is {sku: SKU, info: ProductInfoUpdate, onBehalfOf: MemberId}
   event ProductInfoUpdated is {sku: SKU, info: ProductInfo, meta: ProductMetaInfo}
-  command DeleteProduct is {sku: SKU, deletingMember: MemberId}
-  event ProductDeleted is {sku: SKU}
-  command ActivateProduct is {sku: SKU, activatingMember: MemberId}
+  command TerminateProduct is {sku: SKU, onBehalfOf: MemberId}
+  event ProductTerminated is {sku: SKU}
+  command ActivateProduct is {sku: SKU, onBehalfOf: MemberId}
   event ProductActivated is {sku: SKU}
-  command InactivateProduct is {sku: SKU, inactivatingMember: MemberId}
+  command InactivateProduct is {sku: SKU, onBehalfOf: MemberId}
   event ProductInactivated is {sku: SKU}
   query GetProductInfo is {sku: SKU}
   result ProductInfoResult is {info: ProductInfo, meta: ProductMetaInfo}
@@ -68,32 +81,120 @@ context ProductContext is {
     }
 
     record DraftState is {
+      sku: SKU,
       info: ProductInfo,
       meta: ProductMetaInfo
     }
-    state Draft of Product.DraftState is {
-      handler ActiveProductHandler is {
+    state DraftProductState of Product.DraftState is {
+      handler CreatedProductHandler is {
         on command CreateProduct {
           then error "Product already created."
         }
         on command UpdateProductInfo{
-          then "Copy fields from UpdateProductInfo into Active product fields"
+          then "Copy fields that aren't None from UpdateProductInfo.info into DefinedProductState.info fields"
           and "adjust meta fields to reflect the change set"
-          and "yield ProductInfoUpdated event"
+          and "yield ProductInfoUpdated event with new info"
         }
-        on command DeleteProduct{
-          then "morph Product state to Deleted"
-          and "copy Active Product name and sku to Deleted Product name and sku"
-          and "adjust meta fields to reflect the change set"
-          and "yield ProductDeleted event"
+        on command TerminateProduct{
+          on command TerminateProduct{
+            example Success {
+              then set DraftProductState.meta to !ProductContext.ProductMetaInfo(
+                createdOn = @DraftProductState.meta.createdOn,
+                createdBy = @DraftProductState.meta.createdBy,
+                lastUpdated = now(),
+                lastUpdatedBy = @TerminateProduct.onBehalfOf,
+                currentState = @ProductStates.Terminated
+              )
+              and send event ProductTerminated(
+                sku = @DraftProductState.sku,
+                info = @DraftProductState.info,
+                meta = @DraftProductState.meta
+              ) to outlet ProductEvents.Events
+              and morph entity Product to state TerminatedProduct with !TerminatedProductState(
+                sku = @DraftProductState.sku,
+                name = @DraftProductState.info.name,
+                lastMeta = @DraftProductState.meta
+              )
+            }
+          }
         }
         on command ActivateProduct{
-          then error "Product is already active"
+          example Success {
+            when "all required fields are present"
+            then set DraftProductState.meta to !ProductContext.ProductMetaInfo(
+              createdOn = @DraftProductState.meta.createdOn,
+              createdBy = @DraftProductState.meta.createdBy,
+              lastUpdated = now(),
+              lastUpdatedBy = @ActivateProduct.onBehalfOf,
+              currentState = @ProductStates.Active
+            )
+            and send event ProductActivated(
+              sku = @DraftProductState.sku,
+              info = @DraftProductState.info,
+              meta = @DraftProductState.meta
+            ) to outlet ProductEvents.Events
+            and morph entity Product to state DefinedProduct with !DefinedProductState(
+              info = !ProductInfo(
+                  name = @DraftProductState.info.name,
+                  description = @DraftProductState.info.description,
+                  products = @DraftProductState.info.products,
+                  event = @DraftProductState.info.event,
+                  venue = @DraftProductState.info.venue,
+                  location = @DraftProductState.info.location,
+                  sponsoringOrg = @DraftProductState.info.sponsoringOrg
+              ),
+              meta = !StoreContext.MetaInfo(
+                  createdOn = @DraftProductState.meta.createdOn,
+                  createdBy = @DraftProductState.meta.createdBy,
+                  lastUpdatedOn = now(),
+                  lastUpdatedBy = @MakeStoreReady.updatingMember,
+                  currentState = @StoreStates.Ready
+              )
+            )
+          }
+          example InsufficientRequiredFieldsFailure {
+            when "not all required fields are filled in"
+            then "return a list of non-filled in fields"
+          }
         }
         on command InactivateProduct{
-          then "morph product state to Inactive"
-          and "adjust meta fields to reflect the change set"
-          and "yield ProductInactivated event"
+          example Success {
+            when "all required fields are present"
+            then set DraftProductState.meta to !ProductContext.ProductMetaInfo(
+              createdOn = @DraftProductState.meta.createdOn,
+              createdBy = @DraftProductState.meta.createdBy,
+              lastUpdated = now(),
+              lastUpdatedBy = @InactivateProduct.onBehalfOf,
+              currentState = @ProductStates.Inactive
+            )
+            and send event ProductInactivated(
+              sku = @DraftProductState.sku,
+              info = @DraftProductState.info,
+              meta = @DraftProductState.meta
+            ) to outlet ProductEvents.Events
+            and morph entity Product to state DefinedProduct with !DefinedProductState(
+              info = !ProductInfo(
+                name = @DraftProductState.info.name,
+                description = @DraftProductState.info.description,
+                products = @DraftProductState.info.products,
+                event = @DraftProductState.info.event,
+                venue = @DraftProductState.info.venue,
+                location = @DraftProductState.info.location,
+                sponsoringOrg = @DraftProductState.info.sponsoringOrg
+              ),
+              meta = !ProductMetaInfo(
+                createdOn = @DraftProductState.meta.createdOn,
+                createdBy = @DraftProductState.meta.createdBy,
+                lastUpdated = now(),
+                lastUpdatedBy = @InactivateProduct.onBehalfOf,
+                currentState = @ProductStates.Active
+              )
+            )
+          }
+          example InsufficientRequiredFieldsFailure {
+            when "not all required fields are filled in"
+            then "return a list of non-filled in fields"
+          }
         }
         on query GetProductInfo{
           then "yield ProductInfoResult message"
@@ -101,64 +202,120 @@ context ProductContext is {
       }
     }
 
-    record ActiveState is {
+    record DefinedProductState is {
+      sku: SKU,
       info: ProductInfo,
       meta: ProductMetaInfo
     }
-    state Active of Product.ActiveState is {
+    state DefinedProduct of Product.DefinedProductState is {
+      handler DefaultProductHandler is {
+        on command ActivateProduct {
+          then become entity Product to handler ActiveProductHandler
+        }
+        on command InactivateProduct {
+          then become entity Product to handler InactiveProductHandler
+        }
+      }
       handler ActiveProductHandler is {
         on command CreateProduct {
           then error "Product already created."
         }
         on command UpdateProductInfo{
-          then "Copy fields from UpdateProductInfo into Active product fields"
+          then "Copy fields that aren't None from UpdateProductInfo.info into DefinedProductState.info fields"
           and "adjust meta fields to reflect the change set"
-          and "yield ProductInfoUpdated event"
+          and "yield ProductInfoUpdated event with new info"
         }
-        on command DeleteProduct{
-          then "morph Product state to Deleted"
-          and "copy Active Product name and sku to Deleted Product name and sku"
-          and "adjust meta fields to reflect the change set"
-          and "yield ProductDeleted event"
+        on command TerminateProduct{
+          example Success {
+            then set DefinedProductState.meta to !ProductContext.ProductMetaInfo(
+              createdOn = @DefinedProductState.meta.createdOn,
+              createdBy = @DefinedProductState.meta.createdBy,
+              lastUpdated = now(),
+              lastUpdatedBy = @TerminateProduct.onBehalfOf,
+              currentState = @ProductStates.Terminated
+            )
+            and send event ProductTerminated(
+              sku = @DefinedProductState.sku,
+              info = @DefinedProductState.info,
+              meta = @DefinedProductState.meta
+            ) to outlet ProductEvents.Events
+            and morph entity Product to state TerminatedProduct with !TerminatedProductState(
+              sku = @DefinedProductState.sku,
+              name = @DefinedProductState.info.name,
+              lastMeta = @DefinedProductState.meta
+            )
+          }
         }
         on command ActivateProduct{
           then error "Product is already active"
         }
         on command InactivateProduct{
-          then "morph product state to Inactive"
-          and "adjust meta fields to reflect the change set"
-          and "yield ProductInactivated event"
+          example Success {
+            then set DefinedProductState.meta to !ProductContext.ProductMetaInfo(
+              createdOn = @DefinedProductState.meta.createdOn,
+              createdBy = @DefinedProductState.meta.createdBy,
+              lastUpdated = now(),
+              lastUpdatedBy = @InactivateProduct.onBehalfOf,
+              currentState = @ProductStates.Inactive
+            )
+            and send event ProductInactivated(
+              sku = @DefinedProductState.sku,
+              info = @DefinedProductState.info,
+              meta = @DefinedProductState.meta
+            ) to outlet ProductEvents.Events
+            and become entity Product to handler InactiveProductHandler
+          }
         }
         on query GetProductInfo{
           then "yield ProductInfoResult message"
         }
       }
-    }
-
-    record InactiveState is {
-      info: ProductInfo,
-      meta: ProductMetaInfo
-    }
-    state Inactive of Product.InactiveState is {
       handler InactiveProductHandler is {
         on command CreateProduct {
           then error "Product already created."
         }
         on command UpdateProductInfo{
-          then "Copy fields from UpdateProductInfo into Active product fields"
+          then "Copy fields that aren't None from UpdateProductInfo.info into DefinedProductState.info fields"
           and "adjust meta fields to reflect the change set"
-          and "yield ProductInfoUpdated event"
+          and "yield ProductInfoUpdated event with new info"
         }
-        on command DeleteProduct{
-          then "morph Product state to Deleted"
-          and "copy Active Product name and sku to Deleted Product name and sku"
-          and "adjust meta fields to reflect the change set"
-          and "yield ProductDeleted event"
+        on command TerminateProduct{
+          example Success {
+            then set DefinedProductState.meta to !ProductContext.ProductMetaInfo(
+              createdOn = @DefinedProductState.meta.createdOn,
+              createdBy = @DefinedProductState.meta.createdBy,
+              lastUpdated = now(),
+              lastUpdatedBy = @TerminateProduct.onBehalfOf,
+              currentState = @ProductStates.Terminated
+            )
+            and send event ProductTerminated(
+              sku = @DefinedProductState.sku,
+              info = @DefinedProductState.info,
+              meta = @DefinedProductState.meta
+            ) to outlet ProductEvents.Events
+            and morph entity Product to state TerminatedProduct with !TerminatedProductState(
+              sku = @DefinedProductState.sku,
+              name = @DefinedProductState.info.name,
+              lastMeta = @DefinedProductState.meta
+            )
+          }
         }
         on command ActivateProduct{
-          then "morph product state to Active"
-          and "adjust meta fields to reflect the change set"
-          and "yield ProductActivated event"
+          example Success {
+            then set DefinedProductState.meta to !ProductContext.ProductMetaInfo(
+              createdOn = @DefinedProductState.meta.createdOn,
+              createdBy = @DefinedProductState.meta.createdBy,
+              lastUpdated = now(),
+              lastUpdatedBy = @ActivateProduct.onBehalfOf,
+              currentState = @ProductStates.Active
+            )
+            and send event ProductActivated(
+              sku = @DefinedProductState.sku,
+              info = @DefinedProductState.info,
+              meta = @DefinedProductState.meta
+            ) to outlet ProductEvents.Events
+            and become entity Product to handler ActiveProductHandler
+          }
         }
         on command InactivateProduct{
           then error "Product is already Inactive"
@@ -169,26 +326,26 @@ context ProductContext is {
       }
     }
 
-    record DeletedState is {
+    record TerminatedProductState is {
       sku: SKU,
       name: String
     }
-    state Deleted of Product.DeletedState is {
-      handler DeletedProductHandler is {
+    state TerminatedProduct of Product.TerminatedProductState is {
+      handler TerminatedProductHandler is {
         on command CreateProduct {
           then error "Product already created."
         }
         on command UpdateProductInfo{
-          then error "Cannot update a deleted product"
+          then error "Cannot update a Terminated product"
         }
-        on command DeleteProduct{
+        on command TerminateProduct{
           then error "Product already deleted"
         }
         on command ActivateProduct{
           then error "Cannot activate a deleted product. Consider creating a new product instead."
         }
         on command InactivateProduct{
-          then error "Cannot inactivate a deleted product."
+          then error "Cannot inactivate a Terminated product."
         }
         on query GetProductInfo{
           then "yield ProductInfoUpdate with only sku and name populated"
