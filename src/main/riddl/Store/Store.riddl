@@ -126,8 +126,8 @@ context StoreContext is {
             location = @DraftStoreState.requiredInfo,
             sponsoringOrg = @DraftStoreState.requiredInfo,
             meta = !StoreContext.MetaInfo(
-               createdOn = @DraftStoreState.meta,
-               createdBy = @DraftStoreState.meta,
+               createdOn = @DraftStoreState.meta.createdOn,
+               createdBy = @DraftStoreState.meta.createdBy,
                lastUpdatedOn = now(),
                lastUpdatedBy = @DeleteStore.deletingMember,
                currentState = @StoreStates.Deleted
@@ -147,8 +147,8 @@ context StoreContext is {
                 sponsoringOrg = @DraftStoreState.requiredInfo
             ),
             meta = !StoreContext.MetaInfo(
-                createdOn = @DraftStoreState.meta,
-                createdBy = @DraftStoreState.meta,
+                createdOn = @DraftStoreState.meta.createdOn,
+                createdBy = @DraftStoreState.meta.createdBy,
                 lastUpdatedOn = now(),
                 lastUpdatedBy = @MakeStoreReady.updatingMember,
                 currentState = @StoreStates.Ready
@@ -199,8 +199,8 @@ context StoreContext is {
         }
         on command OpenStore {
           then set CreatedStoreState.meta to !StoreContext.MetaInfo(
-            createdOn = @CreatedStoreState.meta,
-            createdBy = @CreatedStoreState.meta,
+            createdOn = @CreatedStoreState.meta.createdOn,
+            createdBy = @CreatedStoreState.meta.createdBy,
             lastUpdated = now(),
             lastUpdatedBy = @OpenStore.openingMember,
             currentState = @StoreStates.Open
@@ -242,8 +242,8 @@ context StoreContext is {
         }
         on command TerminateStore {
           then set CreatedStoreState.meta to !StoreContext.MetaInfo(
-              createdOn = @CreatedStoreState.meta,
-              createdBy = @CreatedStoreState.meta,
+              createdOn = @CreatedStoreState.meta.createdOn,
+              createdBy = @CreatedStoreState.meta.createdBy,
               lastUpdatedOn = now(),
               lastUpdatedBy = @TerminateStore.terminatingMember,
               currentState = @CreatedStoreState.meta
@@ -273,8 +273,8 @@ context StoreContext is {
           on command CloseStore {
             then "ensure all orders associated with store are Delivered or Cancelled before closing store"
             and set CreatedStoreState.meta to !StoreContext.MetaInfo(
-              createdOn = @CreatedStoreState.meta,
-              createdBy = @CreatedStoreState.meta,
+              createdOn = @CreatedStoreState.meta.createdOn,
+              createdBy = @CreatedStoreState.meta.createdBy,
               lastUpdated = now(),
               lastUpdatedBy = @CloseStore.closingMember,
               currentState = @StoreStates.Closed
@@ -300,8 +300,8 @@ context StoreContext is {
           }
           on command TerminateStore {
               then set CreatedStoreState.meta to !StoreContext.MetaInfo(
-                  createdOn = @CreatedStoreState.meta,
-                  createdBy = @CreatedStoreState.meta,
+                  createdOn = @CreatedStoreState.meta.createdOn,
+                  createdBy = @CreatedStoreState.meta.createdBy,
                   lastUpdatedOn = now(),
                   lastUpdatedBy = @TerminateStore.terminatingMember,
                   currentState = @CreatedStoreState.meta
@@ -324,8 +324,8 @@ context StoreContext is {
           }
           on command DeleteStore {
             then set CreatedStoreState.meta to !StoreContext.MetaInfo(
-              createdOn = @CreatedStoreState.meta,
-              createdBy = @CreatedStoreState.meta,
+              createdOn = @CreatedStoreState.meta.createdOn,
+              createdBy = @CreatedStoreState.meta.createdBy,
               lastUpdated = now(),
               lastUpdatedBy = @DeleteStore.deletingMember,
               currentState = @StoreStates.Deleted
