@@ -12,7 +12,7 @@ context ProductContext is {
   } explained as "This is a source for Product Events"
 
   type ProductDetails is any of {TicketDetails}
-  type ProductStatus is any of {Draft, Active, InActive, Delete} briefly "Note: Delete is not the same as in Org, Tenant, etc because there is no PII. Here it is more like Terminate"
+  type ProductStatus is any of {Draft, Active, InActive, Deleted} briefly "Note: Delete is not the same as in Org, Tenant, etc because there is no PII. Here it is more like Terminate"
   type SKU is Id(Product)
   type TicketDetails is any of {ReservedTicket, RestrictedTicket, OpenTicket}
 
@@ -91,7 +91,7 @@ context ProductContext is {
           then error "Product already created."
         }
         on command UpdateProductInfo{
-          then "Copy fields that aren't None from UpdateProductInfo.info into DefinedProductState.info fields"
+          then "Copy fields that are provided from UpdateProductInfo.info into DefinedProductState.info fields"
           and "adjust meta fields to reflect the change set"
           and "yield ProductInfoUpdated event with new info"
         }
@@ -141,12 +141,12 @@ context ProductContext is {
                   location = @DraftProductState.info.location,
                   sponsoringOrg = @DraftProductState.info.sponsoringOrg
               ),
-              meta = !StoreContext.MetaInfo(
+              meta = !ProductContext.MetaInfo(
                   createdOn = @DraftProductState.meta.createdOn,
                   createdBy = @DraftProductState.meta.createdBy,
                   lastUpdatedOn = now(),
-                  lastUpdatedBy = @MakeStoreReady.updatingMember,
-                  currentState = @StoreStates.Ready
+                  lastUpdatedBy = @ActivateProduct.updatingMember,
+                  currentState = @ProductStates.Active
               )
             )
           }
@@ -156,43 +156,7 @@ context ProductContext is {
           }
         }
         on command InactivateProduct{
-          example Success {
-            when "all required fields are present"
-            then set DraftProductState.meta to !ProductContext.ProductMetaInfo(
-              createdOn = @DraftProductState.meta.createdOn,
-              createdBy = @DraftProductState.meta.createdBy,
-              lastUpdated = now(),
-              lastUpdatedBy = @InactivateProduct.onBehalfOf,
-              currentState = @ProductStates.Inactive
-            )
-            and send event ProductInactivated(
-              sku = @DraftProductState.sku,
-              info = @DraftProductState.info,
-              meta = @DraftProductState.meta
-            ) to outlet ProductEvents.Events
-            and morph entity Product to state DefinedProduct with !DefinedProductState(
-              info = !ProductInfo(
-                name = @DraftProductState.info.name,
-                description = @DraftProductState.info.description,
-                products = @DraftProductState.info.products,
-                event = @DraftProductState.info.event,
-                venue = @DraftProductState.info.venue,
-                location = @DraftProductState.info.location,
-                sponsoringOrg = @DraftProductState.info.sponsoringOrg
-              ),
-              meta = !ProductMetaInfo(
-                createdOn = @DraftProductState.meta.createdOn,
-                createdBy = @DraftProductState.meta.createdBy,
-                lastUpdated = now(),
-                lastUpdatedBy = @InactivateProduct.onBehalfOf,
-                currentState = @ProductStates.Active
-              )
-            )
-          }
-          example InsufficientRequiredFieldsFailure {
-            when "not all required fields are filled in"
-            then "return a list of non-filled in fields"
-          }
+          then error "cannot inactivate a draft product"
         }
         on query GetProductInfo{
           then "yield ProductInfoResult message"
@@ -206,20 +170,12 @@ context ProductContext is {
       meta: ProductMetaInfo
     }
     state DefinedProduct of Product.DefinedProductState is {
-      handler DefaultProductHandler is {
-        on command ActivateProduct {
-          then become entity Product to handler ActiveProductHandler
-        }
-        on command InactivateProduct {
-          then become entity Product to handler InactiveProductHandler
-        }
-      }
       handler ActiveProductHandler is {
         on command CreateProduct {
           then error "Product already created."
         }
         on command UpdateProductInfo{
-          then "Copy fields that aren't None from UpdateProductInfo.info into DefinedProductState.info fields"
+          then "Copy fields that are provided from UpdateProductInfo.info into DefinedProductState.info fields"
           and "adjust meta fields to reflect the change set"
           and "yield ProductInfoUpdated event with new info"
         }
@@ -273,7 +229,7 @@ context ProductContext is {
           then error "Product already created."
         }
         on command UpdateProductInfo{
-          then "Copy fields that aren't None from UpdateProductInfo.info into DefinedProductState.info fields"
+          then "Copy fields that are provided from UpdateProductInfo.info into DefinedProductState.info fields"
           and "adjust meta fields to reflect the change set"
           and "yield ProductInfoUpdated event with new info"
         }
