@@ -1,13 +1,13 @@
-actor Owner is "the person that owns the organization"
+user Owner is "the person that owns the organization"
 
 story EstablishOrganization is {
   term Organization briefly "An organizational unit, incorporated or not. "
   case primary is {
-    step from actor Owner "creates an Organization" to
+    step from user Owner "creates an Organization" to
       input ImprovingApp.Improving_app.OrganizationPage.accept
       briefly "create org",
     step from output ImprovingApp.Improving_app.OrganizationPage.show
-      "presented" to actor Owner
+      "presented" to user Owner
       briefly "organization added"
   }
 } briefly "A story about establishing an organization in Improving.app"

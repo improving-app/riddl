@@ -1,4 +1,4 @@
-actor ResponsibleParty is "the person that is financially responsible for the Tenant and all activity that happens under the Tenant"
+user ResponsibleParty is "the person that is financially responsible for the Tenant and all activity that happens under the Tenant"
 
 story EstablishTenant is {
   As a ResponsibleParty, I would like "establish an new Tenant", so I can "I can leverage the capabilities Improving.App to benefit my organization (business/school/etc.)"
@@ -8,11 +8,11 @@ story EstablishTenant is {
     scope domain ImprovingApp briefly
       "This domain is the smallest encapsulating domain that contains everything referenced by uses"
     interaction is {
-      step from actor ResponsibleParty "creates a Tenant" to
+      step from user ResponsibleParty "creates a Tenant" to
         input ImprovingApp.Improving_app.TenantPage.accept
         briefly "create tenant",
       step from output ImprovingApp.Improving_app.TenantPage.show
-        "presented" to actor ResponsibleParty
+        "presented" to user ResponsibleParty
         briefly "tenant added"
     }
   }

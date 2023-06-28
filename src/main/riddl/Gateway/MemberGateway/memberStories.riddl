@@ -11,24 +11,24 @@ story RegisterMember is {
     title: "Enroll a new Member"
     scope domain ImprovingApp
     interaction is {
-      step from actor Member "EnrollMember" to actor App
+      step from user Member "EnrollMember" to user App
         briefly "Member clicks on the enroll button",
-      step from actor App send command Member.EnrollMember to actor GatewayAPI //ImprovingApp.Gateway.MemberGateway.Member
+      step from user App send command Member.EnrollMember to user GatewayAPI //ImprovingApp.Gateway.MemberGateway.Member
         briefly "App tells the Gateway to enroll the member",
   }
   case HappyPath is {
     title: "Enroll a new Member"
     scope domain ImprovingApp
     interaction is {
-      step from actor Member "EnrollMember" to actor App
+      step from user Member "EnrollMember" to user App
         briefly "Member clicks on the enroll button",
-      step from actor App send command Member.EnrollMember to actor GatewayAPI //ImprovingApp.Gateway.MemberGateway.Member
+      step from user App send command Member.EnrollMember to user GatewayAPI //ImprovingApp.Gateway.MemberGateway.Member
         briefly "App tells the Gateway to enroll the member",
-    //   step from actor GatewayAPI "Register Member" to entity ImprovingApp.MembersContext.Member
+    //   step from user GatewayAPI "Register Member" to entity ImprovingApp.MemberContext.Member
     //     briefly "add new organization",
     //   step from entity ImprovingApp.MembersContext.Member "MemberRegistered" to pipe ImprovingApp.MembersContext.MemberEvents
     //     briefly "organization added"
-    //   step from pipe ImprovingApp.MembersContext.MemberEvents "MemberEnrolled" to actor App
+    //   step from pipe ImprovingApp.MemberContext.MemberEvents "MemberEnrolled" to user App
     }
     //example Foo is {...}
   }
@@ -37,14 +37,14 @@ story RegisterMember is {
 
 //As a Member I would like to check the balance of my iAppCoins Account to see if I have enough coin to make a purchase
 story GetIAppCoinBalance is {
-  As actor Member wants to "check the balance of my iAppCoins Account" so that "I can check to see if I have enough coin to make a purchase"
+  As user Member wants to "check the balance of my iAppCoins Account" so that "I can check to see if I have enough coin to make a purchase"
   // capability is "Check iAppCoinAccount Balance"
   // benefit is "To verify there is enough coin to make a purchase"
   case HappyPath {
     // title "Check Balance"
     // scope domain ImprovingApp
     // interaction is {
-      step from actor Member view AccountDetailsPage to app ImprovingAppUI
+      step from user Member view AccountDetailsPage to app ImprovingAppUI
         briefly "Member loads Account Details page to view iAppCoinAccount balance"
     //}
     //where we need to define the application with its pages so we can refer to them
@@ -82,17 +82,17 @@ story IAmInterestedInAttending is {
     title "Want to Attend Event"
     scope domain ImprovingApp
     interaction is {
-      step from actor Member "find an event to attend" to actor App
+      step from user Member "find an event to attend" to user App
         briefly "Member searches for events"
-      step from actor App send query ImprovingApp.GatewayAPI.Event.GetEventsForOrg to actor GatewayAPI
+      step from user App send query ImprovingApp.GatewayAPI.Event.GetEventsForOrg to user GatewayAPI
         briefly "App sends query parameters to Gateway"
-      step from actor GatewayAPI send response ImprovingApp.GatewayAPI.EventEventsForOrg to actor App
+      step from user GatewayAPI send response ImprovingApp.GatewayAPI.EventEventsForOrg to user App
         briefly "App gets upcoming Events that match the search criteria"
-      step from actor App "Display upcoming events" to actor Member
+      step from user App "Display upcoming events" to user Member
         briefly "Member reviews the search results"
-      step from actor Member "Member clicks the Get Event Updates button" to actor App
+      step from user Member "Member clicks the Get Event Updates button" to user App
         briefly "Member indicates they are interested in attending the event"
-      step from actor App send command ImprovingApp.GatewayAPI.Event.AddToInterestedMembers to actor GatewayAPI
+      step from user App send command ImprovingApp.GatewayAPI.Event.AddToInterestedMembers to user GatewayAPI
         briefly "App tells the Gateway the Member is interested in attending the Event"
     }
   }
