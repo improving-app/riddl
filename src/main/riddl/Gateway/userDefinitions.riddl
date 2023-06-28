@@ -1,4 +1,4 @@
 user Member is "The person that is being enrolled"
-user App is "The applicaiton the user is using to perform this action"
-user GatewayAPI is "The interface that accepts the request for processing by the
+app App is "The application the user is using to perform this action"
+context GatewayAction is "The interface that accepts the request for processing by the
  backend"

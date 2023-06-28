@@ -1,5 +1,3 @@
-user Member is "A user of ImprovingApp"
-
 story CreateVenue is {
   user Member wants to "create a Venue" so that "I can manage my Venue in ImprovingApp"
 	capability is "Create a Venue"
