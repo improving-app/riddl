@@ -1,3 +1,4 @@
+user DemoAdmin is "The person that is administering the demo"
 user Member is "The person that is being enrolled"
 app App is "The application the user is using to perform this action"
 context GatewayAction is "The interface that accepts the request for processing by the

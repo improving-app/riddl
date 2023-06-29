@@ -13,9 +13,9 @@ story RegisterMember is {
     interaction is {
       step from user Member "RegisterMember" to user App
         briefly "Member clicks on the enroll button",
-      step from user App send command Member.RegisterMember to user GatewayAPI //ImprovingApp.Gateway.MemberGateway.Member
+      step from app App send command Member.RegisterMember to user GatewayAPI //ImprovingApp.Gateway.MemberGateway.Member
         briefly "App tells the Gateway to enroll the member",
-      step from user GatewayAPI "Register Member" to entity ImprovingApp.MemberContext.Member
+      step from context GatewayAPI "Register Member" to entity ImprovingApp.MemberContext.Member
         briefly "add new Member",
       step from entity ImprovingApp.MembersContext.Member "MemberRegistered" to pipe ImprovingApp.MembersContext.MemberEvents
         briefly "Member added in Draft state"

@@ -1,34 +1,109 @@
 application UserInterface is {
 
-  command CreateOrganization is {
-    name: String
-  }
-  result OrganizationInfo is {
-    name: String,
-    createdAt: TimeStamp
+  command EstablishOrganization is {
+    orgId: OrganizationId,
+    info: OrganizationContext.Info briefly "Details about an organization required for it to exist. See OrganizationContext.Organization.Info for details.",
+    tenant: TenantId,
+    parent: Parent?,
+    members: MemberList,
+    owners: OwnerList,
+    contacts: ContactList,
+    onBehalfOf: MemberId briefly "The Id of the Member who is issuing the command."
+  } briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
+
+  result OrganizationEstablished is {
+    organizationId: OrganizationId briefly "Unique identifier returned by EstablishOrganization command",
+    info: OrganizationContext.Info,
+    parent: Parent?,
+    members: MemberList,
+    owners: OwnerList,
+    contacts: ContactList,
+    meta: OrganizationContext.MetaInfo
   }
 
   group Organization is {
-    input CreateOrganization is {
-      acquires command UserInterface.CreateOrganization
+    input EstablishOrganization is {
+      acquires command UserInterface.EstablishOrganization
     }
     output DisplayOrganization is {
-      presents result ImprovingApp.OrganizationContext.OrganizationInfo
+      presents result OrganizationEstablished
     }
   }
 
   handler OrgHandler is {
-    on command CreateOrganization from user OrgOwner {
+    on command EstablishOrganization from user OrgOwner {
       then tell command UserInterface.CreateOrganization to
         context ImprovingApp.OrganizationContext
     }
-    on event ImprovingApp.OrganizationContext.OrganizationCreated
+    on event OrganizationEstablished
     from context ImprovingApp.OrganizationContext {
       then {
         tell result ImprovingApp.OrganizationContext.OrganizationCreated to
           projector ImprovingApp.OrganizationContext.OrganizationViews,
         "present Organization.DisplayOrganization"
       }
+    }
+  }
+
+  command PurchaseProduct is {
+    productSku: ProductContext.SKU
+  }
+  result ProductPurchased is {
+    productSku: ProductContext.SKU,
+    productInfo: ProductContext.ProductInfo,
+    productMeta: ProductContext.ProductMetaInfo
+  }
+
+  group Product is {
+    input PurchaseProduct is {
+      acquires command UserInterface.PurchaseProduct
+    }
+    output DisplayPurchase is {
+      presents result ProductPurchased
+    }
+  }
+
+  handler ProductHandler is {
+    on command PurchaseProduct from user Member {
+      then tell command PurchaseProduct to
+        context ProductContext
+    }
+    on event ProductContext.ProductPurchased
+    from context ProductContext {
+      then {
+        tell result ProductContext.ProductCreated to
+          projector ProductContext.ProductViews,
+        "present Product.DisplayPurchase"
+      }
+    }
+  }
+}
+
+application CommandLine is {
+  command StartScenario is {
+    json: String
+  }
+  result ScenarioStarted is {
+    json: String
+  }
+
+  group Scenario is {
+    input StartScenario is {
+      acquires command CommandLine.StartScenario
+    }
+    output DisplayScenario is {
+      presents result CommandLine.ScenarioStarted
+    }
+  }
+
+  handler CurlHandler is {
+    on command StartScenario from user Member {
+      then tell command CommandLine.StartScenario to
+        context GatewayContext
+    }
+    on event ScenarioStarted
+    from context ImprovingApp.GatewayContext {
+      then "display in terminal"
     }
   }
 }

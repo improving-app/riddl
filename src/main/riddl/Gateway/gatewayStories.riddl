@@ -1,21 +1,22 @@
 //Member Stories (James)
 //As a person who would like to use the features of ImprovingApp I would like to register a new user account so that I can access those features
+
 story RegisterMember is {
-  capability is "Enroll the Member"
+  capability is "Register the Member"
   benefit is "So Member can use ImprovingApp"
   author James is {
     name: "James Lovell"
     email: "james.lovell@improving.com"
   }
   case HappyPath is {
-    title: "Enroll a new Member"
+    title: "Register a new Member - Happy Path"
     scope domain {ImprovingApp}
     interaction is {
       step from user Member "RegisterMember" to user App
         briefly "initial invocation",
-      step from user App send command Member.RegisterMember to user GatewayAPI
+      step from app App send command Member.RegisterMember to user GatewayAPI
         briefly "send creation message",
-      step from user GatewayAPI "Register Member" to entity ImprovingApp.MemberContext.Member
+      step from context GatewayAPI "Register Member" to entity ImprovingApp.MemberContext.Member
         briefly "add new Member",
       step from entity ImprovingApp.MembersContext.Member "MemberRegistered" to pipe ImprovingApp.MembersContext.MemberEvents
         briefly "Member added in Draft state"

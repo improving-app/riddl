@@ -6,7 +6,7 @@ epic EstablishOrganization by author Reid is {
     "they can conduct business as that organization"
   case primary is {
     step from user OrgOwner "creates an Organization" to input
-        ImprovingApp.UserInterface.Organization.CreateOrganization briefly "fill out form",
+        ImprovingApp.UserInterface.Organization.EstablishOrganization briefly "fill out form",
     step
       from output ImprovingApp.UserInterface.Organization.DisplayOrganization
       "organizationAdded"

@@ -1,0 +1,17 @@
+epic DemoMVP by author Alex is {
+  user DemoAdmin wants "to create scenario data" so that "they can perform a demo"
+  term 'demo' briefly
+  "An interactive presentation using Improving.App to buy tickets to events, potentially during a IT nightmare scenario"
+
+  case StartScenario is {
+    step from user DemoAdmin "StartScenario" to input CommandLine.Scenario.StartScenario briefly "initial invocation",
+    step from output CommandLine.Scenario.DisplayScenario "presented" to user DemoAdmin briefly "scenario created"
+  }
+
+  case OrderTicket is {
+    step from user DemoAdmin "StartScenario" to input UserInterface.Product.PurchaseProduct briefly "initial invocation",
+    step from output UserInterface.Product.DisplayPurchase "presented" to user DemoAdmin briefly "scenario created"
+  }
+
+  case WheelofITNightmares is { ??? }
+}

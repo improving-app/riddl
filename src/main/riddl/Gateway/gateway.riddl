@@ -1,6 +1,7 @@
 domain GatewayAPI is {
     include "userDefinitions"
     include "gatewayStories"
+    include "gatewayEpics"
     include "EventGateway/eventStories"
     include "MemberGateway/memberStories"
     include "NotificationGateway/notificationStories"
