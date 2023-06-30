@@ -1,8 +1,6 @@
 application UserInterface is {
-
   command EstablishOrganization is {
-    orgId: OrganizationId,
-    info: OrganizationContext.Info briefly "Details about an organization required for it to exist. See OrganizationContext.Organization.Info for details.",
+    info: OrganizationContext.EditableInfo briefly "Details about an organization required for it to exist. See OrganizationContext.Organization.Info for details.",
     tenant: TenantId,
     parent: Parent?,
     members: MemberList,
@@ -38,9 +36,44 @@ application UserInterface is {
     on event OrganizationEstablished
     from context ImprovingApp.OrganizationContext {
       then {
-        tell result ImprovingApp.OrganizationContext.OrganizationCreated to
+        tell result ImprovingApp.OrganizationContext.OrganizationEstablished to
           projector ImprovingApp.OrganizationContext.OrganizationViews,
         "present Organization.DisplayOrganization"
+      }
+    }
+  }
+
+  command RegisterMember is {
+    info: EditableMemberInfo briefly "Details about a member required for it to exist. See MemberContext.Member.MemberInfo for details.",
+    onBehalfOf: MemberId
+  }
+
+  result MemberRegistered is {
+    memberId: MemberId briefly "Unique identifier returned by RegisterMember command",
+    info: EditableInfo,
+    meta: MemberMetaInfo
+  }
+
+  group Member is {
+    input RegisterMember is {
+      acquires command UserInterface.RegisterMember
+    }
+    output DisplayMemberDetails is {
+      presents result MemberRegistered
+    }
+  }
+
+  handler MemberHandler is {
+    on command RegisterMember from user DemoMember {
+      then tell command UserInterface.RegisterMember to
+        context ImprovingApp.MemberContext
+    }
+    on event MemberRegistered
+    from context ImprovingApp.MemberContext {
+      then {
+        tell result ImprovingApp.MemberContext.MemberRegistered to
+          projector ImprovingApp.MemberContext.MemberViews,
+        "present Member.DisplayMemberDetails"
       }
     }
   }
@@ -48,18 +81,21 @@ application UserInterface is {
   command PurchaseProduct is {
     productSku: ProductContext.SKU
   }
-  result ProductPurchased is {
+  type ProductPurchased is {
     productSku: ProductContext.SKU,
     productInfo: ProductContext.ProductInfo,
     productMeta: ProductContext.ProductMetaInfo
+  }
+  result ProductsPurchased is {
+    products: ProductPurchased*
   }
 
   group Product is {
     input PurchaseProduct is {
       acquires command UserInterface.PurchaseProduct
     }
-    output DisplayPurchase is {
-      presents result ProductPurchased
+    output DisplayPurchases is {
+      presents result ProductsPurchased
     }
   }
 

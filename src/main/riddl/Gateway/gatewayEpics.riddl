@@ -1,16 +1,33 @@
 epic DemoMVP by author Alex is {
-  user DemoAdmin wants "to create scenario data" so that "they can perform a demo"
+  user DemoMember wants "to use the app to participate in a demo" so that "they can assess the app"
   term 'demo' briefly
   "An interactive presentation using Improving.App to buy tickets to events, potentially during a IT nightmare scenario"
 
   case StartScenario is {
-    step from user DemoAdmin "StartScenario" to input CommandLine.Scenario.StartScenario briefly "initial invocation",
-    step from output CommandLine.Scenario.DisplayScenario "presented" to user DemoAdmin briefly "scenario created"
+    sequence {
+      step from user DemoAdmin "create scenario data according to (mostly) integer-based parameters" to
+        input CommandLine.Scenario.StartScenario briefly "initial invocation for data generation",
+      step from output CommandLine.Scenario.DisplayScenario "presented" to user DemoAdmin
+        briefly "scenario successfully created according to parameters"
+    }
   }
 
-  case OrderTicket is {
-    step from user DemoAdmin "StartScenario" to input UserInterface.Product.PurchaseProduct briefly "initial invocation",
-    step from output UserInterface.Product.DisplayPurchase "presented" to user DemoAdmin briefly "scenario created"
+  case RegisterMember is {
+    sequence {
+      step from user DemoMember "register up as a member" to
+        input UserInterface.Member.Registration briefly "member registration invocation",
+      step from output UserInterface.Member.DisplayMemberDetails "presented" to user DemoAdmin
+        briefly "member successfully registered"
+    }
+  }
+
+  case PurchaseTicket is {
+    parallel {
+      step from user DemoMember "purchase ticket" to input UserInterface.Product.PurchaseProduct
+        briefly "purchase ticket invocation",
+      step from output UserInterface.Product.DisplayPurchases "presented" to user DemoAdmin
+        briefly "ticket successfully purchased"
+    }
   }
 
   case WheelofITNightmares is { ??? }
