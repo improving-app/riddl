@@ -1,175 +1,173 @@
 context MemberGateway is {
   options(gateway)
 
-    type MemberId is Id( Member )
-    type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
-    type MemberMap is mapping from MemberId to MemberInfo
-    type NotificationPreference is any of {email, sms}
-    type MemberState is any of {active, inactive, suspended, terminated}
-    type MemberInfo is {
-        handle: String,
-        avatar: URL, //thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content.
-        firstName: String,
-        lastName: String,
-        mobileNumber: MobileNumber?,
-        emailAddress: EmailAddress?,
-        notificationPreference: NotificationPreference,
-        notificationOptIn: Boolean, //true indicates they allow notifications
-        organizations: OrganizationId*, //Members must belong to at least one Organization?
-        relatedMembers: String, //Primary use case is parent/student. I am sure there are others. Might be a better way to document such a relationship.
-        memberType: MemberType+
+  type MemberId is Id( Member )
+  type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
+  type MemberMap is mapping from MemberId to MemberInfo
+  type NotificationPreference is any of {email, sms}
+  type MemberState is any of {active, inactive, suspended, terminated}
+  type MemberInfo is {
+      handle: String,
+      avatar: URL, //thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content.
+      firstName: String,
+      lastName: String,
+      mobileNumber: MobileNumber?,
+      emailAddress: EmailAddress?,
+      notificationPreference: NotificationPreference,
+      notificationOptIn: Boolean, //true indicates they allow notifications
+      organizations: OrganizationId*, //Members must belong to at least one Organization?
+      relatedMembers: String, //Primary use case is parent/student. I am sure there are others. Might be a better way to document such a relationship.
+      memberType: MemberType+
+  }
+  type MemberMetaInfo is {
+      createdOn: Date,
+      createdBy: MemberId,
+      lastModifiedOn: Date,
+      lastModifiedBy: MemberId,
+      memberState: MemberState
+  }
+
+  type RegisterMemberList is command {memberList: MemberMap+, registeringMember: MemberId} briefly "RegisterMemberList creates multiple members with a single call. The limitation is you can only define a single MemberType in each call, and all new Members must be assigned to an Organization (typically a BaseOrg)."
+  type MemberListRegistered is event {memberData:MemberData*}
+  type RegisterMember is command {memberToAdd: MembersMap, registeringMember: MemberId?} briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional. Also registeringMember is optional - if you are registering yourself then you are the registering member for yourself - you just don't exist yet"
+  type MemberRegistered is event {memberId: MemberId, memberInfo: MemberInfo, memberMeta: MemberMetaInfo} briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
+  type UpdateMemberInfo is command {memberMap:MemberMap, actingMember: MemberId} briefly "All member info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full MemberInfo object back."
+  type MemberInfoUpdated is event {memberId: MemberId, memberInfo: MemberInfo, memberMeta: MemberMetaInfo}
+  type ActivateMember is command {memberId: MemberId, actingMember: MemberId}
+  type MemberActivated is event {memberId: MemberId, memberMeta: MemberMetaInfo}
+  type InactivateMember is command {memberId: MemberId, actingMember: MemberId}
+  type MemberInactivated is event {memberId: MemberId, memberMeta: MemberMetaInfo}
+  type SuspendMember is command {memberId: MemberId, actingMember: MemberId}
+  type MemberSuspended is event {memberId: MemberId, memberMeta: MemberMetaInfo}
+  type TerminateMember is command {memberId: MemberId, actingMember: MemberId}
+  type MemberTerminated is event {memberId: MemberId, memberMeta: MemberMetaInfo}
+  type GetMemberInfo is query {memberId: MemberId}
+  type MemberData is result {memberId: MemberId, memberInfo: MemberInfo, memberMeta: MemberMetaInfo}
+  type GetMemberForHandle is query {handle:string}
+  type MemberForHandle is result {memberId: MemberId?}
+
+  Feature "Register new member" is {
+    Scenario "Registering Member is active - Draft Member created" is {
+      When the member registering the new member is active
+      Then the new registration is validated for handle and member id (make sure they are unique in the system(
+      And the validations pass
+      Then the member is registered to draft state
+      Else the registration is rejected.
     }
-    type MemberMetaInfo is {
-        createdOn: Date,
-        createdBy: MemberId,
-        lastModifiedOn: Date,
-        lastModifiedBy: MemberId,
-        memberState: MemberState
+
+    Scenario "Handle already exists" is {
+      When the member registers with an existing case insensitive handle
+      Then the registration is rejected due to pre existing handle
     }
 
-    type RegisterMemberList is command {memberList: MemberMap+, registeringMember: MemberId} briefly "RegisterMemberList creates multiple members with a single call. The limitation is you can only define a single MemberType in each call, and all new Members must be assigned to an Organization (typically a BaseOrg)."
-    type MemberListRegistered is event {memberData:MemberData*}
-    type RegisterMember is command {memberToAdd: MembersMap, registeringMember: MemberId?} briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional. Also registeringMember is optional - if you are registering yourself then you are the registering member for yourself - you just don't exist yet"
-    type MemberRegistered is event {memberId: MemberId, memberInfo: MemberInfo, memberMeta: MemberMetaInfo} briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
-    type UpdateMemberInfo is command {memberMap:MemberMap, actingMember: MemberId} briefly "All member info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full MemberInfo object back."
-    type MemberInfoUpdated is event {memberId: MemberId, memberInfo: MemberInfo, memberMeta: MemberMetaInfo}
-    type ActivateMember is command {memberId: MemberId, actingMember: MemberId}
-    type MemberActivated is event {memberId: MemberId, memberMeta: MemberMetaInfo}
-    type InactivateMember is command {memberId: MemberId, actingMember: MemberId}
-    type MemberInactivated is event {memberId: MemberId, memberMeta: MemberMetaInfo}
-    type SuspendMember is command {memberId: MemberId, actingMember: MemberId}
-    type MemberSuspended is event {memberId: MemberId, memberMeta: MemberMetaInfo}
-    type TerminateMember is command {memberId: MemberId, actingMember: MemberId}
-    type MemberTerminated is event {memberId: MemberId, memberMeta: MemberMetaInfo}
-    type GetMemberInfo is query {memberId: MemberId}
-    type MemberData is result {memberId: MemberId, memberInfo: MemberInfo, memberMeta: MemberMetaInfo}
-    type GetMemberForHandle is query {handle:string}
-    type MemberForHandle is result {memberId: MemberId?}
-
-
-    Feature "Register new member" is {
-      Scenario "Registering Member is active - Draft Member created" is {
-        When the member registering the new member is active
-        Then the new registration is validated for handle and member id (make sure they are unique in the system(
-        And the validations pass
-        Then the member is registered to draft state
-        Else the registration is rejected.
-      }
-
-      Scenario "Handle already exists" is {
-        When the member registers with an existing case insensitive handle
-        Then the registration is rejected due to pre existing handle
-      }
-
-      //This scenario should be very rare as the id's are UUID's - but if somehow we try to register with a preexisting id - we must fail
-      Scenario "Member Id already exists" is {
-        When the member registers with an existing memberId
-        Then the registration is rejected due to the pre existing member id
-      }
-
-
-      //unexpected - if inactive member should not be able to register other members without becoming active
-      Scenario "Registering member is inactive" is {
-        When the member registering the new member is inactive
-        Then reject the registration due to inactive registering member
-      }
-
-      //unexpected - if member is suspended, then they should not have access to member registration
-      Scenario "Registering member is suspended" is {
-        When the member registering the new member is suspended
-        Then reject the registration due to suspendend registering member
-
-      }
-
-      //should be impossible to authenticate a terminated user - getting here implies other issues
-      Scenario "Registering member is terminated" is {
-        When the member registering the new member is terminated
-        Then reject the registration due to terminated registering member
-      }
+    //This scenario should be very rare as the id's are UUID's - but if somehow we try to register with a preexisting id - we must fail
+    Scenario "Member Id already exists" is {
+      When the member registers with an existing memberId
+      Then the registration is rejected due to the pre existing member id
     }
-    Feature "Change member state" is {
-      Scenario "Activating a draft member " is {
-        When the acting member has permission to activate & is Active
-        Then the actedOn member is activated
-      }
 
-      Scenario "Activating an inactive member " is {
-        When the acting member has permission to inactivate & is Active
-        Then the actedOn member is inactivated
-      }
 
-       Scenario "Registering Member is active - Active Member created" is {
-        When the member registering the new member is active
-        Then the new registration is validated for handle and member id (make sure they are unique in the system(
-        And the validations pass
-        Then the member is registered to draft state
-        Else the registration is rejected.
-        When the member is successfully registered
-        Then try to Activate to member
-        Else the failure is returned.
-        When the member is successfully Activated
-        Then return success
-        Else the failure reason is returned (which fields need to be provided?)
-      }
-
-      Scenario "When Activating, Draft member contains neither email nor phone number" is {
-        When the member info does not contain email and does not contain phone number
-        Then reject the activation due to insufficient data - require at least one of email,phone
-      }
-
-      Scenario "When Activating, Draft member contains email  and notification pref of phone" is {
-        When the member info contains only one of email, phone and the notification preference is for the opposite (phone, email)
-        Then reject the activation due to data mismatch - notification preference must match provided data
-      }
-
-      Scenario "When Activating, Draft member contains a non-empty invalid email" is {
-        When the member info contains a non-empty, invalid email address
-        Then reject the activation due to invalid email address
-      }
-
-      Scenario "When Activating, Draft member contains a non-empty invalid phone number" is {
-        When the member info contains a non-empty, invalid phone number
-        Then reject the activation due to invalid phone number
-      }
-
-      Scenario "Suspending a member" is {
-        When the acting member has permission to suspend & is Active
-        Then the actedOn member is suspended
-      }
-
-      Scenario "Terminating self" is {
-        When a member terminates themselves
-        And they are Active
-        Then they are terminated
-      }
-
-      Scenario "Terminating another member" is {
-        When the acting member has permission to terminate & is Active // As this is non-recoverable - this will need some extra safeguards
-        Then the actedOn member is terminated
-      }
+    //unexpected - if inactive member should not be able to register other members without becoming active
+    Scenario "Registering member is inactive" is {
+      When the member registering the new member is inactive
+      Then reject the registration due to inactive registering member
     }
-     Feature "EditMemberInfo" is {
-      Scenario "Member info is successfully edited" is {
-        When the acting member has permission to edit & is Active
-        Then the actedOn member has its info updated with the fields present in EditMemberInfo.newInfo
-      }
 
-      Scenario "Handle already exists" is {
-        When the member registers with an existing case insensitive handle
-        Then the edit is rejected due to pre existing handle
-      }
-     }
-     Feature "Get member data by id" is {
-      Scenario "Entity exists with id requested" is {
-        When the entity exists already
-        Then return MembersData with entity data
-      }
-     }
-     Feature "Get member data by metaInfo" is {
-      Scenario "Entity exists with metaInfo requested" is {
-        When the entity exists already
-        Then return MembersListResult with entit(y/ies) data
-      }
-     }
+    //unexpected - if member is suspended, then they should not have access to member registration
+    Scenario "Registering member is suspended" is {
+      When the member registering the new member is suspended
+      Then reject the registration due to suspendend registering member
 
+    }
+
+    //should be impossible to authenticate a terminated user - getting here implies other issues
+    Scenario "Registering member is terminated" is {
+      When the member registering the new member is terminated
+      Then reject the registration due to terminated registering member
+    }
+  }
+  Feature "Change member state" is {
+    Scenario "Activating a draft member " is {
+      When the acting member has permission to activate & is Active
+      Then the actedOn member is activated
+    }
+
+    Scenario "Activating an inactive member " is {
+      When the acting member has permission to inactivate & is Active
+      Then the actedOn member is inactivated
+    }
+
+     Scenario "Registering Member is active - Active Member created" is {
+      When the member registering the new member is active
+      Then the new registration is validated for handle and member id (make sure they are unique in the system(
+      And the validations pass
+      Then the member is registered to draft state
+      Else the registration is rejected.
+      When the member is successfully registered
+      Then try to Activate to member
+      Else the failure is returned.
+      When the member is successfully Activated
+      Then return success
+      Else the failure reason is returned (which fields need to be provided?)
+    }
+
+    Scenario "When Activating, Draft member contains neither email nor phone number" is {
+      When the member info does not contain email and does not contain phone number
+      Then reject the activation due to insufficient data - require at least one of email,phone
+    }
+
+    Scenario "When Activating, Draft member contains email  and notification pref of phone" is {
+      When the member info contains only one of email, phone and the notification preference is for the opposite (phone, email)
+      Then reject the activation due to data mismatch - notification preference must match provided data
+    }
+
+    Scenario "When Activating, Draft member contains a non-empty invalid email" is {
+      When the member info contains a non-empty, invalid email address
+      Then reject the activation due to invalid email address
+    }
+
+    Scenario "When Activating, Draft member contains a non-empty invalid phone number" is {
+      When the member info contains a non-empty, invalid phone number
+      Then reject the activation due to invalid phone number
+    }
+
+    Scenario "Suspending a member" is {
+      When the acting member has permission to suspend & is Active
+      Then the actedOn member is suspended
+    }
+
+    Scenario "Terminating self" is {
+      When a member terminates themselves
+      And they are Active
+      Then they are terminated
+    }
+
+    Scenario "Terminating another member" is {
+      When the acting member has permission to terminate & is Active // As this is non-recoverable - this will need some extra safeguards
+      Then the actedOn member is terminated
+    }
+  }
+   Feature "EditMemberInfo" is {
+    Scenario "Member info is successfully edited" is {
+      When the acting member has permission to edit & is Active
+      Then the actedOn member has its info updated with the fields present in EditMemberInfo.newInfo
+    }
+
+    Scenario "Handle already exists" is {
+      When the member registers with an existing case insensitive handle
+      Then the edit is rejected due to pre existing handle
+    }
+   }
+   Feature "Get member data by id" is {
+    Scenario "Entity exists with id requested" is {
+      When the entity exists already
+      Then return MembersData with entity data
+    }
+   }
+   Feature "Get member data by metaInfo" is {
+    Scenario "Entity exists with metaInfo requested" is {
+      When the entity exists already
+      Then return MembersListResult with entit(y/ies) data
+    }
+   }
 }
