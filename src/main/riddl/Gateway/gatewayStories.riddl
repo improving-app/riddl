@@ -18,7 +18,7 @@ story RegisterMember is {
         briefly "send creation message",
       step from context GatewayAPI "Register Member" to entity ImprovingApp.MemberContext.Member
         briefly "add new Member",
-      step from entity ImprovingApp.MembersContext.Member "MemberRegistered" to pipe ImprovingApp.MembersContext.MemberEvents
+      step from entity ImprovingApp.MemberContext.Member "MemberRegistered" to pipe ImprovingApp.MemberContext.MemberEvents
         briefly "Member added in Draft state"
       step from pipe ImprovingApp.MemberContext.MemberEvents "MemberRegistered" to user App
     }

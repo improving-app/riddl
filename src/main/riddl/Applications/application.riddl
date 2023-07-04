@@ -1,12 +1,12 @@
 application UserInterface is {
   command EstablishOrganization is {
-    info: OrganizationContext.EditableInfo briefly "Details about an organization required for it to exist. See OrganizationContext.Organization.Info for details.",
+    info: MemberContext.EditableInfo briefly "Details about an organization required for it to exist. See OrganizationContext.Organization.Info for details.",
     tenant: TenantId,
     parent: Parent?,
     members: MemberList,
     owners: OwnerList,
     contacts: ContactList,
-    onBehalfOf: MemberId briefly "The Id of the Member who is issuing the command."
+    onBehalfOf: MemberContext.MemberId briefly "The Id of the Member who is issuing the command."
   } briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
 
   result OrganizationEstablished is {
@@ -44,13 +44,13 @@ application UserInterface is {
   }
 
   command RegisterMember is {
-    info: EditableMemberInfo briefly "Details about a member required for it to exist. See MemberContext.Member.MemberInfo for details.",
-    onBehalfOf: MemberId
+    info: MemberContext.EditableInfo briefly "Details about a member required for it to exist. See MemberContext.Member.MemberInfo for details.",
+    onBehalfOf: MemberContext.MemberId
   }
 
   result MemberRegistered is {
-    memberId: MemberId briefly "Unique identifier returned by RegisterMember command",
-    info: EditableInfo,
+    memberId: MemberContext.MemberId briefly "Unique identifier returned by RegisterMember command",
+    info: MemberContext.EditableInfo,
     meta: MemberMetaInfo
   }
 
