@@ -88,10 +88,10 @@ context AllIdsProjections is  {
   projector AllMemberIdsView is {
      record AllMemberIdsFields {
         member: MemberId,
-        memberStatus: MembersContext.Status
+        memberStatus: MemberContext.Status
     }
     handler AllMemberIdsViewHandler is {
-        on event MemberRegistered {
+        on event MemberContext.MemberRegistered {
             then "create row with member set to MemberRegistered.memberId"// and memberStatus set to Active"
         }
         //on event MemberStatusUpdated {
