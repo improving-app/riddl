@@ -2,12 +2,29 @@ type LiveUpdate is mapping from String to String//i.e. "Score" -> "12 to 10", "a
 type EventResults is mapping from String to String //i.e. "Score" -> "12 to 10", "attendance" -> "523", ...
 
 /*
-type EventSpecificDetails is one of {FootballGame, BasketballGame, Play, Concert, FundRaiser}
+type Score is {home: Integer, away: Integer}
+type Teams is {home: Team, away: Team}
+type Team is {org: OrgID, name: String, ???}
 
-type FootballGame is {???
-    //homeTeam: OrgID,
-    //visitingTeam: String, || OrgID,
+type EventSpecificDetails is one of {Game, Play, Concert, FundRaiser}
+
+type Game is {info: GameTypeInfo, statusInfo: GameStatusInfo}
+type GameStatusInfo is one of {ScheduledGameInfo | InProgressGameInfo | DelayedGameInfo | PastGameInfo | CancelledGameInfo}
+type ScheduledGameInfo is {???}
+type InProgressGameInfo is {currentScore: Score, ???}
+type DelayedGameInfo is {delayedScore: Score?, ???}
+type PastGameInfo is {finalScore: Score, ???}
+type CancelledGameInfo is {finalScore: Score?, ???}
+
+type GameTypeInfo is one of {FootballGame, BasketballGame}
+
+type FootballGame is {
+    statusInfo: FootballGameStatusInfo
+    teams: Teams,
+    ???
 }
+type FootballGameStatusInfo is one of {ScheduledFootballGameInfo | InProgressFootballGameInfo | DelayedFootballGameInfo | PastFootballGameInfo | CancelledFootballGameInfo}
+
 type BasketballGame is {???}
 type Play is {???}
 type Concert is {???}
@@ -18,7 +35,14 @@ type EventType is {
 }
 */
 
-type EventStatus is any of {Scheduled, InProgress, Past, Cancelled, Delayed}
+type EventStatus is any of {Scheduled, InProgress, Delayed, Past, Cancelled}
+type EventStatusInfo is one of {ScheduledEventInfo | InProgressEventInfo | DelayedEventInfo | PastEventInfo | CancelledEventInfo}
+
+type ScheduledEventInfo is {???}
+type InProgressEventInfo is {timeStarted: TimeStamp, ???}
+type DelayedEventInfo is {reason: String, nextUpdate: TimeStamp, ???}
+type PastEventInfo is {timeStarted: TimeStamp, timeEnded: TimeStamp, ???}
+type CancelledEventInfo is {reason: String, ???}
 
 type EventInfo is {
     eventName: String,
@@ -28,10 +52,12 @@ type EventInfo is {
     sponsoringOrg: OrganizationId,
     expectedStart: DateTime,
     expectedEnd: DateTime,
-    isPrivate: Boolean
-    //eventType: EventType
+    isPrivate: Boolean,
+    eventStatusInfo: EventStatusInfo
+    //eventDetails: EventSpecificDetails
     //eventTags: String+,// List of relevant, searchable tags that identify/describe this event
 }
+
 type EventMetaInfo is {
     scheduledBy: MemberId,
     scheduledOn: DateTime,
