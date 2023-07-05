@@ -9,12 +9,12 @@ type Team is {org: OrgID, name: String, ???}
 type EventSpecificDetails is one of {Game, Play, Concert, FundRaiser}
 
 type Game is {info: GameTypeInfo, statusInfo: GameStatusInfo}
-type GameStatusInfo is one of {ScheduledGameInfo | InProgressGameInfo | DelayedGameInfo | PastGameInfo | CancelledGameInfo}
-type ScheduledGameInfo is {???}
-type InProgressGameInfo is {currentScore: Score, ???}
-type DelayedGameInfo is {delayedScore: Score?, ???}
-type PastGameInfo is {finalScore: Score, ???}
-type CancelledGameInfo is {finalScore: Score?, ???}
+type GameStateInfo is one of {ScheduledGameInfo | InProgressGameInfo | DelayedGameInfo | PastGameInfo | CancelledGameInfo}
+type ScheduledGameInfo is {}
+type InProgressGameInfo is {currentScore: Score}
+type DelayedGameInfo is {delayedScore: Score?}
+type PastGameInfo is {finalScore: Score}
+type CancelledGameInfo is {finalScore: Score?}
 
 type GameTypeInfo is one of {FootballGame, BasketballGame}
 
@@ -23,7 +23,12 @@ type FootballGame is {
     teams: Teams,
     ???
 }
-type FootballGameStatusInfo is one of {ScheduledFootballGameInfo | InProgressFootballGameInfo | DelayedFootballGameInfo | PastFootballGameInfo | CancelledFootballGameInfo}
+type FootballGameStateInfo is one of {ScheduledFootballGameInfo | InProgressFootballGameInfo | DelayedFootballGameInfo | PastFootballGameInfo | CancelledFootballGameInfo}
+type ScheduledFootballGameInfo is {}
+type InProgressFootballGameInfo is {yardsSoFarHome: Integer, yardsSoFarAway: Integer}
+type DelayedFootballGameInfo is {yardsSoFarHome: Integer?, yardsSoFarAway: Integer?}
+type PastFootballGameInfo is {totalYardsHome: Integer, totalYardsAway: Integer}
+type CancelledFootballGameInfo is {yardsSoFarHome: Integer?, yardsSoFarAway: Integer?}
 
 type BasketballGame is {???}
 type Play is {???}
@@ -35,25 +40,39 @@ type EventType is {
 }
 */
 
-type EventStatus is any of {Scheduled, InProgress, Delayed, Past, Cancelled}
-type EventStatusInfo is one of {ScheduledEventInfo | InProgressEventInfo | DelayedEventInfo | PastEventInfo | CancelledEventInfo}
+type EventStates is any of {Draft, Scheduled, InProgress, Delayed, Past, Cancelled}
+type EventStateInfo is one of {ScheduledEventInfo | InProgressEventInfo | DelayedEventInfo | PastEventInfo | CancelledEventInfo}
 
 type ScheduledEventInfo is {???}
-type InProgressEventInfo is {timeStarted: TimeStamp, ???}
-type DelayedEventInfo is {reason: String, nextUpdate: TimeStamp, ???}
-type PastEventInfo is {timeStarted: TimeStamp, timeEnded: TimeStamp, ???}
-type CancelledEventInfo is {reason: String, ???}
+type InProgressEventInfo is {timeStarted: TimeStamp}
+type DelayedEventInfo is {reason: String, timeStartedOpt: TimeStamp?}
+type PastEventInfo is {timeStarted: TimeStamp, timeEnded: TimeStamp}
+type CancelledEventInfo is {reason: String, timeStartedOpt: TimeStamp?, timeEndedOpt: TimeStamp?}
 
 type EventInfo is {
     eventName: String,
-    description: String,
-    eventURL: URL,
-    geoLocation: Location,
+    description: String?,
+    eventURL: URL?,
+    //geoLocation: Location?,
     sponsoringOrg: OrganizationId,
     expectedStart: DateTime,
     expectedEnd: DateTime,
     isPrivate: Boolean,
-    eventStatusInfo: EventStatusInfo
+    eventStatusInfo: EventStateInfo
+    //eventDetails: EventSpecificDetails
+    //eventTags: String+,// List of relevant, searchable tags that identify/describe this event
+}
+
+type EditableEventInfo is {
+    eventName: String?,
+    description: String?,
+    eventURL: URL?,
+    geoLocation: Location?,
+    sponsoringOrg: OrganizationId?,
+    expectedStart: DateTime?,
+    expectedEnd: DateTime?,
+    isPrivate: Boolean?,
+    eventStatusInfo: EventStatusInfo? briefly "there is no need for DraftStatusInfo, so this will always be None in Draft state"
     //eventDetails: EventSpecificDetails
     //eventTags: String+,// List of relevant, searchable tags that identify/describe this event
 }
@@ -65,5 +84,5 @@ type EventMetaInfo is {
     lastModifiedOn: DateTime,
     actualStart: DateTime,
     actualEnd: DateTime,
-    status: EventStatus
+    state: EventStates
 }
