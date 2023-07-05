@@ -15,7 +15,7 @@ event EventDelayed is {eventId: EventId, info: EventInfo, meta: EventMetaInfo}
 command StartEvent is {eventId: EventId, onBehalfOf: MemberId}
 event EventStarted is {eventId: EventId, meta: EventMetaInfo}
 command EndEvent is {eventId: EventId, onBehalfOf: MemberId}
-event EventStarted is {eventId: EventId, meta: EventMetaInfo}
+event EventEnded is {eventId: EventId, meta: EventMetaInfo}
 command TerminateEvent is {eventId: EventId, onBehalfOf: MemberId}
 event EventTerminated is {eventId: EventId, lastMeta: EventMetaInfo}
 command AddLiveUpdate is {eventId: EventId, update: LiveUpdate}
