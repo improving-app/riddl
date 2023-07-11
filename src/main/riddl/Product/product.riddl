@@ -72,20 +72,27 @@ context ProductContext is {
     options (event-sourced)
     handler ProductHandler is {
       on command CreateProduct {
-        then "morph Product to Active state"
-        and "copy fields from the command into Active fields"
-        and "adjust meta fields to reflect the change set"
-        and "yield ProductCreated event"
+        then morph entity Product to state DraftProductState with !DraftProduct(
+            sku = @CreateProduct.sku,
+            info = @CreatProduct.info,
+            meta = !MemberContext.MetaInfo(
+                createdOn = now(),
+                createdBy = @CreatProduct.onBehalfOf,
+                lastUpdatedOn = now(),
+                lastUpdatedBy = @CreatProduct.onBehalfOf,
+                currentState = @ProductStates.Draft
+            )
+        )
       }
       on other {then error "Only the CreateProduct command is allowed in the default state."}
     }
 
-    record DraftState is {
+    record DraftProduct is {
       sku: SKU,
       info: ProductInfo,
       meta: ProductMetaInfo
     }
-    state DraftProductState of Product.DraftState is {
+    state DraftProductState of Product.DraftProduct is {
       handler CreatedProductHandler is {
         on command CreateProduct {
           then error "Product already created."
@@ -109,7 +116,7 @@ context ProductContext is {
               info = @DraftProductState.info,
               meta = @DraftProductState.meta
             ) to outlet ProductEvents.Events
-            and morph entity Product to state DeletedProduct with !DeletedProductState(
+            and morph entity Product to state DeletedProductState with !DeletedProduct(
               sku = @DraftProductState.sku,
               name = @DraftProductState.info.name,
               lastMeta = @DraftProductState.meta
@@ -131,7 +138,7 @@ context ProductContext is {
               info = @DraftProductState.info,
               meta = @DraftProductState.meta
             ) to outlet ProductEvents.Events
-            and morph entity Product to state DefinedProduct with !DefinedProductState(
+            and morph entity Product to state DefinedProductState with !DefinedProduct(
               info = !ProductInfo(
                   name = @DraftProductState.info.name,
                   description = @DraftProductState.info.description,
@@ -164,12 +171,12 @@ context ProductContext is {
       }
     }
 
-    record DefinedProductState is {
+    record DefinedProduct is {
       sku: SKU,
       info: ProductInfo,
       meta: ProductMetaInfo
     }
-    state DefinedProduct of Product.DefinedProductState is {
+    state DefinedProductState of Product.DefinedProduct is {
       handler ActiveProductHandler is {
         on command CreateProduct {
           then error "Product already created."
@@ -193,7 +200,7 @@ context ProductContext is {
               info = @DefinedProductState.info,
               meta = @DefinedProductState.meta
             ) to outlet ProductEvents.Events
-            and morph entity Product to state DeletedProduct with !DeletedProductState(
+            and morph entity Product to state DeletedProductState with !DeletedProduct(
               sku = @DefinedProductState.sku,
               name = @DefinedProductState.info.name,
               lastMeta = @DefinedProductState.meta
@@ -247,7 +254,7 @@ context ProductContext is {
               info = @DefinedProductState.info,
               meta = @DefinedProductState.meta
             ) to outlet ProductEvents.Events
-            and morph entity Product to state DeletedProduct with !DeletedProductState(
+            and morph entity Product to state DeletedProductState with !DeletedProduct(
               sku = @DefinedProductState.sku,
               name = @DefinedProductState.info.name,
               lastMeta = @DefinedProductState.meta
@@ -280,11 +287,11 @@ context ProductContext is {
       }
     }
 
-    record DeletedProductState is {
+    record DeletedProduct is {
       sku: SKU,
       name: String
     }
-    state DeletedProduct of Product.DeletedProductState is {
+    state DeletedProductState of Product.DeletedProduct is {
       handler DeletedProductHandler is {
         on command CreateProduct {
           then error "Product already created."
