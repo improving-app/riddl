@@ -253,10 +253,9 @@ context EventContext is {
                  expectedStart = @DraftEventState.info.expectedStart,
                  expectedEnd = @DraftEventState.info.expectedEnd,
                  isPrivate = @DraftEventState.info.isPrivate,
-                 eventStatusInfo = !CancelledEventInfo(
-                   reason = @CancelEvent.reason,
-                   timeStarted = startTimeIfPast(startTime = @ScheduledEventState.info.expectedStart),
-                   timeEnded = nowIfStartIsPast(startTime = @ScheduledEventState.info.expectedStart)
+                 eventStatusInfo = !DelayedEventInfo(
+                   reason = @DelayEvent.reason,
+                   timeStartedOpt = startTimeIfPast(startTime = @ScheduledEventState.info.expectedStart)
                  )
             ),
             meta = !EventMetaInfo(
@@ -285,6 +284,11 @@ context EventContext is {
       //reservation: ReservationId?
     }
     state ScheduledEvent of Event.ScheduledEventState is {
+        handler DefaultScheduledEventHandler {
+             on other {
+                then "pick the correct handler based on meta.currentSate and become it"
+             }
+        }
         handler ScheduledEventHandler {
             on command ScheduleEvent{then error "Event is already scheduled. Please RescheduleEvent to change event information."}
             //on command AddReservationToEvent {
@@ -460,10 +464,9 @@ context EventContext is {
                         duration = @DelayEvent.expectedDuration
                       ),
                       isPrivate = @ScheduledEventState.info.isPrivate,
-                      eventStatusInfo = !CancelledEventInfo(
-                        reason = @CancelEvent.reason,
-                        timeStarted = startTimeIfPast(startTime = @ScheduledEventState.info.expectedStart),
-                        timeEnded = nowIfStartIsPast(startTime = @ScheduledEventState.info.expectedStart)
+                      eventStatusInfo = !DelayedEventInfo(
+                        reason = @DelayEvent.reason,
+                        timeStartedOpt = startTimeIfPast(startTime = @ScheduledEventState.info.expectedStart)
                       )
                     ),
                     meta = !EventMetaInfo(
