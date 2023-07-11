@@ -80,8 +80,7 @@ context MemberContext is {
         lastModifiedOn: TimeStamp
           briefly "The timestamp the member was last modified",
         lastModifiedBy: MemberContext.MemberId
-          briefly "The member that last modified this member",
-        currentState: MemberStates
+          briefly "The member that last modified this member"
     }
     type MetaInfoQuery is {
         createdOn: TimeStamp?
@@ -91,8 +90,7 @@ context MemberContext is {
         lastModifiedOn: TimeStamp?
           briefly "Optionally the timestamp to match a member's last modification timestamp against",
         lastModifiedBy: MemberContext.MemberId?
-          briefly "Optionally the member id to match a member's last modifier against",
-        currentState: MemberStates
+          briefly "Optionally the member id to match a member's last modifier against"
     }
 
     command RegisterMember is {
@@ -234,14 +232,14 @@ context MemberContext is {
                 ) to outlet MemberEvents.Events
                 and morph entity Member to state DraftMember with !DraftMemberState(
                     info = !MemberContext.EditableInfo(
-                         contact = @RegisterMember.info.contact,
-                         handle = @RegisterMember.info.handle,
-                         avatar = @RegisterMember.info.avatar,
-                         firstName = @RegisterMember.info.firstName,
-                         lastName = @RegisterMember.info.lastName,
-                         notificationPreference = @RegisterMember.info.notificationPreference,
-                         organizationMembership = @RegisterMember.info.organizationMembership,
-                         tenant = @RegisterMember.info.tenant
+                         contact = @DraftMemberState.info.contact,
+                         handle = @DraftMemberState.info.handle,
+                         avatar = @DraftMemberState.info.avatar,
+                         firstName = @DraftMemberState.info.firstName,
+                         lastName = @DraftMemberState.info.lastName,
+                         notificationPreference = @DraftMemberState.info.notificationPreference,
+                         organizationMembership = @DraftMemberState.info.organizationMembership,
+                         tenant = @DraftMemberState.info.tenant
                     ),
                     meta = !MemberContext.MetaInfo(
                         createdOn = now(),

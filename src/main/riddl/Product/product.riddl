@@ -14,7 +14,7 @@ context ProductContext is {
   type ProductDetails is any of {TicketDetails}
   type ProductStatus is any of {Draft, Active, InActive, Deleted} briefly "Note: Delete is not the same as in Org, Tenant, etc because there is no PII. Here it is more like Terminate"
   type SKU is Id(Product)
-  type TicketDetails is one of {ReservedTicket, RestrictedTicket, OpenTicket}
+  type TicketDetails is any of {ReservedTicket, RestrictedTicket, OpenTicket}
 
   type ReservedTicket is {
     section: String,
