@@ -221,34 +221,14 @@ context MemberContext is {
 
         handler MemberHandler is {
             on command RegisterMember {
-                then send event MemberRegistered(
-                    memberId = @RegisterMember.memberId,
-                    info = @RegisterMember.info,
+                then morph entity Member to state DraftMemberState with !DraftMember(
+                    info = @MemberRegistered.info,
                     meta = !MemberContext.MetaInfo(
                         createdOn = now(),
-                        createdBy = @RegisterMember.registeringMember,
+                        createdBy = @RegisterMember.onBehalfOf,
                         lastUpdatedOn = now(),
-                        lastUpdatedBy = @RegisterMember.registeringMember,
+                        lastUpdatedBy = @RegisterMember.onBehalfOf,
                         currentState = @MemberStates.Draft
-                    )
-                ) to outlet MemberEvents.Events
-                and morph entity Member to state DraftMember with !DraftMemberState(
-                    info = !MemberContext.EditableInfo(
-                         contact = @RegisterMember.info.contact,
-                         handle = @RegisterMember.info.handle,
-                         avatar = @RegisterMember.info.avatar,
-                         firstName = @RegisterMember.info.firstName,
-                         lastName = @RegisterMember.info.lastName,
-                         notificationPreference = @RegisterMember.info.notificationPreference,
-                         organizationMembership = @RegisterMember.info.organizationMembership,
-                         tenant = @RegisterMember.info.tenant
-                    ),
-                    meta = !MemberContext.MetaInfo(
-                        createdOn = now(),
-                        createdBy = @RegisterMember.registeringMember.createdBy,
-                        lastUpdatedOn = now(),
-                        lastUpdatedBy = @RegisterMember.registeringMember.lastUpdatedBy,
-                        currentState = @OrganizationStates.Draft
                     )
                 )
             }
@@ -263,12 +243,12 @@ context MemberContext is {
             //}
         }
 
-        record DraftMemberState is {
+        record DraftMember is {
           id: MemberId,
           info: MemberContext.EditableInfo,
           meta: MemberContext.MetaInfo
         }
-        state DraftMember of record DraftMemberState is {
+        state DraftMemberState of record DraftMember is {
           handler DraftMemberHandler {
             on command RegisterMember {then error "Member has already been registered."}
             on command ActivateMember {
@@ -294,11 +274,10 @@ context MemberContext is {
                           currentState = @OrganizationStates.Active
                       )
                   ) to outlet MemberEvents.Events
-                  and morph entity Member to state RegisteredMember
-                      with !RegisteredMemberState(
-                          info = @DraftMemberState.info,
-                          orgMeta = @DraftMemberState.meta
-                      )
+                  and morph entity Member to state RegisteredMemberState with !RegisteredMember(
+                      info = @DraftMemberState.info,
+                      orgMeta = @DraftMemberState.meta
+                  )
               }
               example NotSufficient {
                   when "all required fields in state are not present"
@@ -342,12 +321,12 @@ context MemberContext is {
           |back to Draft.
         }
 
-        record RegisteredMemberState is {
+        record RegisteredMember is {
             id: MemberId,
             info: MemberContext.Info,
             meta: MemberContext.MetaInfo
         }
-        state RegisteredMember of RegisteredMemberState is {
+        state RegisteredMemberState of RegisteredMember is {
             invariant time_sanity is {
               <=(@RegisteredMemberState.meta, @RegisteredMemberState.meta)
             }
@@ -407,17 +386,7 @@ context MemberContext is {
                                 currentState = @MemberStates.Suspended
                             )
                         ) to outlet MemberEvents.Events
-                        and morph entity Member to state RegisteredMember
-                            with !RegisteredMemberState(
-                                info = @RegisteredMemberState.info,
-                                meta = !MemberContext.MetaInfo(
-                                    createdOn = @RegisteredMemberState.meta.createdOn,
-                                    createdBy = @RegisteredMemberState.meta.createdBy,
-                                    lastUpdatedOn = now(),
-                                    lastUpdatedBy = @SuspendMember.suspendingMember,
-                                    currentState = @MemberStates.Suspended
-                                )
-                            )
+                        and become entity Member to handler SuspendedMemberHandler
                     }
                 }
                 on command TerminateMember {
@@ -449,17 +418,7 @@ context MemberContext is {
                               currentState = @MemberStates.Active
                           )
                       ) to outlet MemberEvents.Events
-                      and morph entity Member to state RegisteredMember
-                          with !RegisteredMemberState(
-                              info = @RegisteredMemberState.info,
-                              meta = !MemberContext.MetaInfo(
-                                  createdOn = @RegisteredMemberState.meta.createdOn,
-                                  createdBy = @RegisteredMemberState.meta.createdBy,
-                                  lastUpdatedOn = now(),
-                                  lastUpdatedBy = @ActivateMember.activatingMember,
-                                  currentState = @MemberStates.Active
-                              )
-                          )
+                      and become entity Member to handler ActiveMemberHandler
                    }
                 }
                 on command SuspendMember {
