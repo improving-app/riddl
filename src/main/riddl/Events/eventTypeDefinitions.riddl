@@ -2,12 +2,34 @@ type LiveUpdate is mapping from String to String//i.e. "Score" -> "12 to 10", "a
 type EventResults is mapping from String to String //i.e. "Score" -> "12 to 10", "attendance" -> "523", ...
 
 /*
-type EventSpecificDetails is one of {FootballGame, BasketballGame, Play, Concert, FundRaiser}
+type Score is {home: Integer, away: Integer}
+type Teams is {home: Team, away: Team}
+type Team is {org: OrgID, name: String, ???}
 
-type FootballGame is {???
-    //homeTeam: OrgID,
-    //visitingTeam: String, || OrgID,
+type EventSpecificDetails is one of {Game, Play, Concert, FundRaiser}
+
+type Game is {info: GameTypeInfo, statusInfo: GameStatusInfo}
+type GameStateInfo is one of {ScheduledGameInfo | InProgressGameInfo | DelayedGameInfo | PastGameInfo | CancelledGameInfo}
+type ScheduledGameInfo is {}
+type InProgressGameInfo is {currentScore: Score}
+type DelayedGameInfo is {delayedScore: Score?}
+type PastGameInfo is {finalScore: Score}
+type CancelledGameInfo is {finalScore: Score?}
+
+type GameTypeInfo is one of {FootballGame, BasketballGame}
+
+type FootballGame is {
+    statusInfo: FootballGameStatusInfo
+    teams: Teams,
+    ???
 }
+type FootballGameStateInfo is one of {ScheduledFootballGameInfo | InProgressFootballGameInfo | DelayedFootballGameInfo | PastFootballGameInfo | CancelledFootballGameInfo}
+type ScheduledFootballGameInfo is {}
+type InProgressFootballGameInfo is {yardsSoFarHome: Integer, yardsSoFarAway: Integer}
+type DelayedFootballGameInfo is {yardsSoFarHome: Integer?, yardsSoFarAway: Integer?}
+type PastFootballGameInfo is {totalYardsHome: Integer, totalYardsAway: Integer}
+type CancelledFootballGameInfo is {yardsSoFarHome: Integer?, yardsSoFarAway: Integer?}
+
 type BasketballGame is {???}
 type Play is {???}
 type Concert is {???}
@@ -18,20 +40,43 @@ type EventType is {
 }
 */
 
-type EventStatus is any of {Scheduled, InProgress, Past, Cancelled, Delayed}
+type EventStates is any of {Draft, Scheduled, InProgress, Delayed, Past, Cancelled}
+type EventStateInfo is one of {ScheduledEventInfo | InProgressEventInfo | DelayedEventInfo | PastEventInfo | CancelledEventInfo}
+
+type ScheduledEventInfo is {???}
+type InProgressEventInfo is {timeStarted: TimeStamp}
+type DelayedEventInfo is {reason: String, timeStartedOpt: TimeStamp?}
+type PastEventInfo is {timeStarted: TimeStamp, timeEnded: TimeStamp}
+type CancelledEventInfo is {reason: String, timeStartedOpt: TimeStamp?, timeEndedOpt: TimeStamp?}
 
 type EventInfo is {
     eventName: String,
-    description: String,
-    eventURL: URL,
-    geoLocation: Location,
+    description: String?,
+    eventURL: URL?,
+    //geoLocation: Location?,
     sponsoringOrg: OrganizationId,
     expectedStart: DateTime,
     expectedEnd: DateTime,
-    isPrivate: Boolean
-    //eventType: EventType
+    isPrivate: Boolean,
+    eventStatusInfo: EventStateInfo
+    //eventDetails: EventSpecificDetails
     //eventTags: String+,// List of relevant, searchable tags that identify/describe this event
 }
+
+type EditableEventInfo is {
+    eventName: String?,
+    description: String?,
+    eventURL: URL?,
+    geoLocation: Location?,
+    sponsoringOrg: OrganizationId?,
+    expectedStart: DateTime?,
+    expectedEnd: DateTime?,
+    isPrivate: Boolean?,
+    eventStatusInfo: EventStatusInfo? briefly "there is no need for DraftStatusInfo, so this will always be None in Draft state"
+    //eventDetails: EventSpecificDetails
+    //eventTags: String+,// List of relevant, searchable tags that identify/describe this event
+}
+
 type EventMetaInfo is {
     scheduledBy: MemberId,
     scheduledOn: DateTime,
@@ -39,5 +84,5 @@ type EventMetaInfo is {
     lastModifiedOn: DateTime,
     actualStart: DateTime,
     actualEnd: DateTime,
-    status: EventStatus
+    state: EventStates
 }
