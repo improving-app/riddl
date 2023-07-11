@@ -80,7 +80,8 @@ context MemberContext is {
         lastModifiedOn: TimeStamp
           briefly "The timestamp the member was last modified",
         lastModifiedBy: MemberContext.MemberId
-          briefly "The member that last modified this member"
+          briefly "The member that last modified this member",
+        currentState: MemberStates
     }
     type MetaInfoQuery is {
         createdOn: TimeStamp?
@@ -90,7 +91,8 @@ context MemberContext is {
         lastModifiedOn: TimeStamp?
           briefly "Optionally the timestamp to match a member's last modification timestamp against",
         lastModifiedBy: MemberContext.MemberId?
-          briefly "Optionally the member id to match a member's last modifier against"
+          briefly "Optionally the member id to match a member's last modifier against",
+        currentState: MemberStates
     }
 
     command RegisterMember is {
@@ -219,34 +221,14 @@ context MemberContext is {
 
         handler MemberHandler is {
             on command RegisterMember {
-                then send event MemberRegistered(
-                    memberId = @RegisterMember.memberId,
-                    info = @RegisterMember.info,
+                then morph entity Member to state DraftMemberState with !DraftMember(
+                    info = @MemberRegistered.info,
                     meta = !MemberContext.MetaInfo(
                         createdOn = now(),
-                        createdBy = @RegisterMember.registeringMember,
+                        createdBy = @RegisterMember.onBehalfOf,
                         lastUpdatedOn = now(),
-                        lastUpdatedBy = @RegisterMember.registeringMember,
+                        lastUpdatedBy = @RegisterMember.onBehalfOf,
                         currentState = @MemberStates.Draft
-                    )
-                ) to outlet MemberEvents.Events
-                and morph entity Member to state DraftMember with !DraftMemberState(
-                    info = !MemberContext.EditableInfo(
-                         contact = @DraftMemberState.info.contact,
-                         handle = @DraftMemberState.info.handle,
-                         avatar = @DraftMemberState.info.avatar,
-                         firstName = @DraftMemberState.info.firstName,
-                         lastName = @DraftMemberState.info.lastName,
-                         notificationPreference = @DraftMemberState.info.notificationPreference,
-                         organizationMembership = @DraftMemberState.info.organizationMembership,
-                         tenant = @DraftMemberState.info.tenant
-                    ),
-                    meta = !MemberContext.MetaInfo(
-                        createdOn = now(),
-                        createdBy = @RegisterMember.registeringMember.createdBy,
-                        lastUpdatedOn = now(),
-                        lastUpdatedBy = @RegisterMember.registeringMember.lastUpdatedBy,
-                        currentState = @OrganizationStates.Draft
                     )
                 )
             }
@@ -261,12 +243,12 @@ context MemberContext is {
             //}
         }
 
-        record DraftMemberState is {
+        record DraftMember is {
           id: MemberId,
           info: MemberContext.EditableInfo,
           meta: MemberContext.MetaInfo
         }
-        state DraftMember of record DraftMemberState is {
+        state DraftMemberState of record DraftMember is {
           handler DraftMemberHandler {
             on command RegisterMember {then error "Member has already been registered."}
             on command ActivateMember {
@@ -292,11 +274,10 @@ context MemberContext is {
                           currentState = @OrganizationStates.Active
                       )
                   ) to outlet MemberEvents.Events
-                  and morph entity Member to state RegisteredMember
-                      with !RegisteredMemberState(
-                          info = @DraftMemberState.info,
-                          orgMeta = @DraftMemberState.meta
-                      )
+                  and morph entity Member to state RegisteredMemberState with !RegisteredMember(
+                      info = @DraftMemberState.info,
+                      orgMeta = @DraftMemberState.meta
+                  )
               }
               example NotSufficient {
                   when "all required fields in state are not present"
@@ -340,12 +321,12 @@ context MemberContext is {
           |back to Draft.
         }
 
-        record RegisteredMemberState is {
+        record RegisteredMember is {
             id: MemberId,
             info: MemberContext.Info,
             meta: MemberContext.MetaInfo
         }
-        state RegisteredMember of RegisteredMemberState is {
+        state RegisteredMemberState of RegisteredMember is {
             invariant time_sanity is {
               <=(@RegisteredMemberState.meta, @RegisteredMemberState.meta)
             }
@@ -405,17 +386,7 @@ context MemberContext is {
                                 currentState = @MemberStates.Suspended
                             )
                         ) to outlet MemberEvents.Events
-                        and morph entity Member to state RegisteredMember
-                            with !RegisteredMemberState(
-                                info = @RegisteredMemberState.info,
-                                meta = !MemberContext.MetaInfo(
-                                    createdOn = @RegisteredMemberState.meta.createdOn,
-                                    createdBy = @RegisteredMemberState.meta.createdBy,
-                                    lastUpdatedOn = now(),
-                                    lastUpdatedBy = @SuspendMember.suspendingMember,
-                                    currentState = @MemberStates.Suspended
-                                )
-                            )
+                        and become entity Member to handler SuspendedMemberHandler
                     }
                 }
                 on command TerminateMember {
@@ -447,17 +418,7 @@ context MemberContext is {
                               currentState = @MemberStates.Active
                           )
                       ) to outlet MemberEvents.Events
-                      and morph entity Member to state RegisteredMember
-                          with !RegisteredMemberState(
-                              info = @RegisteredMemberState.info,
-                              meta = !MemberContext.MetaInfo(
-                                  createdOn = @RegisteredMemberState.meta.createdOn,
-                                  createdBy = @RegisteredMemberState.meta.createdBy,
-                                  lastUpdatedOn = now(),
-                                  lastUpdatedBy = @ActivateMember.activatingMember,
-                                  currentState = @MemberStates.Active
-                              )
-                          )
+                      and become entity Member to handler ActiveMemberHandler
                    }
                 }
                 on command SuspendMember {
