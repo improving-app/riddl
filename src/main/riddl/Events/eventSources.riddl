@@ -5,3 +5,18 @@
 source LiveUpdates is {
     outlet Updates is type LiveUpdate
 } explained as "This is a source for things that happen as an event progresses"
+
+type PublicEventEvent is one of {
+  EventInfoChanged,
+  EventCreated,
+  EventScheduled,
+  //ReservationAddedToEvent,
+  EventCancelled,
+  EventRescheduled,
+  EventDelayed,
+  EventStarted,
+  EventEnded
+}
+source EventEvents is {
+  outlet Events is type PublicEventEvent
+} explained as "This is a source for event from Events entities"
