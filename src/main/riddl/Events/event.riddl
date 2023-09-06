@@ -1,4 +1,4 @@
 domain Events is {
     include "eventContext"
-    include "Reservations/reservation"
+    //include "Reservations/reservation"
 }

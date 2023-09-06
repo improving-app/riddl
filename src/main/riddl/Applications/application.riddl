@@ -1,18 +1,20 @@
 application UserInterface is {
   command EstablishOrganization is {
-    info: MemberContext.EditableInfo briefly "Details about an organization required for it to exist. See OrganizationContext.Organization.Info for details.",
+    info: OrganizationContext.EditableInfo briefly "Details about an organization required for it to exist. See OrganizationContext.Organization.Info for details.",
     tenant: TenantId,
     parent: Parent?,
+    admins: AdminList,
     members: MemberList,
     owners: OwnerList,
     contacts: ContactList,
-    onBehalfOf: MemberContext.MemberId briefly "The Id of the Member who is issuing the command."
+    onBehalfOf: UserContext.UserId briefly "The Id of the User who is issuing the command."
   } briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
 
   result OrganizationEstablished is {
     organizationId: OrganizationId briefly "Unique identifier returned by EstablishOrganization command",
     info: OrganizationContext.Info,
     parent: Parent?,
+    admins: AdminList,
     members: MemberList,
     owners: OwnerList,
     contacts: ContactList,
@@ -44,14 +46,25 @@ application UserInterface is {
   }
 
   command RegisterMember is {
-    info: MemberContext.EditableInfo briefly "Details about a member required for it to exist. See MemberContext.Member.MemberInfo for details.",
-    onBehalfOf: MemberContext.MemberId
+    info: UserContext.EditableMemberInfo briefly "Details about a member required for it to exist. See UserContext.EditableMemberInfo for details.",
+    onBehalfOf: UserContext.UserId
   }
 
   result MemberRegistered is {
-    memberId: MemberContext.MemberId briefly "Unique identifier returned by RegisterMember command",
-    info: MemberContext.EditableInfo,
-    meta: MemberMetaInfo
+    memberId: UserContext.UserId briefly "Unique identifier returned by RegisterMember command",
+    info: UserContext.EditableMemberInfo,
+    meta: UserContext.UserMetaInfo
+  }
+
+  command RegisterAdmin is {
+    info: UserContext.EditableAdminInfo briefly "Details about an admin required for it to exist. See UserContext.EditableAdminInfo for details.",
+    onBehalfOf: UserContext.UserId
+  }
+
+  result AdminRegistered is {
+    UserId: UserContext.UserId briefly "Unique identifier returned by RegisterAdmin command",
+    info: UserContext.EditableAdminInfo,
+    meta: UserContext.UserMetaInfo
   }
 
   group Member is {
@@ -59,20 +72,20 @@ application UserInterface is {
       acquires command UserInterface.RegisterMember
     }
     output DisplayMemberDetails is {
-      presents result MemberRegistered
+      presents result UserInterface.MemberRegistered
     }
   }
 
   handler MemberHandler is {
-    on command RegisterMember from user DemoMember {
+    on command UserInterface.RegisterMember from user DemoMember {
       then tell command UserInterface.RegisterMember to
-        context ImprovingApp.MemberContext
+        context ImprovingApp.UserContext
     }
     on event MemberRegistered
-    from context ImprovingApp.MemberContext {
+    from context ImprovingApp.UserContext {
       then {
-        tell result ImprovingApp.MemberContext.MemberRegistered to
-          projector ImprovingApp.MemberContext.MemberViews,
+        tell result ImprovingApp.UserInterface.MemberRegistered to
+          projector ImprovingApp.UserInterface.MemberViews,
         "present Member.DisplayMemberDetails"
       }
     }

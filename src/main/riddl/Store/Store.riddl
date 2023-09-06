@@ -22,15 +22,15 @@ context StoreContext is {
     description: String briefly "Required",
     products: SKU+ briefly "Required",
     event: EventId?,
-    venue: VenueId briefly "Required",
-    location: LocationId briefly "Required",
+    //venue: VenueId briefly "Required",
+    //location: LocationId briefly "Required",
     sponsoringOrg: OrganizationId briefly "Required"
   }
 
   type MetaInfo is {
-    createdBy: MemberId,
+    createdBy: UserId,
     createdOn: Date,
-    lastModifiedBy: MemberId,
+    lastModifiedBy: UserId,
     lastModifiedOn: Date,
     state: StoreStates
   }
@@ -40,28 +40,28 @@ context StoreContext is {
     description: String?,
     products: SKU*,
     event: EventId?,
-    venue: VenueId?,
-    location: LocationId?,
+    //venue: VenueId?,
+    //location: LocationId?,
     sponsoringOrg: OrganizationId?
   }
 
-  command CreateStore is {storeId: StoreId, info: StoreContext.EditableInfo, creatingMember: MemberId}
+  command CreateStore is {storeId: StoreId, info: StoreContext.EditableInfo, onBehalfOf: UserId}
   event StoreCreated is {storeId: StoreId, info: StoreContext.EditableInfo, meta: StoreContext.MetaInfo}
-  command EditStoreInfo is {storeId: StoreId, info: StoreContext.EditableInfo, updatingMember: MemberId}
+  command EditStoreInfo is {storeId: StoreId, info: StoreContext.EditableInfo, onBehalfOf: UserId}
   event StoreInfoEdited {storeId: StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
-  command MakeStoreReady is {storeId: StoreId, updatingMember: MemberId}
+  command MakeStoreReady is {storeId: StoreId, onBehalfOf: UserId}
   event StoreIsReady is {storeId: StoreId, meta: StoreContext.MetaInfo}
-  command DeleteStore is {storeId: StoreId, deletingMember: MemberId}
+  command DeleteStore is {storeId: StoreId, onBehalfOf: UserId}
   event StoreDeleted is {storeId: StoreId, meta: StoreContext.MetaInfo}
-  command OpenStore is {storeId: StoreId, openingMember: MemberId}
+  command OpenStore is {storeId: StoreId, onBehalfOf: UserId}
   event StoreOpened is {storeId: StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
-  command CloseStore is {storeId: StoreId, closingMember: MemberId}
+  command CloseStore is {storeId: StoreId, onBehalfOf: UserId}
   event StoreClosed is {storeId: StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
-  command TerminateStore is {storeId: StoreId, terminatingMember: MemberId}
+  command TerminateStore is {storeId: StoreId, onBehalfOf: UserId}
   event StoreTerminated is {storeId: StoreId, lastMeta: StoreContext.MetaInfo}
-  command AddProductsToStore is {storeId: StoreId, products: SKU+, addingMember: MemberId}
+  command AddProductsToStore is {storeId: StoreId, products: SKU+, onBehalfOf: UserId}
   event ProductsAddedToStore is {storeId: StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
-  command RemoveProductsFromStore is {storeId: StoreId, product: SKU+, removingMember: MemberId}
+  command RemoveProductsFromStore is {storeId: StoreId, product: SKU+, onBehalfOf: UserId}
   event ProductsRemovedFromStore is {storeId: StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
   //command IncrementProductInventory is {???} //TODO: Should we pull in the Nike Inventory demo that Sean built?
   //command DecrementProductInventory is {???}
@@ -80,9 +80,9 @@ context StoreContext is {
             info = @CreateStore.info,
             meta = !StoreContext.MetaInfo(
                 createdOn = now(),
-                createdBy = @CreateStore.creatingMember,
+                createdBy = @CreateStore.onBehalfOf,
                 lastUpdatedOn = now(),
-                lastUpdatedBy = @CreateStore.creatingMember,
+                lastUpdatedBy = @CreateStore.onBehalfOf,
                 currentState = @CreateStore.Draft
             )
         ) to outlet StoreEvents.Events
@@ -90,9 +90,9 @@ context StoreContext is {
             info = @CreateStore.info,
             meta = !StoreContext.MetaInfo(
                 createdOn = now(),
-                createdBy = @CreateStore.creatingMember,
+                createdBy = @CreateStore.onBehalfOf,
                 lastUpdatedOn = now(),
-                lastUpdatedBy = @CreateStore.creatingMember,
+                lastUpdatedBy = @CreateStore.onBehalfOf,
                 currentState = @StoreStates.Draft
             )
         )
@@ -129,7 +129,7 @@ context StoreContext is {
                createdOn = @DraftStoreState.meta.createdOn,
                createdBy = @DraftStoreState.meta.createdBy,
                lastUpdatedOn = now(),
-               lastUpdatedBy = @DeleteStore.deletingMember,
+               lastUpdatedBy = @DeleteStore.onBehalfOf,
                currentState = @StoreStates.Deleted
            )
           )
@@ -150,7 +150,7 @@ context StoreContext is {
                 createdOn = @DraftStoreState.meta.createdOn,
                 createdBy = @DraftStoreState.meta.createdBy,
                 lastUpdatedOn = now(),
-                lastUpdatedBy = @MakeStoreReady.updatingMember,
+                lastUpdatedBy = @MakeStoreReady.onBehalfOf,
                 currentState = @StoreStates.Ready
             )
           )
@@ -202,7 +202,7 @@ context StoreContext is {
             createdOn = @CreatedStoreState.meta.createdOn,
             createdBy = @CreatedStoreState.meta.createdBy,
             lastUpdated = now(),
-            lastUpdatedBy = @OpenStore.openingMember,
+            lastUpdatedBy = @OpenStore.onBehalfOf,
             currentState = @StoreStates.Open
           )
           and send event StoreOpened(
@@ -218,7 +218,7 @@ context StoreContext is {
             createdOn = @CreatedStoreState.meta,
             createdBy = @CreatedStoreState.meta,
             lastUpdated = now(),
-            lastUpdatedBy = @CloseStore.closingMember,
+            lastUpdatedBy = @CloseStore.onBehalfOf,
             currentState = @StoreStates.Closed
           )
           and send event StoreClosed(
@@ -245,7 +245,7 @@ context StoreContext is {
               createdOn = @CreatedStoreState.meta.createdOn,
               createdBy = @CreatedStoreState.meta.createdBy,
               lastUpdatedOn = now(),
-              lastUpdatedBy = @TerminateStore.terminatingMember,
+              lastUpdatedBy = @TerminateStore.onBehalfOf,
               currentState = @CreatedStoreState.meta
           )
           and morph entity Store to state TerminatedStore with !TerminatedStoreState(lastMeta = @CreatedStoreState.meta)
@@ -276,7 +276,7 @@ context StoreContext is {
               createdOn = @CreatedStoreState.meta.createdOn,
               createdBy = @CreatedStoreState.meta.createdBy,
               lastUpdated = now(),
-              lastUpdatedBy = @CloseStore.closingMember,
+              lastUpdatedBy = @CloseStore.onBehalfOf,
               currentState = @StoreStates.Closed
             )
             and send event StoreClosed(
@@ -303,7 +303,7 @@ context StoreContext is {
                   createdOn = @CreatedStoreState.meta.createdOn,
                   createdBy = @CreatedStoreState.meta.createdBy,
                   lastUpdatedOn = now(),
-                  lastUpdatedBy = @TerminateStore.terminatingMember,
+                  lastUpdatedBy = @TerminateStore.onBehalfOf,
                   currentState = @CreatedStoreState.meta
               )
               and morph entity Store to state TerminatedStore with !TerminatedStoreState(lastMeta = @CreatedStoreState.meta)
@@ -327,7 +327,7 @@ context StoreContext is {
               createdOn = @CreatedStoreState.meta.createdOn,
               createdBy = @CreatedStoreState.meta.createdBy,
               lastUpdated = now(),
-              lastUpdatedBy = @DeleteStore.deletingMember,
+              lastUpdatedBy = @DeleteStore.onBehalfOf,
               currentState = @StoreStates.Deleted
             )
             and send event StoreDeleted(
@@ -349,7 +349,7 @@ context StoreContext is {
               createdOn = @CreatedStoreState.meta.createdOn,
               createdBy = @CreatedStoreState.meta.createdBy,
               lastUpdated = now(),
-              lastUpdatedBy = @OpenStore.openingMember,
+              lastUpdatedBy = @OpenStore.onBehalfOf,
               currentState = @StoreStates.Open
             )
             and send event StoreOpened(
@@ -379,7 +379,7 @@ context StoreContext is {
               createdOn = @CreatedStoreState.meta.createdOn,
               createdBy = @CreatedStoreState.meta.createdBy,
               lastUpdatedOn = now(),
-              lastUpdatedBy = @TerminateStore.terminatingMember,
+              lastUpdatedBy = @TerminateStore.onBehalfOf,
               currentState = @CreatedStoreState.meta
           )
           and morph entity Store to state TerminatedStore with !TerminatedStoreState(lastMeta = @CreatedStoreState.meta)
@@ -390,8 +390,8 @@ context StoreContext is {
     record DeletedStoreState is {
       storeName: String,
       event: EventId?,
-      venue: VenueId,
-      location: LocationId,
+      //venue: VenueId,
+      //location: LocationId,
       sponsoringOrg: OrganizationId,
       meta: StoreContext.MetaInfo
     }
@@ -402,7 +402,7 @@ context StoreContext is {
               createdOn = @DeletedStoreState.meta.createdOn,
               createdBy = @DeletedStoreState.meta.createdBy,
               lastUpdatedOn = now(),
-              lastUpdatedBy = @TerminateStore.terminatingMember,
+              lastUpdatedBy = @TerminateStore.onBehalfOf,
               currentState = @DeletedStoreState.meta
           )
           and morph entity Store to state TerminatedStore with !TerminatedStoreState(lastMeta = @DeletedStoreState.meta)

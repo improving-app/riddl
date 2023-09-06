@@ -78,9 +78,9 @@ type EditableEventInfo is {
 }
 
 type EventMetaInfo is {
-    scheduledBy: MemberId,
+    scheduledBy: UserId,
     scheduledOn: DateTime,
-    lastModifiedBy: MemberId,
+    lastModifiedBy: UserId,
     lastModifiedOn: DateTime,
     actualStart: DateTime,
     actualEnd: DateTime,

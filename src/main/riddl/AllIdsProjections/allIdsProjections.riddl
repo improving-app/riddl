@@ -9,8 +9,8 @@ result AllOrgIds is {orgs: OrganizationId*}
 query GetAllEventIds is {}
 result AllEventIds {events: EventId*}
 
-query GetAllMemberIds is {}
-result AllMemberIds is {members: MemberId*}
+query GetAllUserIds is {}
+result AllUserIds is {users: UserId*}
 
 query GetAllStoreIds is {}
 result AllStoreIds is {stores: StoreId*}
@@ -85,20 +85,23 @@ context AllIdsProjections is  {
     }
   }
 
-  projector AllMemberIdsView is {
-     record AllMemberIdsFields {
-        member: MemberId,
-        memberStatus: MemberContext.Status
+  projector AllUserIdsView is {
+     record AllUserIdsFields {
+        member: UserId,
+        memberStatus: UserContext.UserStates
     }
-    handler AllMemberIdsViewHandler is {
-        on event MemberContext.MemberRegistered {
+    handler AllUserIdsViewHandler is {
+        on event UserContext.MemberRegistered {
             then "create row with member set to MemberRegistered.memberId"// and memberStatus set to Active"
         }
-        //on event MemberStatusUpdated {
-        //    then "update row with member set to MemberStatusUpdated.memberId to memberStatus with MemberStatusUpdated.newStatus"
+        on event UserContext.AdminRegistered {
+            then "create row with member set to AdminRegistered.memberId"// and memberStatus set to Active"
+        }
+        //on event UserStatusUpdated {
+        //    then "update row with member set to UserStatusUpdated.memberId to memberStatus with UserStatusUpdated.newStatus"
         //}
-        on query GetAllMemberIds {
-            then "reply with AllMemberIds packed with entire table"
+        on query GetAllUserIds {
+            then "reply with AllUserIds packed with entire table"
         }
     }
   }

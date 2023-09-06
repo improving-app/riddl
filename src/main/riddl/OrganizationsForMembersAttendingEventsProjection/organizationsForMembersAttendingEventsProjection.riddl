@@ -12,7 +12,7 @@ context OrganizationsForMembersAttendingEventsProjections is  {
         ticketSku: SKU, // ticket-event & ticket-member correlation tables
         attendingMemberOrg: OrganizationId, //org table & org-member correlation table
         attendingMemberOrgName: String, //org table
-        attendingMember: MemberId, //ticket-member, org-member correlation table & member table
+        attendingMember: UserId, //ticket-member, org-member correlation table & member table
         attendingMemberName: String //member table
     }
     handler OrganizationsForMembersAttendingEventsViewHandler is {
@@ -23,7 +23,7 @@ context OrganizationsForMembersAttendingEventsProjections is  {
         on event OrganizationTerminated {
             then "remove row from table"
         }
-        on event MemberContext.MemberRegistered {
+        on event UserGateway.MemberRegistered {
             then "create rows in member table with attendingMember set to MemberRegistered.id"
             and "set previous row's attendingMemberName to concatenated MemberRegistered.info.firstName and MemberRegistered.info.lastName"
             and "create row in org-member table with attendingMemberOrgId set to MemberRegistered.info.organizationMembership.head"
@@ -54,17 +54,17 @@ context OrganizationsForMembersAttendingEventsProjections is  {
         on event ProductDeleted {
             then "remove row in ticket-event table"
         }
-        on event OrderCreated {
-            then "for each OrderCreated.orderInfo.lineItem that has a SKU in event-ticket table, create row in ticket-member table with OrderCreated.meta.memberId as attendingMember & sku as ticketSku"
-        }
-        on event LineItemOrdered {
-            then "create row in ticket-member table with ticketSku set to LineItemOrdered.productId"
-            and "set attendingMemberId to LineItemOrdered.forMemberId"
-            and "set orderId to LineItemOrdered.orderId"
-        }
-        on event LineItemCancelled {
-            then "remove row in ticket-member table"
-        }
+        //on event OrderCreated {
+        //    then "for each OrderCreated.orderInfo.lineItem that has a SKU in event-ticket table, create row in ticket-member table with OrderCreated.meta.memberId as attendingMember & sku as ticketSku"
+        //}
+        //on event LineItemOrdered {
+        //    then "create row in ticket-member table with ticketSku set to LineItemOrdered.productId"
+        //    and "set attendingMemberId to LineItemOrdered.forMemberId"
+        //    and "set orderId to LineItemOrdered.orderId"
+        //}
+        //on event LineItemCancelled {
+        //    then "remove row in ticket-member table"
+        //}
         on query FindOrgsByMembersForEvents {
             then "left join event table filtered by FindOrgsByMembersForEvents.events to ticket-event table"
             and "left join table found in previous operation to ticket-member, org-member, org, member tables"

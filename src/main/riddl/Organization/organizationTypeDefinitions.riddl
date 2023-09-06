@@ -1,8 +1,8 @@
 type OrganizationStates is any of {Draft, Active, Suspended} briefly "Internal status of an Organization."
 type Contacts is {
-    primaryContacts: MemberId+,
-    billingContacts: MemberId*,
-    distributionContacts: MemberId*
+    primaryContacts: UserId+,
+    billingContacts: UserId*,
+    distributionContacts: UserId*
 } briefly "The contacts for a given organization."
 described in file "organizationContacts.md"
 /*type Accounts is {
@@ -30,21 +30,23 @@ type EditableInfo is {
     address: Address? briefly "Required for BaseOrg. Optional for all other organizations.",
     isPrivate: Boolean? briefly "defaults to true",
     url: URL?,
-    logo: URL?
+    logo: URL?,
+    tenant: TenantId?
     //color scheme
     //calendar: Calendar
     //memberRestrictions: ??? briefly "what member types are allowed to join this organization"
 } briefly "Essential information about an organization that is expected to evolve over time."
 type MetaInfo is {
     createdOn: TimeStamp briefly "The Date/Time this organization was created.",
-    createdBy: MemberId briefly "The member who created this organization",
+    createdBy: UserId briefly "The user who created this organization",
     lastUpdated: TimeStamp briefly "The Date/Time this organization was last modified.",
-    lastUpdatedBy: MemberId briefly "The member who last modified this organization. This may also be a system user. i.e. they are two months late on payment so the system determines to suspend the organization.",
+    lastUpdatedBy: UserId briefly "The user who last modified this organization. This may also be a system user. i.e. they are two months late on payment so the system determines to suspend the organization.",
     currentState: OrganizationStates briefly "The current state of this organization. Valid states include Draft, Active, Suspended, and Terminated",
     children: OrganizationId* briefly "If an organization has a parent it is a child organization. A school may be the parent to the football team. The football team may have child organizations of Varsity, Junior Varsity, and Freshman football teams. Rather than editing this list of children directly it is suggested that you update the parent reference in the target suborganization and let that handler update this child list."
 } briefly "Meta data kept about an organization that the user does not directly modify. Instead the system updates this info as a Member Owner updates details in the Info type."
 type Parent: OrganizationId briefly "BaseOrganizations do not have a parent. All other organizations must have a parent. The BaseOrganization (only one per organizational structure) is the financially responsible party. As such it MUST have a BillingAccount defined. BaseOrg remains in Draft state until fully defined."
-type MemberList: MemberId* briefly "An organization is composed of members. Membership in an organization generally gives visibility and access to events, especially for private organizaitons. Only members of an organizaton can be Owners or Admins of that organization."
-type OwnerList: MemberId* briefly "Every organization must have at least one Owner. Owners are the first and default Admin for the organzations they own."
+type AdminList: UserId* briefly "An organization is managed by admins."
+type MemberList: UserId* briefly "An organization is composed of users. Membership in an organization generally gives visibility and access to events, especially for private organizaitons. Only users of an organizaton can be Owners or Admins of that organization."
+type OwnerList: UserId* briefly "Every organization must have at least one Owner. Owners are the first and default Admin for the organzations they own."
 type ContactList: Contacts? briefly "There are three kinds of contacts: Primary Contacts, Billing Contacts, and Distribution Contacts." described in file "organizationContacts.md"
 // type AccountList: Accounts? briefly "There are two kinds of accounts: Billing Accounts, and Distribution Accounts." described in file "../Accounting/accounts.md"

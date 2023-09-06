@@ -14,7 +14,7 @@ context MembersAttendingEventsForAnOrganizationProjection is  {
         attendingMemberName: String //member table
     }
     handler MembersAttendingEventsForAnOrganizationEventsViewHandler is {
-        on event MemberContext.MemberRegistered {
+        on event UserContext.MemberRegistered {
             then "create rows in member table with attendingMember set to MemberRegistered.id"
             and "set previous row's attendingMemberName to concatenated MemberRegistered.info.firstName and MemberRegistered.info.lastName"
         }
@@ -32,9 +32,9 @@ context MembersAttendingEventsForAnOrganizationProjection is  {
         on event ProductCreated {
             then "if product is ticket, create row in ticket-event table with sku as ticketSku & productDetails.eventId as event"
         }
-        on event OrderCreated {
-            then "for each OrderCreated.orderInfo.lineItem that has a SKU in ticket table, create row in ticket-event table with OrderCreated.meta.memberId as attendingMember & sku as ticketSku"
-        }
+        //on event OrderCreated {
+        //    then "for each OrderCreated.orderInfo.lineItem that has a SKU in ticket table, create row in ticket-event table with OrderCreated.meta.memberId as attendingMember & sku as ticketSku"
+        //}
         on query FindMembersAtEventsOnDayForOrg {
             then "filter org table by FindMembersAtEventsOnDayForOrg.org"
             and "left results of previous operation with org-event, ticket-event, ticket-member, member, event tables"

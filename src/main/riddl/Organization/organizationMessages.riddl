@@ -6,7 +6,7 @@ command EstablishOrganization is {
   members: MemberList,
   owners: OwnerList,
   contacts: ContactList,
-  onBehalfOf: MemberId briefly "The Id of the Member who is issuing the command."
+  onBehalfOf: UserId briefly "The Id of the User who is issuing the command."
 } briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
 described in file "establishOrganization.md"
 
@@ -23,7 +23,7 @@ event OrganizationEstablished is {
 command EditOrganizationInfo is {
   organizationId: OrganizationId briefly "The unique Id of the organization to create",
   newInfo: OrganizationContext.EditableInfo briefly "The information about the organization",
-  onBehalfOf: MemberId briefly "Id of the member who is creating the organization"
+  onBehalfOf: UserId briefly "Id of the member who is creating the organization"
 } briefly "A command to edit the values of an Organization's Info "
 described in file "editOrganizationInfo.md"
 
@@ -44,51 +44,51 @@ event ParentUpdated is {
 }
 command AddMembersToOrganization is {
   organizationId: OrganizationId,
-  membersToAdd: MemberId+,
-  onBehalfOf: MemberId
+  membersToAdd: UserId+,
+  onBehalfOf: UserId
   // TODO: organizationId: OrganizationId briefly @orgId,
   // TODO: members: MemberId+ briefly @membersList
 }
 // TODO: Should members be a list of the all members (including new), or should it be only the new members (relevant for #2 and 4 above)
 event MembersAddedToOrganization is {
   organizationId: OrganizationId,
-  newMembers: MemberId+,
+  newMembers: UserId+,
   meta: OrganizationContext.MetaInfo
 }
 command RemoveMembersFromOrganization is {
   organizationId: OrganizationId,
-  membersToRemove: MemberId+,
-  onBehalfOf: MemberId
+  membersToRemove: UserId+,
+  onBehalfOf: UserId
 }
 event MembersRemovedFromOrganization is {
   organizationId: OrganizationId,
-  removedMembers: MemberId+,
-  onBehalfOf: MemberId
+  removedMembers: UserId+,
+  onBehalfOf: UserId
 }
 command AddOwnersToOrganization is {
   organizationId: OrganizationId,
-  ownersToAdd: MemberId+,
-  onBehalfOf: MemberId
+  ownersToAdd: UserId+,
+  onBehalfOf: UserId
 }
 event OwnersAddedToOrganization is {
   organizationId: OrganizationId,
-  newOwners: MemberId+,
+  newOwners: UserId+,
   meta: OrganizationContext.MetaInfo
 }
 command RemoveOwnersFromOrganization is {
   organizationId: OrganizationId,
-  ownersToRemove: MemberId+,
-  onBehalfOf: MemberId
+  ownersToRemove: UserId+,
+  onBehalfOf: UserId
 }
 event OwnersRemovedFromOrganization is {
   organizationId: OrganizationId,
-  removedOwners: MemberId+,
+  removedOwners: UserId+,
   meta: OrganizationContext.MetaInfo
 }
 command UpdateOrganizationContacts is {
   organizationId: OrganizationId,
   contacts: Contacts,
-  onBehalfOf: MemberId
+  onBehalfOf: UserId
 }
 event OrganizationContactsUpdated is {
   organizationId: OrganizationId,
@@ -98,7 +98,7 @@ event OrganizationContactsUpdated is {
 
 command ActivateOrganization is {
   organizationId: OrganizationId,
-  onBehalfOf: MemberId
+  onBehalfOf: UserId
 }
 event OrganizationActivated is {
   organizationId: OrganizationId,
@@ -107,7 +107,7 @@ event OrganizationActivated is {
 
 command SuspendOrganization is {
   organizationId: OrganizationId,
-  onBehalfOf: MemberId
+  onBehalfOf: UserId
 }
 event OrganizationSuspended is {
   organizationId: OrganizationId,
@@ -116,7 +116,7 @@ event OrganizationSuspended is {
 
 command TerminateOrganization is {
   organizationId: OrganizationId,
-  onBehalfOf: MemberId
+  onBehalfOf: UserId
 }
 event OrganizationTerminated is {
   meta: OrganizationContext.MetaInfo
@@ -132,9 +132,9 @@ event OrganizationAccountsUpdated is {
   meta: OrganizationContext.MetaInfo
 }
 
-query FindOrganizationsByMemberOrOwner is {memberOrOwner: MemberId, isMember: Boolean} briefly "Get a list of organizations that a member belongs to."
+query FindOrganizationsByMemberOrOwner is {memberOrOwner: UserId, isMember: Boolean} briefly "Get a list of organizations that a member belongs to."
 result OrganizationListByMemberOrOwner is {
-  memberOrOwner: MemberId,
+  memberOrOwner: UserId,
   isMember: Boolean,
   organizations: OrganizationId*
 }
@@ -148,11 +148,11 @@ result OrganizationParent is {
 }
 query GetOrganizationMembers is {orgId: OrganizationId}
 result OrganizationMembers is {
-  members: MemberId+
+  members: UserId+
 }
 query GetOrganizationOwners is {orgId: OrganizationId}
 result OrganizationOwners is {
-  owners: MemberId+
+  owners: UserId+
 }
 query GetOrganizationContacts is {orgId: OrganizationId}
 result OrganizationContacts is {

@@ -1,7 +1,7 @@
 command EstablishTenant is {
   tenantId: TenantId,
   tenantInfo: TenantContext.TenantInfo,
-  establishingMember: MemberId
+  onBehalfOf: UserId
 } brief "A command that creates a new Tenant"
 described by {
   |Given a TenantId and the corresponding TenantInfo, the tenant is created and
@@ -19,7 +19,7 @@ described by {
 
 command ActivateTenant is {
 	tenantId: TenantId,
-	activatingUser: MemberId
+	onBehalfOf: UserId
 } briefly "A command that activates a tenant so that operations can be allowed"
 described by {
   |Given a TenantId, the tenant is activated so that certain user functions can be performed.
@@ -33,7 +33,7 @@ event TenantActivated is {
 
 command SuspendTenant is {
 	tenantId: TenantId,
-	suspendingUser: MemberId
+	onBehalfOf: UserId
 } briefly "A command that suspends a tenant so that many operations are not allowed"
 described by {
   |Given a TenantId, the tenant is suspended so that certain user functions cannot be performed.
@@ -47,7 +47,7 @@ event TenantSuspended is {
 
 command TerminateTenant is {
 	tenantId: TenantId,
-	terminatingUser: MemberId
+	onBehalfOf: UserId
 } briefly "A command that terminates a tenant by deleting all data except its ID"
 described by {
   |Given a TenantId, the tenant is terminated per GDPR requirement, resulting in deletion of all PII.

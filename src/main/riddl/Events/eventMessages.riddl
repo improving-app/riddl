@@ -1,21 +1,21 @@
-command EditEventInfo is {eventId: EventId, info: EditableEventInfo, onBehalfOf: MemberId}
+command EditEventInfo is {eventId: EventId, info: EditableEventInfo, onBehalfOf: UserId}
 event EventInfoEdited is {eventId: EventId, info: EditableEventInfo, meta: EventMetaInfo}
-command CreateEvent is {eventId: EventId, info: EditableEventInfo, onBehalfOf: MemberId}
+command CreateEvent is {eventId: EventId, info: EditableEventInfo, onBehalfOf: UserId}
 event EventCreated is {eventId: EventId, info: EditableEventInfo, meta: EventMetaInfo}
-command ScheduleEvent is {eventId: EventId, info: EventInfo, onBehalfOf: MemberId}
+command ScheduleEvent is {eventId: EventId, info: EventInfo, onBehalfOf: UserId}
 event EventScheduled is {eventId: EventId, info: EventInfo, meta: EventMetaInfo}
 //command AddReservationToEvent is {event: EventId, reservation: ReservationId}
 //event ReservationAddedToEvent is {event: EventId, reservation: ReservationId}
-command CancelEvent is {eventId: EventId, reason: String, onBehalfOf: MemberId}
+command CancelEvent is {eventId: EventId, reason: String, onBehalfOf: UserId}
 event EventCancelled is {eventId: EventId}
-command RescheduleEvent is {eventId: EventId, start: DateTime, end: DateTime, onBehalfOf: MemberId}
+command RescheduleEvent is {eventId: EventId, start: DateTime, end: DateTime, onBehalfOf: UserId}
 event EventRescheduled is {eventId: EventId, info: EventInfo, meta: EventMetaInfo}
-command DelayEvent is {eventId: EventId, reason: String, expectedDuration: Duration, onBehalfOf: MemberId}
+command DelayEvent is {eventId: EventId, reason: String, expectedDuration: Duration, onBehalfOf: UserId}
 event EventDelayed is {eventId: EventId, info: EventInfo, meta: EventMetaInfo}
-command StartEvent is {eventId: EventId, onBehalfOf: MemberId}
+command StartEvent is {eventId: EventId, onBehalfOf: UserId}
 event EventStarted is {eventId: EventId, meta: EventMetaInfo}
-command EndEvent is {eventId: EventId, onBehalfOf: MemberId}
+command EndEvent is {eventId: EventId, onBehalfOf: UserId}
 event EventEnded is {eventId: EventId, meta: EventMetaInfo}
-command TerminateEvent is {eventId: EventId, onBehalfOf: MemberId}
+command TerminateEvent is {eventId: EventId, onBehalfOf: UserId}
 event EventTerminated is {eventId: EventId, lastMeta: EventMetaInfo}
 command AddLiveUpdate is {eventId: EventId, update: LiveUpdate}

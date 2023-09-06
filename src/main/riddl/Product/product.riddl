@@ -12,7 +12,7 @@ context ProductContext is {
   } explained as "This is a source for Product Events"
 
   type ProductDetails is any of {TicketDetails}
-  type ProductStatus is any of {Draft, Active, InActive, Deleted} briefly "Note: Delete is not the same as in Org, Tenant, etc because there is no PII. Here it is more like Terminate"
+  type ProductState is any of {Draft, Active, InActive, Deleted} briefly "Note: Delete is not the same as in Org, Tenant, etc because there is no PII. Here it is more like Terminate"
   type SKU is Id(Product)
   type TicketDetails is one of {ReservedTicket, RestrictedTicket, OpenTicket}
 
@@ -48,20 +48,20 @@ context ProductContext is {
     store: StoreId?
   }
   type ProductMetaInfo is {
-    createdBy: MemberId,
+    createdBy: UserId,
     createdOn: Date,
-    lastModifiedBy: MemberId,
+    lastModifiedBy: UserId,
     lastModifiedOn: Date
   }
-  command CreateProduct is {sku: SKU, info: ProductInfo, onBehalfOf: MemberId}
+  command CreateProduct is {sku: SKU, info: ProductInfo, onBehalfOf: UserId}
   event ProductCreated is {sku: SKU, info: ProductInfo, meta: ProductMetaInfo}
-  command UpdateProductInfo is {sku: SKU, info: ProductInfoUpdate, onBehalfOf: MemberId}
+  command UpdateProductInfo is {sku: SKU, info: ProductInfoUpdate, onBehalfOf: UserId}
   event ProductInfoUpdated is {sku: SKU, info: ProductInfo, meta: ProductMetaInfo}
-  command DeleteProduct is {sku: SKU, onBehalfOf: MemberId}
+  command DeleteProduct is {sku: SKU, onBehalfOf: UserId}
   event ProductDeleted is {sku: SKU}
-  command ActivateProduct is {sku: SKU, onBehalfOf: MemberId}
+  command ActivateProduct is {sku: SKU, onBehalfOf: UserId}
   event ProductActivated is {sku: SKU}
-  command InactivateProduct is {sku: SKU, onBehalfOf: MemberId}
+  command InactivateProduct is {sku: SKU, onBehalfOf: UserId}
   event ProductInactivated is {sku: SKU}
   query GetProductInfo is {sku: SKU}
   result ProductInfoResult is {info: ProductInfo, meta: ProductMetaInfo}
@@ -152,7 +152,7 @@ context ProductContext is {
                   createdOn = @DraftProductState.meta.createdOn,
                   createdBy = @DraftProductState.meta.createdBy,
                   lastUpdatedOn = now(),
-                  lastUpdatedBy = @ActivateProduct.updatingMember,
+                  lastUpdatedBy = @ActivateProduct.onBehalfOf,
                   currentState = @ProductStates.Active
               )
             )
