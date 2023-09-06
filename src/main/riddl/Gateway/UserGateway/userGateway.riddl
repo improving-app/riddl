@@ -1,0 +1,69 @@
+context UserGateway is {
+  options(gateway)
+  
+  //type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
+  type MemberMap is mapping from UserContext.UserId to MemberInfo
+  type NotificationPreference is any of {email, sms}
+  type UserState is any of {Draft, Active, Suspended}
+  type RoleInfo is any of { MemberInfo, AdminInfo }
+  type EditableRoleInfo is any of { EditableMemberInfo, EditableAdminInfo }
+  type UserInfo is {
+      tenant: TenantId
+        briefly "Required - Tenant id of the user",
+      authTenant: TenantId?
+        briefly "Auth service (Keycloak) tenant id",
+      roles: mapping from Role to RoleInfo
+  }
+  type EditableUserInfo is {
+      tenant: TenantId
+        briefly "Required - Tenant id of the user",
+      authTenant: TenantId?
+        briefly "Auth service (Keycloak) tenant id",
+      editableRoles: mapping from Role to EditableRoleInfo
+  }
+  type MemberInfo is {
+      handle: String,
+      avatar: URL, //thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content.
+      firstName: String,
+      lastName: String,
+      mobileNumber: MobileNumber?,
+      emailAddress: EmailAddress?,
+      notificationPreference: NotificationPreference,
+      notificationOptIn: Boolean, //true indicates they allow notifications
+      organizations: OrganizationId*, //Members must belong to at least one Organization?
+      relatedMembers: String, //Primary use case is parent/student. I am sure there are others. Might be a better way to document such a relationship.
+      memberType: MemberType+
+  }
+  type UserMetaInfo is {
+      createdOn: Date,
+      createdBy: UserContext.UserId,
+      lastModifiedOn: Date,
+      lastModifiedBy: UserContext.UserId,
+      userrState: UserState
+  }
+
+  type RegisterUserList is command {memberList: MemberMap+, onBehalfOf: UserContext.UserId} briefly "RegisterMemberList creates multiple members with a single call. The limitation is you can only define a single MemberType in each call, and all new Members must be assigned to an Organization (typically a BaseOrg)."
+  type MemberListRegistered is event {memberData:MemberData*}
+  type RegisterMember is command {memberToAdd: MemberMap, onBehalfOf: UserContext.UserId?} briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional. Also registeringMember is optional - if you are registering yourself then you are the registering member for yourself - you just don't exist yet"
+  type MemberRegistered is event {id: UserContext.UserId, info: UserGateway.EditableUserInfo, meta: UserMetaInfo} briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
+  type RegisterAdmin command {info: UserGateway.EditableUserInfo, onBehalfOf: UserContext.UserId?} briefly "RegisterAdmin creates a single new admin."
+  type AdminRegistered is event {id: UserContext.UserId, info: UserGateway.EditableUserInfo, meta: UserMetaInfo} briefly "Event issued after either RegisterAdmin is called."
+  type UpdateMembersInfo is command {memberMap:MemberMap, onBehalfOf: UserContext.UserId} briefly "All member info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full MemberInfo object back."
+  type MembersInfoUpdated is event {id: UserContext.UserId, memberInfo: MemberInfo, meta: UserMetaInfo}
+  type UpdateUserInfo is command {info:UserGateway.EditableUserInfo, onBehalfOf: UserContext.UserId} briefly "All user info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full UserInfo object back."
+  type UserInfoUpdated is event {id: UserContext.UserId, info: UserGateway.UserInfo, meta: UserGateway.UserMetaInfo}
+  type ActivateUser is command {id: UserContext.UserId, onBehalfOf: UserContext.UserId}
+  type UserActivated is event {id: UserContext.UserId, meta: UserGateway.UserMetaInfo}
+  type InactivateUser is command {id: UserContext.UserId, onBehalfOf: UserContext.UserId}
+  type UserInactivated is event {id: UserContext.UserId, meta: UserGateway.UserMetaInfo}
+  type SuspendUser is command {id: UserContext.UserId, onBehalfOf: UserContext.UserId}
+  type UserSuspended is event {id: UserContext.UserId, meta: UserGateway.UserMetaInfo}
+  type TerminateUser is command {id: UserContext.UserId, onBehalfOf: UserContext.UserId}
+  type UserTerminated is event {id: UserContext.UserId, meta: UserGateway.UserMetaInfo}
+  type GetUserInfo is query {id: UserContext.UserId}
+  type UserData is result {id: UserContext.UserId, info: UserGateway.UserInfo, meta: UserGateway.UserMetaInfo}
+  type GetMemberForHandle is query {handle: String}
+  type MemberForHandle is result {userId: UserContext.UserId?}
+
+
+}

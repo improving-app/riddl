@@ -1,0 +1,3 @@
+type UserRole is any of { Member, Admin } briefly "to be used for validating user permissions
+                                                    regarding given command or query they have
+                                                    issued"

@@ -1,0 +1,562 @@
+context UserContext is {
+    type UserId is Id(UserContext.User)
+      briefly "Unique identifier for User Entity"
+
+    type PublicUserEvent is one of {
+        AdminRegistered,
+        UserRegistered,
+        UserRoleInfoEdited,
+        UserActivated,
+        UserSuspended,
+        UserTerminated
+    }
+    source UserEvents is {
+        outlet Events is type PublicUserEvent
+    } explained as "This is a source for User Events"
+
+    type UserStates is any of {Draft, Active, Suspended} briefly "Internal status of a User."
+
+    //User Roles
+    type RoleInfo is any of { MemberInfo, AdminInfo }
+    type EditableRoleInfo is any of { EditableMemberInfo, EditableAdminInfo }
+
+    //Member Details
+    type MemberMap is mapping from UserContext.UserId to UserContext.MemberInfo
+
+    type NotificationPreference is any of { Email, SMS, Application } described
+    as {
+      | The values of this enumeration define the ways in which a member may
+      | be notified of changes.
+    }
+
+    type Info is {
+        tenant: TenantId
+          briefly "Required - Tenant id of the member",
+        authTenant: TenantId?
+          briefly "Auth service (Keycloak) tenant id",
+        roles: mapping from Role to RoleInfo
+    } described as {
+      |This type provides the basic information about users that is
+      |retained by the User entity. The fields of this type form the profile
+      |of the User with demographics, contact info, and various options
+      |like notifications and group membership the User can opt in to.
+    }
+
+    type EditableInfo is {
+        tenant: TenantId briefly "Required - Tenant id of the member",
+        authTenant: TenantId? briefly "Auth service (Keycloak) tenant id",
+        editableRoles: mapping from Role to EditableRoleInfo
+    } described as {
+      |This type provides the basic information about users that is
+      |retained by the User entity. The fields of this type form the profile
+      |of the User with demographics, contact info, and various options
+      |like notifications and group membership the User can opt in to.
+    }
+
+    type MemberInfo{
+        contact: Contact
+          briefly "Required - Contact information of the member",
+        handle: String
+          briefly "Required - username. Must be unique.",
+        avatar: URL
+          briefly "Required - thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
+        firstName: String
+          briefly "Required - Real first name of the member",
+        lastName: String
+          briefly "Required - Real last name of the member",
+        //mobileNumber: MobileNumber? briefly "Optional mobile phone number",
+        //emailAddress: EmailAddress? briefly "Optional email address",
+        organizationMembership: OrganizationId*
+          briefly "A possibly empty list of organizations this member belongs to.",
+        notificationPreference: NotificationPreference?
+          briefly "if this is set it is assumed that the user has opted in."
+    } described as {
+      |This type provides the basic information about members that is
+      |retained by the User entity. The fields of this type form the profile
+      |of the member with demographics, contact info, and various options
+      |like notifications and group membership the User can opt in to.
+    }
+
+    type EditableMemberInfo is {
+        handle: String?
+          briefly "username. Must be unique.",
+        avatar: URL?
+          briefly "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
+        firstName: String?
+          briefly "Real first name of the member",
+        lastName: String?
+          briefly "Real last name of the member",
+        //mobileNumber: MobileNumber?,
+        //emailAddress: EmailAddress?,
+        notificationPreference: NotificationPreference?
+          briefly "if this is set it is assumed that the user has opted in.",
+        organizationMembership: OrganizationId*
+          briefly "A list of organizations this member belongs to.",
+        tenant: TenantId*
+          briefly "the tenant(s) this Member would belong to"
+    } described as {
+      |This aggregate type specifies a way to update any or all of the
+      |MemberInfo fields. If a field value is missing (they are all optional)
+      |then the current value is not updated.
+    }
+
+    type AdminInfo is {}
+    type EditableAdminInfo is {}
+
+    type UserMetaInfo is {
+        createdOn: TimeStamp
+          briefly "The timestamp the member was created",
+        createdBy: UserContext.UserId
+          briefly "The member that created this member",
+        lastModifiedOn: TimeStamp
+          briefly "The timestamp the member was last modified",
+        lastModifiedBy: UserContext.UserId
+          briefly "The member that last modified this member",
+        currentState: UserContext.UserStates
+    }
+
+    type UserMetaInfoQuery is {
+        createdOn: TimeStamp?
+          briefly "Optionally the timestamp to match a member's creation timestamp against",
+        createdBy: UserContext.UserId?
+          briefly "Optionally the member id to match a member's creator against",
+        lastModifiedOn: TimeStamp?
+          briefly "Optionally the timestamp to match a member's last modification timestamp against",
+        lastModifiedBy: UserContext.UserId?
+          briefly "Optionally the member id to match a member's last modifier against",
+        states: UserContext.UserStates*
+          briefly "Can be used to search for Users in a given state",
+        roles: UserContext.Role*
+          briefly "Can be used to search for Users with a given role",
+        rolesInfo: UserContext.EditableRoleInfo*
+          briefly "Can be used to search for Users with info related to a role - only non-empty fields are searched for"
+    }
+
+    command RegisterAdmin is {
+      userId: UserId briefly "Unique identifier for the new admin",
+      info: UserContext.EditableInfo briefly "Info needed to registration",
+      onBehalfOf: UserId briefly "User that registered new admin"
+    } briefly "Create a single new admin"
+      described as {
+       |RegisterAdmin creates a single new admin. The admin can be
+       |registered by either another admin or by themselves.
+    }
+
+    event AdminRegistered is {
+      userId: UserId briefly "Unique identifier for the registered admin",
+      info: UserContext.EditableInfo briefly "Info describing the admin",
+      meta: UserContext.UserMetaInfo
+    } briefly "Event issued after RegisterAdmin"
+    described as {
+      |This event occurs whenever a member is registered and provides the
+      |meta information for the registered member
+    }
+
+    command RegisterMember is {
+      userId: UserId briefly "Unique identifier for the new member",
+      info: UserContext.EditableInfo briefly "Info needed for registration",
+      onBehalfOf: UserId briefly "Member that registered new member"
+    } briefly "Create a single new member"
+      described as {
+       |RegisterMember creates a single new member. The member must be
+       |registered by an admin, either an admin of same organization
+       |or themselves.
+    }
+
+    event MemberRegistered is {
+      userId: UserId briefly "Unique identifier for the registered member",
+      info: UserContext.EditableMemberInfo briefly "Info describing the member",
+      meta: UserContext.UserMetaInfo
+    } briefly "Event issued after RegisterMember"
+    described as {
+      |This event occurs whenever a member is registered and provides the
+      |meta information for the registered member.
+    }
+
+    command EditUserInfo is {userId: UserId, info: UserContext.EditableInfo, onBehalfOf: UserId}
+    briefly "Edit info of a user"
+    described as {
+      |This command will overwrite the values of attributes provided in state role info.
+      |If an attribute is not referenced it will be left as is. If an attribute is
+      |referenced with no value, an empty value will replace what is currently
+      |stored. If an attribute is referenced with a value, the new value will
+      |overwrite what is stored. However it will only do this at top level; roles info may be overwritten
+    }
+
+    event UserInfoEdited is {userId: UserId, info: UserContext.EditableMemberInfo, meta: UserContext.UserMetaInfo}
+    briefly "Event issued after EditUserRoleInfo"
+    described as {
+      |This event occurs whenever a user's role information is edited.
+    }
+
+    command EditUserRoleInfo is {userId: UserId, info: UserContext.EditableRoleInfo, onBehalfOf: UserId}
+    briefly "Edit role info of a user"
+    described as {
+      |This command will overwrite the values of attributes provided in state role info.
+      |If an attribute is not referenced it will be left as is. If an attribute is
+      |referenced with no value, an empty value will replace what is currently
+      |stored. If an attribute is referenced with a value, the new value will
+      |overwrite what is stored.
+    }
+
+    event UserRoleInfoEdited is {userId: UserId, info: UserContext.EditableMemberInfo, meta: UserContext.UserMetaInfo}
+    briefly "Event issued after EditUserRoleInfo"
+    described as {
+      |This event occurs whenever a user's role information is edited.
+    }
+
+    command ActivateUser is {userId: UserId, onBehalfOf: UserId}
+    briefly "Update state of user to Active"
+    described as {
+      |This command activates the user.
+    }
+
+    event UserActivated is {userId: UserId, meta: UserContext.UserMetaInfo}
+    briefly "Event issued after ActivateUser"
+    described as {
+      |This event is issued after ActivateUser to denote
+      |that the user is now active.
+    }
+
+
+    command SuspendUser is {userId: UserId, onBehalfOf: UserId}
+    briefly "Update state of user to Suspended"
+    described as {
+      |This command suspends the user such that most operations are not available.
+    }
+
+    event UserSuspended is {userId: UserId, meta: UserContext.UserMetaInfo}
+    briefly "Event issued after SuspendUser"
+    described as {
+      |This event is issued after SuspendUser to denote
+      |that the user is now suspended.
+    }
+
+    command TerminateUser is {userId: UserId, onBehalfOf: UserId}
+    briefly "Update state of user to Terminated"
+    described as {
+      |This command terminates the user.
+    }
+
+    event UserTerminated is {userId: UserId, meta: UserContext.UserMetaInfo}
+    briefly "Event issued after TerminateUser"
+    described as {
+      |This event is issued after TerminateUser to denote
+      |that the user is now terminated.
+    }
+
+    query GetUserData is {userId: UserId}
+    briefly "Get the data of a user"
+    described as {
+      |This query gets the data of a user if it exists.
+    }
+
+    result UserData is {roles: mapping from Role to RoleInfo, meta: UserContext.UserMetaInfo}
+    briefly "The data of the user returned from the GetUserData query"
+    described as {
+      |This result contains the user id, user role information, and user metadata.
+    }
+
+    query GetMembersByMetaInfo is {queryData: UserContext.UserMetaInfoQuery}
+    briefly "Get the members based on the meta info"
+    described as {
+      |This query gets the users with Member role only by checking if at least
+      |one of the fields of MetaInfoQuery has matched.
+    }
+
+    result MemberListResult is {members: MemberMap}
+    briefly "The data returned from the GetMembersByMetaInfo query"
+    described as {
+      |This result contains the MemberMap, which contains all members that
+      |matched to at least one of the fields of MetaInfoQuery.
+    }
+
+    entity User is {
+        options(aggregate, technology("akka"))
+
+        handler UserHandler is {
+            on command RegisterMember {
+                then send event MemberRegistered(
+                    userId = @RegisterMember.userId,
+                    info = @RegisterMember.info,
+                    meta = !UserContext.UserMetaInfo(
+                        createdOn = now(),
+                        createdBy = @RegisterMember.onBehalfOf,
+                        lastUpdatedOn = now(),
+                        lastUpdatedBy = @RegisterMember.onBehalfOf,
+                        currentState = @UserStates.Draft
+                    )
+                ) to outlet TenantEvents.Events
+                and morph entity User to state DraftUserState with !DraftUser(
+                    info = @MemberRegistered.info,
+                    meta = !UserContext.MetaInfo(
+                        createdOn = now(),
+                        createdBy = @RegisterMember.onBehalfOf,
+                        lastUpdatedOn = now(),
+                        lastUpdatedBy = @RegisterMember.onBehalfOf,
+                        currentState = @UserStates.Draft
+                    )
+                )
+            }
+            on command RegisterAdmin {
+                then send event AdminRegistered(
+                    userId = @RegisterAdmin.userId,
+                    info = @RegisterAdmin.info,
+                    meta = !UserContext.UserMetaInfo(
+                        createdOn = now(),
+                        createdBy = @RegisterAdmin.onBehalfOf,
+                        lastUpdatedOn = now(),
+                        lastUpdatedBy = @RegisterAdmin.onBehalfOf,
+                        currentState = @UserStates.Draft
+                    )
+                ) to outlet TenantEvents.Events
+                then morph entity User to state DraftUserState with !DraftUser(
+                    info = @AdminRegistered.info,
+                    meta = !UserContext.MetaInfo(
+                        createdOn = now(),
+                        createdBy = @RegisterAdmin.onBehalfOf,
+                        lastUpdatedOn = now(),
+                        lastUpdatedBy = @RegisterAdmin.onBehalfOf,
+                        currentState = @UserStates.Draft
+                    )
+                )
+            }
+        }
+
+        record DraftUser is {
+          id: UserId,
+          info: UserContext.Info,
+          meta: UserContext.UserMetaInfo
+        }
+        state DraftUserState of record DraftUser is {
+          handler DraftUserHandler {
+            on command RegisterMember {
+              example Member {
+                then error "Member has already been registered."
+              }
+              example NonAdmin {
+                then error "User is not a Member - please add role if desired"
+              }
+            }
+            on command RegisterAdmin  {
+              example Admin {
+                then error "Admin has already been registered."
+              }
+              example NonAdmin {
+                then error "User is not a Admin - please add role if desired"
+              }
+            }
+            on command ActivateUser {
+              example Success {
+                  when "all required fields in requiredInfo are not None or Empty"
+                  then send event UserActivated(
+                      userId = @DraftUserState.id,
+                      info = @DraftUserState.info, //must be converted from Editable[Role]Info's to regular [Role]Info's
+                      meta = !UserContext.UserMetaInfo(
+                          createdOn = @DraftUserState.meta.createdOn,
+                          createdBy = @DraftUserState.meta.createdBy,
+                          lastUpdatedOn = now(),
+                          lastUpdatedBy = @EditOrganizationInfo.onBehalfOf,
+                          currentState = @OrganizationStates.Active
+                      )
+                  ) to outlet UserEvents.Events
+                  and morph entity User to state RegisteredUserState with !RegisteredUser(
+                      info = @DraftUserState.info, //must be converted from Editable[Role]Info's to regular [Role]Info's
+                      orgMeta = @DraftUserState.meta
+                  )
+              }
+              example NotSufficient {
+                  when "all required fields in editableRoles are not present"
+                  then error "state is not sufficiently filled out to activate organization"
+              }
+            }
+            on command EditUserRoleInfo {
+              then "update DraftUserState.info to have Roles data provided by command"
+              and set DraftUserState.meta to !UserContext.UserMetaInfo(
+                  createdOn = @DraftUserState.meta.createdOn,
+                  createdBy = @DraftUserState.meta.createdBy,
+                  lastUpdatedOn = now(),
+                  lastUpdatedBy = @EditUserRoleInfo.onBehalfOf,
+                  currentState = @UserStates.Draft
+              )
+              and send event UserRoleInfoEdited(
+                  userId = @DraftUserState.id,
+                  info = @DraftUserState.info,
+                  meta = @DraftUserState.meta
+              ) to outlet UserEvents.Events
+            }
+            // For GetMemberData, eventually probably only admins and self should be able to make this call. Also
+            // potentially allow other roles to get some limited information (this will require adding another
+            // aggregate).
+            on query GetUserData {
+              then "yield Info for entity"
+            }
+          }
+        } described as {
+          |This state is the initial state of a User. It describes that the user
+          |is not yet ready to be active. Once out of this state, a user cannot go
+          |back to Draft.
+        }
+
+        record RegisteredUser is {
+            id: UserId,
+            info: UserContext.Info,
+            meta: UserContext.UserMetaInfo
+        }
+        state RegisteredUserState of RegisteredUser is {
+            invariant time_sanity is {
+              <=(@RegisteredUserState.meta.createdOn, @RegisteredUserState.meta.lastModifiedOn)
+            }
+
+            handler ActiveUserHandler {
+                on command RegisterMember {
+                  example Member {
+                    then error "Member has already been registered."
+                  }
+                  example NonAdmin {
+                    then error "User is not a Member - please add role if desired"
+                  }
+                }
+                on command RegisterAdmin  {
+                  example Admin {
+                    then error "Admin has already been registered."
+                  }
+                  example NonAdmin {
+                    then error "User is not a Admin - please add role if desired"
+                  }
+                }
+                on command EditUserRoleInfo {
+                  then "update DraftUserState.info to have Roles data provided by command"
+                  and set DraftUserState.meta to !UserContext.UserMetaInfo(
+                      createdOn = @DraftUserState.meta.createdOn,
+                      createdBy = @DraftUserState.meta.createdBy,
+                      lastUpdatedOn = now(),
+                      lastUpdatedBy = @EditUserRoleInfo.onBehalfOf,
+                      currentState = @UserStates.Draft
+                  )
+                  and send event UserRoleInfoEdited(
+                      userId = @DraftUserState.id,
+                      info = @DraftUserState.info,
+                      meta = @DraftUserState.meta
+                  ) to outlet UserEvents.Events
+                }
+                on command SuspendUser {
+                    example Success {
+                        then send event UserSuspended(
+                            userId = @RegisteredUserState.id,
+                            info = @RegisteredUserState.info,
+                            meta = !UserContext.UserMetaInfo(
+                                createdOn = @RegisteredUserState.meta.createdOn,
+                                createdBy = @RegisteredUserState.meta.createdBy,
+                                lastUpdatedOn = now(),
+                                lastUpdatedBy = @SuspendUser.onBehalfOf,
+                                currentState = @UserStates.Suspended
+                            )
+                        ) to outlet UserEvents.Events
+                        and become entity User to handler SuspendedUserHandler
+                    }
+                }
+                on command TerminateUser {
+                    then set RegisteredUserState.meta to !UserContext.UserMetaInfo(
+                        createdOn = @RegisteredUserState.meta.createdOn,
+                        createdBy = @RegisteredUserState.meta.createdBy,
+                        lastUpdatedOn = now(),
+                        lastUpdatedBy = @TerminateUser.onBehalfOf,
+                        currentState = @RegisteredUserState.meta
+                    )
+                    and morph entity User to state TerminatedUser with !TerminatedUserState(lastMeta = @RegisteredUserState.meta)
+                }
+                on query GetUserData {
+                    then "yield Info for entity"
+                }
+            }
+            handler SuspendedUserHandler {
+                on command RegisterMember {
+                  example Member {
+                    then error "Member has already been registered."
+                  }
+                  example NonAdmin {
+                    then error "User is not a Member - please add role if desired"
+                  }
+                }
+                on command RegisterAdmin  {
+                  example Admin {
+                    then error "Admin has already been registered."
+                  }
+                  example NonAdmin {
+                    then error "User is not a Admin - please add role if desired"
+                  }
+                }
+                on command ActivateUser {
+                   example Success {
+                      then send event UserActivated(
+                          userId = @RegisteredUserState.id,
+                          info = @RegisteredUserState.info,
+                          meta = !UserContext.UserMetaInfo(
+                              createdOn = @RegisteredUserState.meta.createdOn,
+                              createdBy = @RegisteredUserState.meta.createdBy,
+                              lastUpdatedOn = now(),
+                              lastUpdatedBy = @ActivateUser.onBehalfOf,
+                              currentState = @UserStates.Active
+                          )
+                      ) to outlet UserEvents.Events
+                      and become entity User to handler ActiveUserHandler
+                   }
+                }
+                on command SuspendUser {
+                   then set RegisteredUserState.meta to !UserContext.UserMetaInfo(
+                       createdOn = @RegisteredUserState.meta.createdOn,
+                       createdBy = @RegisteredUserState.meta.createdBy,
+                       lastUpdatedOn = now(),
+                       lastUpdatedBy = @SuspendUser.onBehalfOf,
+                       currentState = @UserStates.Suspended
+                   )
+                   and send event UserSuspended(
+                       userId = @RegisteredUserState.id,
+                       info = @RegisteredUserState.info,
+                       meta = !UserContext.UserMetaInfo(
+                           createdOn = @RegisteredUserState.meta.createdOn,
+                           createdBy = @RegisteredUserState.meta.createdBy,
+                           lastUpdatedOn = now(),
+                           lastUpdatedBy = @SuspendUser.onBehalfOf,
+                           currentState = @UserStates.Suspended
+                       )
+                   ) to outlet UserEvents.Events
+                } briefly "A suspension reason can be updated by re-issuing the command"
+                on command TerminateUser {
+                  then set RegisteredUserState.meta to !UserContext.UserMetaInfo(
+                      createdOn = @RegisteredUserState.meta.createdOn,
+                      createdBy = @RegisteredUserState.meta.createdBy,
+                      lastUpdatedOn = now(),
+                      lastUpdatedBy = @TerminateUser.onBehalfOf,
+                      currentState = @RegisteredUserState.meta
+                  )
+                  and morph entity User to state TerminatedUser with !TerminatedUserState(lastMeta = @RegisteredUserState.meta)
+                }
+                on query GetUserData {
+                  then "yield Info for entity"
+                }
+              } described as {
+              |This state describes that a member cannot access anything due
+              |to being a bad user. This state transition is only possible
+              |as a command issued by an administrator and therefore can only
+              |be removed from the suspended state by an administrator.
+            }
+        } described as {
+          |This state describes that a member is now active. An active
+          |member can transition to any state other than Draft.
+        }
+
+        record TerminatedUserState is {
+            lastMeta: UserContext.UserMetaInfo
+        }
+        state TerminatedUser of TerminatedUserState is {
+            handler TerminatedUserHandler is {
+                on other { then error "Terminated members cannot process messages" }
+            }
+        } described as {
+          |This state describes a member who exercises their right to be forgotten.
+        }
+
+    } described in file "user-entity.md"
+} described in file "users-context.md"
