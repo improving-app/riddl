@@ -220,27 +220,18 @@ context MemberContext is {
         options(aggregate, technology("akka"))
 
         handler MemberHandler is {
-            on command RegisterMember {
-                then morph entity Member to state DraftMemberState with !DraftMember(
-                    info = @MemberRegistered.info,
-                    meta = !MemberContext.MetaInfo(
-                        createdOn = now(),
-                        createdBy = @RegisterMember.onBehalfOf,
-                        lastUpdatedOn = now(),
-                        lastUpdatedBy = @RegisterMember.onBehalfOf,
-                        currentState = @MemberStates.Draft
-                    )
-                )
-            }
-            //on command RegisterMemberList {
-            //    //TODO: list operations on the following:
-            //    then morph entity Member to state Member.Active
-            //      with record ^^ActiveState(info = MemberContext.Info(),
-            //        meta = MemberContext.MetaInfo())
-            //    //TODO: How do you reference members of a mapping?
-            //    //and set Active.memberId to @RegisterMemberList.MemberList.memberId
-            //    //and set Active.info to @RegisterMemberList.MemberList.info
-            //}
+          on command RegisterMember {
+            morph entity Member to state DraftMemberState with record DraftMember
+          }
+          //on command RegisterMemberList {
+          //    //TODO: list operations on the following:
+          //    then morph entity Member to state Member.Active
+          //      with record ^^ActiveState(info = MemberContext.Info(),
+          //        meta = MemberContext.MetaInfo())
+          //    //TODO: How do you reference members of a mapping?
+          //    //and set Active.memberId to @RegisterMemberList.MemberList.memberId
+          //    //and set Active.info to @RegisterMemberList.MemberList.info
+          //}
         }
 
         record DraftMember is {
@@ -250,38 +241,20 @@ context MemberContext is {
         }
         state DraftMemberState of record DraftMember is {
           handler DraftMemberHandler {
-            on command RegisterMember {then error "Member has already been registered."}
+            on command RegisterMember {
+              error "Member has already been registered."
+            }
             on command ActivateMember {
               example Success {
-                  when "all required fields in requiredInfo are not None or Empty"
-                  then send event MemberRegistered(
-                      memberId = @DraftMemberState.id,
-                      info = !MemberContext.EditableInfo(
-                         contact = @DraftMemberState.info.contact,
-                         handle = @DraftMemberState.info.handle,
-                         avatar = @DraftMemberState.info.avatar,
-                         firstName = @DraftMemberState.info.firstName,
-                         lastName = @DraftMemberState.info.lastName,
-                         notificationPreference = @DraftMemberState.info.notificationPreference,
-                         organizationMembership = @DraftMemberState.info.organizationMembership,
-                         tenant = @DraftMemberState.info.tenant
-                      ),
-                      meta = !MemberContext.MetaInfo(
-                          createdOn = @DraftMemberState.meta.createdOn,
-                          createdBy = @DraftMemberState.meta.createdBy,
-                          lastUpdatedOn = now(),
-                          lastUpdatedBy = @EditOrganizationInfo.editingMember,
-                          currentState = @OrganizationStates.Active
-                      )
-                  ) to outlet MemberEvents.Events
-                  and morph entity Member to state RegisteredMemberState with !RegisteredMember(
-                      info = @DraftMemberState.info,
-                      orgMeta = @DraftMemberState.meta
-                  )
-              }
-              example NotSufficient {
-                  when "all required fields in state are not present"
-                  then error "state is not sufficiently filled out to activate organization"
+                if "all required fields in requiredInfo are not None or Empty"
+                then {
+                  send event MemberRegistered to outlet MemberEvents.Events
+                  morph entity Member to state RegisteredMemberState with RegisteredMember
+                } else {
+                  if "all required fields in state are not present" then {
+                    error "state is not sufficiently filled out to activate organization"
+                  }
+                }
               }
             }
             on command EditMemberInfo {

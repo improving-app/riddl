@@ -57,12 +57,14 @@ context OrderContext is {
 
     handler DefaultOrderHandler is {
       on command CreateOrder {
-        then "morph Order into Draft state"
-        and "copy fields from CreateOrder command into the Draft Order"
-        and "adjust meta fields to reflect the change set"
-        and "yield OrderCreated event"
+        "morph Order into Draft state"
+        "copy fields from CreateOrder command into the Draft Order"
+        "adjust meta fields to reflect the change set"
+        "yield OrderCreated event"
       }
-      on other {then error "Only CreateOrder is allowed in the default state."}
+      on other {
+        error "Only CreateOrder is allowed in the default state."
+      }
     }
 
     record DraftState is {
@@ -73,30 +75,32 @@ context OrderContext is {
       handler DraftOrderHandler is {
         on command CreateOrder {then error "Order has already been created."}
         on command UpdateOrderInfo {
-          then "copy fields from the UpdateOrderInfo command into the Draft Order"
-          and "adjust meta fields to reflect the change set"
-          and "yield OrderInfoUpdated event"
+          "copy fields from the UpdateOrderInfo command into the Draft Order"
+          "adjust meta fields to reflect the change set"
+          "yield OrderInfoUpdated event"
         }
         on command SetToPendingOrder {
-          then "morph order to Pending state"
-          and "adjust meta fields to reflect change set"
-          and "yield PendingOrderSet event"
+          "morph order to Pending state"
+          "adjust meta fields to reflect change set"
+          "yield PendingOrderSet event"
         }
         on command SetToInProcessOrder {
-          then error "Draft orders may not transition to the InProcess state"
+          error "Draft orders may not transition to the InProcess state"
         }
         on command SetToReadyOrder {
-          then error "Draft orders may not transition to the Ready state"
+          error "Draft orders may not transition to the Ready state"
         }
         on command DeliverOrder {
-          then error "Draft orders may not transition to the Delivered state"
+          error "Draft orders may not transition to the Delivered state"
         }
         on command CancelOrder {
-          then "morph order to Cancelled state"
-          and "adjust meta fields to reflect change set"
-          and "yield OrderCancelled event"
+          "morph order to Cancelled state"
+          "adjust meta fields to reflect change set"
+          "yield OrderCancelled event"
         }
-        on query GetOrderInfo {then "yield OrderInfoResult message"}
+        on query GetOrderInfo {
+          then "yield OrderInfoResult message"
+        }
       }
     }
 

@@ -11,42 +11,14 @@ context OrganizationContext is {
         options (event-sourced, available)
 
         handler OrganizationHandler is {
-            on command EstablishOrganization {
-                then send event OrganizationEstablished(
-                    organizationId = @EstablishOrganization.orgId,
-                    info = @EstablishOrganization.info,
-                    parent = @EstablishOrganization.parent,
-                    members = @EstablishOrganization.members,
-                    owners = @EstablishOrganization.owners,
-                    contacts = @EstablishOrganization.contacts,
-                    meta = !OrganizationContext.MetaInfo(
-                        createdOn = now(),
-                        createdBy = @EstablishOrganization.establishingMember,
-                        lastUpdatedOn = now(),
-                        lastUpdatedBy = @EstablishOrganization.establishingMember,
-                        currentState = @OrganizationStates.Draft
-                    )
-                ) to outlet OrganizationEvents.Events
-                and morph entity Organization to state DraftOrganization with !DraftOrganizationState(
-                    info = !OrganizationContext.EditableInfo(
-                        name = @EstablishOrganization.info.name,
-                        shortName = @EstablishOrganization.info.shortName,
-                        address = @EstablishOrganization.info.address,
-                        isPrivate = @EstablishOrganization.info.isPrivate,
-                        url = @EstablishOrganization.info.url,
-                        logo = @EstablishOrganization.info.logo,
-                        tenant = @EstablishOrganization.info.tenant
-                    ),
-                    meta = !OrganizationContext.MetaInfo(
-                        createdOn = now(),
-                        createdBy = @EstablishOrganization.establishingMember,
-                        lastUpdatedOn = now(),
-                        lastUpdatedBy = @EstablishOrganization.establishingMember,
-                        currentState = @OrganizationStates.Draft
-                    )
-                )
-            }
-            on other { then error "Only EstablishOrganization command is allowed in the default state" }
+          on command EstablishOrganization {
+            send event OrganizationEstablished to outlet OrganizationEvents.Events
+            morph entity Organization to state DraftOrganization with
+              record DraftOrganizationState
+          }
+          on other {
+            error "Only EstablishOrganization command is allowed in the default state"
+          }
         }
 
         record DraftOrganizationState is {
@@ -62,163 +34,124 @@ context OrganizationContext is {
         state DraftOrganization of DraftOrganizationState is {
             handler DraftOrganizationHandler is {
                 on command EstablishOrganization {
-                    then error "Organization already established"
+                  error "Organization already established"
                 }
                 on command EditOrganizationInfo {
-                    then set DraftOrganizationState.info to !OrganizationContext.Info(
-                         name = @EditOrganizationInfo.newInfo.name,
-                         shortName = @EditOrganizationInfo.newInfo.shortName,
-                         address = @EditOrganizationInfo.newInfo.address,
-                         isPrivate = @EditOrganizationInfo.newInfo.isPrivate,
-                         url = @EditOrganizationInfo.newInfo.url,
-                         logo = @EditOrganizationInfo.newInfo.logo,
-                         tenant = @EditOrganizationInfo.newInfo.tenant
-                     )
-                     and set DraftOrganizationState.orgMeta to !OrganizationContext.MetaInfo(
-                         createdOn = @DraftOrganizationState.orgMeta.createdOn,
-                         createdBy = @DraftOrganizationState.orgMeta.createdBy,
-                         lastUpdatedOn = now(),
-                         lastUpdatedBy = @EditOrganizationInfo.editingMember,
-                         currentState = @OrganizationStates.Draft
-                     )
-                    and send event OrganizationInfoEdited(
-                        organizationId = @DraftOrganizationState.id,
-                        info = !OrganizationContext.Info(
-                            name = @DraftOrganizationState.info.name,
-                            shortName = @DraftOrganizationState.info.shortName,
-                            address = @DraftOrganizationState.info.address,
-                            isPrivate = @DraftOrganizationState.info.isPrivate,
-                            url = @DraftOrganizationState.info.url,
-                            logo = @DraftOrganizationState.info.logo,
-                            tenant = @DraftOrganizationState.info.tenant
-                        ),
-                        meta = @DraftOrganizationState.orgMeta
-                    ) to outlet OrganizationEvents.Events
+                  set field DraftOrganizationState.info to "OrganizationContext.Info"
+                  set DraftOrganizationState.orgMeta to "OrganizationContext.MetaInfo"
+                  send event OrganizationInfoEdited to outlet OrganizationEvents.Events
                 }
                 on command UpdateParent {
-                    example Success is {
-                        then "Update the parent field with the value provided in UpdateParent"
-                        // TODO: should adjust this to reflect design pattern to provide children in a projector. The next two AND statements would be handled in the projection handler for ParentUpdated event
-                        and "remove organizationId from the list of children in the 'old' parent"
-                        and "add organizationId to the list of children in the 'new' parent"
-                        and "set MetaInfo to capture change data"
-                        and "yield event ParentUpdated"
+                  if "successful" then {
+                    "Update the parent field with the value provided in UpdateParent"
+                    // TODO: should adjust this to reflect design pattern to provide children in a projector.
+                    // TODO: The next two AND statements would be handled in the projection handler for ParentUpdated event
+                    "remove organizationId from the list of children in the 'old' parent"
+                    "add organizationId to the list of children in the 'new' parent"
+                    "set MetaInfo to capture change data"
+                    "yield event ParentUpdated"
+                  } else {
+                    if "newParent exists outside the bounds of the root organization that contains organizationId" then
+                      error "Organization cannot leave the bounds of the root organization that it belongs to"
                     }
-                    example NewParentMustBeWithinContainingRootOrg is {
-                        given "newParent exists outside the bounds of the root organization that contains organizationId"
-                        then error "Organization cannot leave the bounds of the root organization that it belongs to"
+                    if "newParent exists below organizationId (child, grandchild, etc.) in the organizational hierarchy"
+                    then  {
+                      error "New Parent cannot be a generational child of the organization being modified"
                     }
-                    example DoNotCreateCircularReference is {
-                        given "newParent exists below organizationId (child, grandchild, etc.) in the organizational hierarchy"
-                        then error "New Parent cannot be a generational child of the organization being modified"
+                    if "editingMember is not Authorized" then {
+                      error "EditingMember is not authorized to make this change."
                     }
-                    example NotAuthorized is {
-                        when "editingMember is not Authorized"
-                        then error "EditingMember is not authorized to make this change."
-                    }
+                  }
                 }
                 on command AddMembersToOrganization {
-                    example Success is {
-                        then "Merge new members into the member list. Duplicates not allowed."
-                        and "set MetaInfo to capture change data"
-                        and "emit MembersAddedToOrganization event"
-                    }
-                    // Restrictions not implemented yet
-                    // example NewMemberDoesNotMeetRestrictions is {
-                    //     given "Member does not meet qualifictions to join organization"
-                    //     then "Place rejected member in dead letter queue and process remaining members"
-                    //     and "Consider how to notify of partial success" // TODO: discuss how this might work
-                    // }
-                    example PrivateOrganizationMembershipByNonAdmin is {
-                        given "organizationId is a private organization"
-                        when "updatingMember is not an admin for organizationId"
-                        then error "Only Admins for organizationId can admit new members"
-                    }
-                    example AddSuspendedMember is {
-                        given "Member in newMembers list is in state suspended"
-                        then "place suspended member in dead letter queue and process remaining members"
-                        and "Consider how to notify of partial success" // TODO: discuss how this might work
-                    }
-                    example NotAuthorized is {
-                        when "editingMember is not Authorized to add members to this organization"
-                        then error "EditingMember is not authorized to make this change."
-                    }
+                  if "successful" then {
+                    "Merge new members into the member list. Duplicates not allowed."
+                    "set MetaInfo to capture change data"
+                    "emit MembersAddedToOrganization event"
+                  }
+                  // Restrictions not implemented yet
+                  // example NewMemberDoesNotMeetRestrictions is {
+                  //     given "Member does not meet qualifictions to join organization"
+                  //     then "Place rejected member in dead letter queue and process remaining members"
+                  //     and "Consider how to notify of partial success" // TODO: discuss how this might work
+                  // }
+                  if "organizationId is a private organization and updatingMember is not an admin for organizationId" then {
+                    error "Only Admins for organizationId can admit new members"
+                  }
+                  if "Member in newMembers list is in state suspended" then {
+                    "place suspended member in dead letter queue and process remaining members"
+                    "Consider how to notify of partial success" // TODO: discuss how this might work
+                  }
+                  if "editingMember is not Authorized to add members to this organization" then {
+                    error "EditingMember is not authorized to make this change."
+                  }
                 }
                 on command RemoveMembersFromOrganization {
-                    example Success is {
-                        then "membersToRemove are purged from memberList"
-                        and "set MetaInfo to capture change data"
-                        and "yield MembersRemovedFromOrganization()"// TODO
-                    }
-                    example NotAuthorized is {
-                        when "editingMember is not Authorized to remove members from this organization"
-                        then error "EditingMember is not authorized to make this change."
-                    }
+                  if "editingMember is authorized to remove members from this organization" then {
+                    "membersToRemove are purged from memberList"
+                    "set MetaInfo to capture change data"
+                    "yield MembersRemovedFromOrganization()"// TODO
+                  } else
+                    error "EditingMember is not authorized to make this change."
+                  }
                 }
                 on command AddOwnersToOrganization {
-                    example Success is {
-                        then "Merge new owners into the owner list. Duplicates not allowed."
-                        and "set MetaInfo to capture change data"
-                        and "emit OwnersAddedToOrganization event"
+                  if "successful" is then {
+                    "Merge new owners into the owner list. Duplicates not allowed."
+                    "set MetaInfo to capture change data"
+                    "emit OwnersAddedToOrganization event"
+                  } else {
+                    if "Member in ownersToAdd is not in memberList of organizationId" then {
+                      "Place non-member owner in dead letter queue and finish processing remaining member owners"
+                      "Consider how to notify of partial success" // TODO: discuss how this might work
                     }
-                    example OwnerIsNotMemberOfOrganization is {
-                        given "Member in ownersToAdd is not in memberList of organizationId"
-                        then "Place non-member owner in dead letter queue and finish processing remaining member owners"
-                        and "Consider how to notify of partial success" // TODO: discuss how this might work
+                    if "Member in ownersToAdd is in state Suspended" then {
+                      "Place suspended owner in dead letter queue and finish processing remaining member owners"
+                      "Consider how to notify of partial success" // TODO: discuss how this might work
                     }
-                    example OwnerIsSuspended is {
-                        given "Member in ownersToAdd is in state Suspended"
-                        then "Place suspended owner in dead letter queue and finish processing remaining member owners"
-                        and "Consider how to notify of partial success" // TODO: discuss how this might work
+                    if "Member in ownersToAdd is a type that is not allowed to be an owner" then {
+                      "Place non-compliant owner in dead letter queue and finish processing remaining member owners"
+                      "Consider how to notify of partial success" // TODO: discuss how this might work
                     }
-                    example OwnerTypeIsNotAcceptable is {
-                        //Only members of type ________ can be owners of an organization???
-                        given "Member in ownersToAdd is a type that is not allowed to be an owner"
-                        then "Place non-compliant owner in dead letter queue and finish processing remaining member owners"
-                        and "Consider how to notify of partial success" // TODO: discuss how this might work
+                    if "editingMember is not Authorized" then {
+                      error "EditingMember is not authorized to make this change."
                     }
-                    example NotAuthorized is {
-                        when "editingMember is not Authorized"
-                        then error "EditingMember is not authorized to make this change."
-                    }
+                  }
                 }
                 on command RemoveOwnersFromOrganization {
-                    example Success is {
-                        then "ownersToRemove are purged from memberList"
-                        and "set MetaInfo to capture change data"
-                        and "yield OwnersRemovedFromOrganization()"// TODO
+                  if "successful" then {
+                    "ownersToRemove are purged from memberList"
+                    "set MetaInfo to capture change data"
+                    "yield OwnersRemovedFromOrganization()"// TODO
+                  } else {
+                    if "editingMember is not Authorized" then {
+                      error "EditingMember is not authorized to make this change."
                     }
-                    example NotAuthorized is {
-                        when "editingMember is not Authorized"
-                        then error "EditingMember is not authorized to make this change."
-                    }
+                  }
                 }
                 on command UpdateOrganizationContacts {
-                    example Success is {
-                        then "Merge new contacts into the contacts list. Duplicates not allowed."
-                        and "set MetaInfo to capture change data"
-                        and "emit ContactsAddedToOrganization event"
+                  if "successful" then {
+                    "Merge new contacts into the contacts list. Duplicates not allowed."
+                    "set MetaInfo to capture change data"
+                    "emit ContactsAddedToOrganization event"
+                  } else {
+                    if "Member in contactsToAdd is not in memberList of organizationId" then {
+                      "Place non-member contact in dead letter queue and finish processing remaining member contacts"
+                      "Consider how to notify of partial success" // TODO: discuss how this might work
                     }
-                    example ContactIsNotMemberOfOrganization is {
-                        given "Member in contactsToAdd is not in memberList of organizationId"
-                        then "Place non-member contact in dead letter queue and finish processing remaining member contacts"
-                        and "Consider how to notify of partial success" // TODO: discuss how this might work
+                    if "Member in contactsToAdd is in state Suspended" then {
+                      "Place suspended contact in dead letter queue and finish processing remaining member owners"
+                      "Consider how to notify of partial success" // TODO: discuss how this might work
                     }
-                    example ContactIsSuspended is {
-                        given "Member in contactsToAdd is in state Suspended"
-                        then "Place suspended contact in dead letter queue and finish processing remaining member owners"
-                        and "Consider how to notify of partial success" // TODO: discuss how this might work
-                    }
-                    example ContactTypeIsNotAcceptable is {
+                    if "Member in contactsToAdd is a type that is not allowed to be a contact" then {
                         //Only members of type ________ can be contacts for an organization???
-                        given "Member in contactsToAdd is a type that is not allowed to be a contact"
-                        then "Place non-compliant contact in dead letter queue and finish processing remaining member contacts"
-                        and "Consider how to notify of partial success" // TODO: discuss how this might work
+                        "Place non-compliant contact in dead letter queue and finish processing remaining member contacts"
+                        "Consider how to notify of partial success" // TODO: discuss how this might work
                     }
-                    example NotAuthorized is {
-                        when "editingMember is not Authorized"
-                        then error "EditingMember is not authorized to make this change."
+                    if "editingMember is not Authorized" then {
+                      error "EditingMember is not authorized to make this change."
                     }
+                  }
                 }
                 // on command UpdateOrganizationAccounts {
                 //     example NotAuthorized is {
@@ -227,88 +160,36 @@ context OrganizationContext is {
                 //     }
                 // }
                 on command activate: ActivateOrganization {
-                    example Success {
-                        when "all required fields in info are not None or Empty"
-                        and "required non-info fields are present"
-                        then send event OrganizationEstablished(
-                            organizationId = @DraftOrganizationState.id,
-                            info = !OrganizationContext.Info(
-                               name = @activate.info.sss,
-                               shortName = @DraftOrganizationState.info.shortName,
-                               address = @DraftOrganizationState.info.address,
-                               isPrivate = @DraftOrganizationState.info.isPrivate,
-                               url = @DraftOrganizationState.info.url,
-                               logo = @DraftOrganizationState.info.logo,
-                               tenant = @DraftOrganizationState.info.tenant
-                            ),
-                            parent = @DraftOrganizationState.parent,
-                            members = @DraftOrganizationState.members,
-                            owners = @DraftOrganizationState.owners,
-                            contacts = @DraftOrganizationState.contacts,
-                            meta = !OrganizationContext.MetaInfo(
-                                createdOn = @DraftOrganizationState.orgMeta.createdOn,
-                                createdBy = @DraftOrganizationState.orgMeta.createdBy,
-                                lastUpdatedOn = now(),
-                                lastUpdatedBy = @EditOrganizationInfo.editingMember,
-                                currentState = @OrganizationStates.Active
-                            )
-                        ) to outlet OrganizationEvents.Events
-                        and morph entity Organization to state EstablishedOrganization
-                            with !EstablishedOrganizationState(
-                                info = !OrganizationContext.Info(
-                                    name = @DraftOrganizationState.info.name,
-                                    shortName = @DraftOrganizationState.info.shortName,
-                                    address = @DraftOrganizationState.info.address,
-                                    isPrivate = @DraftOrganizationState.info.isPrivate,
-                                    url = @DraftOrganizationState.info.url,
-                                    logo = @DraftOrganizationState.info.logo,
-                                    tenant = @DraftOrganizationState.info.tenant
-                                ),
-                                parent = @DraftOrganizationState.parent,
-                                members = @DraftOrganizationState.members,
-                                owners = @DraftOrganizationState.owners,
-                                contact = @DraftOrganizationState.contact,
-                                orgMeta = @DraftOrganizationState.orgMeta
-                            )
+                  if "all required fields in info are not None or Empty and required non-info fields are present" then {
+                    send event OrganizationEstablished to outlet OrganizationEvents.Events
+                    morph entity Organization to state EstablishedOrganization with EstablishedOrganizationState
+                  } else {
+                    if "all required fields in state are not present" then {
+                      "state is not sufficiently filled out to activate organization"
                     }
-                    example NotSufficient {
-                        when "all required fields in state are not present"
-                        then error "state is not sufficiently filled out to activate organization"
-                    }
+                  }
                 }
                 on query GetOrganizationInfo {
-                    example Success {
-                        then return !OrganizationInfo(
-                            orgId = @DraftOrganizationState.orgId,
-                            info = @DraftOrganizationState.info
-                        )
-                    }
+                  return OrganizationInfo
                 }
                 on query GetOrganizationParent {
-                    example Success {
-                        when "Parent field is present (non-empty)"
-                        then return !OrganizationParent(
-                            orgId = @DraftOrganizationState.orgId,
-                            parent = @DraftOrganizationState.parent
-                        )
+                  if "Parent field is present (non-empty)" then {
+                    return message OrganizationParent
+                  } else {
+                    if "in Draft state and Parent is not empty in editableInfo"
+                    then {
+                      error "Parent field is not present in current state of Draft"
                     }
-                    example DraftError {
-                        when "in Draft state and Parent is not empty in editableInfo"
-                        then error "Parent field is not present in current state of Draft"
-                    }
+
                 }
                 on query GetOrganizationMembers {
-                    example Success {
-                        when "Members field is present (non-empty)"
-                        then return !OrganizationMembers(
-                            orgId = @DraftOrganizationState.orgId,
-                            members = @DraftOrganizationState.members
-                        )
+                  if "Members field is present (non-empty)" then {
+                    return !OrganizationMembers
+                  } else {
+                    if "in Draft state and Members is not empty in editableInfo" then {
+                      error "Members field is not present in current state of Draft"
                     }
-                    example DraftError {
-                        when "in Draft state and Members is not empty in editableInfo"
-                        then error "Members field is not present in current state of Draft"
-                    }
+                  }
                 }
                 on query GetOrganizationOwners {
                     example Success {

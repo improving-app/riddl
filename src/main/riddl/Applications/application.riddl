@@ -30,16 +30,12 @@ application UserInterface is {
 
   handler OrgHandler is {
     on command EstablishOrganization from user OrgOwner {
-      then tell command UserInterface.CreateOrganization to
-        context ImprovingApp.OrganizationContext
+      tell command UserInterface.CreateOrganization to context ImprovingApp.OrganizationContext
     }
     on event OrganizationEstablished
     from context ImprovingApp.OrganizationContext {
-      then {
-        tell result ImprovingApp.OrganizationContext.OrganizationEstablished to
-          projector ImprovingApp.OrganizationContext.OrganizationViews,
-        "present Organization.DisplayOrganization"
-      }
+      tell result ImprovingApp.OrganizationContext.OrganizationEstablished to
+        projector ImprovingApp.OrganizationContext.OrganizationViews
     }
   }
 
@@ -65,16 +61,11 @@ application UserInterface is {
 
   handler MemberHandler is {
     on command RegisterMember from user DemoMember {
-      then tell command UserInterface.RegisterMember to
-        context ImprovingApp.MemberContext
+      tell command UserInterface.RegisterMember to context ImprovingApp.MemberContext
     }
-    on event MemberRegistered
-    from context ImprovingApp.MemberContext {
-      then {
-        tell result ImprovingApp.MemberContext.MemberRegistered to
-          projector ImprovingApp.MemberContext.MemberViews,
-        "present Member.DisplayMemberDetails"
-      }
+    on event MemberRegistered from context ImprovingApp.MemberContext {
+      tell result ImprovingApp.MemberContext.MemberRegistered to
+        projector ImprovingApp.MemberContext.MemberViews
     }
   }
 
@@ -101,16 +92,11 @@ application UserInterface is {
 
   handler ProductHandler is {
     on command PurchaseProduct from user Member {
-      then tell command PurchaseProduct to
-        context ProductContext
+      tell command PurchaseProduct to context ProductContext
     }
     on event ProductContext.ProductPurchased
     from context ProductContext {
-      then {
-        tell result ProductContext.ProductCreated to
-          projector ProductContext.ProductViews,
-        "present Product.DisplayPurchase"
-      }
+      tell result ProductContext.ProductCreated to projector ProductContext.ProductViews
     }
   }
 }
@@ -134,12 +120,10 @@ application CommandLine is {
 
   handler CurlHandler is {
     on command StartScenario from user Member {
-      then tell command CommandLine.StartScenario to
-        context GatewayContext
+      tell command CommandLine.StartScenario to context GatewayContext
     }
-    on event ScenarioStarted
-    from context ImprovingApp.GatewayContext {
-      then "display in terminal"
+    on event ScenarioStarted from context ImprovingApp.GatewayContext {
+      "display in terminal"
     }
   }
 }
