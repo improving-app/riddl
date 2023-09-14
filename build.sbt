@@ -10,4 +10,7 @@ libraryDependencies ++= Seq(
 enablePlugins(RiddlSbtPlugin)
 riddlcOptions :=
   Seq("--show-times", "from", "src/main/riddl/ImprovingApp.conf", "hugo")
-riddlcMinVersion := s"$riddl_version"
+riddlcMinVersion := s"0.20.5"
+riddlcPath := file(
+  "/Users/reid/Code/reactific/riddl/riddlc/target/universal/stage/bin/riddlc"
+)
