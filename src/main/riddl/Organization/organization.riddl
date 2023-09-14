@@ -38,7 +38,7 @@ context OrganizationContext is {
                 }
                 on command EditOrganizationInfo {
                   set field DraftOrganizationState.info to "OrganizationContext.Info"
-                  set DraftOrganizationState.orgMeta to "OrganizationContext.MetaInfo"
+                  set field DraftOrganizationState.orgMeta to "OrganizationContext.MetaInfo"
                   send event OrganizationInfoEdited to outlet OrganizationEvents.Events
                 }
                 on command UpdateParent {
@@ -51,7 +51,7 @@ context OrganizationContext is {
                     "set MetaInfo to capture change data"
                     "yield event ParentUpdated"
                   } else {
-                    if "newParent exists outside the bounds of the root organization that contains organizationId" then
+                    if "newParent exists outside the bounds of the root organization that contains organizationId" then {
                       error "Organization cannot leave the bounds of the root organization that it belongs to"
                     }
                     if "newParent exists below organizationId (child, grandchild, etc.) in the organizational hierarchy"
@@ -90,13 +90,13 @@ context OrganizationContext is {
                   if "editingMember is authorized to remove members from this organization" then {
                     "membersToRemove are purged from memberList"
                     "set MetaInfo to capture change data"
-                    "yield MembersRemovedFromOrganization()"// TODO
-                  } else
+                    "yield MembersRemovedFromOrganization()"
+                  } else {
                     error "EditingMember is not authorized to make this change."
                   }
                 }
                 on command AddOwnersToOrganization {
-                  if "successful" is then {
+                  if "successful" then {
                     "Merge new owners into the owner list. Duplicates not allowed."
                     "set MetaInfo to capture change data"
                     "emit OwnersAddedToOrganization event"
@@ -162,7 +162,8 @@ context OrganizationContext is {
                 on command activate: ActivateOrganization {
                   if "all required fields in info are not None or Empty and required non-info fields are present" then {
                     send event OrganizationEstablished to outlet OrganizationEvents.Events
-                    morph entity Organization to state EstablishedOrganization with EstablishedOrganizationState
+                    morph entity Organization to state EstablishedOrganization
+                      with record EstablishedOrganizationState
                   } else {
                     if "all required fields in state are not present" then {
                       "state is not sufficiently filled out to activate organization"
@@ -170,7 +171,7 @@ context OrganizationContext is {
                   }
                 }
                 on query GetOrganizationInfo {
-                  return OrganizationInfo
+                  return "OrganizationInfo"
                 }
                 on query GetOrganizationParent {
                   if "Parent field is present (non-empty)" then {
@@ -180,7 +181,7 @@ context OrganizationContext is {
                     then {
                       error "Parent field is not present in current state of Draft"
                     }
-
+                  ?
                 }
                 on query GetOrganizationMembers {
                   if "Members field is present (non-empty)" then {

@@ -13,17 +13,20 @@ projector TenantViews is {
     }
     handler TenantViewsHandler is {
         on event TenantEstablished {
-            then "set tenant to TenantEstablished.tenantId"
-            and "set tenantName to TenantEstablished.info.name"
-            and "set tenantInfo to TenantEstablished.info"
+           set field TenantFields.tenant to "TenantEstablished.tenantId"
+           set field TenantFields.tenantName to "TenantEstablished.info.name"
+           set field TenantFields.tenantInfo to "TenantEstablished.info"
         }
         on event TenantContext.InfoEdited {
-            then "find tenant set to TenantEstablished.tenantId"
-            and "if name has changed, set tenantName to TenantEstablished.info.name"
-            and "set tenantInfo to TenantEstablished.info"
+           "find tenant set to TenantEstablished.tenantId"
+           if "name has changed" then {
+            set field TenantFields.tenantName to "TenantEstablished.info.name"
+            set field TenantFields.tenantInfo to "TenantEstablished.info"
+          }
         }
         on query TenantContext.FindTenantByName {
-            then "find by member equals FindTenantsByName.name and return TenantByName containing tenant and its info - or NoTenantWithName if empty"
+          "find by member equals FindTenantsByName.name"
+          "return TenantByName containing tenant and its info - or NoTenantWithName if empty"
         }
     }
 }
