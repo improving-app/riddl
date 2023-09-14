@@ -341,7 +341,8 @@ context MemberContext is {
                     }
                 }
                 on command TerminateMember {
-                  set field RegisteredMemberState.meta to record MemberContext.MetaInfo
+                  set field RegisteredMemberState.meta to
+                    "record MemberContext.MetaInfo"
                     // MemberContext.MetaInfo(
                     //  createdOn = @RegisteredMemberState.meta,
                     //  createdBy = @RegisteredMemberState.meta,
@@ -353,56 +354,64 @@ context MemberContext is {
                     with record TerminatedMemberState
                 }
                 on query GetMemberData {
-                    then "yield Info for entity"
+                  reply record MemberInfo
                 }
             }
             handler SuspendedMemberHandler {
-                on command RegisterMember {then error "Member has already been registered."}
+                on command RegisterMember {
+                  error "Member has already been registered."
+                }
                 on command ActivateMember {
-                   example Success {
-                      then send event MemberActivated(
-                          memberId = @RegisteredMemberState.id,
-                          info = @RegisteredMemberState.info,
-                          meta = !MemberContext.MetaInfo(
-                              createdOn = @RegisteredMemberState.meta.createdOn,
-                              createdBy = @RegisteredMemberState.meta.createdBy,
-                              lastUpdatedOn = now(),
-                              lastUpdatedBy = @ActivateMember.activatingMember,
-                              currentState = @MemberStates.Active
-                          )
-                      ) to outlet MemberEvents.Events
-                      and become entity Member to handler ActiveMemberHandler
-                   }
+                  send event MemberActivated
+                    // (
+                    //    memberId = @RegisteredMemberState.id,
+                    //    info = @RegisteredMemberState.info,
+                    //    meta = !MemberContext.MetaInfo(
+                    //        createdOn = @RegisteredMemberState.meta.createdOn,
+                    //        createdBy = @RegisteredMemberState.meta.createdBy,
+                    //        lastUpdatedOn = now(),
+                    //        lastUpdatedBy = @ActivateMember.activatingMember,
+                    //        currentState = @MemberStates.Active
+                    //    )
+                    //)
+                    to outlet MemberEvents.Events
+                  become entity Member to handler ActiveMemberHandler
                 }
                 on command SuspendMember {
-                   then set RegisteredMemberState.meta to !MemberContext.MetaInfo(
-                       createdOn = @RegisteredMemberState.meta.createdOn,
-                       createdBy = @RegisteredMemberState.meta.createdBy,
-                       lastUpdatedOn = now(),
-                       lastUpdatedBy = @SuspendMember.suspendingMember,
-                       currentState = @MemberStates.Suspended
-                   )
-                   and send event MemberSuspended(
-                       memberId = @RegisteredMemberState.id,
-                       info = @RegisteredMemberState.info,
-                       meta = !MemberContext.MetaInfo(
-                           createdOn = @RegisteredMemberState.meta.createdOn,
-                           createdBy = @RegisteredMemberState.meta.createdBy,
-                           lastUpdatedOn = now(),
-                           lastUpdatedBy = @SuspendMember.suspendingMember,
-                           currentState = @MemberStates.Suspended
-                       )
-                   ) to outlet MemberEvents.Events
+                   set field RegisteredMemberState.meta to "MemberContext.MetaInfo"
+                     // (
+                     //  createdOn = @RegisteredMemberState.meta.createdOn,
+                     //  createdBy = @RegisteredMemberState.meta.createdBy,
+                     //  lastUpdatedOn = now(),
+                     //  lastUpdatedBy = @SuspendMember.suspendingMember,
+                     //  currentState = @MemberStates.Suspended
+                     // )
+                   send event MemberSuspended
+                     // (
+                     //  memberId = @RegisteredMemberState.id,
+                     //  info = @RegisteredMemberState.info,
+                     //  meta = !MemberContext.MetaInfo(
+                     //      createdOn = @RegisteredMemberState.meta.createdOn,
+                     //      createdBy = @RegisteredMemberState.meta.createdBy,
+                     //      lastUpdatedOn = now(),
+                     //      lastUpdatedBy = @SuspendMember.suspendingMember,
+                     //      currentState = @MemberStates.Suspended
+                     //  )
+                     //)
+                     to outlet MemberEvents.Events
                 } briefly "A suspension reason can be updated by re-issuing the command"
                 on command TerminateMember {
-                  then set RegisteredMemberState.meta to !MemberContext.MetaInfo(
-                      createdOn = @RegisteredMemberState.meta.createdOn,
-                      createdBy = @RegisteredMemberState.meta.createdBy,
-                      lastUpdatedOn = now(),
-                      lastUpdatedBy = @TerminateMember.terminatingMember,
-                      currentState = @RegisteredMemberState.meta
-                  )
-                  and morph entity Member to state TerminatedMember with !TerminatedMemberState(lastMeta = @RegisteredMemberState.meta)
+                  set field RegisteredMemberState.meta to "MemberContext.MetaInfo"
+                    // (
+                    //  createdOn = @RegisteredMemberState.meta.createdOn,
+                    //  createdBy = @RegisteredMemberState.meta.createdBy,
+                    //  lastUpdatedOn = now(),
+                    //  lastUpdatedBy = @TerminateMember.terminatingMember,
+                    //  currentState = @RegisteredMemberState.meta
+                    // )
+                  morph entity Member to state TerminatedMember
+                    with record TerminatedMemberState
+                    // (lastMeta = @RegisteredMemberState.meta)
                 }
                 on query GetMemberData {
                   then "yield Info for entity"
@@ -423,7 +432,9 @@ context MemberContext is {
         }
         state TerminatedMember of TerminatedMemberState is {
             handler TerminatedMemberHandler is {
-                on other { then error "Terminated members cannot process messages" }
+              on other {
+                error "Terminated members cannot process messages"
+              }
             }
         } described as {
           |This state describes a member who exercises their right to be forgotten.

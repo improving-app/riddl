@@ -10,7 +10,7 @@ context ReservationContext is {
 
 		    handler ReservationHandler is {
 		        on command EstablishReservation {
-                then "morph Reservation to Draft state"
+              morph entity Reservation to Draft state with record DraftState
                 and "Copy fields from the command into Draft fields"
                 and "adjust meta fields to reflect the change set"
                 and "yield event ReservationEstablished"

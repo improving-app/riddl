@@ -32,8 +32,7 @@ application UserInterface is {
     on command EstablishOrganization from user OrgOwner {
       tell command UserInterface.CreateOrganization to context ImprovingApp.OrganizationContext
     }
-    on event OrganizationEstablished
-    from context ImprovingApp.OrganizationContext {
+    on event OrganizationEstablished from context ImprovingApp.OrganizationContext {
       tell result ImprovingApp.OrganizationContext.OrganizationEstablished to
         projector ImprovingApp.OrganizationContext.OrganizationViews
     }

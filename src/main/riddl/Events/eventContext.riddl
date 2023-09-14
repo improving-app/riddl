@@ -58,55 +58,61 @@ context EventContext is {
     state DraftEvent of Event.DraftEventState is {
       handler DraftEventHandler {
         on command ScheduleEvent{
-            when "all required info fields are present"
-            then "set a scheduled Akka call for emitting StartEvent at DraftEventState.info.expectedStart"
-            and send event EventScheduled(
-              eventId = @ScheduleEvent.eventId,
-              info = !EventInfo(
-                  eventName = @DraftEventState.info.eventName,
-                  description = @DraftEventState.info.description,
-                  eventURL = @DraftEventState.info.eventURL,
-                  sponsoringOrg = @DraftEventState.info.sponsoringOrg,
-                  expectedStart = @DraftEventState.info.expectedStart,
-                  expectedEnd = @DraftEventState.info.expectedEnd,
-                  isPrivate = @DraftEventState.info.isPrivate,
-                  eventStatusInfo = !ScheduledEventInfo()
-              ),
-              meta = !EventMetaInfo(
-                  createdOn = @DraftEventState.meta.createdOn,
-                  createdBy = @DraftEventState.meta.createdBy,
-                  lastUpdatedOn = now(),
-                  lastUpdatedBy = @ScheduleEvent.onBehalfOf,
-                  currentState = @EventStates.Scheduled
-              )
-          ) to outlet EventEvents.Events
-          and morph entity Event to state ScheduledEvent with !ScheduledEventState(
-              eventId = @ScheduleEvent.eventId,
-              info = !EventInfo(
-                   eventName = @DraftEventState.info.eventName,
-                   description = @DraftEventState.info.description,
-                   eventURL = @DraftEventState.info.eventURL,
-                   sponsoringOrg = @DraftEventState.info.sponsoringOrg,
-                   expectedStart = @DraftEventState.info.expectedStart,
-                   expectedEnd = @DraftEventState.info.expectedEnd,
-                   isPrivate = @DraftEventState.info.isPrivate,
-                   eventStatusInfo = !ScheduledEventInfo()
-              ),
-              meta = !EventMetaInfo(
-                  createdOn = @DraftEventState.meta.createdOn,
-                  createdBy = @DraftEventState.meta.createdBy,
-                  lastUpdatedOn = now(),
-                  lastUpdatedBy = @ScheduleEvent.onBehalfOf,
-                  currentState = @EventStates.Scheduled
-              )
-          )
+          if "all required info fields are present" then {
+            "set a scheduled Akka call for emitting StartEvent at DraftEventState.info.expectedStart"
+            send event EventScheduled
+              // (
+              //   eventId = @ScheduleEvent.eventId,
+              //   info = !EventInfo(
+              //       eventName = @DraftEventState.info.eventName,
+              //       description = @DraftEventState.info.description,
+              //       eventURL = @DraftEventState.info.eventURL,
+              //       sponsoringOrg = @DraftEventState.info.sponsoringOrg,
+              //       expectedStart = @DraftEventState.info.expectedStart,
+              //       expectedEnd = @DraftEventState.info.expectedEnd,
+              //       isPrivate = @DraftEventState.info.isPrivate,
+              //       eventStatusInfo = !ScheduledEventInfo()
+              //   ),
+              //   meta = !EventMetaInfo(
+              //       createdOn = @DraftEventState.meta.createdOn,
+              //       createdBy = @DraftEventState.meta.createdBy,
+              //       lastUpdatedOn = now(),
+              //       lastUpdatedBy = @ScheduleEvent.onBehalfOf,
+              //       currentState = @EventStates.Scheduled
+              //   )
+              // )
+              to outlet EventEvents.Events
+            morph entity Event to state ScheduledEvent
+              with record ScheduledEventState
+               // (
+               //   eventId = @ScheduleEvent.eventId,
+               //   info = !EventInfo(
+               //       eventName = @DraftEventState.info.eventName,
+               //       description = @DraftEventState.info.description,
+               //       eventURL = @DraftEventState.info.eventURL,
+               //       sponsoringOrg = @DraftEventState.info.sponsoringOrg,
+               //       expectedStart = @DraftEventState.info.expectedStart,
+               //       expectedEnd = @DraftEventState.info.expectedEnd,
+               //       isPrivate = @DraftEventState.info.isPrivate,
+               //       eventStatusInfo = !ScheduledEventInfo()
+               //   ),
+               //   meta = !EventMetaInfo(
+               //     createdOn = @DraftEventState.meta.createdOn,
+               //     createdBy = @DraftEventState.meta.createdBy,
+               //     lastUpdatedOn = now(),
+               //     lastUpdatedBy = @ScheduleEvent.onBehalfOf,
+               //     currentState = @EventStates.Scheduled
+               //   )
+               // )
         }
         on command EditEventInfo{
-            then set DraftEventState.info to EventContext.newEditableInfoFromFieldsPresentInEditable(
-              editable = @EditEventInfo.info,
-              oldInfo = @DraftEventState.info
-            )
-            and set DraftEventState.meta to !EventMetaInfo(
+          set DraftEventState.info to "EventContext.newEditableInfoFromFieldsPresentInEditable"
+            // (
+            //   editable = @EditEventInfo.info,
+            //   oldInfo = @DraftEventState.info
+            // )
+          set DraftEventState.meta to "EventMetaInfo"
+            (
                  createdOn = @DraftEventState.meta.createdOn,
                  createdBy = @DraftEventState.meta.createdBy,
                  lastUpdatedOn = now(),

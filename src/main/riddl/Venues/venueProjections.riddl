@@ -7,32 +7,31 @@ projector VenuesView is {
     }
     handler VenueCapacityViewHandler is {
         on event VenueEstablished {
-            then "set venueId to VenueEstablished.VenueId"
+          set VenuesFields.venueId to "VenueEstablished.VenueId"
         }
         on event LocationEstablished {
-            example LocationEstablishedSuccess {
-		          given "LocationEstablished.locationInfo.venueId exists in this projector"
-		          then "set minCapacity to min(LocationEstablished.locationInfo.capacity, minCapacity)"
-		          and "set maxCapacity to max(LocationEstablished.locationInfo.capacity, maxCapacity)"
+          if "LocationEstablished.locationInfo.venueId not exists in this projector" then {
+            error "Location cannot be established because the venueId requested does not exist already"
+          } else {
+            if "LocationEstablished.locationInfo.venueId exists in this projector" then {
+              set field VenuesFields.minCapacity to "min(LocationEstablished.locationInfo.capacity, minCapacity)"
+              set field VenuesFields.maxCapacity to "max(LocationEstablished.locationInfo.capacity, maxCapacity)"
             }
-            example LocationEstablishedFailure {
-		          given "LocationEstablished.locationInfo.venueId not exists in this projector"
-		          then error "Location cannot be established because the venueId requested does not exist already"
-            }
+          }
         }
         on query GetVenueInfo {
-            example GetVenueInfoSuccess {
-              given "GetVenueInfo.venueId exists in this projector"
-              then "return VenueInfo"
-              else error "VenueId not found as requested"
-            }
+          if "GetVenueInfo.venueId exists in this projector" then {
+            reply result VenueInfo
+         } else {
+           error "VenueId not found as requested"
+         }
         }
         on query GetVenueCapacityOverview {
-            example GetVenueCapacityOverviewSuccess {
-	            given "GetVenueCapacityOverview.venueId exists in this projector"
-	            then "yield VenueCapacityOverview"
-              else error "No venue found for this venueId"
-            }
+          if "GetVenueCapacityOverview.venueId exists in this projector" then {
+	          reply result VenueCapacityOverview
+          } else {
+            error "No venue found for this venueId"
+          }
         }
     }
 }

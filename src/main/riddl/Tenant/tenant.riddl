@@ -218,7 +218,7 @@ context TenantContext is {
                 if "updating user is not authorized to activate the tenant" then{
                   error "User is not authorized to Activate Tenant"
                 } else {
-                  set EstablishedTenantState.meta to "TenantContext.TenantMetaInfo"
+                  set field EstablishedTenantState.meta to "TenantContext.TenantMetaInfo"
                   send event TenantContext.TenantSuspended to outlet TenantEvents.Events
                   become entity Tenant to handler ActiveTenantHandler
                 }

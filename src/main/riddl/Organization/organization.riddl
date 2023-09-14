@@ -171,21 +171,20 @@ context OrganizationContext is {
                   }
                 }
                 on query GetOrganizationInfo {
-                  return "OrganizationInfo"
+                  reply record OrganizationInfo
                 }
                 on query GetOrganizationParent {
                   if "Parent field is present (non-empty)" then {
-                    return message OrganizationParent
+                    reply result OrganizationParent
                   } else {
-                    if "in Draft state and Parent is not empty in editableInfo"
-                    then {
+                    if "in Draft state and Parent is not empty in editableInfo" then {
                       error "Parent field is not present in current state of Draft"
                     }
-                  ?
+                  }
                 }
                 on query GetOrganizationMembers {
                   if "Members field is present (non-empty)" then {
-                    return !OrganizationMembers
+                    reply result OrganizationMembers
                   } else {
                     if "in Draft state and Members is not empty in editableInfo" then {
                       error "Members field is not present in current state of Draft"
@@ -193,48 +192,46 @@ context OrganizationContext is {
                   }
                 }
                 on query GetOrganizationOwners {
-                    example Success {
-                        when "Owners field is present (non-empty)"
-                        then return !OrganizationOwners(
-                            orgId = @DraftOrganizationState.orgId,
-                            owners = @DraftOrganizationState.owners
-                        )
-                    }
-                    example DraftError {
-                        when "in Draft state and Owners is not empty in editableInfo"
-                        then error "Owners field is not present in current state of Draft"
+                  if "in Draft state and Owners is not empty in editableInfo" then {
+                    error "Owners field is not present in current state of Draft"
+                  } else {
+
+                    if "Owners field is present (non-empty)" then {
+                       reply record OrganizationOwners
+                       // (
+                       //   orgId = @DraftOrganizationState.orgId,
+                       //   owners = @DraftOrganizationState.owners
+                       // )
                     }
                 }
                 on query GetOrganizationContacts {
-                    example Success {
-                        when "Contacts field is present (non-empty)"
-                        then return !OrganizationContacts(
-                            orgId = @DraftOrganizationState.orgId,
-                            contacts = @DraftOrganizationState.contacts
-                        )
-                    }
-                    example DraftError {
-                        when "in Draft state and contacts is not empty in editableInfo"
-                        then error "Contacts field is not present in current state of Draft"
+                  if "in Draft state and contacts is not empty in editableInfo" then {
+                    error "Contacts field is not present in current state of Draft"
+                  } else {
+                    if "Contacts field is present (non-empty)" then {
+                       reply result OrganizationContacts
+                         // (
+                         //   orgId = @DraftOrganizationState.orgId,
+                         //   contacts = @DraftOrganizationState.contacts
+                         // )
                     }
                 }
                 on query GetOrganizationMeta {
-                    example Success {
-                        then return !OrganizationMeta(
-                            orgId = @DraftOrganizationState.orgId,
-                            metaInfo = @DraftOrganizationState.metaInfo
-                        )
-                    }
+                  reply with result OrganizationMeta
+                    // (
+                    //   orgId = @DraftOrganizationState.orgId,
+                    //   metaInfo = @DraftOrganizationState.metaInfo
+                    // )
                 }
                  on query GetOrganizationState {
-                    example Success {
-                        when "State field is present (non-empty)"
-                        then return !OrganizationState(
-                            currentState = @DraftOrganizationState.metaInfo.currentState
-                        )
+                   if "State field is present (non-empty)" then {
+                     reply with OrganizationState
+                      // ( currentState = @DraftOrganizationState.metaInfo.currentState )
                     }
                 }
-                on other { then error "No other commands allowed in Draft state" }
+                on other {
+                  error "No other commands allowed in Draft state"
+                }
             }
         }
 
@@ -251,34 +248,37 @@ context OrganizationContext is {
         state EstablishedOrganization of EstablishedOrganizationState is {
             handler ActiveOrganizationHandler is {
                 on command EstablishOrganization {
-                    then error "Organization already established"
+                  error "Organization already established"
                 }
                 on command EditOrganizationInfo {
-                    example Success {
-                        then set EstablishedOrganizationState.info to !OrganizationContext.Info(
-                                name = @EditOrganizationInfo.newInfo.name,
-                                shortName = @EditOrganizationInfo.newInfo.shortName,
-                                address = @EditOrganizationInfo.newInfo.address,
-                                isPrivate = @EditOrganizationInfo.newInfo.isPrivate,
-                                url = @EditOrganizationInfo.newInfo.url,
-                                logo = @EditOrganizationInfo.newInfo.logo,
-                                tenant = @EditOrganizationInfo.newInfo.tenant
-                             )
-                         and set EstablishedOrganizationState.orgMeta to !OrganizationContext.MetaInfo(
-                             meta = !OrganizationContext.MetaInfo(
-                                createdOn = @EstablishedOrganizationState.orgMeta.createdOn,
-                                createdBy = @EstablishedOrganizationState.orgMeta.createdBy,
-                                lastUpdatedOn = now(),
-                                lastUpdatedBy = @EditOrganizationInfo.editingMember,
-                                currentState = @OrganizationStates.Draft
-                             )
-                        )
-                        and send event OrganizationInfoEdited(
-                            organizationId = @EstablishedOrganizationState.id,
-                            info = @EstablishedOrganizationState.info,
-                            meta = @EstablishedOrganizationState.orgMeta
-                        ) to outlet OrganizationEvents.Events
-                    }
+                  set EstablishedOrganizationState.info to "OrganizationContext.Info"
+                    // (
+                    //    name = @EditOrganizationInfo.newInfo.name,
+                    //    shortName = @EditOrganizationInfo.newInfo.shortName,
+                    //    address = @EditOrganizationInfo.newInfo.address,
+                    //    isPrivate = @EditOrganizationInfo.newInfo.isPrivate,
+                    //    url = @EditOrganizationInfo.newInfo.url,
+                    //    logo = @EditOrganizationInfo.newInfo.logo,
+                    //    tenant = @EditOrganizationInfo.newInfo.tenant
+                    //  )
+                  set EstablishedOrganizationState.orgMeta to "OrganizationContext.MetaInfo"
+                    // (
+                    //   meta = !OrganizationContext.MetaInfo(
+                    //     createdOn = @EstablishedOrganizationState.orgMeta.createdOn,
+                    //     createdBy = @EstablishedOrganizationState.orgMeta.createdBy,
+                    //     lastUpdatedOn = now(),
+                    //     lastUpdatedBy = @EditOrganizationInfo.editingMember,
+                    //     currentState = @OrganizationStates.Draft
+                    //   )
+                    // )
+                  send event OrganizationInfoEdited
+                    // (
+                    //    organizationId = @EstablishedOrganizationState.id,
+                    //    info = @EstablishedOrganizationState.info,
+                    //    meta = @EstablishedOrganizationState.orgMeta
+                    //  )
+                    to outlet OrganizationEvents.Events
+                  }
                 }
                 on command UpdateParent {
                     example Success is {
