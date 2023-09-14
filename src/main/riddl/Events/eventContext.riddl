@@ -127,6 +127,7 @@ context EventContext is {
                //     currentState = @EventStates.Scheduled
                //   )
                // )
+          }
         }
         on command EditEventInfo{
           set DraftEventState.info to "EventContext.newEditableInfoFromFieldsPresentInEditable"

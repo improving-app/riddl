@@ -299,7 +299,6 @@ context OrganizationContext is {
                   if "in Draft state and Owners is not empty in editableInfo" then {
                     error "Owners field is not present in current state of Draft"
                   } else {
-
                     if "Owners field is present (non-empty)" then {
                        reply record OrganizationOwners
                        // (
@@ -307,6 +306,7 @@ context OrganizationContext is {
                        //   owners = @DraftOrganizationState.owners
                        // )
                     }
+                  }
                 }
                 on query GetOrganizationContacts {
                   if "in Draft state and contacts is not empty in editableInfo" then {
@@ -319,6 +319,7 @@ context OrganizationContext is {
                          //   contacts = @DraftOrganizationState.contacts
                          // )
                     }
+                  }
                 }
                 on query GetOrganizationMeta {
                   reply with result OrganizationMeta
@@ -329,7 +330,7 @@ context OrganizationContext is {
                 }
                  on query GetOrganizationState {
                    if "State field is present (non-empty)" then {
-                     reply with OrganizationState
+                     reply with record OrganizationState
                       // ( currentState = @DraftOrganizationState.metaInfo.currentState )
                     }
                 }
@@ -355,7 +356,7 @@ context OrganizationContext is {
                   error "Organization already established"
                 }
                 on command EditOrganizationInfo {
-                  set EstablishedOrganizationState.info to "OrganizationContext.Info"
+                  set field EstablishedOrganizationState.info to "OrganizationContext.Info"
                     // (
                     //    name = @EditOrganizationInfo.newInfo.name,
                     //    shortName = @EditOrganizationInfo.newInfo.shortName,
@@ -365,7 +366,7 @@ context OrganizationContext is {
                     //    logo = @EditOrganizationInfo.newInfo.logo,
                     //    tenant = @EditOrganizationInfo.newInfo.tenant
                     //  )
-                  set EstablishedOrganizationState.orgMeta to "OrganizationContext.MetaInfo"
+                  set field EstablishedOrganizationState.orgMeta to "OrganizationContext.MetaInfo"
                     // (
                     //   meta = !OrganizationContext.MetaInfo(
                     //     createdOn = @EstablishedOrganizationState.orgMeta.createdOn,
