@@ -41,8 +41,31 @@ context EventContext is {
 
     handler EventHandler is {
       on command CreateEvent {
-        send event EventCreated to outlet EventEvents.Events
+        send event EventCreated
+          // (
+          //   eventId = @CreateEvent.eventId,
+          //   info = @CreateEvent.info,
+          //   meta = !EventMetaInfo(
+          //     createdOn = now(),
+          //     createdBy = @CreateEvent.onBehalfOf,
+          //     lastUpdatedOn = now(),
+          //     lastUpdatedBy = @CreateEvent.onBehalfOf,
+          //     currentState = @EventStates.Draft
+          //   )
+          // )
+        to outlet EventEvents.Events
         morph entity Event to state DraftEvent with record DraftEventState
+         // (
+         //   eventId = @CreateEvent.eventId,
+         //   info = @CreateEvent.info,
+         //   meta = !EventMetaInfo(
+         //     createdOn = now(),
+         //     createdBy = @CreateEvent.onBehalfOf,
+         //     lastUpdatedOn = now(),
+         //     lastUpdatedBy = @CreateEvent.onBehalfOf,
+         //     currentState = @OrganizationStates.Draft
+         //   )
+         // )
       }
       on other {
         error "You must first create an event using ScheduleEvent command."
