@@ -10,12 +10,14 @@ context LocationContext is {
 
 		    handler LocationHandler is {
 		        on command EstablishLocation {
-                then "morph Location to Draft state"
-                and "Copy info field from the command into Draft.locationInfo field"
-                and "adjust meta fields to reflect the change set"
-                and "yield event LocationEstablished"
+              "morph Location to Draft state"
+              "Copy info field from the command into Draft.locationInfo field"
+              "adjust meta fields to reflect the change set"
+              "yield event LocationEstablished"
 		        }
-		        on other { then error "Only EstablishLocation command is allowed in the default state"}
+		        on other {
+		          error "Only EstablishLocation command is allowed in the default state"
+		        }
 		    }
 
         record DraftState is {
@@ -25,21 +27,23 @@ context LocationContext is {
 		    state Draft of Location.DraftState is {
 		        handler DraftLocation is {
 		            on command EstablishLocation {
-		                then error "Location already established"
+		              error "Location already established"
 		            }
 		            on command EditLocationInfo {
-		                then "set Draft info fields to EditLocationInfo.info"
-		                and "yield event LocationInfoUpdated"
+		              "set Draft info fields to EditLocationInfo.info"
+		              "yield event LocationInfoUpdated"
 		            }
 		            on command UpdateLocationStatus {
-		                then "morph Location to the state provided in UpdateVenueStatus"
-                    and "set MetaInfo to capture change data"
-                    and "yield event VenueInfoUpdated"
+		              "morph Location to the state provided in UpdateVenueStatus"
+                  "set MetaInfo to capture change data"
+                  "yield event VenueInfoUpdated"
 		            }
 		            on query GetLocationVenue {
-		                given "GetLocationVenue.locationId exists as an entity"
-		                then "yield event LocationVenue"
-		                else error "LocationId not found as requested"
+		              if "GetLocationVenue.locationId exists as an entity" then {
+		                "yield event LocationVenue"
+		              } else {
+		                error "LocationId not found as requested"
+		              }
 		            }
 		        }
 		    }
@@ -51,16 +55,16 @@ context LocationContext is {
 		    state Open of Location.OpenState is {
 		        handler OpenLocation is {
 		            on command EstablishLocation {
-		                then error "Location already established"
+		              error "Location already established"
 		            }
 		            on command EditLocationInfo {
-		                then "set OnHold info fields to EditLocationInfo.info"
-		                and "yield event LocationInfoUpdated"
+		              "set OnHold info fields to EditLocationInfo.info"
+		              "yield event LocationInfoUpdated"
 		            }
 		            on command UpdateLocationStatus {
-                    then "morph Location to the state provided in UpdateLocationStatus"
-                    and "set MetaInfo to capture change data"
-                    and "yield event LocationStatusUpdated"
+                  "morph Location to the state provided in UpdateLocationStatus"
+                  "set MetaInfo to capture change data"
+                  "yield event LocationStatusUpdated"
 		            }
 		        }
 		    }
@@ -72,16 +76,16 @@ context LocationContext is {
 		    state Closed of Location.ClosedState is {
 		        handler ClosedLocation is {
 		            on command EstablishLocation {
-		                then error "Location already established"
+		              error "Location already established"
 		            }
 		            on command EditLocationInfo {
-		                then "set OnHold info fields to EditLocationInfo.info"
-		                and "yield event LocationInfoUpdated"
+		              "set OnHold info fields to EditLocationInfo.info"
+		              "yield event LocationInfoUpdated"
 		            }
 		            on command UpdateLocationStatus {
-                    then "morph Location to the state provided in UpdateLocationStatus"
-                    and "set MetaInfo to capture change data"
-                    and "yield event LocationStatusUpdated"
+                  "morph Location to the state provided in UpdateLocationStatus"
+                  "set MetaInfo to capture change data"
+                  "yield event LocationStatusUpdated"
 		            }
 		        }
 		    }
