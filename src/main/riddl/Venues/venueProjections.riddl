@@ -7,7 +7,7 @@ projector VenuesView is {
     }
     handler VenueCapacityViewHandler is {
         on event VenueEstablished {
-          set VenuesFields.venueId to "VenueEstablished.VenueId"
+          set field VenuesFields.venueId to "VenueEstablished.VenueId"
         }
         on event LocationEstablished {
           if "LocationEstablished.locationInfo.venueId not exists in this projector" then {
