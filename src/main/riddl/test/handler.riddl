@@ -1,16 +1,13 @@
 handler TestGateway is {
   on command TestGateway.CreateScenario {
-    scenario clean is {
-      given "no scenario is currently running"
-      then "create all the entities as defined in the CreateScenario command"
+    if "no scenario is currently running" then {
+      "create all the entities as defined in the CreateScenario command"
     }
   }
 
   on command TestGateway.RunScenario {
-    scenario WhileScenarioRunning is {
-      given "CreateScenario has been called"
-      and  "each of the TenantInfo values provided in CreateTenants"
-      then "create a tenant with matching content, 0 members, and 0 organizations"
+    if "CreateScenario has been called and each of the TenantInfo values provided in CreateTenants" then {
+      "create a tenant with matching content, 0 members, and 0 organizations"
     }
   }
 }
