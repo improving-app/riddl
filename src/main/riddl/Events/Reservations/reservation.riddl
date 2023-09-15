@@ -5,7 +5,11 @@ context ReservationContext is {
     include "reservationTypeDefinitions"
     include "reservationMessages"
 
-    outlet events is { ??? }
+    type PublicReservationEvent is one of {
+    }
+
+    outlet Events is type PublicReservationEvent
+
     entity Reservation is {
         options (event-sourced, available)
 
@@ -14,7 +18,7 @@ context ReservationContext is {
               morph entity Reservation to state Draft with record DraftState
               "Copy fields from the command into Draft fields"
               "adjust meta fields to reflect the change set"
-              send event ReservationEstablished to outlet ReservationContext.events
+              send event ReservationEstablished to outlet ReservationContext.Events
 		        }
 		        on other {
 		          error "Only EstablishReservation command is allowed in the default state"
@@ -33,7 +37,7 @@ context ReservationContext is {
 		            }
 		            on command EditReservationInfo {
 		              set field Draft.info to "EditReservationInfo.info"
-		              send event ReservationInfoUpdated to ReservationContext.events
+		              send event ReservationInfoUpdated to outlet ReservationContext.Events
 		            }
 		            on command UpdateReservationStatus {
                   "morph entity Reservation to state provided in UpdateReservationStatus"
