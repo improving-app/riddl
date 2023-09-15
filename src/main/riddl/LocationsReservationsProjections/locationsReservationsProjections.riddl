@@ -22,47 +22,47 @@ context LocationsReservationsProjections is  {
     }
     handler LocationsReservationsViewHandler is {
         on event VenueEstablished {
-            then "find or create rows with venueId set to VenueEstablished.venueId and orgId set to VenueEstablished.info.orgId"
-            and "set isPrivate to true if VenueEstablished.info.isPrivate is true"
+          "find or create rows with venueId set to VenueEstablished.venueId and orgId set to VenueEstablished.info.orgId"
+          "set isPrivate to true if VenueEstablished.info.isPrivate is true"
         }
         on event VenueInfoUpdated {
-            then "find rows with venueId set to VenueInfoUpdated.venueId and orgId set to VenueInfoUpdated.info.orgId"
-            and "set isPrivate to true if VenueInfoUpdated.info.isPrivate is true"
+          "find rows with venueId set to VenueInfoUpdated.venueId and orgId set to VenueInfoUpdated.info.orgId"
+          "set isPrivate to true if VenueInfoUpdated.info.isPrivate is true"
         }
         on event VenueLocationsAdded {
-            then "find or create rows with venueId set to VenueLocationsAdded.venueId and locationIds set to VenueLocationsAdded.locationIds"
+          "find or create rows with venueId set to VenueLocationsAdded.venueId and locationIds set to VenueLocationsAdded.locationIds"
         }
         on event ReservationEstablished {
-            then "find or create rows with reservationId set to ReservationEstablished.reservationId"
-            and "set rows' reservationStart to ReservationEstablished.info.range.start"
-            and "set rows' reservationEnd to ReservationEstablished.info.range.end"
+          "find or create rows with reservationId set to ReservationEstablished.reservationId"
+          "set rows' reservationStart to ReservationEstablished.info.range.start"
+          "set rows' reservationEnd to ReservationEstablished.info.range.end"
         }
         on event ReservationInfoUpdated {
-            then "find rows with reservationId set to ReservationInfoUpdated.reservationId"
-            and "set rows' reservationStart to ReservationInfoUpdated.info.range.start"
-            and "set rows' reservationEnd to ReservationInfoUpdated.info.range.end"
+          "find rows with reservationId set to ReservationInfoUpdated.reservationId"
+          "set rows' reservationStart to ReservationInfoUpdated.info.range.start"
+          "set rows' reservationEnd to ReservationInfoUpdated.info.range.end"
         }
         on event LocationEstablished {
-            then "find or create rows with reservationId set to LocationEstablished.reservationIds"
-            and "set rows' capacity to LocationEstablished.locationInfo.capacity"
-            and "set rows' locationIds to LocationEstablished.locationIds"
-            and "set isPrivate to true if LocationEstablished.info.isPrivate is true"
+          "find or create rows with reservationId set to LocationEstablished.reservationIds"
+          "set rows' capacity to LocationEstablished.locationInfo.capacity"
+          "set rows' locationIds to LocationEstablished.locationIds"
+          "set isPrivate to true if LocationEstablished.info.isPrivate is true"
         }
         on event LocationReservationsAdded {
-            then "find or create rows with reservationId set to LocationReservationsAdded.reservationId"
-            and "set rows' locationId to LocationReservationsAdded.locationId"
+          "find or create rows with reservationId set to LocationReservationsAdded.reservationId"
+          "set rows' locationId to LocationReservationsAdded.locationId"
         }
         on event LocationInfoUpdated {
-            then "find rows where locationId is LocationInfoUpdated.locationId"
-            and "set rows' capacity to LocationInfoUpdated.info.capacity"
-            and "set isPrivate to true if LocationInfoUpdated.info.isPrivate is true"
+          "find rows where locationId is LocationInfoUpdated.locationId"
+          "set rows' capacity to LocationInfoUpdated.info.capacity"
+          "set isPrivate to true if LocationInfoUpdated.info.isPrivate is true"
         }
         on query ScheduleEasyEvent {
-            then "filter by ScheduleEasyEvent.info.forOrg not equals orgId & isPrivate is true - return EasyEventNoAvailability if empty"
-            and "find rows where ScheduleEasyEvent.maxAttendance < capacity - return EasyEventNoAvailability if empty"
-            and "filter by ScheduleEasyEvent.info.timeRange.start & ScheduleEasyEvent.info.timeRange.end do not overlap reservationStart & reservationEnd"
-            and "if empty, try 30mins earlier - if still empty, try 30 mins later - then return EasyEventNoAvailability if empty"
-            and "return EasyScheduledEvent with all row's locationId, ScheduleEasyEvent.eventInfo where expectedStart & expectedEnd are possibly adjusted from previous steps"
+          "filter by ScheduleEasyEvent.info.forOrg not equals orgId & isPrivate is true - return EasyEventNoAvailability if empty"
+          "find rows where ScheduleEasyEvent.maxAttendance < capacity - return EasyEventNoAvailability if empty"
+          "filter by ScheduleEasyEvent.info.timeRange.start & ScheduleEasyEvent.info.timeRange.end do not overlap reservationStart & reservationEnd"
+          "if empty, try 30mins earlier - if still empty, try 30 mins later - then return EasyEventNoAvailability if empty"
+          "return EasyScheduledEvent with all row's locationId, ScheduleEasyEvent.eventInfo where expectedStart & expectedEnd are possibly adjusted from previous steps"
         }
     }
   }
