@@ -75,29 +75,34 @@ context StoreContext is {
 
     handler DefaultStoreHandler is {
       on command CreateStore {
-        then send event StoreCreated(
-            storeId = @CreateStore.storeId,
-            info = @CreateStore.info,
-            meta = !StoreContext.MetaInfo(
-                createdOn = now(),
-                createdBy = @CreateStore.creatingMember,
-                lastUpdatedOn = now(),
-                lastUpdatedBy = @CreateStore.creatingMember,
-                currentState = @CreateStore.Draft
-            )
-        ) to outlet StoreEvents.Events
-        and morph entity Store to state DraftStore with !DraftStoreState(
-            info = @CreateStore.info,
-            meta = !StoreContext.MetaInfo(
-                createdOn = now(),
-                createdBy = @CreateStore.creatingMember,
-                lastUpdatedOn = now(),
-                lastUpdatedBy = @CreateStore.creatingMember,
-                currentState = @StoreStates.Draft
-            )
-        )
+        send event StoreCreated
+//        (
+//            storeId = @CreateStore.storeId,
+//            info = @CreateStore.info,
+//            meta = !StoreContext.MetaInfo(
+//                createdOn = now(),
+//                createdBy = @CreateStore.creatingMember,
+//                lastUpdatedOn = now(),
+//                lastUpdatedBy = @CreateStore.creatingMember,
+//                currentState = @CreateStore.Draft
+//            )
+//        )
+          to outlet StoreEvents.Events
+        morph entity Store to state DraftStore with record DraftStoreState
+//        (
+//          info = @CreateStore.info,
+//          meta = !StoreContext.MetaInfo(
+//            createdOn = now(),
+//            createdBy = @CreateStore.creatingMember,
+//            lastUpdatedOn = now(),
+//            lastUpdatedBy = @CreateStore.creatingMember,
+//            currentState = @StoreStates.Draft
+//          )
+//        )
       }
-      on other {then error "Only the CreateStore command is allowed in the default state"}
+      on other {
+        error "Only the CreateStore command is allowed in the default state"
+      }
     }
 
     record DraftStoreState is {
@@ -108,70 +113,72 @@ context StoreContext is {
     state DraftStore of DraftStoreState is {
       handler DraftStoreHandler is {
         on command CreateStore {
-          then error "Store already created"
+          error "Store already created"
         }
         on command EditStoreInfo {
-          then "copy fields from info to Draft info fields"
-          and "adjust meta fields to reflect the change"
-          and "yield the StoreUpdated event"
+          "copy fields from info to Draft info fields"
+          "adjust meta fields to reflect the change"
+          "yield the StoreUpdated event"
         }
         on command DeleteStore {
-          then "remove all attributes not defined in the Deleted state"
-          and "adjust meta fields to reflect change"
-          and "yield the StoreDeleted event"
-          and morph entity Store to state DeletedStore with !DeletedStoreState(
-            storeName = @DraftStoreState.info.storeName,
-            event = @DraftStoreState.optionalInfo,
-            venue = @DraftStoreState.requiredInfo,
-            location = @DraftStoreState.requiredInfo,
-            sponsoringOrg = @DraftStoreState.requiredInfo,
-            meta = !StoreContext.MetaInfo(
-               createdOn = @DraftStoreState.meta.createdOn,
-               createdBy = @DraftStoreState.meta.createdBy,
-               lastUpdatedOn = now(),
-               lastUpdatedBy = @DeleteStore.deletingMember,
-               currentState = @StoreStates.Deleted
-           )
-          )
+          "remove all attributes not defined in the Deleted state"
+          "adjust meta fields to reflect change"
+          "yield the StoreDeleted event"
+          morph entity Store to state DeletedStore with record DeletedStoreState
+//          (
+//            storeName = @DraftStoreState.info.storeName,
+//            event = @DraftStoreState.optionalInfo,
+//            venue = @DraftStoreState.requiredInfo,
+//            location = @DraftStoreState.requiredInfo,
+//            sponsoringOrg = @DraftStoreState.requiredInfo,
+//            meta = !StoreContext.MetaInfo(
+//              createdOn = @DraftStoreState.meta.createdOn,
+//              createdBy = @DraftStoreState.meta.createdBy,
+//              lastUpdatedOn = now(),
+//              lastUpdatedBy = @DeleteStore.deletingMember,
+//              currentState = @StoreStates.Deleted
+//            )
+//          )
         }
         on command MakeStoreReady {
-          then "yield the StoreIsReady event"
-          and morph entity Store to state CreatedStore with !CreatedStoreState(
-            info = !StoreContext.Info(
-                name = @DraftStoreState.requiredInfo,
-                description = @DraftStoreState.optionalInfo,
-                products = @DraftStoreState.requiredInfo,
-                event = @DraftStoreState.requiredInfo,
-                venue = @DraftStoreState.requiredInfo,
-                location = @DraftStoreState.requiredInfo,
-                sponsoringOrg = @DraftStoreState.requiredInfo
-            ),
-            meta = !StoreContext.MetaInfo(
-                createdOn = @DraftStoreState.meta.createdOn,
-                createdBy = @DraftStoreState.meta.createdBy,
-                lastUpdatedOn = now(),
-                lastUpdatedBy = @MakeStoreReady.updatingMember,
-                currentState = @StoreStates.Ready
-            )
-          )
+          "yield the StoreIsReady event"
+          morph entity Store to state CreatedStore with record CreatedStoreState
+//          (
+//            info = !StoreContext.Info(
+//              name = @DraftStoreState.requiredInfo,
+//              description = @DraftStoreState.optionalInfo,
+//              products = @DraftStoreState.requiredInfo,
+//              event = @DraftStoreState.requiredInfo,
+//              venue = @DraftStoreState.requiredInfo,
+//              location = @DraftStoreState.requiredInfo,
+//              sponsoringOrg = @DraftStoreState.requiredInfo
+//            ),
+//            meta = !StoreContext.MetaInfo(
+//              createdOn = @DraftStoreState.meta.createdOn,
+//              createdBy = @DraftStoreState.meta.createdBy,
+//              lastUpdatedOn = now(),
+//              lastUpdatedBy = @MakeStoreReady.updatingMember,
+//              currentState = @StoreStates.Ready
+//            )
+//          )
         }
         on command OpenStore {
-          then error "store must be moved to the Ready state. All required attributes must be provided."
+          error "store must be moved to the Ready state. All required attributes must be provided."
         }
         on command CloseStore {
-          then error "A store in Draft state may not be closed"
+          error "A store in Draft state may not be closed"
         }
         on command AddProductsToStore {
-          then "add provided products to store definition"
-          and "and adjust meta fields to reflect the change"
-          and "yield the ProductsAddedToStore event"
-          //TODO: Add cases where there is invalid product
+          "add provided products to store definition"
+          "and adjust meta fields to reflect the change"
+          "yield the ProductsAddedToStore event"
+          // TODO: Add cases where there is invalid product
         }
         on command RemoveProductsFromStore {
-          then "remove provided products from store"
-          and "adjust meta fields to reflect the change"
-          and "yield the ProductsRemovedFromStore event"
-          //TODO: Add case where product to be removed doesn't exist in store
+          "remove provided products from store"
+          "adjust meta fields to reflect the change"
+          "yield the ProductsRemovedFromStore event"
+          // TODO: Add case where product to be removed doesn't exist in store
         }
       }
     }
@@ -184,205 +191,227 @@ context StoreContext is {
     state CreatedStore of CreatedStoreState is {
       handler ReadyStoreHandler is {
         on command CreateStore {
-          then error "Store already created"
+          error "Store already created"
         }
         on command EditStoreInfo {
-          then "copy fields from info to Draft info fields"
-          and "adjust meta fields to reflect the change"
-          and "yield the StoreUpdated event"
+          "copy fields from info to Draft info fields"
+          "adjust meta fields to reflect the change"
+          "yield the StoreUpdated event"
         }
         on command DeleteStore {
-          then error "Store must be closed before deleting it"
+          error "Store must be closed before deleting it"
         }
         on command MakeStoreReady {
-          then error "Store must be in Draft state before being made Ready"
+          error "Store must be in Draft state before being made Ready"
         }
         on command OpenStore {
-          then set CreatedStoreState.meta to !StoreContext.MetaInfo(
-            createdOn = @CreatedStoreState.meta.createdOn,
-            createdBy = @CreatedStoreState.meta.createdBy,
-            lastUpdated = now(),
-            lastUpdatedBy = @OpenStore.openingMember,
-            currentState = @StoreStates.Open
-          )
-          and send event StoreOpened(
-            storeId = @CreatedStoreState.id,
-            info = @CreatedStoreState.info,
-            meta = @CreatedStoreState.meta
-          ) to outlet StoreEvents.Events
-          and become entity Store to handler OpenStoreHandler
+          set field CreatedStoreState.meta to "StoreContext.MetaInfo"
+//          (
+//            createdOn = @CreatedStoreState.meta.createdOn,
+//            createdBy = @CreatedStoreState.meta.createdBy,
+//            lastUpdated = now(),
+//            lastUpdatedBy = @OpenStore.openingMember,
+//            currentState = @StoreStates.Open
+//          )
+          send event StoreOpened
+//          (
+//            storeId = @CreatedStoreState.id,
+//            info = @CreatedStoreState.info,
+//            meta = @CreatedStoreState.meta
+//          )
+            to outlet StoreEvents.Events
+          become entity Store to handler OpenStoreHandler
         }
         on command CloseStore {
-          then "ensure all orders associated with store are Delivered or Cancelled before closing store"
-          and set CreatedStoreState.meta to !StoreContext.MetaInfo(
-            createdOn = @CreatedStoreState.meta,
-            createdBy = @CreatedStoreState.meta,
-            lastUpdated = now(),
-            lastUpdatedBy = @CloseStore.closingMember,
-            currentState = @StoreStates.Closed
-          )
-          and send event StoreClosed(
-            storeId = @CreatedStoreState.id,
-            info = @CreatedStoreState.info,
-            meta = @CreatedStoreState.meta
-          ) to outlet StoreEvents.Events
-          and become entity Store to handler ClosedStoreHandler
+          "ensure all orders associated with store are Delivered or Cancelled before closing store"
+          set field CreatedStoreState.meta to "StoreContext.MetaInfo"
+//          (
+//            createdOn = @CreatedStoreState.meta,
+//            createdBy = @CreatedStoreState.meta,
+//            lastUpdated = now(),
+//            lastUpdatedBy = @CloseStore.closingMember,
+//            currentState = @StoreStates.Closed
+//          )
+          send event StoreClosed
+//          (
+//            storeId = @CreatedStoreState.id,
+//            info = @CreatedStoreState.info,
+//            meta = @CreatedStoreState.meta
+//          )
+            to outlet StoreEvents.Events
+          become entity Store to handler ClosedStoreHandler
         }
         on command AddProductsToStore {
-          then "add provided products to store definition"
-          and "and adjust meta fields to reflect the change"
-          and "yield the ProductsAddedToStore event"
-          //TODO: Add cases where there is invalid product
+          "add provided products to store definition"
+          "and adjust meta fields to reflect the change"
+          "yield the ProductsAddedToStore event"
+          // TODO: Add cases where there is invalid product
         }
         on command RemoveProductsFromStore {
-          then "remove provided products from store"
-          and "adjust meta fields to reflect the change"
-          and "yield the ProductsRemovedFromStore event"
-          //TODO: Add case where product to be removed doesn't exist in store
+          "remove provided products from store"
+          "adjust meta fields to reflect the change"
+          "yield the ProductsRemovedFromStore event"
+          // TODO: Add case where product to be removed doesn't exist in store
         }
         on command TerminateStore {
-          then set CreatedStoreState.meta to !StoreContext.MetaInfo(
-              createdOn = @CreatedStoreState.meta.createdOn,
-              createdBy = @CreatedStoreState.meta.createdBy,
-              lastUpdatedOn = now(),
-              lastUpdatedBy = @TerminateStore.terminatingMember,
-              currentState = @CreatedStoreState.meta
-          )
-          and morph entity Store to state TerminatedStore with !TerminatedStoreState(lastMeta = @CreatedStoreState.meta)
+          set field CreatedStoreState.meta to "StoreContext.MetaInfo"
+//          (
+//            createdOn = @CreatedStoreState.meta.createdOn,
+//            createdBy = @CreatedStoreState.meta.createdBy,
+//            lastUpdatedOn = now(),
+//            lastUpdatedBy = @TerminateStore.terminatingMember,
+//            currentState = @CreatedStoreState.meta
+//          )
+          morph entity Store to state TerminatedStore with record TerminatedStoreState
+            // (lastMeta = @CreatedStoreState.meta)
         }
       }
 
       handler OpenStoreHandler is {
           on command CreateStore {
-            then error "Store already created"
+            error "Store already created"
           }
           on command EditStoreInfo {
-            then "copy fields from info to Draft info fields"
-            and "adjust meta fields to reflect the change"
-            and "yield the StoreUpdated event"
+            "copy fields from info to Draft info fields"
+            "adjust meta fields to reflect the change"
+            "yield the StoreUpdated event"
           }
           on command MakeStoreReady {
-            then error "Store must be in Draft state before being made Ready"
+            error "Store must be in Draft state before being made Ready"
           }
           on command DeleteStore {
-            then error "Store must be closed before deleting it"
+            error "Store must be closed before deleting it"
           }
           on command OpenStore {
-            then error "Store is already opened"
+            error "Store is already opened"
           }
           on command CloseStore {
-            then "ensure all orders associated with store are Delivered or Cancelled before closing store"
-            and set CreatedStoreState.meta to !StoreContext.MetaInfo(
-              createdOn = @CreatedStoreState.meta.createdOn,
-              createdBy = @CreatedStoreState.meta.createdBy,
-              lastUpdated = now(),
-              lastUpdatedBy = @CloseStore.closingMember,
-              currentState = @StoreStates.Closed
-            )
-            and send event StoreClosed(
-              storeId = @CreatedStoreState.id,
-              info = @CreatedStoreState.info,
-              meta = @CreatedStoreState.meta
-            ) to outlet StoreEvents.Events
-            and become entity Store to handler ClosedStoreHandler
+            "ensure all orders associated with store are Delivered or Cancelled before closing store"
+            set field CreatedStoreState.meta to "StoreContext.MetaInfo"
+//            (
+//              createdOn = @CreatedStoreState.meta.createdOn,
+//              createdBy = @CreatedStoreState.meta.createdBy,
+//              lastUpdated = now(),
+//              lastUpdatedBy = @CloseStore.closingMember,
+//              currentState = @StoreStates.Closed
+//            )
+            send event StoreClosed
+//            (
+//              storeId = @CreatedStoreState.id,
+//              info = @CreatedStoreState.info,
+//              meta = @CreatedStoreState.meta
+//            )
+              to outlet StoreEvents.Events
+            become entity Store to handler ClosedStoreHandler
           }
           on command AddProductsToStore {
-            then "add provided products to store definition"
-            and "and adjust meta fields to reflect the change"
-            and "yield the ProductsAddedToStore event"
-            //TODO: Add cases where there is invalid product
+            "add provided products to store definition"
+            "and adjust meta fields to reflect the change"
+            "yield the ProductsAddedToStore event"
+            // TODO: Add cases where there is invalid product
           }
           on command RemoveProductsFromStore {
-            then "remove provided products from store"
-            and "adjust meta fields to reflect the change"
-            and "yield the ProductsRemovedFromStore event"
-            //TODO: Add case where product to be removed doesn't exist in store
+            "remove provided products from store"
+            "adjust meta fields to reflect the change"
+            "yield the ProductsRemovedFromStore event"
+            // TODO: Add case where product to be removed doesn't exist in store
           }
           on command TerminateStore {
-              then set CreatedStoreState.meta to !StoreContext.MetaInfo(
-                  createdOn = @CreatedStoreState.meta.createdOn,
-                  createdBy = @CreatedStoreState.meta.createdBy,
-                  lastUpdatedOn = now(),
-                  lastUpdatedBy = @TerminateStore.terminatingMember,
-                  currentState = @CreatedStoreState.meta
-              )
-              and morph entity Store to state TerminatedStore with !TerminatedStoreState(lastMeta = @CreatedStoreState.meta)
+            set field CreatedStoreState.meta to "StoreContext.MetaInfo"
+//            (
+//              createdOn = @CreatedStoreState.meta.createdOn,
+//              createdBy = @CreatedStoreState.meta.createdBy,
+//              lastUpdatedOn = now(),
+//              lastUpdatedBy = @TerminateStore.terminatingMember,
+//              currentState = @CreatedStoreState.meta
+//            )
+            morph entity Store to state TerminatedStore with record TerminatedStoreState
+              // (lastMeta = @CreatedStoreState.meta)
           }
         }
 
         handler ClosedStoreHandler is {
           on command CreateStore {
-            then error "Store already created"
+            error "Store already created"
           }
           on command EditStoreInfo {
-            then "copy fields from info to Draft info fields"
-            and "adjust meta fields to reflect the change"
-            and "yield the StoreUpdated event"
+            "copy fields from info to Draft info fields"
+            "adjust meta fields to reflect the change"
+            "yield the StoreUpdated event"
           }
           on command MakeStoreReady {
-            then error "Store must be in Draft state before being made Ready"
+            error "Store must be in Draft state before being made Ready"
           }
           on command DeleteStore {
-            then set CreatedStoreState.meta to !StoreContext.MetaInfo(
-              createdOn = @CreatedStoreState.meta.createdOn,
-              createdBy = @CreatedStoreState.meta.createdBy,
-              lastUpdated = now(),
-              lastUpdatedBy = @DeleteStore.deletingMember,
-              currentState = @StoreStates.Deleted
-            )
-            and send event StoreDeleted(
-              storeId = @CreatedStoreState.id,
-              info = @CreatedStoreState.info,
-              meta = @CreatedStoreState.meta
-            ) to outlet StoreEvents.Events
-            and morph entity Store to state DeletedStore with !DeletedStoreState(
-              storeName = @CreatedStoreState.info.storeName,
-              event = @CreatedStoreState.info.event,
-              venue = @CreatedStoreState.info.venue,
-              location = @CreatedStoreState.info.location,
-              sponsoringOrg = @CreatedStoreState.info.sponsoringOrg,
-              meta = @CreatedStoreState.meta
-            )
+            set field CreatedStoreState.meta to "StoreContext.MetaInfo"
+//            (
+//              createdOn = @CreatedStoreState.meta.createdOn,
+//              createdBy = @CreatedStoreState.meta.createdBy,
+//              lastUpdated = now(),
+//              lastUpdatedBy = @DeleteStore.deletingMember,
+//              currentState = @StoreStates.Deleted
+//            )
+            send event StoreDeleted
+//            (
+//              storeId = @CreatedStoreState.id,
+//              info = @CreatedStoreState.info,
+//              meta = @CreatedStoreState.meta
+//            )
+              to outlet StoreEvents.Events
+            morph entity Store to state DeletedStore with record DeletedStoreState
+//            (
+//              storeName = @CreatedStoreState.info.storeName,
+//              event = @CreatedStoreState.info.event,
+//              venue = @CreatedStoreState.info.venue,
+//              location = @CreatedStoreState.info.location,
+//              sponsoringOrg = @CreatedStoreState.info.sponsoringOrg,
+//              meta = @CreatedStoreState.meta
+//            )
           }
           on command OpenStore {
-            then set CreatedStoreState.meta to !StoreContext.MetaInfo(
-              createdOn = @CreatedStoreState.meta.createdOn,
-              createdBy = @CreatedStoreState.meta.createdBy,
-              lastUpdated = now(),
-              lastUpdatedBy = @OpenStore.openingMember,
-              currentState = @StoreStates.Open
-            )
-            and send event StoreOpened(
-              storeId = @CreatedStoreState.id,
-              info = @CreatedStoreState.info,
-              meta = @CreatedStoreState.meta
-            ) to outlet StoreEvents.Events
-            and become entity Store to handler OpenStoreHandler
+            set field CreatedStoreState.meta to "StoreContext.MetaInfo"
+//            (
+//              createdOn = @CreatedStoreState.meta.createdOn,
+//              createdBy = @CreatedStoreState.meta.createdBy,
+//              lastUpdated = now(),
+//              lastUpdatedBy = @OpenStore.openingMember,
+//              currentState = @StoreStates.Open
+//            )
+            send event StoreOpened
+//            (
+//              storeId = @CreatedStoreState.id,
+//              info = @CreatedStoreState.info,
+//              meta = @CreatedStoreState.meta
+//            )
+              to outlet StoreEvents.Events
+            become entity Store to handler OpenStoreHandler
           }
           on command CloseStore {
-            then error "Store is already closed."
+            error "Store is already closed."
           }
           on command AddProductsToStore {
-            then "add provided products to store definition"
-            and "and adjust meta fields to reflect the change"
-            and "yield the ProductsAddedToStore event"
-            //TODO: Add cases where there is invalid product
+            "add provided products to store definition"
+            "and adjust meta fields to reflect the change"
+            "yield the ProductsAddedToStore event"
+            // TODO: Add cases where there is invalid product
           }
           on command RemoveProductsFromStore {
-            then "remove provided products from store"
-            and "adjust meta fields to reflect the change"
-            and "yield the ProductsRemovedFromStore event"
-            //TODO: Add case where product to be removed doesn't exist in store
+            "remove provided products from store"
+            "adjust meta fields to reflect the change"
+            "yield the ProductsRemovedFromStore event"
+            // TODO: Add case where product to be removed doesn't exist in store
           }
           on command TerminateStore {
-          then set CreatedStoreState.meta to !StoreContext.MetaInfo(
-              createdOn = @CreatedStoreState.meta.createdOn,
-              createdBy = @CreatedStoreState.meta.createdBy,
-              lastUpdatedOn = now(),
-              lastUpdatedBy = @TerminateStore.terminatingMember,
-              currentState = @CreatedStoreState.meta
-          )
-          and morph entity Store to state TerminatedStore with !TerminatedStoreState(lastMeta = @CreatedStoreState.meta)
+            set field CreatedStoreState.meta to "StoreContext.MetaInfo"
+//            (
+//              createdOn = @CreatedStoreState.meta.createdOn,
+//              createdBy = @CreatedStoreState.meta.createdBy,
+//              lastUpdatedOn = now(),
+//              lastUpdatedBy = @TerminateStore.terminatingMember,
+//              currentState = @CreatedStoreState.meta
+//            )
+            morph entity Store to state TerminatedStore with record TerminatedStoreState
+              // (lastMeta = @CreatedStoreState.meta)
         }
       }
     }
@@ -398,16 +427,20 @@ context StoreContext is {
     state DeletedStore of DeletedStoreState is {
       handler DeletedStoreHandler is {
         on command TerminateStore {
-          then set DeletedStoreState.meta to !StoreContext.MetaInfo(
-              createdOn = @DeletedStoreState.meta.createdOn,
-              createdBy = @DeletedStoreState.meta.createdBy,
-              lastUpdatedOn = now(),
-              lastUpdatedBy = @TerminateStore.terminatingMember,
-              currentState = @DeletedStoreState.meta
-          )
-          and morph entity Store to state TerminatedStore with !TerminatedStoreState(lastMeta = @DeletedStoreState.meta)
+          set field DeletedStoreState.meta to "StoreContext.MetaInfo"
+//          (
+//            createdOn = @DeletedStoreState.meta.createdOn,
+//            createdBy = @DeletedStoreState.meta.createdBy,
+//            lastUpdatedOn = now(),
+//            lastUpdatedBy = @TerminateStore.terminatingMember,
+//            currentState = @DeletedStoreState.meta
+//          )
+          morph entity Store to state TerminatedStore with record TerminatedStoreState
+            // (lastMeta = @DeletedStoreState.meta)
         }
-        on other {then error "No actions are permitted on a Deleted store"}
+        on other {
+         error "No actions are permitted on a Deleted store"
+       }
       }
     }
 
@@ -416,7 +449,9 @@ context StoreContext is {
     }
     state TerminatedStore of TerminatedStoreState is {
       handler TerminatedStoreHandler is {
-        on other {then error "No actions are permitted on a Terminated store"}
+        on other {
+          error "No actions are permitted on a Terminated store"
+        }
       }
     }
   }
