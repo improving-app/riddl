@@ -72,19 +72,22 @@ context ProductContext is {
     options (event-sourced)
     handler ProductHandler is {
       on command CreateProduct {
-        then morph entity Product to state DraftProductState with !DraftProduct(
-            sku = @CreateProduct.sku,
-            info = @CreatProduct.info,
-            meta = !MemberContext.MetaInfo(
-                createdOn = now(),
-                createdBy = @CreatProduct.onBehalfOf,
-                lastUpdatedOn = now(),
-                lastUpdatedBy = @CreatProduct.onBehalfOf,
-                currentState = @ProductStates.Draft
-            )
-        )
+        morph entity Product to state DraftProductState with record DraftProduct
+//        (
+//            sku = @CreateProduct.sku,
+//            info = @CreatProduct.info,
+//            meta = !MemberContext.MetaInfo(
+//                createdOn = now(),
+//                createdBy = @CreatProduct.onBehalfOf,
+//                lastUpdatedOn = now(),
+//                lastUpdatedBy = @CreatProduct.onBehalfOf,
+//                currentState = @ProductStates.Draft
+//            )
+//        )
       }
-      on other {then error "Only the CreateProduct command is allowed in the default state."}
+      on other {
+        error "Only the CreateProduct command is allowed in the default state."
+      }
     }
 
     record DraftProduct is {
@@ -95,78 +98,82 @@ context ProductContext is {
     state DraftProductState of Product.DraftProduct is {
       handler CreatedProductHandler is {
         on command CreateProduct {
-          then error "Product already created."
+          error "Product already created."
         }
         on command UpdateProductInfo{
-          then "Copy fields that are provided from UpdateProductInfo.info into DefinedProductState.info fields"
-          and "adjust meta fields to reflect the change set"
-          and "yield ProductInfoUpdated event with new info"
+          "Copy fields that are provided from UpdateProductInfo.info into DefinedProductState.info fields"
+          "adjust meta fields to reflect the change set"
+          "yield ProductInfoUpdated event with new info"
         }
         on command DeleteProduct{
-          example Success {
-            then set DraftProductState.meta to !ProductContext.ProductMetaInfo(
-              createdOn = @DraftProductState.meta.createdOn,
-              createdBy = @DraftProductState.meta.createdBy,
-              lastUpdated = now(),
-              lastUpdatedBy = @DeleteProduct.onBehalfOf,
-              currentState = @ProductStates.Deleted
-            )
-            and send event ProductDeleted(
-              sku = @DraftProductState.sku,
-              info = @DraftProductState.info,
-              meta = @DraftProductState.meta
-            ) to outlet ProductEvents.Events
-            and morph entity Product to state DeletedProductState with !DeletedProduct(
-              sku = @DraftProductState.sku,
-              name = @DraftProductState.info.name,
-              lastMeta = @DraftProductState.meta
-            )
-          }
+          set field DraftProductState.meta to "ProductContext.ProductMetaInfo"
+//          (
+//            createdOn = @DraftProductState.meta.createdOn,
+//            createdBy = @DraftProductState.meta.createdBy,
+//            lastUpdated = now(),
+//            lastUpdatedBy = @DeleteProduct.onBehalfOf,
+//            currentState = @ProductStates.Deleted
+//          )
+          send event ProductDeleted
+//          (
+//            sku = @DraftProductState.sku,
+//            info = @DraftProductState.info,
+//            meta = @DraftProductState.meta
+//          )
+            to outlet ProductEvents.Events
+          morph entity Product to state DeletedProductState with record DeletedProduct
+//          (
+//            sku = @DraftProductState.sku,
+//            name = @DraftProductState.info.name,
+//            lastMeta = @DraftProductState.meta
+//          )
         }
         on command ActivateProduct{
-          example Success {
-            when "all required fields are present"
-            then set DraftProductState.meta to !ProductContext.ProductMetaInfo(
-              createdOn = @DraftProductState.meta.createdOn,
-              createdBy = @DraftProductState.meta.createdBy,
-              lastUpdated = now(),
-              lastUpdatedBy = @ActivateProduct.onBehalfOf,
-              currentState = @ProductStates.Active
-            )
-            and send event ProductActivated(
-              sku = @DraftProductState.sku,
-              info = @DraftProductState.info,
-              meta = @DraftProductState.meta
-            ) to outlet ProductEvents.Events
-            and morph entity Product to state DefinedProductState with !DefinedProduct(
-              info = !ProductInfo(
-                  name = @DraftProductState.info.name,
-                  description = @DraftProductState.info.description,
-                  products = @DraftProductState.info.products,
-                  event = @DraftProductState.info.event,
-                  venue = @DraftProductState.info.venue,
-                  location = @DraftProductState.info.location,
-                  sponsoringOrg = @DraftProductState.info.sponsoringOrg
-              ),
-              meta = !ProductContext.MetaInfo(
-                  createdOn = @DraftProductState.meta.createdOn,
-                  createdBy = @DraftProductState.meta.createdBy,
-                  lastUpdatedOn = now(),
-                  lastUpdatedBy = @ActivateProduct.updatingMember,
-                  currentState = @ProductStates.Active
-              )
-            )
-          }
-          example InsufficientRequiredFieldsFailure {
-            when "not all required fields are filled in"
-            then "return a list of non-filled in fields"
+          if "not all required fields are filled in" then {
+            "return a list of non-filled in fields"
+          } else {
+            // "all required fields are present"
+            set field DraftProductState.meta to "ProductContext.ProductMetaInfo"
+//            (
+//              createdOn = @DraftProductState.meta.createdOn,
+//              createdBy = @DraftProductState.meta.createdBy,
+//              lastUpdated = now(),
+//              lastUpdatedBy = @ActivateProduct.onBehalfOf,
+//              currentState = @ProductStates.Active
+//            )
+            send event ProductActivated
+//            (
+//              sku = @DraftProductState.sku,
+//              info = @DraftProductState.info,
+//              meta = @DraftProductState.meta
+//            )
+              to outlet ProductEvents.Events
+            morph entity Product to state DefinedProductState with record DefinedProduct
+//            (
+//              info = !ProductInfo(
+//                name = @DraftProductState.info.name,
+//                description = @DraftProductState.info.description,
+//                products = @DraftProductState.info.products,
+//                event = @DraftProductState.info.event,
+//                venue = @DraftProductState.info.venue,
+//                location = @DraftProductState.info.location,
+//                sponsoringOrg = @DraftProductState.info.sponsoringOrg
+//              ),
+//              meta = !ProductContext.MetaInfo(
+//                createdOn = @DraftProductState.meta.createdOn,
+//                createdBy = @DraftProductState.meta.createdBy,
+//                lastUpdatedOn = now(),
+//                lastUpdatedBy = @ActivateProduct.updatingMember,
+//                currentState = @ProductStates.Active
+//              )
+//            )
           }
         }
         on command InactivateProduct{
-          then error "cannot inactivate a draft product"
+          error "cannot inactivate a draft product"
         }
         on query GetProductInfo{
-          then "yield ProductInfoResult message"
+          "yield ProductInfoResult message"
         }
       }
     }
@@ -179,110 +186,116 @@ context ProductContext is {
     state DefinedProductState of Product.DefinedProduct is {
       handler ActiveProductHandler is {
         on command CreateProduct {
-          then error "Product already created."
+          error "Product already created."
         }
         on command UpdateProductInfo{
-          then "Copy fields that are provided from UpdateProductInfo.info into DefinedProductState.info fields"
-          and "adjust meta fields to reflect the change set"
-          and "yield ProductInfoUpdated event with new info"
+          "Copy fields that are provided from UpdateProductInfo.info into DefinedProductState.info fields"
+          "adjust meta fields to reflect the change set"
+          "yield ProductInfoUpdated event with new info"
         }
         on command DeleteProduct{
-          example Success {
-            then set DefinedProductState.meta to !ProductContext.ProductMetaInfo(
-              createdOn = @DefinedProductState.meta.createdOn,
-              createdBy = @DefinedProductState.meta.createdBy,
-              lastUpdated = now(),
-              lastUpdatedBy = @DeleteProduct.onBehalfOf,
-              currentState = @ProductStates.Deleted
-            )
-            and send event ProductDeleted(
-              sku = @DefinedProductState.sku,
-              info = @DefinedProductState.info,
-              meta = @DefinedProductState.meta
-            ) to outlet ProductEvents.Events
-            and morph entity Product to state DeletedProductState with !DeletedProduct(
-              sku = @DefinedProductState.sku,
-              name = @DefinedProductState.info.name,
-              lastMeta = @DefinedProductState.meta
-            )
-          }
+          set field DefinedProductState.meta to "ProductContext.ProductMetaInfo"
+//           (
+//              createdOn = @DefinedProductState.meta.createdOn,
+//              createdBy = @DefinedProductState.meta.createdBy,
+//              lastUpdated = now(),
+//              lastUpdatedBy = @DeleteProduct.onBehalfOf,
+//              currentState = @ProductStates.Deleted
+//            )
+          send event ProductDeleted
+//           (
+//              sku = @DefinedProductState.sku,
+//              info = @DefinedProductState.info,
+//              meta = @DefinedProductState.meta
+//            )
+              to outlet ProductEvents.Events
+          morph entity Product to state DeletedProductState with record DeletedProduct
+//           (
+//              sku = @DefinedProductState.sku,
+//              name = @DefinedProductState.info.name,
+//              lastMeta = @DefinedProductState.meta
+//            )
         }
         on command ActivateProduct{
-          then error "Product is already active"
+          error "Product is already active"
         }
-        on command InactivateProduct{
-          example Success {
-            then set DefinedProductState.meta to !ProductContext.ProductMetaInfo(
-              createdOn = @DefinedProductState.meta.createdOn,
-              createdBy = @DefinedProductState.meta.createdBy,
-              lastUpdated = now(),
-              lastUpdatedBy = @InactivateProduct.onBehalfOf,
-              currentState = @ProductStates.Inactive
-            )
-            and send event ProductInactivated(
-              sku = @DefinedProductState.sku,
-              info = @DefinedProductState.info,
-              meta = @DefinedProductState.meta
-            ) to outlet ProductEvents.Events
-            and become entity Product to handler InactiveProductHandler
-          }
+        on command InactivateProduct {
+          set field DefinedProductState.meta to "ProductContext.ProductMetaInfo"
+//          (
+//            createdOn = @DefinedProductState.meta.createdOn,
+//            createdBy = @DefinedProductState.meta.createdBy,
+//            lastUpdated = now(),
+//            lastUpdatedBy = @InactivateProduct.onBehalfOf,
+//            currentState = @ProductStates.Inactive
+//          )
+          send event ProductInactivated
+//          (
+//            sku = @DefinedProductState.sku,
+//            info = @DefinedProductState.info,
+//            meta = @DefinedProductState.meta
+//          )
+            to outlet ProductEvents.Events
+           become entity Product to handler InactiveProductHandler
         }
         on query GetProductInfo{
-          then "yield ProductInfoResult message"
+          "yield ProductInfoResult message"
         }
       }
       handler InactiveProductHandler is {
         on command CreateProduct {
-          then error "Product already created."
+          error "Product already created."
         }
         on command UpdateProductInfo{
-          then "Copy fields that are provided from UpdateProductInfo.info into DefinedProductState.info fields"
-          and "adjust meta fields to reflect the change set"
-          and "yield ProductInfoUpdated event with new info"
+          "Copy fields that are provided from UpdateProductInfo.info into DefinedProductState.info fields"
+          "adjust meta fields to reflect the change set"
+          "yield ProductInfoUpdated event with new info"
         }
         on command DeleteProduct{
-          example Success {
-            then set DefinedProductState.meta to !ProductContext.ProductMetaInfo(
-              createdOn = @DefinedProductState.meta.createdOn,
-              createdBy = @DefinedProductState.meta.createdBy,
-              lastUpdated = now(),
-              lastUpdatedBy = @DeleteProduct.onBehalfOf,
-              currentState = @ProductStates.Deleted
-            )
-            and send event ProductDeleted(
-              sku = @DefinedProductState.sku,
-              info = @DefinedProductState.info,
-              meta = @DefinedProductState.meta
-            ) to outlet ProductEvents.Events
-            and morph entity Product to state DeletedProductState with !DeletedProduct(
-              sku = @DefinedProductState.sku,
-              name = @DefinedProductState.info.name,
-              lastMeta = @DefinedProductState.meta
-            )
-          }
+          set field DefinedProductState.meta to "ProductContext.ProductMetaInfo"
+//          (
+//            createdOn = @DefinedProductState.meta.createdOn,
+//            createdBy = @DefinedProductState.meta.createdBy,
+//            lastUpdated = now(),
+//            lastUpdatedBy = @DeleteProduct.onBehalfOf,
+//            currentState = @ProductStates.Deleted
+//          )
+          send event ProductDeleted
+//          (
+//            sku = @DefinedProductState.sku,
+//            info = @DefinedProductState.info,
+//            meta = @DefinedProductState.meta
+//          )
+            to outlet ProductEvents.Events
+          morph entity Product to state DeletedProductState with record DeletedProduct
+//          (
+//            sku = @DefinedProductState.sku,
+//            name = @DefinedProductState.info.name,
+//            lastMeta = @DefinedProductState.meta
+//          )
         }
         on command ActivateProduct{
-          example Success {
-            then set DefinedProductState.meta to !ProductContext.ProductMetaInfo(
-              createdOn = @DefinedProductState.meta.createdOn,
-              createdBy = @DefinedProductState.meta.createdBy,
-              lastUpdated = now(),
-              lastUpdatedBy = @ActivateProduct.onBehalfOf,
-              currentState = @ProductStates.Active
-            )
-            and send event ProductActivated(
-              sku = @DefinedProductState.sku,
-              info = @DefinedProductState.info,
-              meta = @DefinedProductState.meta
-            ) to outlet ProductEvents.Events
-            and become entity Product to handler ActiveProductHandler
-          }
+          set field DefinedProductState.meta to "ProductContext.ProductMetaInfo"
+//          (
+//            createdOn = @DefinedProductState.meta.createdOn,
+//            createdBy = @DefinedProductState.meta.createdBy,
+//            lastUpdated = now(),
+//            lastUpdatedBy = @ActivateProduct.onBehalfOf,
+//            currentState = @ProductStates.Active
+//          )
+          send event ProductActivated
+//          (
+//            sku = @DefinedProductState.sku,
+//            info = @DefinedProductState.info,
+//            meta = @DefinedProductState.meta
+//          )
+            to outlet ProductEvents.Events
+          become entity Product to handler ActiveProductHandler
         }
         on command InactivateProduct{
-          then error "Product is already Inactive"
+          error "Product is already Inactive"
         }
         on query GetProductInfo{
-          then "yield ProductInfoResult message"
+          "yield ProductInfoResult message"
         }
       }
     }
@@ -294,22 +307,22 @@ context ProductContext is {
     state DeletedProductState of Product.DeletedProduct is {
       handler DeletedProductHandler is {
         on command CreateProduct {
-          then error "Product already created."
+          error "Product already created."
         }
         on command UpdateProductInfo{
-          then error "Cannot update a Deleted product"
+          error "Cannot update a Deleted product"
         }
         on command DeleteProduct{
-          then error "Product already deleted"
+          error "Product already deleted"
         }
         on command ActivateProduct{
-          then error "Cannot activate a deleted product. Consider creating a new product instead."
+          error "Cannot activate a deleted product. Consider creating a new product instead."
         }
         on command InactivateProduct{
-          then error "Cannot inactivate a Deleted product."
+          error "Cannot inactivate a Deleted product."
         }
         on query GetProductInfo{
-          then "yield ProductInfoUpdate with only sku and name populated"
+          "yield ProductInfoUpdate with only sku and name populated"
         }
       }
     }
