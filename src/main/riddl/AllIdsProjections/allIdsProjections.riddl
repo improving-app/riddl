@@ -26,13 +26,13 @@ context AllIdsProjections is  {
     }
     handler AllTenantIdsViewHandler is {
         on event TenantEstablished {
-            then "create row with tenant set to TenantEstablished.tenantId"// and tenantStatus to Draft"
+          "create row with tenant set to TenantEstablished.tenantId"// and tenantStatus to Draft"
         }
         //on event TenantContext.StatusUpdated {
         //    then "update row with tenant set to StatusUpdated.tenantId to tenantStatus with StatusUpdated.newStatus"
         //}
         on query GetAllTenantIds {
-            then "reply with AllTenantIds packed with entire table filtered by tenantStatus == Active"
+          "reply with AllTenantIds packed with entire table filtered by tenantStatus == Active"
         }
     }
   }
@@ -44,13 +44,13 @@ context AllIdsProjections is  {
     }
     handler AllOrgIdsViewHandler is {
         on event OrganizationEstablished {
-            then "create row with org set to OrganizationEstablished.orgId"// and orgStatus set to Draft"
+          "create row with org set to OrganizationEstablished.orgId"// and orgStatus set to Draft"
         }
         //on event OrganizationStatusUpdated {
         //    then "update row with org set to OrganizationStatusUpdated.orgId to orgStatus with OrganizationStatusUpdated.newStatus"
         //}
         on query GetAllOrgIds {
-            then "reply with AllOrgIds packed with entire table filtered by orgStatus == Active"
+          "reply with AllOrgIds packed with entire table filtered by orgStatus == Active"
         }
     }
   }
@@ -62,7 +62,7 @@ context AllIdsProjections is  {
     }
     handler AllTenantIdsViewHandler is {
         on event EventScheduled {
-            then "create row with event set to EventEstablished.eventId"// and eventStatus set to Scheduled"
+          "create row with event set to EventEstablished.eventId"// and eventStatus set to Scheduled"
         }
         //on event EventCancelled {
         //    then "update row with event set to EventCancelled.eventId to eventStatus with Status.Cancelled"
@@ -80,7 +80,7 @@ context AllIdsProjections is  {
         //    then "update row with event set to EventEnded.eventId to eventStatus with Status.Past"
         //}
         on query GetAllEventIds {
-            then "reply with AllEventIds packed with entire table filtered by eventStatus == Scheduled"
+          "reply with AllEventIds packed with entire table filtered by eventStatus == Scheduled"
         }
     }
   }
@@ -92,13 +92,13 @@ context AllIdsProjections is  {
     }
     handler AllMemberIdsViewHandler is {
         on event MemberContext.MemberRegistered {
-            then "create row with member set to MemberRegistered.memberId"// and memberStatus set to Active"
+          "create row with member set to MemberRegistered.memberId"// and memberStatus set to Active"
         }
         //on event MemberStatusUpdated {
         //    then "update row with member set to MemberStatusUpdated.memberId to memberStatus with MemberStatusUpdated.newStatus"
         //}
         on query GetAllMemberIds {
-            then "reply with AllMemberIds packed with entire table"
+          "reply with AllMemberIds packed with entire table"
         }
     }
   }
@@ -109,10 +109,10 @@ context AllIdsProjections is  {
     }
     handler AllStoreIdsViewHandler is {
         on event StoreCreated {
-            then "create rows with store set to StoreCreated.storeId"
+          "create rows with store set to StoreCreated.storeId"
         }
         on query GetAllStoreIds {
-            then "reply with AllStoreIds packed with entire table"
+          "reply with AllStoreIds packed with entire table"
         }
     }
   }
@@ -123,10 +123,10 @@ context AllIdsProjections is  {
     }
     handler AllSkusViewHandler is {
         on event ProductCreated {
-            then "create rows with sku set to ProductCreated.sku"
+          "create rows with sku set to ProductCreated.sku"
         }
         on query GetAllSkus {
-            then "reply with AllSkus packed with entire table"
+          "reply with AllSkus packed with entire table"
         }
     }
   }
