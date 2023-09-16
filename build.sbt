@@ -12,5 +12,7 @@ riddlcOptions :=
   Seq("--show-times", "from", "src/main/riddl/ImprovingApp.conf", "hugo")
 riddlcMinVersion := s"0.24.0"
 riddlcPath := file(
+  // NOTE: This value will fail for everyone but Reid. Change it locally
+  // NOTE: for your path to riddlc executable
   "/Users/reid/Code/reactific/riddl/riddlc/target/universal/stage/bin/riddlc"
 )
