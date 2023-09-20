@@ -1,32 +1,30 @@
-context OrganizationsProjection is  {
-  projector OrganizationsView is {
-     record Fields {
-        orgId: OrganizationId, //org-owner & org-member correlation tables
-        orgOwner: MemberId,    //org-owner correlation table
-        orgMember: MemberId     //org-member correlation table
-    }
-    handler OrganizationsView is {
-        on event OrganizationEstablished {
-            then "create row in org table with orgId set to OrganizationEstablished.info.orgId"
-            and "set previous row's orgName to OrganizationEstablished.info.name"
-            and "set previous row's orgInfo to OrganizationEstablished.info"
-        }
-        on event MembersAddedToOrganization {
-            then "create rows in org-member table with orgId set to MembersAddedToOrganization.orgId and orgMember not belonging in MembersAddedToOrganization.newMembers"
-        }
-        on event MembersRemovedFromOrganization {
-            then "remove rows in org-member table with orgId set to MembersRemovedFromOrganization.orgId and orgMember not belonging in MembersRemovedFromOrganization.newMembers"
-        }
-        on event OwnersAddedToOrganization {
-            then "create rows in org-owner table with orgId set to OwnersAddedToOrganization.orgId and orgOwner not belonging in OwnersAddedToOrganization.newOwners"
-        }
-        on event OwnersRemovedFromOrganization {
-            then "remove rows in org-owner table with orgId set to OwnersRemovedFromOrganization.orgId and orgOwner not belonging in OwnersRemovedFromOrganization.newOwners"
-        }
-        on query FindOrganizationsByMemberOrOwner {
-            then "if FindOrganizationsByMemberOrOwner.isMember, find FindOrganizationsByMemberOrOwner.memberId in org-member - otherwise do same in org-owner - if not found, return error"
-            and "return OrganizationListByMemberOrOwner containing results"
-        }
-    }
+projector OrganizationsView is {
+   record Fields {
+      orgId: ImprovingApp.OrganizationId, //org-owner & org-member correlation tables
+      orgOwner: ImprovingApp.MemberId,    //org-owner correlation table
+      orgMember: ImprovingAPp.MemberId     //org-member correlation table
+  }
+  handler OrganizationsView is {
+      on event OrganizationEstablished {
+          "create row in org table with orgId set to OrganizationEstablished.info.orgId"
+          "and set previous row's orgName to OrganizationEstablished.info.name"
+          "and set previous row's orgInfo to OrganizationEstablished.info"
+      }
+      on event MembersAddedToOrganization {
+          "create rows in org-member table with orgId set to MembersAddedToOrganization.orgId and orgMember not belonging in MembersAddedToOrganization.newMembers"
+      }
+      on event MembersRemovedFromOrganization {
+          "remove rows in org-member table with orgId set to MembersRemovedFromOrganization.orgId and orgMember not belonging in MembersRemovedFromOrganization.newMembers"
+      }
+      on event OwnersAddedToOrganization {
+          "create rows in org-owner table with orgId set to OwnersAddedToOrganization.orgId and orgOwner not belonging in OwnersAddedToOrganization.newOwners"
+      }
+      on event OwnersRemovedFromOrganization {
+          "remove rows in org-owner table with orgId set to OwnersRemovedFromOrganization.orgId and orgOwner not belonging in OwnersRemovedFromOrganization.newOwners"
+      }
+      on query FindOrganizationsByMemberOrOwner {
+          "if FindOrganizationsByMemberOrOwner.isMember, find FindOrganizationsByMemberOrOwner.memberId in org-member - otherwise do same in org-owner - if not found, return error"
+          "and return OrganizationListByMemberOrOwner containing results"
+      }
   }
 }
