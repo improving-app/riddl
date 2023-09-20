@@ -12,5 +12,8 @@ riddlcOptions :=
   Seq("--show-times", "from", "src/main/riddl/ImprovingApp.conf", "hugo")
 riddlcMinVersion := s"0.24.0"
 riddlcPath := file(
+  // NOTE: Set this to your local path which will always have this portion
+  // NOTE: of the path as a constant: riddl/riddlc/target/universal/stage/bin/riddlc
+  // NOTE: You must "sbt stage" in the riddl/riddlc directory for this to work
   "/Users/reid/Code/reactific/riddl/riddlc/target/universal/stage/bin/riddlc"
 )
