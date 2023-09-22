@@ -1,6 +1,6 @@
 Global / onChangedBuildSource := ReloadOnSourceChanges
 scalaVersion := "3.3.1"
-lazy val riddl_version = "0.24.+"
+lazy val riddl_version = "0.24.5"
 libraryDependencies ++= Seq(
   "com.reactific" %% "riddl-testkit" % riddl_version % "test",
   "com.reactific" %% "riddl-hugo" % riddl_version % "test",
@@ -10,7 +10,7 @@ libraryDependencies ++= Seq(
 enablePlugins(RiddlSbtPlugin)
 riddlcOptions :=
   Seq("--show-times", "from", "src/main/riddl/ImprovingApp.conf", "hugo")
-riddlcMinVersion := s"0.24.0"
+riddlcMinVersion := "0.24.6"
 riddlcPath := file(
   // NOTE: Set this to your local path which will always have this portion
   // NOTE: of the path as a constant: riddl/riddlc/target/universal/stage/bin/riddlc

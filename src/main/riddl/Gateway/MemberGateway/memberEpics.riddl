@@ -1,12 +1,14 @@
 // TODO: convert every Feature to an epic and every Scenario to a case
 // Note: this will involve creating components for application UserInterface for each epic
 
-//epic RegisterMember by author Alex is {
-//  user Member wants "to register as a member" so that "they can perform functions in the app"
-//  term 'member' briefly
-//  "An entity that is allowed to do queries on other entities or actions on other entities.
-//  Much of their behaviour will constrained or permitted be based on ownership, membership, & permissions in the future"
-//
+epic RegisterMember by author Alex is {
+  user Member wants "to register as a member" so that "they can perform functions in the app"
+  term 'member' described as {
+     | An entity that is allowed to do queries on other entities or actions on other entities.
+     | Much of their behaviour will be constrained or permitted be based on ownership, membership, &
+     | permissions in the future.
+   }
+}
 //  case RegisterActiveMember is {
 //    step from user Member "register as a member" to input
 //    Then the new registration is validated for handle and member id (make sure they are unique in the system(

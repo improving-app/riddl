@@ -1,5 +1,11 @@
+// TODO: Convert this file to new style epics and cases
 //Member Gateway Stories
 //As a person who would like to use the features of ImprovingApp I would like to register a new user account so that I can access those features
+user Member is "A member of an organization"
+epic RegisterMember is {
+  user Member wants "to enroll" so that "member can use the Improving App"
+}
+/*
 story RegisterMember is {
   capability is "Enroll the Member"
   benefit is "So Member can use ImprovingApp"
@@ -88,3 +94,4 @@ story IAmInterestedInAttending is {
     }
   }
 }
+*/

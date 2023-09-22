@@ -1,9 +1,13 @@
-//event stories
+// TODO: Convert this file to new style epics and cases
+// event stories
+epic EventStories is { ??? }
+/*
 As an Owner of an Organization I would like to schedule an Event that is hosted by my Organization
 As an Owner of an Organization I would like to find a Location, Reserve the Location, and schedule my Event using that Reservation (easy button)
   - must have max attendance as a field of Event
   - must have start/end time
   - Event is passed as an argument to a Place search to parameterize that search
   - The event may need to be adjusted (time, etc) to accommodate Location availability
-  - After creating an event but before scheduling an event (booking a reservation) 
+  - After creating an event but before scheduling an event (booking a reservation)
   - Gather interest in an event prior to Reserving the event
+*/

@@ -1,7 +1,11 @@
 //Notification Gateway Stories
+// TODO: Convert to epics and cases
+epic Notifications is { ??? }
+/*
 As a Member who made a purchase at a Store I would like to receive purchase receipts and order status details electronically
 As a Member I would like to download my Notifications (tickets, receipts, etc.)
 As a Member of an Organization I would like to be notified about Events hosted by my Organization
 As the Owner of an Event I would like to generate a stream of Event Updates (time, score, period, possession, …)
 As a Vendor I would like to receive Notification that a Product is low stock or stocked out so that I can restock
 As a Member I would like to receive Notification that a Product/Ticket has low stock or out of stock so that I can decide to purchase or make another purchase decision
+*/

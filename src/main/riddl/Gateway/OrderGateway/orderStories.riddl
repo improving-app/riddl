@@ -1,4 +1,8 @@
 //Order Gateway Stories
+// TODO: Convert this file to epics/cases
+
+epic OrderGatewayStories is { ??? }
+/*
 As a Member attending an Event I would like to buy my Ticket to the Event online
 As a Member attending an Event I would like to buy my concession Products online
 As a Vendor I would like to notify my Customer (Member) of Order status changes
@@ -50,3 +54,4 @@ story WithdrawCoins is {
     example "Order failed" is {???} //or cancelled
   }
 }
+*/
