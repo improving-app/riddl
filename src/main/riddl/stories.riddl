@@ -1,15 +1,15 @@
-story SetBillingAccountForOrganization is {
+epic SetBillingAccountForOrganization is {
     role is "Owner"
     capability is "Ensure that root organization has a billing account"
     benefit is "So that Improving.App can bill for services to the Organization"
     shown by https://some.url.com
-    creating a root organization without BillingAccount {}
-    creating a root organization with a BillingAccount {}
-    creating a sub organization with a BillingAccount {}
-    creating a sub organization without a BillingAccount{}
+    creating a root organization without BillingAccount { ??? }
+    creating a root organization with a BillingAccount { ??? }
+    creating a sub organization with a BillingAccount { ??? }
+    creating a sub organization without a BillingAccount{ ??? }
 }
 
-story WritingABook is {
+epic WritingABook is {
   role is "Author"
   capability is "edit on the screen"
   benefit is "revise content more easily"

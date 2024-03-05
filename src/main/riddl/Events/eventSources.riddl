@@ -1,16 +1,16 @@
-// plant EventPlant is {
-//     pipe EventPipe is {???}
-// }
-
 source LiveUpdates is {
     outlet Updates is type LiveUpdate
 } explained as "This is a source for things that happen as an event progresses"
 
+// plant EventPlant is {
+//     pipe EventPipe is {???}
+// }
+
+//ReservationAddedToEvent,
 type PublicEventEvent is one of {
   EventInfoChanged,
   EventCreated,
   EventScheduled,
-  //ReservationAddedToEvent,
   EventCancelled,
   EventRescheduled,
   EventDelayed,

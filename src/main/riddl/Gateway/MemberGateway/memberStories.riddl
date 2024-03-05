@@ -1,12 +1,10 @@
-// TODO: Convert this file to new style epics and cases
-//Member Gateway Stories
-//As a person who would like to use the features of ImprovingApp I would like to register a new user account so that I can access those features
 user Member is "A member of an organization"
+/*
 epic RegisterMember is {
-  user Member wants "to enroll" so that "member can use the Improving App"
+  Member wants "to enroll" so that "member can use the Improving App"
 }
 /*
-story RegisterMember is {
+epic RegisterMember is {
   capability is "Enroll the Member"
   benefit is "So Member can use ImprovingApp"
   author James is {
@@ -31,9 +29,12 @@ story RegisterMember is {
   }
 } briefly "A story about registering a new Member in Improving.app"
   described as "This is the story of how a Member signs up in Improving.app"
+// TODO: Convert this file to new style epics and cases
+//Member Gateway Stories
+//As a person who would like to use the features of ImprovingApp I would like to register a new user account so that I can access those features
 
 //As a Member I would like to check the balance of my iAppCoins Account to see if I have enough coin to make a purchase
-story GetIAppCoinBalance is {
+epic GetIAppCoinBalance is {
   As user Member wants to "check the balance of my iAppCoins Account" so that "I can check to see if I have enough coin to make a purchase"
   // capability is "Check iAppCoinAccount Balance"
   // benefit is "To verify there is enough coin to make a purchase"
@@ -50,7 +51,7 @@ story GetIAppCoinBalance is {
 }
 
 //As a Member of ImprovingApp I would like to subscribe to Event Update Stream so I can follow the progress of Events
-story GetEventUpdates is {
+epic GetEventUpdates is {
   capability is "Member would like to receive event updates as notifications in their Inbox"
   benefit is "Member can stay up to date regarding the Event"
   case HappyPath is {
@@ -61,7 +62,7 @@ story GetEventUpdates is {
 }
 
 //As a Member of ImprovingApp I would like to subscrbe to the Order Stream so I can track the progress of my Orders
-story GetOrderUpdates is {
+epic GetOrderUpdates is {
   capability is "Member would like to recieved notifications about thier Order status in their Inbox"
   benefit is "So they can know how their order is progressing toward completion"
   case HappyPath is {
@@ -72,7 +73,7 @@ story GetOrderUpdates is {
 }
 
 //As a Member I would like to express interest in an Event that has not been Reserved
-story IAmInterestedInAttending is {
+epic IAmInterestedInAttending is {
   capability is "User Expresses interested in attending an Event that has not opened Ticket sales yet"
   beneift is "Get on the list of event notifications (like when tickets go on sale)"
   case HappyPath is {

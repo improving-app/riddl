@@ -1,14 +1,8 @@
-story CreateVenue is {
+epic CreateVenue is {
   user Member wants to "create a Venue" so that "I can manage my Venue in ImprovingApp"
-	capability is "Create a Venue"
-  benefit is "So Members can create Venues in ImprovingApp"
-  author Alex is {
-    name: "Alex Weinstein"
-    email: "alex.weinstin@improving.com"
-  }
+  by author Alex
+  //"Create a new Venue"
   case HappyPath is {
-    title: "Create a new Venue"
-    scope domain {ImprovingApp}
     interaction is {
       arbitrary step from user Member "provide venue information" to user App
         briefly "initial invocation",
@@ -33,16 +27,15 @@ story CreateVenue is {
 } briefly "A story about creating a venue in Improving.app"
   described as "This is the story of how a venue comes into existence"
 
-story CreateLocation is {
+epic CreateLocation is {
   As user Member wants to "create a Venue" so that "I can manage my Locations in ImprovingApp"
   benefit is "So Members can create Locations for Venues in ImprovingApp"
   author Alex is {
     name: "Alex Weinstein"
     email: "alex.weinstin@improving.com"
   }
+  //"Create a new Location"
   case HappyPath is {
-    title: "Create a new Location"
-    scope domain {ImprovingApp}
     interaction is {
       arbitrary step from user Member "Location information" to user App
         briefly "initial invocation",
@@ -67,7 +60,7 @@ story CreateLocation is {
 } briefly "A story about creating a location in Improving.app"
   described as "This is the story of how a location comes into existence"
 
-story UpdateLocationStatus is {
+epic UpdateLocationStatus is {
   As user Member wants to "update a Location's status" so that "I can manage my Location statuses in ImprovingApp"
 	capability is "Make a Location Available for Reservation"
   benefit is "So Members can allow other Members to make Reservations in their Locations in ImprovingApp"
@@ -75,9 +68,8 @@ story UpdateLocationStatus is {
     name: "Alex Weinstein"
     email: "alex.weinstin@improving.com"
   }
+  //"Update Location Status to Available"
   case ToAvailableHappyPath is {
-    title: "Update Location Status to Available"
-    scope domain {ImprovingApp}
     interaction is {
       arbitrary step from user Member "presses button to update Location status to Available" to user App
         briefly "initial invocation",
@@ -102,7 +94,7 @@ story UpdateLocationStatus is {
 } briefly "A story about updating a location's status to Available in Improving.app"
   described as "This is the story of how a location becomes available"
 
-story SearchAvailableLocations is {
+epic SearchAvailableLocations is {
   As user Member wants to "search for available Locations given specific parameters" so that "I can make a Reservation in an available Location in ImprovingApp"
 	capability is "Search (parameterized) for a Location that is available for Reservation"
   benefit is "So Members can find Locations for making Reservations in ImprovingApp according to desired specifications"
@@ -110,9 +102,8 @@ story SearchAvailableLocations is {
     name: "Alex Weinstein"
     email: "alex.weinstin@improving.com"
   }
+  //"Search for available Locations according to time range parameters"
   case TimeSearchHappyPath is {
-    title: "Search for available Locations according to time range parameters"
-    scope domain {ImprovingApp}
     interaction is {
       arbitrary step from user Member "searches for location availability with time based parameters" to user App
         briefly "initial invocation",
@@ -134,9 +125,8 @@ story SearchAvailableLocations is {
       and App displays success notification to Member
     }
   }
+  //"Search for available Locations according to capacity parameters"
   case CapacitySearchHappyPath is {
-    title: "Search for available Locations according to capacity parameters"
-    scope domain {ImprovingApp}
     interaction is {
       arbitrary step from user Member "SearchAvailableLocations" to user App
         briefly "initial invocation",

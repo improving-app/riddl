@@ -1,6 +1,6 @@
-user ResponsibleParty is "the person that is financially responsible for the Tenant and all activity that happens under the Tenant"
+ResponsibleParty is "the person that is financially responsible for the Tenant and all activity that happens under the Tenant"
 
-story EstablishTenant is {
+epic EstablishTenant is {
   As a ResponsibleParty, I would like "establish an new Tenant", so I can "I can leverage the capabilities Improving.App to benefit my organization (business/school/etc.)"
   term Tenant briefly "The financially responsible entity for an organization's use of Improving.App."
   case HappyPath is {

@@ -21,8 +21,8 @@ context LocationContext is {
 		    }
 
         record DraftState is {
-            locationInfo: LocationContext.Info,
-            locationMeta: LocationContext.MetaInfo
+            locationInfo: Info,
+            locationMeta: MetaInfo
         }
 		    state Draft of Location.DraftState is {
 		        handler DraftLocation is {
@@ -49,8 +49,8 @@ context LocationContext is {
 		    }
 
         record OpenState is {
-            locationInfo: LocationContext.Info,
-            locationMeta: LocationContext.MetaInfo
+            locationInfo: Info,
+            locationMeta: MetaInfo
         }
 		    state Open of Location.OpenState is {
 		        handler OpenLocation is {
@@ -70,8 +70,8 @@ context LocationContext is {
 		    }
 
         record ClosedState is {
-            locationInfo: LocationContext.Info,
-            locationMeta: LocationContext.MetaInfo
+            locationInfo: Info,
+            locationMeta: MetaInfo
         }
 		    state Closed of Location.ClosedState is {
 		        handler ClosedLocation is {

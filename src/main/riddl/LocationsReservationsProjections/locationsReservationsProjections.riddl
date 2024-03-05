@@ -1,3 +1,5 @@
+include "../Venues/Locations/location"
+
 query ScheduleEasyEvent is {
     maxAttendance: Integer,
     event: EventInfo,
@@ -5,7 +7,7 @@ query ScheduleEasyEvent is {
     bufferEndMins: Integer,
     schedulingMember: MemberId
 }
-result EasyEventNoAvailability is {}
+result EasyEventNoAvailability is { ??? }
 result EasyScheduledEvent is {locations: LocationId+}
 
 context LocationsReservationsProjections is  {

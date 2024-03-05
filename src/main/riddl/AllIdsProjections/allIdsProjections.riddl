@@ -1,21 +1,22 @@
 //all comments to be implemented post kalix-study
+//all comments to be implemented post kalix-study
 
-query GetAllTenantIds is {}
+query GetAllTenantIds is { ??? }
 result AllTenantIds is {tenants: TenantId*}
 
-query GetAllOrgIds is {}
+query GetAllOrgIds is { ??? }
 result AllOrgIds is {orgs: OrganizationId*}
 
-query GetAllEventIds is {}
+query GetAllEventIds is { ??? }
 result AllEventIds {events: EventId*}
 
-query GetAllMemberIds is {}
+query GetAllMemberIds is { ??? }
 result AllMemberIds is {members: MemberId*}
 
-query GetAllStoreIds is {}
+query GetAllStoreIds is { ??? }
 result AllStoreIds is {stores: StoreId*}
 
-query GetAllSkus is {}
+query GetAllSkus is { ??? }
 result AllSkus is {skus: SKU*}
 
 context AllIdsProjections is  {
@@ -25,14 +26,15 @@ context AllIdsProjections is  {
         //tenantStatus: TenantContext.Status
     }
     handler AllTenantIdsViewHandler is {
+
         on event TenantEstablished {
-          "create row with tenant set to TenantEstablished.tenantId"// and tenantStatus to Draft"
+          "create row with tenant set to TenantEstablished.tenantId and tenantStatus to Draft"
         }
         //on event TenantContext.StatusUpdated {
         //    then "update row with tenant set to StatusUpdated.tenantId to tenantStatus with StatusUpdated.newStatus"
         //}
         on query GetAllTenantIds {
-          "reply with AllTenantIds packed with entire table filtered by tenantStatus == Active"
+          "reply with AllTenantIds packed with entire table filtered by tenantStatus == Active"=
         }
     }
   }

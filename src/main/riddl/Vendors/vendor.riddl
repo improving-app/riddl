@@ -37,7 +37,7 @@ context Vendor is {
             vendorId: VendorId,
             vendorInfo: VendorInfo
         }
-        state Draft of ^DraftState is {
+        state Draft of DraftState is {
             handler DraftVendor is {???}
         }
 
@@ -45,27 +45,27 @@ context Vendor is {
             vendorId: VendorId,
             vendorInfo: VendorInfo
         }
-        state Active of ^ActiveState is {
+        state Active of ActiveState is {
             handler ActiveVendorHandler is {???}
         }
         record InactiveState is {
             vendorId: VendorId,
             vendorInfo: VendorInfo
         }
-        state Inactive of ^InactiveState is {
+        state Inactive of InactiveState is {
             handler InactiveVendor is {???}
         }
         record SuspendedState is {
             vendorId: VendorId,
             vendorInfo: VendorInfo
         }
-        state Suspended of ^SuspendedState is {
+        state Suspended of SuspendedState is {
             handler SuspendedVendorHandler is {???}
         }
         record TerminatedState is {
             vendorId: VendorId
         }
-        state Terminated of ^TerminatedState is {
+        state Terminated of TerminatedState is {
             handler TerminatedVendor is {???}
         }
     }
@@ -75,7 +75,7 @@ context Vendor is {
             storeId: StoreId,
             storeInfo: StoreInfo
         }
-        state Staged of ^StagedState is {
+        state Staged of StagedState is {
             handler StagedStoreHandler is {???}
         }
 
@@ -83,7 +83,7 @@ context Vendor is {
             storeId: StoreId,
             storeInfo: StoreInfo
         }
-        state Open of ^OpenState is {
+        state Open of OpenState is {
             handler OpenStoreHandler is {???}
         }
 
@@ -91,7 +91,7 @@ context Vendor is {
             storeId: StoreId,
             storeInfo: StoreInfo
         }
-        state Closed of ^ClosedState is {
+        state Closed of ClosedState is {
             handler ClosedStoreHandler is {???}
         }
     }
@@ -112,7 +112,7 @@ context Vendor is {
             name: String,
             products: ProductId+
         }
-        state Category of ^CategoryState is {
+        state Category of CategoryState is {
             handler CategoryHandler is {???}
         }
     }
@@ -124,7 +124,7 @@ context Vendor is {
             //kits i.e. combo meal - future scope
             //condiments - catsup, mustard, jalapenos, etc. - future scope
         }
-        state Active of ^ActiveState is {
+        state Active of ActiveState is {
             handler ActiveProductHandler is {???}
         }
 
@@ -134,7 +134,7 @@ context Vendor is {
             //kits i.e. combo meal
             //condiments - catsup, mustard, jalapenos, etc.
         }
-        state Inactive of ^InactiveState is {
+        state Inactive of InactiveState is {
             handler InactiveProductHandler is {???}
         }
     }

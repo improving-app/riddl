@@ -1,7 +1,7 @@
 type Status is any of {Draft, OnHold, Reserved, Past, Cancelled} briefly "Internal status of a Reservation."
 
 type Info is {
-    range: TimeRange,
+    range: Chrono.TimeRange,
     title: String,
     description: String,
     location: LocationId,

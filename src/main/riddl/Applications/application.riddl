@@ -20,12 +20,9 @@ application UserInterface is {
   }
 
   group Organization is {
-    input EstablishOrganization is {
-      acquires command UserInterface.EstablishOrganization
-    }
-    output DisplayOrganization is {
-      presents result OrganizationEstablished
-    }
+    input EstablishOrganization acquires command UserInterface.EstablishOrganization
+
+    output DisplayOrganization presents result OrganizationEstablished
   }
 
   handler OrgHandler is {
@@ -50,12 +47,8 @@ application UserInterface is {
   }
 
   group Member is {
-    input RegisterMember is {
-      acquires command UserInterface.RegisterMember
-    }
-    output DisplayMemberDetails is {
-      presents result MemberRegistered
-    }
+    input RegisterMember acquires command UserInterface.RegisterMember
+    output DisplayMemberDetails presents result MemberRegistered
   }
 
   handler MemberHandler is {
@@ -81,12 +74,8 @@ application UserInterface is {
   }
 
   group Product is {
-    input PurchaseProduct is {
-      acquires command UserInterface.PurchaseProduct
-    }
-    output DisplayPurchases is {
-      presents result ProductsPurchased
-    }
+    input PurchaseProduct acquires command UserInterface.PurchaseProduct
+    output DisplayPurchases presents result ProductsPurchased
   }
 
   handler ProductHandler is {
@@ -109,12 +98,8 @@ application CommandLine is {
   }
 
   group Scenario is {
-    input StartScenario is {
-      acquires command CommandLine.StartScenario
-    }
-    output DisplayScenario is {
-      presents result CommandLine.ScenarioStarted
-    }
+    input StartScenario acquires command CommandLine.StartScenario
+    output DisplayScenario presents result CommandLine.ScenarioStarted
   }
 
   handler CurlHandler is {

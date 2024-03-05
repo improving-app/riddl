@@ -10,7 +10,7 @@ type EventSpecificDetails is one of {Game, Play, Concert, FundRaiser}
 
 type Game is {info: GameTypeInfo, statusInfo: GameStatusInfo}
 type GameStateInfo is one of {ScheduledGameInfo | InProgressGameInfo | DelayedGameInfo | PastGameInfo | CancelledGameInfo}
-type ScheduledGameInfo is {}
+type ScheduledGameInfo is { ??? }
 type InProgressGameInfo is {currentScore: Score}
 type DelayedGameInfo is {delayedScore: Score?}
 type PastGameInfo is {finalScore: Score}
@@ -24,7 +24,7 @@ type FootballGame is {
     ???
 }
 type FootballGameStateInfo is one of {ScheduledFootballGameInfo | InProgressFootballGameInfo | DelayedFootballGameInfo | PastFootballGameInfo | CancelledFootballGameInfo}
-type ScheduledFootballGameInfo is {}
+type ScheduledFootballGameInfo is { ??? }
 type InProgressFootballGameInfo is {yardsSoFarHome: Integer, yardsSoFarAway: Integer}
 type DelayedFootballGameInfo is {yardsSoFarHome: Integer?, yardsSoFarAway: Integer?}
 type PastFootballGameInfo is {totalYardsHome: Integer, totalYardsAway: Integer}

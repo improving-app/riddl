@@ -1,13 +1,9 @@
-//Reservation Gateway Stories
-story CreateReservation {
-	As user Member wants to "Create a Reservation" so that "I can manage my Reservations & book them in ImprovingApp"
-  author Alex is {
-    name: "Alex Weinstein"
-    email: "alex.weinstin@improving.com"
-  }
+epic CreateReservation {
+	user Member wants to "Create a Reservation" so that "I can manage my Reservations & book them in ImprovingApp"
+  by author Alex
+
+  //"Create a new Reservation without booking it"
   case HappyPath is {
-    title: "Create a new Reservation without booking it"
-    scope domain {ImprovingApp}
     interaction is {
       step from user Member "provides a ReservationId" to user App
         briefly "initial invocation",
@@ -31,16 +27,16 @@ story CreateReservation {
   }
 } briefly "A story about creating a reservation in Improving.app"
   described as "This is the story of how a reservation comes into existence"
+//Reservation Gateway Stories
 
-story BookReservation is {
+epic BookReservation is {
   As user Member wants to "Book a Reservation" so that "I can book my Reservations in ImprovingApp"
   author Alex is {
     name: "Alex Weinstein"
     email: "alex.weinstin@improving.com"
   }
+  //"Book a new Reservation by picking from a list, given time parameters"
   case TimePickHappyPath is {
-    title: "Book a new Reservation by picking from a list, given time parameters"
-    scope domain {ImprovingApp}
     interaction is {
       step from user Member "provide time range" to user App
         briefly "initial invocation",
@@ -77,9 +73,8 @@ story BookReservation is {
     //  and App displays success notification to Member
     }
   }
+  //"Book a new Reservation by picking from a list, given maxCapacity parameter"
   case MaxCapacityPickHappyPath is {
-    title: "Book a new Reservation by picking from a list, given maxCapacity parameter"
-    scope domain {ImprovingApp}
     interaction is {
       step from user Member "provide maxCapacity" to user App
         briefly "initial invocation",
@@ -116,9 +111,8 @@ story BookReservation is {
     //  and App displays success notification to Member
     }
   }
+  //"Book a new Reservation automatically based on what is available next, parameterized by Reservation info"
   case NextAvailableHappyPath is {
-    title: "Book a new Reservation automatically based on what is available next, parameterized by Reservation info"
-    scope domain {ImprovingApp}
     interaction is {
       step from user Member "asks to book next Reservation with search parameters based ReservationInfo in a provided ReservationId" to user App
         briefly "initial invocation",

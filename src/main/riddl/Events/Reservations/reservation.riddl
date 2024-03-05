@@ -5,8 +5,9 @@ context ReservationContext is {
     include "reservationTypeDefinitions"
     include "reservationMessages"
 
+    // TODO: List the names of the public reservation events here
     type PublicReservationEvent is one of {
-      // TODO: List the names of the public reservation events here
+      ???
     }
 
     outlet Events is type PublicReservationEvent

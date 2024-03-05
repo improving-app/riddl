@@ -1,8 +1,10 @@
-query GetLocationForEvent is {event: EventId}
-result LocationForEvent is {event: EventId, location: LocationId}
-result EventNotFound is {}
-result NoReservationForEvent is {}
-result NoLocationForEventReservation is {}
+include "../Venues/Locations/location"
+
+query GetLocationForEvent is { event: EventId }
+result LocationForEvent is { event: EventId, location: LocationId }
+result EventNotFound is { ??? }
+result NoReservationForEvent is { ??? }
+result NoLocationForEventReservation is { ??? }
 
 context EventReservationProjections is  {
   projector EventReservationView is {

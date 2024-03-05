@@ -1,5 +1,11 @@
+epic CreateProduct is {
+  ???
+}
+
 //Product Gateway Stories
-As a Vendor I would like to create a Product so that I can list it in a Store
-  - picture
-  - name
-  - description
+
+/*As a Vendor I would like to create a Product so that I can list it in a Store
+    - picture
+    - name
+    - description
+*/

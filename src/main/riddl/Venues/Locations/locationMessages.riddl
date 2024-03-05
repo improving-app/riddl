@@ -1,5 +1,5 @@
 command EstablishLocation is {
-  locationId: LocationId briefly "A unique identifier for this Location. This must be provided by the calling client.",
+  locationId: LocationId,
   name: String,
   description: String,
   directions: String,

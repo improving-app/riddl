@@ -1,6 +1,8 @@
+
+epic EventStories is { ??? }
+
 // TODO: Convert this file to new style epics and cases
 // event stories
-epic EventStories is { ??? }
 /*
 As an Owner of an Organization I would like to schedule an Event that is hosted by my Organization
 As an Owner of an Organization I would like to find a Location, Reserve the Location, and schedule my Event using that Reservation (easy button)

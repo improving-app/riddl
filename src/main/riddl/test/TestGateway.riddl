@@ -1,5 +1,6 @@
-context TestGateway by author Reid is {
+context TestGateway is {
   option gateway
+  by author Reid
 
   include "messages"
   include "handler"
