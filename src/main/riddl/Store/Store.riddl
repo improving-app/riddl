@@ -76,29 +76,8 @@ context StoreContext is {
     handler DefaultStoreHandler is {
       on command CreateStore {
         send event StoreCreated
-//        (
-//            storeId = @CreateStore.storeId,
-//            info = @CreateStore.info,
-//            meta = !StoreContext.MetaInfo(
-//                createdOn = now(),
-//                createdBy = @CreateStore.creatingMember,
-//                lastUpdatedOn = now(),
-//                lastUpdatedBy = @CreateStore.creatingMember,
-//                currentState = @CreateStore.Draft
-//            )
-//        )
           to outlet StoreEvents.Events
         morph entity Store to state DraftStore with record DraftStoreState
-//        (
-//          info = @CreateStore.info,
-//          meta = !StoreContext.MetaInfo(
-//            createdOn = now(),
-//            createdBy = @CreateStore.creatingMember,
-//            lastUpdatedOn = now(),
-//            lastUpdatedBy = @CreateStore.creatingMember,
-//            currentState = @StoreStates.Draft
-//          )
-//        )
       }
       on other {
         error "Only the CreateStore command is allowed in the default state"

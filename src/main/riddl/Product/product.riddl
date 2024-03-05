@@ -73,17 +73,6 @@ context ProductContext is {
     handler ProductHandler is {
       on command CreateProduct {
         morph entity Product to state DraftProductState with record DraftProduct
-//        (
-//            sku = @CreateProduct.sku,
-//            info = @CreatProduct.info,
-//            meta = !MemberContext.MetaInfo(
-//                createdOn = now(),
-//                createdBy = @CreatProduct.onBehalfOf,
-//                lastUpdatedOn = now(),
-//                lastUpdatedBy = @CreatProduct.onBehalfOf,
-//                currentState = @ProductStates.Draft
-//            )
-//        )
       }
       on other {
         error "Only the CreateProduct command is allowed in the default state."
