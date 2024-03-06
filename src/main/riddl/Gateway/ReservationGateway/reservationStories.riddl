@@ -14,8 +14,8 @@ epic CreateReservation {
     //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationCreated" to pipe ImprovingApp.ReservationContext.ReservationEvents
     //    briefly "reservation created"
     //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationCreated" to user App
-    }
-    example Success is {
+    //}
+    //example Success is {
     //  when Member provides CreateReservation command w/ necessary info to App
     //  then App sends CreateReservation message to GatewayAPI
     //  and GatewayAPI forwards message to ReservationContext
@@ -56,8 +56,8 @@ epic BookReservation is {
     //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationBooked" to pipe ImprovingApp.ReservationContext.ReservationEvents
     //    briefly "reservation booked"
     //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationBooked" to user App
-    }
-    example Success is {
+    //}
+    //example Success is {
     //  when Member queries for FindLocationsAvailability while providing a time range to App
     //  then App sends FindLocationsAvailability message to GatewayAPI
     //  and GatewayAPI forwards message to LocationContext
@@ -94,8 +94,8 @@ epic BookReservation is {
     //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationBooked" to pipe ImprovingApp.ReservationContext.ReservationEvents
     //    briefly "reservation booked"
     //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationBooked" to user App
-    }
-    example Success is {
+    //}
+    //example Success is {
     //  when Member queries for FindLocationsAvailability while providing a maxCapacity to App
     //  then App sends FindLocationsAvailability message to GatewayAPI
     //  and GatewayAPI forwards message to LocationContext
@@ -109,7 +109,7 @@ epic BookReservation is {
     //  and ReservationBooked message is returned from ReservationContext to GatewayAPI
     //  and GatewayAPI forwards message to App
     //  and App displays success notification to Member
-    }
+    //}
   }
   //"Book a new Reservation automatically based on what is available next, parameterized by Reservation info"
   case NextAvailableHappyPath is {
@@ -124,7 +124,7 @@ epic BookReservation is {
     //    briefly "reservation booked"
     //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationBooked" to user App
     }
-    example Success is {
+    //example Success is {
     //  when Member sends BookNextAvailable command while providing a ReservationInfo to App
     //  then App sends BookNextAvailable message to GatewayAPI
     //  and GatewayAPI forwards message to ReservationContext

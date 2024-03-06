@@ -14,26 +14,23 @@ epic CreateVenue is {
     //    briefly "venue added"
     //  arbitrary step from pipe ImprovingApp.VenueContext.VenueEvents "VenueEnrolled" to user App
     //}
-    example Success is {
-      when Member provides Venue object to App
-      then App sends CreateVenue message to GatewayAPI
-      and GatewayAPI forwards message to VenueContext
-      and Venue is created
-      and VenueCreated message is returned from VenueContext to GatewayAPI
-      and GatewayAPI forwards message to App
-      and App displays success notification to Member
-    }
+    //example Success is {
+    //  when Member provides Venue object to App
+    //  then App sends CreateVenue message to GatewayAPI
+    //  and GatewayAPI forwards message to VenueContext
+    //  and Venue is created
+    //  and VenueCreated message is returned from VenueContext to GatewayAPI
+    //  and GatewayAPI forwards message to App
+    //  and App displays success notification to Member
+    //}
   }
 } briefly "A story about creating a venue in Improving.app"
   described as "This is the story of how a venue comes into existence"
 
+//benefit is "So Members can create Locations for Venues in ImprovingApp"
 epic CreateLocation is {
-  As user Member wants to "create a Venue" so that "I can manage my Locations in ImprovingApp"
-  benefit is "So Members can create Locations for Venues in ImprovingApp"
-  author Alex is {
-    name: "Alex Weinstein"
-    email: "alex.weinstin@improving.com"
-  }
+  user Member wants to "create a Venue" so that "I can manage my Locations in ImprovingApp"
+  by author Alex
   //"Create a new Location"
   case HappyPath is {
     //interaction is {
@@ -47,27 +44,24 @@ epic CreateLocation is {
     //    briefly "location added"
     //  arbitrary step from pipe ImprovingApp.LocationContext.LocationEvents "LocationCreated" to user App
     //}
-    example Success is {
-      when Member provides Location object to App
-      then App sends CreateLocation message to GatewayAPI
-      and GatewayAPI forwards message to LocationContext
-      and Location is created
-      and LocationCreated message is returned from LocationContext to GatewayAPI
-      and GatewayAPI forwards message to App
-      and App displays success notification to Member
-    }
+    //example Success is {
+    //  when Member provides Location object to App
+    //  then App sends CreateLocation message to GatewayAPI
+    //  and GatewayAPI forwards message to LocationContext
+    //  and Location is created
+    //  and LocationCreated message is returned from LocationContext to GatewayAPI
+    //  and GatewayAPI forwards message to App
+    //  and App displays success notification to Member
+    //}
   }
 } briefly "A story about creating a location in Improving.app"
   described as "This is the story of how a location comes into existence"
 
+// benefit is "So Members can allow other Members to make Reservations in their Locations in ImprovingApp"
+// capability is "Make a Location Available for Reservation"
 epic UpdateLocationStatus is {
-  As user Member wants to "update a Location's status" so that "I can manage my Location statuses in ImprovingApp"
-	capability is "Make a Location Available for Reservation"
-  benefit is "So Members can allow other Members to make Reservations in their Locations in ImprovingApp"
-  author Alex is {
-    name: "Alex Weinstein"
-    email: "alex.weinstin@improving.com"
-  }
+  user Member wants to "update a Location's status" so that "I can manage my Location statuses in ImprovingApp"
+  by author Alex
   //"Update Location Status to Available"
   case ToAvailableHappyPath is {
     //interaction is {
@@ -81,27 +75,24 @@ epic UpdateLocationStatus is {
     //    briefly "location status updated"
     //  arbitrary step from pipe ImprovingApp.LocationContext.LocationEvents "LocationStatusUpdated" to user App
     //}
-    example Success is {
-      when Member requests for UpdateLocationStatus to App with Available as its parameter
-      then App sends UpdateLocationStatus message to GatewayAPI
-      and GatewayAPI forwards message to LocationContext
-      and Location is updated to Available status
-      and LocationStatusUpdated message is returned from LocationContext to GatewayAPI
-      and GatewayAPI forwards message to App
-      and App displays success notification to Member
-    }
+    //example Success is {
+    //  when Member requests for UpdateLocationStatus to App with Available as its parameter
+    //  then App sends UpdateLocationStatus message to GatewayAPI
+    //  and GatewayAPI forwards message to LocationContext
+    //  and Location is updated to Available status
+    //  and LocationStatusUpdated message is returned from LocationContext to GatewayAPI
+    //  and GatewayAPI forwards message to App
+    //  and App displays success notification to Member
+    //}
   }
 } briefly "A story about updating a location's status to Available in Improving.app"
   described as "This is the story of how a location becomes available"
 
+// capability is "Search (parameterized) for a Location that is available for Reservation"
+// benefit is "So Members can find Locations for making Reservations in ImprovingApp according to desired specifications"
 epic SearchAvailableLocations is {
-  As user Member wants to "search for available Locations given specific parameters" so that "I can make a Reservation in an available Location in ImprovingApp"
-	capability is "Search (parameterized) for a Location that is available for Reservation"
-  benefit is "So Members can find Locations for making Reservations in ImprovingApp according to desired specifications"
-  author Alex is {
-    name: "Alex Weinstein"
-    email: "alex.weinstin@improving.com"
-  }
+  user Member wants to "search for available Locations given specific parameters" so that "I can make a Reservation in an available Location in ImprovingApp"
+  by author Alex
   //"Search for available Locations according to time range parameters"
   case TimeSearchHappyPath is {
     //interaction is {
@@ -115,15 +106,15 @@ epic SearchAvailableLocations is {
     //    briefly "location search results"
     //  arbitrary step from pipe ImprovingApp.LocationContext.LocationEvents "LocationSearchResults" to user App
     //}
-    example Success is {
-      when Member requests for SearchAvailableLocations to App with a time range or series of them as its parameter
-      then App sends SearchAvailableLocations message to GatewayAPI
-      and GatewayAPI forwards message to LocationContext
-      and Locations are found that are available
-      and LocationSearchResults message is returned from LocationContext to GatewayAPI
-      and GatewayAPI forwards message to App
-      and App displays success notification to Member
-    }
+    //example Success is {
+    //  when Member requests for SearchAvailableLocations to App with a time range or series of them as its parameter
+    //  then App sends SearchAvailableLocations message to GatewayAPI
+    //  and GatewayAPI forwards message to LocationContext
+    //  and Locations are found that are available
+    //  and LocationSearchResults message is returned from LocationContext to GatewayAPI
+    //  and GatewayAPI forwards message to App
+    //  and App displays success notification to Member
+    //}
   }
   //"Search for available Locations according to capacity parameters"
   case CapacitySearchHappyPath is {
@@ -138,15 +129,15 @@ epic SearchAvailableLocations is {
     //    briefly "location search results"
     //  arbitrary step from pipe ImprovingApp.LocationContext.LocationEvents "LocationSearchResults" to user App
     //}
-    example Success is {
-      when Member requests SearchAvailableLocations to App with a maxCapacity as its parameter
-      then App sends SearchAvailableLocations message to GatewayAPI
-      and GatewayAPI forwards message to LocationContext
-      and Locations are found that are available
-      and LocationSearchResults message is returned from LocationContext to GatewayAPI
-      and GatewayAPI forwards message to App
-      and App displays success notification to Member
-    }
+    //example Success is {
+    //  when Member requests SearchAvailableLocations to App with a maxCapacity as its parameter
+    //  then App sends SearchAvailableLocations message to GatewayAPI
+    //  and GatewayAPI forwards message to LocationContext
+    //  and Locations are found that are available
+    //  and LocationSearchResults message is returned from LocationContext to GatewayAPI
+    //  and GatewayAPI forwards message to App
+    //  and App displays success notification to Member
+    //}
   }
 } briefly "A story about searching for available locations in Improving.app"
   described as "This is the story of how available locations are found according to user parameters"
