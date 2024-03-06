@@ -4,10 +4,10 @@ epic CreateReservation {
 
   //"Create a new Reservation without booking it"
   case HappyPath is {
-    interaction is {
-      step from user Member "provides a ReservationId" to user App
-        briefly "initial invocation",
-      step from user App send command Reservation.CreateReservation to user GatewayAPI
+    //interaction is {
+    //  step from user Member "provides a ReservationId" to user App
+    //    briefly "initial invocation",
+    //  step from user App send command Reservation.CreateReservation to user GatewayAPI
     //    briefly "send creation message",
     //  step from user GatewayAPI "Create Reservation" to entity ImprovingApp.ReservationContext.Reservations
     //    briefly "create reservation",
@@ -37,11 +37,11 @@ epic BookReservation is {
   }
   //"Book a new Reservation by picking from a list, given time parameters"
   case TimePickHappyPath is {
-    interaction is {
-      step from user Member "provide time range" to user App
-        briefly "initial invocation",
-      step from user App send command Reservation.FindLocationsAvailability to user GatewayAPI
-        briefly "send availability query",
+    //interaction is {
+    //  step from user Member "provide time range" to user App
+    //    briefly "initial invocation",
+    //  step from user App send command Reservation.FindLocationsAvailability to user GatewayAPI
+    //    briefly "send availability query",
     //  step from user GatewayAPI "Find Availability for Locations" to entity ImprovingApp.LocationContext.Locations
     //    briefly "find available locations given parameters",
     //  step from entity ImprovingApp.LocationContext.Locations "LocationsAvailabilityResults" to pipe ImprovingApp.LocationContext.LocationEvents
@@ -75,11 +75,11 @@ epic BookReservation is {
   }
   //"Book a new Reservation by picking from a list, given maxCapacity parameter"
   case MaxCapacityPickHappyPath is {
-    interaction is {
-      step from user Member "provide maxCapacity" to user App
-        briefly "initial invocation",
-      step from user App send command Reservation.FindLocationsAvailability to user GatewayAPI
-        briefly "send availability query",
+    //interaction is {
+    //  step from user Member "provide maxCapacity" to user App
+    //    briefly "initial invocation",
+    //  step from user App send command Reservation.FindLocationsAvailability to user GatewayAPI
+    //    briefly "send availability query",
     //  step from user GatewayAPI "Find Availability for Locations" to entity ImprovingApp.LocationContext.Locations
     //    briefly "find available reservations given parameters",
     //  step from entity ImprovingApp.LocationContext.Locations "LocationsAvailabilityResults" to pipe ImprovingApp.LocationContext.LocationEvents
@@ -113,11 +113,11 @@ epic BookReservation is {
   }
   //"Book a new Reservation automatically based on what is available next, parameterized by Reservation info"
   case NextAvailableHappyPath is {
-    interaction is {
-      step from user Member "asks to book next Reservation with search parameters based ReservationInfo in a provided ReservationId" to user App
-        briefly "initial invocation",
-      step from user App send command Location.BookNextAvailable to user GatewayAPI
-        briefly "send smart booking query",
+    //interaction is {
+    //  step from user Member "asks to book next Reservation with search parameters based ReservationInfo in a provided ReservationId" to user App
+    //    briefly "initial invocation",
+    //  step from user App send command Location.BookNextAvailable to user GatewayAPI
+    //    briefly "send smart booking query",
     //  step from user GatewayAPI "Book Next Available Location" to entity ImprovingApp.LocationContext.Locations
     //    briefly "find available locations & automatically book one given fields of info provided",
     //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationBooked" to pipe ImprovingApp.ReservationContext.ReservationEvents

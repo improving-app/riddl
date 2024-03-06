@@ -3,17 +3,17 @@ epic CreateVenue is {
   by author Alex
   //"Create a new Venue"
   case HappyPath is {
-    interaction is {
-      arbitrary step from user Member "provide venue information" to user App
-        briefly "initial invocation",
-      arbitrary step from user App send command Venue.CreateVenue to user GatewayAPI
-        briefly "send creation message",
-      arbitrary step from user GatewayAPI "Create Venue" to entity ImprovingApp.VenueContext.Venues
-        briefly "add new venue",
-      arbitrary step from entity ImprovingApp.VenueContext.Venue "VenueCreated" to pipe ImprovingApp.VenueContext.VenueEvents
-        briefly "venue added"
-      arbitrary step from pipe ImprovingApp.VenueContext.VenueEvents "VenueEnrolled" to user App
-    }
+    //interaction is {
+    //  arbitrary step from user Member "provide venue information" to user App
+    //    briefly "initial invocation",
+    //  arbitrary step from user App send command Venue.CreateVenue to user GatewayAPI
+    //    briefly "send creation message",
+    //  arbitrary step from user GatewayAPI "Create Venue" to entity ImprovingApp.VenueContext.Venues
+    //    briefly "add new venue",
+    //  arbitrary step from entity ImprovingApp.VenueContext.Venue "VenueCreated" to pipe ImprovingApp.VenueContext.VenueEvents
+    //    briefly "venue added"
+    //  arbitrary step from pipe ImprovingApp.VenueContext.VenueEvents "VenueEnrolled" to user App
+    //}
     example Success is {
       when Member provides Venue object to App
       then App sends CreateVenue message to GatewayAPI
@@ -36,17 +36,17 @@ epic CreateLocation is {
   }
   //"Create a new Location"
   case HappyPath is {
-    interaction is {
-      arbitrary step from user Member "Location information" to user App
-        briefly "initial invocation",
-      arbitrary step from user App send command Location.CreateLocation to user GatewayAPI
-        briefly "send creation message",
-      arbitrary step from user GatewayAPI "Create Location" to entity ImprovingApp.LocationContext.Locations
-        briefly "add new location",
-      arbitrary step from entity ImprovingApp.LocationContext.Location "LocationCreated" to pipe ImprovingApp.LocationContext.LocationEvents
-        briefly "location added"
-      arbitrary step from pipe ImprovingApp.LocationContext.LocationEvents "LocationCreated" to user App
-    }
+    //interaction is {
+    //  arbitrary step from user Member "Location information" to user App
+    //    briefly "initial invocation",
+    //  arbitrary step from user App send command Location.CreateLocation to user GatewayAPI
+    //    briefly "send creation message",
+    //  arbitrary step from user GatewayAPI "Create Location" to entity ImprovingApp.LocationContext.Locations
+    //    briefly "add new location",
+    //  arbitrary step from entity ImprovingApp.LocationContext.Location "LocationCreated" to pipe ImprovingApp.LocationContext.LocationEvents
+    //    briefly "location added"
+    //  arbitrary step from pipe ImprovingApp.LocationContext.LocationEvents "LocationCreated" to user App
+    //}
     example Success is {
       when Member provides Location object to App
       then App sends CreateLocation message to GatewayAPI
@@ -70,17 +70,17 @@ epic UpdateLocationStatus is {
   }
   //"Update Location Status to Available"
   case ToAvailableHappyPath is {
-    interaction is {
-      arbitrary step from user Member "presses button to update Location status to Available" to user App
-        briefly "initial invocation",
-      arbitrary step from user App send command Location.UpdateLocationStatus to user GatewayAPI
-        briefly "send update status message",
-      arbitrary step from user GatewayAPI "Update Location Status" to entity ImprovingApp.LocationContext.Locations
-        briefly "update location status",
-      arbitrary step from entity ImprovingApp.LocationContext.Location "LocationStatusUpdated" to pipe ImprovingApp.LocationContext.LocationEvents
-        briefly "location status updated"
-      arbitrary step from pipe ImprovingApp.LocationContext.LocationEvents "LocationStatusUpdated" to user App
-    }
+    //interaction is {
+    //  arbitrary step from user Member "presses button to update Location status to Available" to user App
+    //    briefly "initial invocation",
+    //  arbitrary step from user App send command Location.UpdateLocationStatus to user GatewayAPI
+    //    briefly "send update status message",
+    //  arbitrary step from user GatewayAPI "Update Location Status" to entity ImprovingApp.LocationContext.Locations
+    //    briefly "update location status",
+    //  arbitrary step from entity ImprovingApp.LocationContext.Location "LocationStatusUpdated" to pipe ImprovingApp.LocationContext.LocationEvents
+    //    briefly "location status updated"
+    //  arbitrary step from pipe ImprovingApp.LocationContext.LocationEvents "LocationStatusUpdated" to user App
+    //}
     example Success is {
       when Member requests for UpdateLocationStatus to App with Available as its parameter
       then App sends UpdateLocationStatus message to GatewayAPI
@@ -104,17 +104,17 @@ epic SearchAvailableLocations is {
   }
   //"Search for available Locations according to time range parameters"
   case TimeSearchHappyPath is {
-    interaction is {
-      arbitrary step from user Member "searches for location availability with time based parameters" to user App
-        briefly "initial invocation",
-      arbitrary step from user App send command Location.SearchAvailableLocations to user GatewayAPI
-        briefly "send search message",
-      arbitrary step from user GatewayAPI "Search Available Locations" to entity ImprovingApp.LocationContext.Locations
-        briefly "search for available locations according to provided parameters",
-      arbitrary step from entity ImprovingApp.LocationContext.Location "LocationSearchResults" to pipe ImprovingApp.LocationContext.LocationEvents
-        briefly "location search results"
-      arbitrary step from pipe ImprovingApp.LocationContext.LocationEvents "LocationSearchResults" to user App
-    }
+    //interaction is {
+    //  arbitrary step from user Member "searches for location availability with time based parameters" to user App
+    //    briefly "initial invocation",
+    //  arbitrary step from user App send command Location.SearchAvailableLocations to user GatewayAPI
+    //    briefly "send search message",
+    //  arbitrary step from user GatewayAPI "Search Available Locations" to entity ImprovingApp.LocationContext.Locations
+    //    briefly "search for available locations according to provided parameters",
+    //  arbitrary step from entity ImprovingApp.LocationContext.Location "LocationSearchResults" to pipe ImprovingApp.LocationContext.LocationEvents
+    //    briefly "location search results"
+    //  arbitrary step from pipe ImprovingApp.LocationContext.LocationEvents "LocationSearchResults" to user App
+    //}
     example Success is {
       when Member requests for SearchAvailableLocations to App with a time range or series of them as its parameter
       then App sends SearchAvailableLocations message to GatewayAPI
@@ -127,17 +127,17 @@ epic SearchAvailableLocations is {
   }
   //"Search for available Locations according to capacity parameters"
   case CapacitySearchHappyPath is {
-    interaction is {
-      arbitrary step from user Member "SearchAvailableLocations" to user App
-        briefly "initial invocation",
-      arbitrary step from user App send command Location.SearchAvailableLocations to user GatewayAPI
-        briefly "send search message",
-      arbitrary step from user GatewayAPI "searches for location availability with capacity based parameters" to entity ImprovingApp.LocationContext.Locations
-        briefly "search for available locations according to provided parameters",
-      arbitrary step from entity ImprovingApp.LocationContext.Location "LocationSearchResults" to pipe ImprovingApp.LocationContext.LocationEvents
-        briefly "location search results"
-      arbitrary step from pipe ImprovingApp.LocationContext.LocationEvents "LocationSearchResults" to user App
-    }
+    //interaction is {
+    //  arbitrary step from user Member "SearchAvailableLocations" to user App
+    //    briefly "initial invocation",
+    //  arbitrary step from user App send command Location.SearchAvailableLocations to user GatewayAPI
+    //    briefly "send search message",
+    //  arbitrary step from user GatewayAPI "searches for location availability with capacity based parameters" to entity ImprovingApp.LocationContext.Locations
+    //    briefly "search for available locations according to provided parameters",
+    //  arbitrary step from entity ImprovingApp.LocationContext.Location "LocationSearchResults" to pipe ImprovingApp.LocationContext.LocationEvents
+    //    briefly "location search results"
+    //  arbitrary step from pipe ImprovingApp.LocationContext.LocationEvents "LocationSearchResults" to user App
+    //}
     example Success is {
       when Member requests SearchAvailableLocations to App with a maxCapacity as its parameter
       then App sends SearchAvailableLocations message to GatewayAPI
