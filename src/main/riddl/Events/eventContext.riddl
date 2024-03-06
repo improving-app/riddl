@@ -155,8 +155,9 @@ context EventContext is {
           on command EndEvent{
             error "End has not started. Cannot end an event that has not started."
           }
+          // TODO: implement AddLiveUpdate
           on command AddLiveUpdate {
-            ??? // TODO: implement AddLiveUpdate
+            ???
           }
         }
         handler InProgressEventHandler is {
@@ -187,8 +188,9 @@ context EventContext is {
               send event EventEnded to outlet EventEvents.Events
               become entity Event to handler PastEventHandler
             }
+            // TODO: specify AddLiveUpdate on clause
             on command AddLiveUpdate {
-              ??? // TODO: specify AddLiveUpdate on clause
+              ???
             }
         }
         handler DelayedEventHandler is {
@@ -227,8 +229,9 @@ context EventContext is {
             on command EndEvent{
               error "Only events that are InProgress may be ended. If you wish to end this event it must be started first. If you wish to cancel the event, please use the CancelEvent Command."
             }
+            // TODO: IMplement AddLiveUpdate in on clause
             on command AddLiveUpdate{
-              ??? // TODO: IMplement AddLiveUpdate in on clause
+              ???
             }
         }
         handler CancelledEventHandler is {

@@ -106,8 +106,7 @@ context ProductContext is {
           } else {
             // "all required fields are present"
             set field DraftProductState.meta to "ProductContext.ProductMetaInfo"
-            send event ProductActivated
-              to outlet ProductEvents.Events
+            send event ProductActivated to outlet ProductEvents.Events
             morph entity Product to state DefinedProductState with record DefinedProduct
           }
         }
@@ -136,7 +135,8 @@ context ProductContext is {
           "yield ProductInfoUpdated event with new info"
         }
         on command DeleteProduct{
-          set field DefinedProductState.meta to "ProductContext.ProductMetaInfo" to outlet ProductEvents.Events
+          set field DefinedProductState.meta to "ProductContext.ProductMetaInfo"
+          send event ProductDeleted to outlet ProductEvents.Events
           morph entity Product to state DeletedProductState with record DeletedProduct
         }
         on command ActivateProduct{

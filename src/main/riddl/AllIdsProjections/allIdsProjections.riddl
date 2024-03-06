@@ -34,7 +34,7 @@ context AllIdsProjections is  {
         //    then "update row with tenant set to StatusUpdated.tenantId to tenantStatus with StatusUpdated.newStatus"
         //}
         on query GetAllTenantIds {
-          "reply with AllTenantIds packed with entire table filtered by tenantStatus == Active"=
+          "reply with AllTenantIds packed with entire table filtered by tenantStatus == Active"
         }
     }
   }

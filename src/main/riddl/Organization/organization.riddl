@@ -159,7 +159,7 @@ context OrganizationContext is {
                 //         then error "EditingMember is not authorized to make this change."
                 //     }
                 // }
-                on command activate: ActivateOrganization {
+                on command ActivateOrganization {
                   if "all required fields in info are not None or Empty and required non-info fields are present" then {
                     send event OrganizationEstablished to outlet OrganizationEvents.Events
                     morph entity Organization to state EstablishedOrganization with record EstablishedOrganizationState
