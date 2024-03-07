@@ -8,14 +8,14 @@ query ScheduleEasyEvent is {
     schedulingMember: MemberId
 }
 result EasyEventNoAvailability is { ??? }
-result EasyScheduledEvent is {locations: LocationId+}
+result EasyScheduledEvent is {locations: Venues.LocationId+}
 
 context LocationsReservationsProjections is  {
   projector LocationsReservationsView is {
      record LocationsReservationsFields {
         venueId: VenueId,
         orgId: OrganizationId,
-        locationId: LocationId,
+        locationId: Venues.LocationId,
         capacity: Integer,
         reservationId: ReservationId,
         reservationStart: TimeStamp,

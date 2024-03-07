@@ -217,7 +217,8 @@ context MemberContext is {
     }
 
     entity Member is {
-        options(aggregate, technology("akka"))
+        option aggregate
+        option technology("akka")
 
         handler MemberHandler is {
           on command RegisterMember {

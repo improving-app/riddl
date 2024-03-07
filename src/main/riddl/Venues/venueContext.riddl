@@ -7,7 +7,8 @@ context VenueContext is {
     include "venueProjections"
 
     entity Venue is {
-        options (event-sourced, available)
+        option event-sourced
+        option available
 
         handler VenueHandler is {
             on command EstablishVenue {
@@ -23,7 +24,7 @@ context VenueContext is {
 
         record DraftState is {
             venueInfo: VenueContext.Info,
-            locations: LocationId*,
+            locations: Venues.LocationId*,
             venueMeta: VenueContext.MetaInfo
         }
 		    state Draft of Venue.DraftState is {
@@ -50,7 +51,7 @@ context VenueContext is {
 
         record OpenState is {
             venueInfo: VenueContext.Info,
-            locations: LocationId*,
+            locations: Venues.LocationId*,
             venueMeta: VenueContext.MetaInfo
         }
 		    state Open of Venue.OpenState is {
@@ -77,7 +78,7 @@ context VenueContext is {
 
         record ClosedState is {
             orgId: OrganizationId,
-            locations: LocationId*,
+            locations: Venues.LocationId*,
             venueMeta: VenueContext.MetaInfo
         }
 		    state Closed of Venue.ClosedState is {

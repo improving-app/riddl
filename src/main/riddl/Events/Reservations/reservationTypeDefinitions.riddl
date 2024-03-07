@@ -4,7 +4,7 @@ type Info is {
     range: Chrono.TimeRange,
     title: String,
     description: String,
-    location: LocationId,
+    location: Venues.LocationId,
     forOrg: OrganizationId
 }
 

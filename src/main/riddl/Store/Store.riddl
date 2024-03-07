@@ -23,7 +23,7 @@ context StoreContext is {
     products: SKU+ briefly "Required",
     event: EventId?,
     venue: VenueId briefly "Required",
-    location: LocationId briefly "Required",
+    location: Venues.LocationId briefly "Required",
     sponsoringOrg: OrganizationId briefly "Required"
   }
 
@@ -41,7 +41,7 @@ context StoreContext is {
     products: SKU*,
     event: EventId?,
     venue: VenueId?,
-    location: LocationId?,
+    location: Venues.LocationId?,
     sponsoringOrg: OrganizationId?
   }
 
@@ -71,7 +71,8 @@ context StoreContext is {
   result ProductsInStore is {products: SKU*}
 
   entity Store is {
-    options (event-sourced, available)
+    option event-sourced
+    option available
 
     handler DefaultStoreHandler is {
       on command CreateStore {
@@ -399,7 +400,7 @@ context StoreContext is {
       storeName: String,
       event: EventId?,
       venue: VenueId,
-      location: LocationId,
+      location: Venues.LocationId,
       sponsoringOrg: OrganizationId,
       meta: StoreContext.MetaInfo
     }

@@ -11,7 +11,7 @@ context Commerce is {
     type DeliveryId is Id( Delivery )
     type DeliveryInfo is {
         orderId: OrderId,
-        location: LocationId,
+        location: Venues.LocationId,
         specialInstructions: String
     } //not part of MVP
 

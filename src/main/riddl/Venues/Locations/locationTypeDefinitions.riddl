@@ -1,7 +1,7 @@
 type Status is any of {Draft, Open, Closed} briefly "Internal status of a Location."
 
 type Info is {
-  id: LocationId,
+  id: Venues.LocationId,
   venueId: VenueId,
   name: String,
   description: String,

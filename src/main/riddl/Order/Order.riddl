@@ -53,7 +53,7 @@ context OrderContext is {
   event LineItemCancelled {orderId: OrderId, productId: SKU, forMemberId: MemberId}
 
   entity Order is {
-    options (event-sourced)
+    option event-sourced
 
     handler DefaultOrderHandler is {
       on command CreateOrder {

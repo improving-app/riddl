@@ -1,6 +1,6 @@
 context MemberGateway is {
-  options(gateway)
-  
+  option gateway
+
   type MemberType is any of {Student, FacultyStaff, Vendor, Sponsor, General, Alumni, Parent, Fan}
   type MemberMap is mapping from MemberContext.MemberId to MemberInfo
   type NotificationPreference is any of {email, sms}
