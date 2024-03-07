@@ -193,13 +193,13 @@ context StoreContext is {
 //            lastUpdatedBy = @OpenStore.openingMember,
 //            currentState = @StoreStates.Open
 //          )
-          send event StoreOpened
-//          (
-//            storeId = @CreatedStoreState.id,
-//            info = @CreatedStoreState.info,
-//            meta = @CreatedStoreState.meta
-//          )
-            to outlet StoreEvents.Events
+          send event StoreOpened to outlet StoreEvents.Events
+          //          (
+          //            storeId = @CreatedStoreState.id,
+          //            info = @CreatedStoreState.info,
+          //            meta = @CreatedStoreState.meta
+          //          )
+
           become entity Store to handler OpenStoreHandler
         }
         on command CloseStore {
@@ -212,13 +212,13 @@ context StoreContext is {
 //            lastUpdatedBy = @CloseStore.closingMember,
 //            currentState = @StoreStates.Closed
 //          )
-          send event StoreClosed
+          send event StoreClosed to outlet StoreEvents.Events
 //          (
 //            storeId = @CreatedStoreState.id,
 //            info = @CreatedStoreState.info,
 //            meta = @CreatedStoreState.meta
 //          )
-            to outlet StoreEvents.Events
+
           become entity Store to handler ClosedStoreHandler
         }
         on command AddProductsToStore {
@@ -275,13 +275,13 @@ context StoreContext is {
 //              lastUpdatedBy = @CloseStore.closingMember,
 //              currentState = @StoreStates.Closed
 //            )
-            send event StoreClosed
+            send event StoreClosed to outlet StoreEvents.Events
 //            (
 //              storeId = @CreatedStoreState.id,
 //              info = @CreatedStoreState.info,
 //              meta = @CreatedStoreState.meta
 //            )
-              to outlet StoreEvents.Events
+
             become entity Store to handler ClosedStoreHandler
           }
           on command AddProductsToStore {
@@ -331,13 +331,13 @@ context StoreContext is {
 //              lastUpdatedBy = @DeleteStore.deletingMember,
 //              currentState = @StoreStates.Deleted
 //            )
-            send event StoreDeleted
+            send event StoreDeleted to outlet StoreEvents.Events
 //            (
 //              storeId = @CreatedStoreState.id,
 //              info = @CreatedStoreState.info,
 //              meta = @CreatedStoreState.meta
 //            )
-              to outlet StoreEvents.Events
+
             morph entity Store to state DeletedStore with record DeletedStoreState
 //            (
 //              storeName = @CreatedStoreState.info.storeName,
@@ -357,13 +357,13 @@ context StoreContext is {
 //              lastUpdatedBy = @OpenStore.openingMember,
 //              currentState = @StoreStates.Open
 //            )
-            send event StoreOpened
+            send event StoreOpened to outlet StoreEvents.Events
 //            (
 //              storeId = @CreatedStoreState.id,
 //              info = @CreatedStoreState.info,
 //              meta = @CreatedStoreState.meta
 //            )
-              to outlet StoreEvents.Events
+
             become entity Store to handler OpenStoreHandler
           }
           on command CloseStore {

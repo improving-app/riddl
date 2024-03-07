@@ -1,4 +1,4 @@
-type LocationId is Id (ImprovingApp.Venues.LocationContext.Location)
+type LocationId is Id (Venues.LocationContext.Location)
   briefly "Unique identifier for Location Entity"
 
 context LocationContext is {

@@ -6,7 +6,7 @@ query GetNextVenueReservations is {
 }
 query GetVenueReservationsInRange is {
 	venueId: VenueId,
-	range: TimeRange+
+	range: ImprovingApp.TimeRange+
 }
 result VenueReservations is {
 	venueId: VenueId,
@@ -33,7 +33,7 @@ query GetNextLocationReservations is {
 }
 query GetLocationReservations is {
 	venueId: Venues.LocationId,
-	ranges: TimeRange+
+	ranges: ImprovingApp.TimeRange+
 }
 result LocationReservations is {
 	venueId: Venues.LocationId,
@@ -49,7 +49,7 @@ query GetNextLocationAvailability is {
 }
 result LocationAvailabilityCalendar is {
 	locationId: Venues.LocationId,
-	schedule: TimeRange* briefly "A list of time ranges indicating availability"
+	schedule: ImprovingApp.TimeRange* briefly "A list of time ranges indicating availability"
 }
 
 query FindAvailableLocationsInDateRange is {locationId: Venues.LocationId, start: Date, end: Date}
