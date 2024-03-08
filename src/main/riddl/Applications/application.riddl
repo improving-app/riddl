@@ -2,7 +2,7 @@ application UserInterface is {
   command EstablishOrganization is {
     info: MemberContext.EditableInfo briefly "Details about an organization required for it to exist. See OrganizationContext.Organization.Info for details.",
     tenant: TenantId,
-    parent:  ImprovingApp.OrganizationContext.Parent?,
+    parent: OrganizationContext.Parent?,
     members: MemberList,
     owners: OwnerList,
     contacts: ContactList,
@@ -12,7 +12,7 @@ application UserInterface is {
   result OrganizationEstablished is {
     organizationId: OrganizationId briefly "Unique identifier returned by EstablishOrganization command",
     info: OrganizationContext.Info,
-    parent:  ImprovingApp.OrganizationContext.Parent?,
+    parent: OrganizationContext.Parent?,
     members: MemberList,
     owners: OwnerList,
     contacts: ContactList,
@@ -23,16 +23,16 @@ application UserInterface is {
   group Organization is {
     input EstablishOrganization acquires command UserInterface.EstablishOrganization
 
-    output DisplayOrganization presents result ImprovingApp.UserInterface.OrganizationEstablished
+    output DisplayOrganization presents result UserInterface.OrganizationEstablished
   }
 
   handler OrgHandler is {
-    on command ImprovingApp.OrganizationContext.EstablishOrganization  from user OrgOwner {
-      tell command ImprovingApp.OrganizationContext.OrganizationEstablished to context ImprovingApp.OrganizationContext
+    on command OrganizationContext.EstablishOrganization  from user OrgOwner {
+      tell command OrganizationContext.OrganizationEstablished to context OrganizationContext
     }
-    on event ImprovingApp.OrganizationContext.OrganizationEstablished from context ImprovingApp.OrganizationContext {
-      //tell result ImprovingApp.OrganizationContext.OrganizationEstablished to
-      //  projector ImprovingApp.Relationships.OrganizationViews
+    on event OrganizationContext.OrganizationEstablished from context OrganizationContext {
+      //tell resultOrganizationContext.OrganizationEstablished to
+      //  projector Relationships.OrganizationViews
     }
   }
 

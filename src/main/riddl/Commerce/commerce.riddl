@@ -7,7 +7,7 @@ context Commerce is {
         condition: String,
         action: String
     }
-    type PaymentId is Id( Payment )
+    type PaymentId is Id( Commerce.Payment )
     type DeliveryId is Id( Delivery )
     type DeliveryInfo is {
         orderId: OrderId,

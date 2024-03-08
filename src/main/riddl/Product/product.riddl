@@ -53,10 +53,10 @@ context ProductContext is {
     lastModifiedBy: MemberId,
     lastModifiedOn: Date
   }
-  command CreateProduct is {sku: SKU, info: ProductInfo, onBehalfOf: MemberId}
-  event ProductCreated is {sku: SKU, info: ProductInfo, meta: ProductMetaInfo}
-  command UpdateProductInfo is {sku: SKU, info: ProductInfoUpdate, onBehalfOf: MemberId}
-  event ProductInfoUpdated is {sku: SKU, info: ProductInfo, meta: ProductMetaInfo}
+  command CreateProduct is {sku: SKU, info: ProductContext.ProductInfo, onBehalfOf: MemberId}
+  event ProductCreated is {sku: SKU, info: ProductContext.ProductInfo, meta: ProductMetaInfo}
+  command UpdateProductInfo is {sku: SKU, info: ProductContext.ProductInfoUpdate, onBehalfOf: MemberId}
+  event ProductInfoUpdated is {sku: SKU, info: ProductContext.ProductInfo, meta: ProductMetaInfo}
   command DeleteProduct is {sku: SKU, onBehalfOf: MemberId}
   event ProductDeleted is {sku: SKU}
   command ActivateProduct is {sku: SKU, onBehalfOf: MemberId}
@@ -64,15 +64,15 @@ context ProductContext is {
   command InactivateProduct is {sku: SKU, onBehalfOf: MemberId}
   event ProductInactivated is {sku: SKU}
   query GetProductInfo is {sku: SKU}
-  result ProductInfoResult is {info: ProductInfo, meta: ProductMetaInfo}
+  result ProductInfoResult is {info: ProductContext.ProductInfo, meta: ProductContext.ProductMetaInfo}
   query GetTicketsForEvent is {event: EventId} //TODO: Move this query/result to a projector?
   result TicketsForEvent is {event: EventId, tickets: SKU*}
 
   entity Product is {
     option event-sourced
     handler ProductHandler is {
-      on command CreateProduct {
-        morph entity Product to state DraftProductState with record DraftProduct
+      on command ProductContext.CreateProduct {
+        morph entity ProductContext.Product to state DraftProductState with record DraftProduct
       }
       on other {
         error "Only the CreateProduct command is allowed in the default state."
@@ -81,12 +81,12 @@ context ProductContext is {
 
     record DraftProduct is {
       sku: SKU,
-      info: ProductInfo,
+      info: ProductContext.ProductInfo,
       meta: ProductMetaInfo
     }
     state DraftProductState of Product.DraftProduct is {
       handler CreatedProductHandler is {
-        on command CreateProduct {
+        on command ProductContext.CreateProduct {
           error "Product already created."
         }
         on command UpdateProductInfo{
@@ -98,7 +98,7 @@ context ProductContext is {
           set field DraftProductState.meta to "ProductContext.ProductMetaInfo"
           send event ProductDeleted
             to outlet ProductEvents.Events
-          morph entity Product to state DeletedProductState with record DeletedProduct
+          morph entity ProductContext.Product to state DeletedProductState with record DeletedProduct
         }
         on command ActivateProduct{
           if "not all required fields are filled in" then {
@@ -121,56 +121,56 @@ context ProductContext is {
 
     record DefinedProduct is {
       sku: SKU,
-      info: ProductInfo,
-      meta: ProductMetaInfo
+      info: ProductContext.ProductInfo,
+      meta: ProductContext.ProductMetaInfo
     }
     state DefinedProductState of Product.DefinedProduct is {
       handler ActiveProductHandler is {
-        on command CreateProduct {
+        on command ProductContext.CreateProduct {
           error "Product already created."
         }
-        on command UpdateProductInfo{
+        on command ProductContext.UpdateProductInfo{
           "Copy fields that are provided from UpdateProductInfo.info into DefinedProductState.info fields"
           "adjust meta fields to reflect the change set"
           "yield ProductInfoUpdated event with new info"
         }
-        on command DeleteProduct{
+        on command ProductContext.DeleteProduct{
           set field DefinedProductState.meta to "ProductContext.ProductMetaInfo"
           send event ProductDeleted to outlet ProductEvents.Events
-          morph entity Product to state DeletedProductState with record DeletedProduct
+          morph entity ProductContext.Product to state DeletedProductState with record DeletedProduct
         }
-        on command ActivateProduct{
+        on command ProductContext.ActivateProduct{
           error "Product is already active"
         }
-        on command InactivateProduct {
+        on command ProductContext.InactivateProduct {
           set field DefinedProductState.meta to "ProductContext.ProductMetaInfo"
           send event ProductInactivated to outlet ProductEvents.Events
-          become entity Product to handler InactiveProductHandler
+          become entity ProductContext.Product to handler ProductContext.Product.DefinedProductState.InactiveProductHandler
         }
         on query GetProductInfo{
           "yield ProductInfoResult message"
         }
       }
       handler InactiveProductHandler is {
-        on command CreateProduct {
+        on command ProductContext.CreateProduct {
           error "Product already created."
         }
-        on command UpdateProductInfo{
+        on command ProductContext.UpdateProductInfo{
           "Copy fields that are provided from UpdateProductInfo.info into DefinedProductState.info fields"
           "adjust meta fields to reflect the change set"
           "yield ProductInfoUpdated event with new info"
         }
-        on command DeleteProduct{
+        on command ProductContext.DeleteProduct{
           set field DefinedProductState.meta to "ProductContext.ProductMetaInfo"
           send event ProductDeleted to outlet ProductEvents.Events
-          morph entity Product to state DeletedProductState with record DeletedProduct
+          morph entity ProductContext.Product to state ProductContext.Product.DefinedProductState.DeletedProductState with record DeletedProduct
         }
-        on command ActivateProduct{
+        on command ProductContext.ActivateProduct{
           set field DefinedProductState.meta to "ProductContext.ProductMetaInfo"
           send event ProductActivated to outlet ProductEvents.Events
-          become entity Product to handler ActiveProductHandler
+          become entity ProductContext.Product.DefinedProductState.Product to handler ActiveProductHandler
         }
-        on command InactivateProduct{
+        on command ProductContext.InactivateProduct{
           error "Product is already Inactive"
         }
         on query GetProductInfo{
@@ -185,19 +185,19 @@ context ProductContext is {
     }
     state DeletedProductState of Product.DeletedProduct is {
       handler DeletedProductHandler is {
-        on command CreateProduct {
+        on command ProductContext.CreateProduct {
           error "Product already created."
         }
-        on command UpdateProductInfo{
+        on command ProductContext.UpdateProductInfo{
           error "Cannot update a Deleted product"
         }
-        on command DeleteProduct{
+        on command ProductContext.DeleteProduct{
           error "Product already deleted"
         }
-        on command ActivateProduct{
+        on command ProductContext.ActivateProduct{
           error "Cannot activate a deleted product. Consider creating a new product instead."
         }
-        on command InactivateProduct{
+        on command ProductContext.InactivateProduct{
           error "Cannot inactivate a Deleted product."
         }
         on query GetProductInfo{

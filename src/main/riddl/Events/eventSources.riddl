@@ -8,14 +8,14 @@ source LiveUpdates is {
 
 //ReservationAddedToEvent,
 type PublicEventEvent is one of {
-  ImprovingApp.Events.EventContext.EventInfoEdited,
-  ImprovingApp.Events.EventContext.EventCreated,
-  ImprovingApp.Events.EventContext.EventScheduled,
-  ImprovingApp.Events.EventContext.EventCancelled,
-  ImprovingApp.Events.EventContext.EventRescheduled,
-  ImprovingApp.Events.EventContext.EventDelayed,
-  ImprovingApp.Events.EventContext.EventStarted,
-  ImprovingApp.Events.EventContext.EventEnded
+  Events.EventContext.EventInfoEdited,
+  Events.EventContext.EventCreated,
+  Events.EventContext.EventScheduled,
+  Events.EventContext.EventCancelled,
+  Events.EventContext.EventRescheduled,
+  Events.EventContext.EventDelayed,
+  Events.EventContext.EventStarted,
+  Events.EventContext.EventEnded
 }
 source EventEvents is {
   outlet Events is type PublicEventEvent
