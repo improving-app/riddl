@@ -65,7 +65,7 @@ application UserInterface is {
   command PurchaseProduct is {
     productSku: ProductContext.SKU
   }
-  type ProductPurchased is {
+  event ProductPurchased is {
     productSku: ProductContext.SKU,
     productInfo: ProductContext.ProductInfo,
     productMeta: ProductContext.ProductMetaInfo
@@ -83,7 +83,7 @@ application UserInterface is {
     on command ImprovingApp.GatewayAPI.DemoScenarioGateway.PurchaseProduct from user ImprovingApp.GatewayAPI.Member {
       tell command  ImprovingApp.UserInterface.PurchaseProduct to context ProductContext
     }
-    on event UserInterface.ProductPurchased from context ProductContext {
+    on event ImprovingApp.UserInterface.ProductPurchased from context ProductContext {
       //tell result ProductContext.ProductCreated to projector ProductContext.ProductViews
     }
   }
@@ -106,7 +106,7 @@ application CommandLine is {
     on command ImprovingApp.CommandLine.StartScenario from user ImprovingApp.GatewayAPI.Member {
       tell command CommandLine.StartScenario to context GatewayAction
     }
-    on event ImprovingApp.CommandLine.ScenarioStarted from context GatewayAction {
+    on result ImprovingApp.CommandLine.ScenarioStarted from context GatewayAction {
       "display in terminal"
     }
   }

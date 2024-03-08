@@ -361,11 +361,11 @@ context OrganizationContext is {
                 on command ImprovingApp.OrganizationContext.SuspendOrganization {
                    set field EstablishedOrganizationState.orgMeta to "OrganizationContext.MetaInfo"
                    send event OrganizationSuspended to outlet OrganizationEvents.Events
-                   become entity Organization to handler SuspendedOrganizationHandler
+                   become entity ImprovingApp.OrganizationContext.Organization to handler SuspendedOrganizationHandler
                 }
                 on command ImprovingApp.OrganizationContext.TerminateOrganization {
                   set field EstablishedOrganizationState.orgMeta to "OrganizationContext.MetaInfo"
-                  morph entity Organization to state TerminatedOrganization
+                  morph entity ImprovingApp.OrganizationContext.Organization to state ImprovingApp.OrganizationContext.Organization.TerminatedOrganization
                     with record TerminatedOrganizationState
                       //(lastMeta = @EstablishedOrganizationState.orgMeta)
                 }
@@ -395,23 +395,25 @@ context OrganizationContext is {
                 }
             }
             handler SuspendedOrganizationHandler is {
-                on command EstablishOrganization {
+                on command ImprovingApp.OrganizationContext.EstablishOrganization {
                     error "Organization already established"
                 }
                 on command ActivateOrganization {
                   set field EstablishedOrganizationState.orgMeta to "OrganizationContext.MetaInfo"
                   send event OrganizationActivated
                     to outlet OrganizationEvents.Events
-                  become entity Organization to handler ActiveOrganizationHandler
+                  become entity ImprovingApp.OrganizationContext.Organization
+                    to handler ActiveOrganizationHandler
                 }
                 on command SuspendOrganization {
                   set field EstablishedOrganizationState.orgMeta to "OrganizationContext.MetaInfo"
                   send event OrganizationSuspended to outlet OrganizationEvents.Events
-                  become entity Organization to handler SuspendedOrganizationHandler
+                  become entity ImprovingApp.OrganizationContext.Organization to handler SuspendedOrganizationHandler
                 } briefly "A suspension reason can be updated by re-issuing the command"
                 on command TerminateOrganization {
                     set field EstablishedOrganizationState.orgMeta to "OrganizationContext.MetaInfo"
-                    morph entity Organization to state TerminatedOrganization with record TerminatedOrganizationState
+                    morph entity ImprovingApp.OrganizationContext.Organization to
+                      state ImprovingApp.OrganizationContext.Organization.TerminatedOrganization with record TerminatedOrganizationState
                 }
                 on query GetOrganizationInfo {
                   reply result OrganizationInfo
