@@ -107,7 +107,7 @@ context AllIdsProjections is  {
 
   projector AllStoreIdsView is {
      record AllStoreIdsFields {
-        store: StoreId
+        store: ImprovingApp.StoreContext.StoreId
     }
     handler AllStoreIdsViewHandler is {
         on event StoreCreated {
