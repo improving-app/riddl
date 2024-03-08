@@ -1,19 +1,17 @@
 epic RegisterMember {
-  user AnonUser wants to "register himself" so that "they can use ImprovingApp"
+  user ImprovingApp.GatewayAPI.AnonUser wants to "register himself" so that "they can use ImprovingApp"
   by author James
 
   case HappyPath is {
-    user AnonUser wants to "successfully register himself" so that "they can use ImprovingApp"
-
-    step from user Member "RegisterMember" to user App
+    step from user ImprovingApp.GatewayAPI.Member "RegisterMember" to user App
       briefly "initial invocation"
-    step send command Member.RegisterMember from application UserInterface to context GatewayAPI
+    step send command ImprovingApp.MemberContext.RegisterMember from application UserInterface to context GatewayAPI
       briefly "send creation message"
     step from context GatewayAPI "Register Member" to entity ImprovingApp.MemberContext.Member
       briefly "add new Member"
-    step send event MemberRegistered from entity ImprovingApp.MemberContext.Member to source ImprovingApp.MemberContext.MemberEvents
+    step send event ImprovingApp.MemberContext.MemberRegistered from entity ImprovingApp.MemberContext.Member to source ImprovingApp.MemberContext.MemberEvents
       briefly "Member added in Draft state"
-    step send event MemberRegistered from source ImprovingApp.MemberContext.MemberEvents to application App
+    step send event ImprovingApp.MemberContext.MemberRegistered from source ImprovingApp.MemberContext.MemberEvents to application App
     //example Foo is {...}
   }
 } briefly "A story about registering a member in Improving.app"

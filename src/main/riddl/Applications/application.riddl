@@ -2,7 +2,7 @@ application UserInterface is {
   command EstablishOrganization is {
     info: MemberContext.EditableInfo briefly "Details about an organization required for it to exist. See OrganizationContext.Organization.Info for details.",
     tenant: TenantId,
-    parent: Parent?,
+    parent:  ImprovingApp.OrganizationContext.Parent?,
     members: MemberList,
     owners: OwnerList,
     contacts: ContactList,
@@ -12,7 +12,7 @@ application UserInterface is {
   result OrganizationEstablished is {
     organizationId: OrganizationId briefly "Unique identifier returned by EstablishOrganization command",
     info: OrganizationContext.Info,
-    parent: Parent?,
+    parent:  ImprovingApp.OrganizationContext.Parent?,
     members: MemberList,
     owners: OwnerList,
     contacts: ContactList,
@@ -22,16 +22,16 @@ application UserInterface is {
   group Organization is {
     input EstablishOrganization acquires command UserInterface.EstablishOrganization
 
-    output DisplayOrganization presents result OrganizationEstablished
+    output DisplayOrganization presents result ImprovingApp.UserInterface.OrganizationEstablished
   }
 
   handler OrgHandler is {
-    on command EstablishOrganization from user OrgOwner {
-      tell command UserInterface.CreateOrganization to context ImprovingApp.OrganizationContext
+    on command ImprovingApp.OrganizationContext.EstablishOrganization  from user OrgOwner {
+      tell command ImprovingApp.OrganizationContext.OrganizationEstablished to context ImprovingApp.OrganizationContext
     }
-    on event OrganizationEstablished from context ImprovingApp.OrganizationContext {
-      tell result ImprovingApp.OrganizationContext.OrganizationEstablished to
-        projector ImprovingApp.OrganizationContext.OrganizationViews
+    on event ImprovingApp.OrganizationContext.OrganizationEstablished from context ImprovingApp.OrganizationContext {
+      //tell result ImprovingApp.OrganizationContext.OrganizationEstablished to
+      //  projector ImprovingApp.Relationships.OrganizationViews
     }
   }
 
@@ -48,16 +48,16 @@ application UserInterface is {
 
   group Member is {
     input RegisterMember acquires command UserInterface.RegisterMember
-    output DisplayMemberDetails presents result MemberRegistered
+    output DisplayMemberDetails presents result ImprovingApp.UserInterface.MemberRegistered
   }
 
   handler MemberHandler is {
-    on command RegisterMember from user DemoMember {
+    on command  ImprovingApp.GatewayAPI.MemberGateway.RegisterMember from user DemoMember {
       tell command UserInterface.RegisterMember to context ImprovingApp.MemberContext
     }
-    on event MemberRegistered from context ImprovingApp.MemberContext {
-      tell result ImprovingApp.MemberContext.MemberRegistered to
-        projector ImprovingApp.MemberContext.MemberViews
+    on event  ImprovingApp.GatewayAPI.MemberGateway.MemberRegistered from context ImprovingApp.MemberContext {
+      //tell result ImprovingApp.MemberContext.MemberRegistered to
+      //  projector ImprovingApp.MemberContext.MemberViews
     }
   }
 
@@ -70,7 +70,7 @@ application UserInterface is {
     productMeta: ProductContext.ProductMetaInfo
   }
   result ProductsPurchased is {
-    products: ProductPurchased*
+    products: ProductContext.SKU*
   }
 
   group Product is {
@@ -79,12 +79,11 @@ application UserInterface is {
   }
 
   handler ProductHandler is {
-    on command PurchaseProduct from user Member {
-      tell command PurchaseProduct to context ProductContext
+    on command ImprovingApp.GatewayAPI.DemoScenarioGateway.PurchaseProduct from user ImprovingApp.GatewayAPI.Member {
+      tell command  ImprovingApp.UserInterface.PurchaseProduct to context ProductContext
     }
-    on event ProductContext.ProductPurchased
-    from context ProductContext {
-      tell result ProductContext.ProductCreated to projector ProductContext.ProductViews
+    on event UserInterface.ProductPurchased from context ProductContext {
+      //tell result ProductContext.ProductCreated to projector ProductContext.ProductViews
     }
   }
 }
@@ -103,10 +102,10 @@ application CommandLine is {
   }
 
   handler CurlHandler is {
-    on command StartScenario from user Member {
-      tell command CommandLine.StartScenario to context GatewayContext
+    on command ImprovingApp.CommandLine.StartScenario from user ImprovingApp.GatewayAPI.Member {
+      tell command CommandLine.StartScenario to context GatewayAction
     }
-    on event ScenarioStarted from context ImprovingApp.GatewayContext {
+    on event ImprovingApp.CommandLine.ScenarioStarted from context GatewayAction {
       "display in terminal"
     }
   }

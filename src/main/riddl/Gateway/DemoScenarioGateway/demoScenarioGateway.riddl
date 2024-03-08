@@ -7,7 +7,7 @@ context DemoScenarioGateway is {
     maxOrgsWidth: Integer,
     numMembersPerOrg: Integer,
     numEventsPerOrg: Integer,
-    ticketTypesPerEvent: TicketType+
+    //ticketTypesPerEvent: TicketType+
   } briefly "contains all parameters for a DemoScenario - all Integers must be > 0 and at least one TicketType must be provided"
 
   type ScenarioStarted is event {
@@ -15,7 +15,7 @@ context DemoScenarioGateway is {
     orgsByTenant: mapping from TenantId to OrganizationId+,
     membersByOrg: mapping from OrganizationId to MemberId+,
     eventsByOrg: mapping from OrganizationId to EventId+,
-    store: StoreId,
+    store: ImprovingApp.StoreContext.StoreId,
     ticketsByEvent: mapping from EventId to SKU+
   } briefly "contains all data created for a DemoScenario with inter-related references in key mapping provided"
 

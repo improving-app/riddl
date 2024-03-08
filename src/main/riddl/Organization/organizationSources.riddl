@@ -1,13 +1,13 @@
 type PublicOrganizationEvent is one of {
-    OrganizationEstablished,
-    OrganizationActivated,
-    OrganizationSuspended,
-    OrganizationTerminated,
-    OrganizationInfoEdited,
-    MembersAddedToOrganization,
-    OwnersAddedToOrganization,
-    OrganizationContactsUpdated,
-    OrganizationAccountsUpdated
+    ImprovingApp.OrganizationContext.OrganizationEstablished,
+    ImprovingApp.OrganizationContext.OrganizationActivated,
+    ImprovingApp.OrganizationContext.OrganizationSuspended,
+    ImprovingApp.OrganizationContext.OrganizationTerminated,
+    ImprovingApp.OrganizationContext.OrganizationInfoEdited,
+    ImprovingApp.OrganizationContext.MembersAddedToOrganization,
+    ImprovingApp.OrganizationContext.OwnersAddedToOrganization,
+    ImprovingApp.OrganizationContext.OrganizationContactsUpdated,
+    ImprovingApp.OrganizationContext.OrganizationAccountsUpdated
 }
 
 source OrganizationEvents is {

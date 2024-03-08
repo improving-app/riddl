@@ -12,7 +12,7 @@ context MemberGateway is {
       lastName: String,
       mobileNumber: MobileNumber?,
       emailAddress: EmailAddress?,
-      notificationPreference: NotificationPreference,
+      notificationPreference: ImprovingApp.MemberContext.NotificationPreference,
       notificationOptIn: Boolean, //true indicates they allow notifications
       organizations: OrganizationId*, //Members must belong to at least one Organization?
       relatedMembers: String, //Primary use case is parent/student. I am sure there are others. Might be a better way to document such a relationship.
@@ -30,11 +30,11 @@ context MemberGateway is {
   type MemberData is result {memberId: MemberContext.MemberId, memberInfo: MemberInfo, memberMeta: MemberMetaInfo}
   type GetMemberForHandle is query {handle: String}
   type MemberForHandle is result {memberId: MemberContext.MemberId?}
-  type RegisterMemberList is command {memberList: MemberMap+, registeringMember: MemberContext.MemberId} briefly "RegisterMemberList creates multiple members with a single call. The limitation is you can only define a single MemberType in each call, and all new Members must be assigned to an Organization (typically a BaseOrg)."
-  type MemberListRegistered is event {memberData: MemberData*}
-  type RegisterMember is command {memberToAdd: MemberMap, registeringMember: MemberContext.MemberId?} briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional. Also registeringMember is optional - if you are registering yourself then you are the registering member for yourself - you just don't exist yet"
+  type RegisterMemberList is command {memberList: ImprovingApp.MemberContext.MemberMap+, registeringMember: MemberContext.MemberId} briefly "RegisterMemberList creates multiple members with a single call. The limitation is you can only define a single MemberType in each call, and all new Members must be assigned to an Organization (typically a BaseOrg)."
+  type MemberListRegistered is event {memberData: ImprovingApp.MemberContext.MemberData*}
+  type RegisterMember is command {memberToAdd: ImprovingApp.MemberContext.MemberMap, registeringMember: MemberContext.MemberId?} briefly "RegisterMember creates a single new member. As this could be a self-service request the OrganizationType is optional. Also registeringMember is optional - if you are registering yourself then you are the registering member for yourself - you just don't exist yet"
   type MemberRegistered is event {memberId: MemberContext.MemberId, memberInfo: MemberInfo, memberMeta: MemberMetaInfo} briefly "Event issued after either RegisterMember or RegisterMemberList is called. In the case of RegisterMemberList one event per member in the list is published."
-  type UpdateMemberInfo is command {memberMap: MemberMap, actingMember: MemberContext.MemberId} briefly "All member info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full MemberInfo object back."
+  type UpdateMemberInfo is command {memberMap: ImprovingApp.MemberContext.MemberMap, actingMember: MemberContext.MemberId} briefly "All member info will be overwritten as provided in this command. Best practice would be to retrieve current values first and modify attributes that you desire to change and submit the full MemberInfo object back."
   type MemberInfoUpdated is event {memberId: MemberContext.MemberId, memberInfo: MemberInfo, memberMeta: MemberMetaInfo}
   type ActivateMember is command {memberId: MemberContext.MemberId, actingMember: MemberContext.MemberId}
   type MemberActivated is event {memberId: MemberContext.MemberId, memberMeta: MemberMetaInfo}

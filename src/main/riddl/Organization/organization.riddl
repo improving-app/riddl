@@ -13,9 +13,9 @@ context OrganizationContext is {
         option available
 
         handler OrganizationHandler is {
-          on command EstablishOrganization {
-            send event OrganizationEstablished to outlet OrganizationEvents.Events
-            morph entity Organization to state DraftOrganization with record DraftOrganizationState
+          on command ImprovingApp.OrganizationContext.EstablishOrganization {
+            send event ImprovingApp.OrganizationContext.OrganizationEstablished to outlet OrganizationEvents.Events
+            morph entity ImprovingApp.OrganizationContext.Organization to state DraftOrganization with record DraftOrganizationState
           }
           on other {
             error "Only EstablishOrganization command is allowed in the default state"
@@ -34,7 +34,7 @@ context OrganizationContext is {
         }
         state DraftOrganization of DraftOrganizationState is {
             handler DraftOrganizationHandler is {
-                on command EstablishOrganization {
+                on command ImprovingApp.OrganizationContext.EstablishOrganization {
                   error "Organization already established"
                 }
                 on command EditOrganizationInfo {
@@ -235,15 +235,15 @@ context OrganizationContext is {
         }
         state EstablishedOrganization of EstablishedOrganizationState is {
             handler ActiveOrganizationHandler is {
-                on command EstablishOrganization {
+                on command ImprovingApp.OrganizationContext.EstablishOrganization {
                   error "Organization already established"
                 }
-                on command EditOrganizationInfo {
+                on command ImprovingApp.OrganizationContext.EditOrganizationInfo {
                   set field EstablishedOrganizationState.info to "OrganizationContext.Info"
                   set field EstablishedOrganizationState.orgMeta to "OrganizationContext.MetaInfo"
                   send event OrganizationInfoEdited to outlet OrganizationEvents.Events
                 }
-                on command UpdateParent {
+                on command ImprovingApp.OrganizationContext.UpdateParent {
                   if "editingMember is not Authorized" then {
                     error "EditingMember is not authorized to make this change."
                   } else {
@@ -260,7 +260,7 @@ context OrganizationContext is {
                     }
                   }
                 }
-                on command AddMembersToOrganization {
+                on command ImprovingApp.OrganizationContext.AddMembersToOrganization {
                   if "Member does not meet qualifictions to join organization" then {
                     "Place rejected member in dead letter queue and process remaining members"
                     "Consider how to notify of partial success" // TODO: discuss how this might work
@@ -283,7 +283,7 @@ context OrganizationContext is {
                     "emit MembersAddedToOrganization event"
                   }
                 }
-                on command RemoveMembersFromOrganization {
+                on command ImprovingApp.OrganizationContext.RemoveMembersFromOrganization {
                   if "editingMember is not Authorized" then {
                      error "EditingMember is not authorized to make this change."
                      stop
@@ -293,7 +293,7 @@ context OrganizationContext is {
                     "yield MembersRemovedFromOrganization()"// TODO
                   }
                 }
-                on command AddOwnersToOrganization {
+                on command ImprovingApp.OrganizationContext.AddOwnersToOrganization {
                   if "Member in ownersToAdd is not in memberList of organizationId" then {
                      "Place non-member owner in dead letter queue and finish processing remaining member owners"
                      "Consider how to notify of partial success" // TODO: discuss how this might work
@@ -318,7 +318,7 @@ context OrganizationContext is {
                      "emit OwnersAddedToOrganization event"
                   }
                 }
-                on command RemoveOwnersFromOrganization {
+                on command ImprovingApp.OrganizationContext.RemoveOwnersFromOrganization {
                   if "editingMember is not Authorized" then {
                      error "EditingMember is not authorized to make this change."
                   } else {
@@ -327,7 +327,7 @@ context OrganizationContext is {
                     "yield OwnersRemovedFromOrganization()"// TODO
                   }
                 }
-                on command UpdateOrganizationContacts {
+                on command ImprovingApp.OrganizationContext.UpdateOrganizationContacts {
                   if "Member in contactsToAdd is not in memberList of organizationId" then {
                     "Place non-member contact in dead letter queue and finish processing remaining member contacts"
                      "Consider how to notify of partial success" // TODO: discuss how this might work
@@ -358,12 +358,12 @@ context OrganizationContext is {
                 //         then error "EditingMember is not authorized to make this change."
                 //     }
                 // }
-                on command SuspendOrganization {
+                on command ImprovingApp.OrganizationContext.SuspendOrganization {
                    set field EstablishedOrganizationState.orgMeta to "OrganizationContext.MetaInfo"
                    send event OrganizationSuspended to outlet OrganizationEvents.Events
                    become entity Organization to handler SuspendedOrganizationHandler
                 }
-                on command TerminateOrganization {
+                on command ImprovingApp.OrganizationContext.TerminateOrganization {
                   set field EstablishedOrganizationState.orgMeta to "OrganizationContext.MetaInfo"
                   morph entity Organization to state TerminatedOrganization
                     with record TerminatedOrganizationState

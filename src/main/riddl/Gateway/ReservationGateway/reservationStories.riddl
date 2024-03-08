@@ -1,18 +1,20 @@
 epic CreateReservation {
-	user Member wants to "Create a Reservation" so that "I can manage my Reservations & book them in ImprovingApp"
+	user ImprovingApp.GatewayAPI.Member wants to "Create a Reservation" so that "I can manage my Reservations & book them in ImprovingApp"
   by author Alex
 
   //"Create a new Reservation without booking it"
   case HappyPath is {
-    step from user Member "provides a ReservationId" to user App
+    step from user ImprovingApp.GatewayAPI.Member "provides a ReservationId" to user App
       briefly "initial invocation"
-    step send command Reservation.CreateReservation from application App to context GatewayAPI
+    step send command EstablishReservation from application App to context GatewayAPI
       briefly "send creation message"
-    step from user GatewayAPI "Create Reservation" to entity ImprovingApp.ReservationContext.Reservations
+    step from user GatewayAPI "Create Reservation" to entity ImprovingApp.Events.ReservationContext.Reservation
       briefly "create reservation"
-    step from entity ImprovingApp.ReservationContext.Reservations "ReservationCreated" to source ImprovingApp.ReservationContext.ReservationEvents
+    step send event ImprovingApp.Events.ReservationContext.ReservationEstablished
+      from entity ImprovingApp.Events.ReservationContext.Reservation to source ImprovingApp.Events.ReservationContext.PublicReservationEvent
       briefly "reservation created"
-    step from source ImprovingApp.ReservationContext.ReservationEvents "ReservationCreated" to application App
+    step send event ImprovingApp.Events.ReservationContext.ReservationEstablished
+      from source ImprovingApp.Events.ReservationContext.PublicReservationEvent to application App
   }
 } briefly "A story about creating a reservation in Improving.app"
   described as "This is the story of how a reservation comes into existence"
