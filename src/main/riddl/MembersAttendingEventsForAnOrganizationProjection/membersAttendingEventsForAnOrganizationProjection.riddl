@@ -1,6 +1,6 @@
 query FindMembersAtEventsOnDayForOrg is {org: OrganizationId, eventDate: Date}
 result NoEventsOnDayForOrg is {org: OrganizationId}
-result MembersAtEventsOnDay is {memberEvents: MemberEvents+}
+result MembersAtEventsOnDay is {memberEvents: ImprovingApp.MemberEvents+}
 
 context MembersAttendingEventsForAnOrganizationProjection is  {
   projector MembersAttendingEventsForAnOrganizationView is {

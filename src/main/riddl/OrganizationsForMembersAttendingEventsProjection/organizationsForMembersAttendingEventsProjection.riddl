@@ -16,7 +16,7 @@ context OrganizationsForMembersAttendingEventsProjections is  {
         attendingMemberName: String //member table
     }
     handler OrganizationsForMembersAttendingEventsViewHandler is {
-        on event OrganizationEstablished {
+        on event ImprovingApp.OrganizationContext.OrganizationEstablished {
           "create row in org table with orgId set to OrganizationEstablished.info.orgId"
           "set row's attendingMemberOrgName to OrganizationEstablished.info.name"
         }
