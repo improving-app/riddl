@@ -49,7 +49,7 @@ query GetNextVenueReservations is {
 }
 query GetVenueReservations is {
 	venueId: VenueId,
-	range: TimeRange+
+	range: ImprovingApp.TimeRange+
 }
 result VenueReservations is {
 	venueId: VenueId,
@@ -98,5 +98,5 @@ type VenueReservationsSchedule is {
 }
 type VenueAvailabilitySchedule is {
 	locationId: Venues.LocationId,
-	schedule: TimeRange+
+	schedule: ImprovingApp.TimeRange+
 }

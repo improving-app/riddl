@@ -8,9 +8,9 @@ context OrganizationContext is {
     include "organizationSources"
 
     entity Organization is {
+        by author Reid
         option event-sourced
         option available
-        by author Reid
 
         handler OrganizationHandler is {
           on command EstablishOrganization {

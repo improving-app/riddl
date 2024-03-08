@@ -18,10 +18,10 @@ context Commerce is {
     type NullState is Nothing
 
     entity Promotion is {
-        state Active of NullState is { ??? }
-        handler ActivePromotionHandler is { ??? }
-        state Expired of NullState is { ??? }
-        handler InactivePromotionHandler is { ??? }
+        state Active of Commerce.NullState is {???}
+        handler ActivePromotionHandler is {???}
+        state Expired of Commerce.NullState is {???}
+        handler InactivePromotionHandler is {???}
     } //not part of MVP
 
     entity PaymentProvider is {???} //TBD - after MVP
@@ -40,13 +40,13 @@ context Commerce is {
     entity Cart is {???} //develop as a future feature - Persistant Cart - Training exercise
 
     entity Delivery is {
-        state Pending of NullState is {???}
+        state Pending of Commerce.NullState is {???}
         handler PendingDeliveryHandler is {???}
-        state Ready of NullState is {???}
+        state Ready of Commerce.NullState is {???}
         handler ReadyDeliveryHandler is {???}
-        state EnRoute of NullState is {???}
+        state EnRoute of Commerce.NullState is {???}
         handler EnRoutDeliveryHandler is {???}
-        state Delivered of NullState is {???}
+        state Delivered of Commerce.NullState is {???}
         handler DeliveredDeliveryHandler is {???}
     } //not part of MVP
 }

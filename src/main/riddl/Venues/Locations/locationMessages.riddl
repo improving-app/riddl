@@ -14,9 +14,9 @@ command EstablishLocation is {
 
 event LocationEstablished is {
   locationId: Venues.LocationId,
-  locationInfo: LocationContext.Info,
+  locationInfo: Venues.LocationContext.Info,
   reservations: ReservationId*,
-  meta: LocationContext.MetaInfo
+  meta: Venues.LocationContext.MetaInfo
 }
 
 command AddLocationReservations is {
@@ -30,23 +30,23 @@ event LocationReservationsAdded is {
 
 command UpdateLocationStatus is {
   locationId: Venues.LocationId,
-  status: LocationContext.Status,
+  status: Venues.LocationContext.Status,
   updatingMember: MemberId
 }
 event LocationStatusUpdated is {
   locationId: Venues.LocationId,
-  newStatus: LocationContext.Status
+  newStatus: Venues.LocationContext.Status
 }
 
 command EditLocationInfo is {
   locationId: Venues.LocationId briefly "The unique Id of the location to create",
-  newInfo: LocationContext.UpdateInfo briefly "The information about the location",
+  newInfo: Venues.LocationContext.UpdateInfo briefly "The information about the location",
   editingMember: MemberId briefly "Id of the member who is creating the location"
 } briefly "A command to edit the values of an Reservation's Info "
 event LocationInfoUpdated is {
   locationId: Venues.LocationId,
-  info: LocationContext.Info,
-  meta: LocationContext.MetaInfo
+  info: Venues.LocationContext.Info,
+  meta: Venues.LocationContext.MetaInfo
 }
 
 query GetNextLocationReservations is {
@@ -56,7 +56,7 @@ query GetNextLocationReservations is {
 }
 query GetLocationReservations is {
   venueId: Venues.LocationId,
-  ranges: TimeRange+
+  ranges: ImprovingApp.TimeRange+
 }
 result LocationReservations is {
   venueId: Venues.LocationId,
@@ -72,7 +72,7 @@ query GetNextLocationAvailability is {
 }
 result LocationAvailabilityCalendar is {
   locationId: Venues.LocationId,
-  schedule: TimeRange* briefly "A list of time ranges indicating availability"
+  schedule: ImprovingApp.TimeRange* briefly "A list of time ranges indicating availability"
 }
 
 query FindAvailableLocationsInRange is {locationId: Venues.LocationId, start: Date, end: Date}

@@ -1,7 +1,7 @@
 projector VenueLocationsReservationsView is {
     record Fields {
         venueId: VenueId,
-        locationId: Venues.LocationId
+        Venues.locationId: LocationId
     }
     handler VenueLocationsViewHandler is {
         on event VenueEstablished {
