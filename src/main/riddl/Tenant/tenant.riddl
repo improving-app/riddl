@@ -8,7 +8,8 @@ context TenantContext is {
     include "tenantSources"
 
     entity Tenant is {
-        options (event-sourced, available)
+        option event-sourced
+        option available
 
         handler TenantHandler is {
           on command EstablishTenant {

@@ -13,7 +13,8 @@ context ReservationContext is {
     outlet Events is type PublicReservationEvent
 
     entity Reservation is {
-        options (event-sourced, available)
+        option event-sourced
+        option available
 
 		    handler ReservationHandler is {
 		        on command EstablishReservation {

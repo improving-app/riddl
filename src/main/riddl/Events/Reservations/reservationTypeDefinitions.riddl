@@ -4,12 +4,12 @@ type Info is {
     range: Chrono.TimeRange,
     title: String,
     description: String,
-    location: LocationId,
+    location: Venues.LocationId,
     forOrg: OrganizationId
 }
 
 type UpdateInfo is {
-    range: TimeRange?,
+    range: Chrono.TimeRange?,
     title: String?,
     description: String?,
     forOrg: OrganizationId?

@@ -35,11 +35,11 @@ event VenueStatusUpdated is {
 
 command AddVenueLocations is {
   venueId: VenueId,
-  locations: LocationId+
+  locations: Venues.LocationId+
 }
 event VenueLocationsAdded is {
   venueId: VenueId,
-  locations: LocationId+
+  locations: Venues.LocationId+
 }
 
 query GetNextVenueReservations is {
@@ -93,10 +93,10 @@ result VenueCapacityOverview is {
 
 //types
 type VenueReservationsSchedule is {
-	locationId: LocationId,
+	locationId: Venues.LocationId,
 	reservations: ReservationId+
 }
 type VenueAvailabilitySchedule is {
-	locationId: LocationId,
+	locationId: Venues.LocationId,
 	schedule: TimeRange+
 }

@@ -1,5 +1,5 @@
 context DemoScenarioGateway is {
-  options(gateway)
+  option gateway
 
   type StartScenario is command {
     numTenants: Integer,

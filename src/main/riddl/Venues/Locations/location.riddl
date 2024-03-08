@@ -6,7 +6,8 @@ context LocationContext is {
     include "locationMessages"
 
     entity Location is {
-        options (event-sourced, available)
+        option event-sourced
+        option available
 
 		    handler LocationHandler is {
 		        on command EstablishLocation {

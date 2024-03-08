@@ -4,37 +4,23 @@ epic CreateReservation {
 
   //"Create a new Reservation without booking it"
   case HappyPath is {
-    //interaction is {
-    //  step from user Member "provides a ReservationId" to user App
-    //    briefly "initial invocation",
-    //  step from user App send command Reservation.CreateReservation to user GatewayAPI
-    //    briefly "send creation message",
-    //  step from user GatewayAPI "Create Reservation" to entity ImprovingApp.ReservationContext.Reservations
-    //    briefly "create reservation",
-    //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationCreated" to pipe ImprovingApp.ReservationContext.ReservationEvents
-    //    briefly "reservation created"
-    //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationCreated" to user App
-    //}
-    //example Success is {
-    //  when Member provides CreateReservation command w/ necessary info to App
-    //  then App sends CreateReservation message to GatewayAPI
-    //  and GatewayAPI forwards message to ReservationContext
-    //  and Reservation is booked
-    //  and ReservationCreated message is returned from ReservationContext to GatewayAPI
-    //  and GatewayAPI forwards message to App
-    //  and App displays success notification to Member
-    }
+    step from user Member "provides a ReservationId" to user App
+      briefly "initial invocation"
+    step send command Reservation.CreateReservation from application App to context GatewayAPI
+      briefly "send creation message"
+    step from user GatewayAPI "Create Reservation" to entity ImprovingApp.ReservationContext.Reservations
+      briefly "create reservation"
+    step from entity ImprovingApp.ReservationContext.Reservations "ReservationCreated" to source ImprovingApp.ReservationContext.ReservationEvents
+      briefly "reservation created"
+    step from source ImprovingApp.ReservationContext.ReservationEvents "ReservationCreated" to application App
   }
 } briefly "A story about creating a reservation in Improving.app"
   described as "This is the story of how a reservation comes into existence"
 //Reservation Gateway Stories
 
 epic BookReservation is {
-  As user Member wants to "Book a Reservation" so that "I can book my Reservations in ImprovingApp"
-  author Alex is {
-    name: "Alex Weinstein"
-    email: "alex.weinstin@improving.com"
-  }
+  user Member wants to "Book a Reservation" so that "I can book my Reservations in ImprovingApp"
+  by author Alex
   //"Book a new Reservation by picking from a list, given time parameters"
   case TimePickHappyPath is {
     //interaction is {

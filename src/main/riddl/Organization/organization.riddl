@@ -8,7 +8,8 @@ context OrganizationContext is {
     include "organizationSources"
 
     entity Organization is {
-        options (event-sourced, available)
+        option event-sourced
+        option available
         by author Reid
 
         handler OrganizationHandler is {
