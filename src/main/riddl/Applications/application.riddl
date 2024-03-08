@@ -18,6 +18,7 @@ application UserInterface is {
     contacts: ContactList,
     meta: OrganizationContext.MetaInfo
   }
+  command CreateOrganization { ??? } // FIXME: needs to be completed
 
   group Organization is {
     input EstablishOrganization acquires command UserInterface.EstablishOrganization
