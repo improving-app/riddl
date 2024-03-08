@@ -186,39 +186,13 @@ context StoreContext is {
         }
         on command OpenStore {
           set field CreatedStoreState.meta to "StoreContext.MetaInfo"
-//          (
-//            createdOn = @CreatedStoreState.meta.createdOn,
-//            createdBy = @CreatedStoreState.meta.createdBy,
-//            lastUpdated = now(),
-//            lastUpdatedBy = @OpenStore.openingMember,
-//            currentState = @StoreStates.Open
-//          )
           send event StoreOpened to outlet StoreEvents.Events
-          //          (
-          //            storeId = @CreatedStoreState.id,
-          //            info = @CreatedStoreState.info,
-          //            meta = @CreatedStoreState.meta
-          //          )
-
           become entity Store to handler OpenStoreHandler
         }
         on command CloseStore {
           "ensure all orders associated with store are Delivered or Cancelled before closing store"
           set field CreatedStoreState.meta to "StoreContext.MetaInfo"
-//          (
-//            createdOn = @CreatedStoreState.meta,
-//            createdBy = @CreatedStoreState.meta,
-//            lastUpdated = now(),
-//            lastUpdatedBy = @CloseStore.closingMember,
-//            currentState = @StoreStates.Closed
-//          )
           send event StoreClosed to outlet StoreEvents.Events
-//          (
-//            storeId = @CreatedStoreState.id,
-//            info = @CreatedStoreState.info,
-//            meta = @CreatedStoreState.meta
-//          )
-
           become entity Store to handler ClosedStoreHandler
         }
         on command AddProductsToStore {
@@ -235,13 +209,6 @@ context StoreContext is {
         }
         on command TerminateStore {
           set field CreatedStoreState.meta to "StoreContext.MetaInfo"
-//          (
-//            createdOn = @CreatedStoreState.meta.createdOn,
-//            createdBy = @CreatedStoreState.meta.createdBy,
-//            lastUpdatedOn = now(),
-//            lastUpdatedBy = @TerminateStore.terminatingMember,
-//            currentState = @CreatedStoreState.meta
-//          )
           morph entity Store to state TerminatedStore with record TerminatedStoreState
             // (lastMeta = @CreatedStoreState.meta)
         }
@@ -268,20 +235,7 @@ context StoreContext is {
           on command CloseStore {
             "ensure all orders associated with store are Delivered or Cancelled before closing store"
             set field CreatedStoreState.meta to "StoreContext.MetaInfo"
-//            (
-//              createdOn = @CreatedStoreState.meta.createdOn,
-//              createdBy = @CreatedStoreState.meta.createdBy,
-//              lastUpdated = now(),
-//              lastUpdatedBy = @CloseStore.closingMember,
-//              currentState = @StoreStates.Closed
-//            )
             send event StoreClosed to outlet StoreEvents.Events
-//            (
-//              storeId = @CreatedStoreState.id,
-//              info = @CreatedStoreState.info,
-//              meta = @CreatedStoreState.meta
-//            )
-
             become entity Store to handler ClosedStoreHandler
           }
           on command AddProductsToStore {
@@ -298,13 +252,6 @@ context StoreContext is {
           }
           on command TerminateStore {
             set field CreatedStoreState.meta to "StoreContext.MetaInfo"
-//            (
-//              createdOn = @CreatedStoreState.meta.createdOn,
-//              createdBy = @CreatedStoreState.meta.createdBy,
-//              lastUpdatedOn = now(),
-//              lastUpdatedBy = @TerminateStore.terminatingMember,
-//              currentState = @CreatedStoreState.meta
-//            )
             morph entity Store to state TerminatedStore with record TerminatedStoreState
               // (lastMeta = @CreatedStoreState.meta)
           }
@@ -324,46 +271,12 @@ context StoreContext is {
           }
           on command DeleteStore {
             set field CreatedStoreState.meta to "StoreContext.MetaInfo"
-//            (
-//              createdOn = @CreatedStoreState.meta.createdOn,
-//              createdBy = @CreatedStoreState.meta.createdBy,
-//              lastUpdated = now(),
-//              lastUpdatedBy = @DeleteStore.deletingMember,
-//              currentState = @StoreStates.Deleted
-//            )
             send event StoreDeleted to outlet StoreEvents.Events
-//            (
-//              storeId = @CreatedStoreState.id,
-//              info = @CreatedStoreState.info,
-//              meta = @CreatedStoreState.meta
-//            )
-
             morph entity Store to state DeletedStore with record DeletedStoreState
-//            (
-//              storeName = @CreatedStoreState.info.storeName,
-//              event = @CreatedStoreState.info.event,
-//              venue = @CreatedStoreState.info.venue,
-//              location = @CreatedStoreState.info.location,
-//              sponsoringOrg = @CreatedStoreState.info.sponsoringOrg,
-//              meta = @CreatedStoreState.meta
-//            )
           }
           on command OpenStore {
             set field CreatedStoreState.meta to "StoreContext.MetaInfo"
-//            (
-//              createdOn = @CreatedStoreState.meta.createdOn,
-//              createdBy = @CreatedStoreState.meta.createdBy,
-//              lastUpdated = now(),
-//              lastUpdatedBy = @OpenStore.openingMember,
-//              currentState = @StoreStates.Open
-//            )
             send event StoreOpened to outlet StoreEvents.Events
-//            (
-//              storeId = @CreatedStoreState.id,
-//              info = @CreatedStoreState.info,
-//              meta = @CreatedStoreState.meta
-//            )
-
             become entity Store to handler OpenStoreHandler
           }
           on command CloseStore {
@@ -383,13 +296,6 @@ context StoreContext is {
           }
           on command TerminateStore {
             set field CreatedStoreState.meta to "StoreContext.MetaInfo"
-//            (
-//              createdOn = @CreatedStoreState.meta.createdOn,
-//              createdBy = @CreatedStoreState.meta.createdBy,
-//              lastUpdatedOn = now(),
-//              lastUpdatedBy = @TerminateStore.terminatingMember,
-//              currentState = @CreatedStoreState.meta
-//            )
             morph entity Store to state TerminatedStore with record TerminatedStoreState
               // (lastMeta = @CreatedStoreState.meta)
         }
@@ -408,13 +314,6 @@ context StoreContext is {
       handler DeletedStoreHandler is {
         on command TerminateStore {
           set field DeletedStoreState.meta to "StoreContext.MetaInfo"
-//          (
-//            createdOn = @DeletedStoreState.meta.createdOn,
-//            createdBy = @DeletedStoreState.meta.createdBy,
-//            lastUpdatedOn = now(),
-//            lastUpdatedBy = @TerminateStore.terminatingMember,
-//            currentState = @DeletedStoreState.meta
-//          )
           morph entity Store to state TerminatedStore with record TerminatedStoreState
             // (lastMeta = @DeletedStoreState.meta)
         }

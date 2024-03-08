@@ -8,7 +8,7 @@ context TenantContext is {
     include "tenantSources"
 
     entity Tenant is {
-        option event-sourced 
+        option event-sourced
         option available
 
         handler TenantHandler is {

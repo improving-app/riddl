@@ -1,5 +1,3 @@
-include "../Venues/Locations/location"
-
 query GetLocationForEvent is { event: EventId }
 result LocationForEvent is { event: EventId, location: Venues.LocationId }
 result EventNotFound is { ??? }
