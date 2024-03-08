@@ -14,7 +14,7 @@ query GetAllMemberIds is { ??? }
 result AllMemberIds is {members: MemberId*}
 
 query GetAllStoreIds is { ??? }
-result AllStoreIds is {stores: StoreId*}
+result AllStoreIds is {stores: StoreContext.StoreId*}
 
 query GetAllSkus is { ??? }
 result AllSkus is {skus: SKU*}

@@ -22,19 +22,19 @@ context LocationContext is {
 		    }
 
         record DraftState is {
-            locationInfo: Info,
-            locationMeta: MetaInfo
+            locationInfo:  ImprovingApp.Venues.LocationContext.Info,
+            locationMeta:  ImprovingApp.Venues.LocationContext.MetaInfo
         }
 		    state Draft of Location.DraftState is {
 		        handler DraftLocation is {
-		            on command EstablishLocation {
+		            on command ImprovingApp.Venues.LocationContext.EstablishLocation {
 		              error "Location already established"
 		            }
-		            on command EditLocationInfo {
+		            on command ImprovingApp.Venues.LocationContext.EditLocationInfo {
 		              "set Draft info fields to EditLocationInfo.info"
 		              "yield event LocationInfoUpdated"
 		            }
-		            on command UpdateLocationStatus {
+		            on command ImprovingApp.Venues.LocationContext.UpdateLocationStatus {
 		              "morph Location to the state provided in UpdateVenueStatus"
                   "set MetaInfo to capture change data"
                   "yield event VenueInfoUpdated"
@@ -50,19 +50,19 @@ context LocationContext is {
 		    }
 
         record OpenState is {
-            locationInfo: Info,
-            locationMeta: MetaInfo
+            locationInfo: ImprovingApp.Venues.LocationContext.Info,
+            locationMeta: ImprovingApp.Venues.LocationContext.MetaInfo
         }
 		    state Open of Location.OpenState is {
 		        handler OpenLocation is {
-		            on command EstablishLocation {
+		            on command ImprovingApp.Venues.LocationContext.EstablishLocation {
 		              error "Location already established"
 		            }
-		            on command EditLocationInfo {
+		            on command ImprovingApp.Venues.LocationContext.EditLocationInfo {
 		              "set OnHold info fields to EditLocationInfo.info"
 		              "yield event LocationInfoUpdated"
 		            }
-		            on command UpdateLocationStatus {
+		            on command ImprovingApp.Venues.LocationContext.UpdateLocationStatus {
                   "morph Location to the state provided in UpdateLocationStatus"
                   "set MetaInfo to capture change data"
                   "yield event LocationStatusUpdated"
@@ -71,19 +71,19 @@ context LocationContext is {
 		    }
 
         record ClosedState is {
-            locationInfo: Info,
-            locationMeta: MetaInfo
+            locationInfo: ImprovingApp.Venues.LocationContext.Info,
+            locationMeta: ImprovingApp.Venues.LocationContext.MetaInfo
         }
 		    state Closed of Location.ClosedState is {
 		        handler ClosedLocation is {
-		            on command EstablishLocation {
+		            on command ImprovingApp.Venues.LocationContext.EstablishLocation {
 		              error "Location already established"
 		            }
-		            on command EditLocationInfo {
+		            on command ImprovingApp.Venues.LocationContext.EditLocationInfo {
 		              "set OnHold info fields to EditLocationInfo.info"
 		              "yield event LocationInfoUpdated"
 		            }
-		            on command UpdateLocationStatus {
+		            on command ImprovingApp.Venues.LocationContext.UpdateLocationStatus {
                   "morph Location to the state provided in UpdateLocationStatus"
                   "set MetaInfo to capture change data"
                   "yield event LocationStatusUpdated"

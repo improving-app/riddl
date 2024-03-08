@@ -45,29 +45,29 @@ context StoreContext is {
     sponsoringOrg: OrganizationId?
   }
 
-  command CreateStore is {storeId: StoreId, info: StoreContext.EditableInfo, creatingMember: MemberId}
-  event StoreCreated is {storeId: StoreId, info: StoreContext.EditableInfo, meta: StoreContext.MetaInfo}
-  command EditStoreInfo is {storeId: StoreId, info: StoreContext.EditableInfo, updatingMember: MemberId}
-  event StoreInfoEdited {storeId: StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
-  command MakeStoreReady is {storeId: StoreId, updatingMember: MemberId}
-  event StoreIsReady is {storeId: StoreId, meta: StoreContext.MetaInfo}
-  command DeleteStore is {storeId: StoreId, deletingMember: MemberId}
-  event StoreDeleted is {storeId: StoreId, meta: StoreContext.MetaInfo}
-  command OpenStore is {storeId: StoreId, openingMember: MemberId}
-  event StoreOpened is {storeId: StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
-  command CloseStore is {storeId: StoreId, closingMember: MemberId}
-  event StoreClosed is {storeId: StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
-  command TerminateStore is {storeId: StoreId, terminatingMember: MemberId}
-  event StoreTerminated is {storeId: StoreId, lastMeta: StoreContext.MetaInfo}
-  command AddProductsToStore is {storeId: StoreId, products: SKU+, addingMember: MemberId}
-  event ProductsAddedToStore is {storeId: StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
-  command RemoveProductsFromStore is {storeId: StoreId, product: SKU+, removingMember: MemberId}
-  event ProductsRemovedFromStore is {storeId: StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
+  command CreateStore is {storeId: StoreContext.StoreId, info: StoreContext.EditableInfo, creatingMember: MemberId}
+  event StoreCreated is {storeId: StoreContext.StoreId, info: StoreContext.EditableInfo, meta: StoreContext.MetaInfo}
+  command EditStoreInfo is {storeId: StoreContext.StoreId, info: StoreContext.EditableInfo, updatingMember: MemberId}
+  event StoreInfoEdited {storeId: StoreContext.StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
+  command MakeStoreReady is {storeId: StoreContext.StoreId, updatingMember: MemberId}
+  event StoreIsReady is {storeId: StoreContext.StoreId, meta: StoreContext.MetaInfo}
+  command DeleteStore is {storeId: StoreContext.StoreId, deletingMember: MemberId}
+  event StoreDeleted is {storeId: StoreContext.StoreId, meta: StoreContext.MetaInfo}
+  command OpenStore is {storeId: StoreContext.StoreId, openingMember: MemberId}
+  event StoreOpened is {storeId: StoreContext.StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
+  command CloseStore is {storeId: StoreContext.StoreId, closingMember: MemberId}
+  event StoreClosed is {storeId: StoreContext.StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
+  command TerminateStore is {storeId: StoreContext.StoreId, terminatingMember: MemberId}
+  event StoreTerminated is {storeId: StoreContext.StoreId, lastMeta: StoreContext.MetaInfo}
+  command AddProductsToStore is {storeId: StoreContext.StoreId, products: SKU+, addingMember: MemberId}
+  event ProductsAddedToStore is {storeId: StoreContext.StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
+  command RemoveProductsFromStore is {storeId: StoreContext.StoreId, product: SKU+, removingMember: MemberId}
+  event ProductsRemovedFromStore is {storeId: StoreContext.StoreId, info: StoreContext.Info, meta: StoreContext.MetaInfo}
   //command IncrementProductInventory is {???} //TODO: Should we pull in the Nike Inventory demo that Sean built?
   //command DecrementProductInventory is {???}
   query GetStoreInfo is {???}
   result StoreInfoResult is {???}
-  query GetProductsInStore is {store: StoreId}
+  query GetProductsInStore is {store: StoreContext.StoreId}
   result ProductsInStore is {products: SKU*}
 
   entity Store is {
@@ -78,7 +78,7 @@ context StoreContext is {
       on command CreateStore {
         send event StoreCreated
           to outlet StoreEvents.Events
-        morph entity Store to state DraftStore with record DraftStoreState
+        morph entity StoreContext.Store to state StoreContext.Store.DraftStore with record DraftStoreState
       }
       on other {
         error "Only the CreateStore command is allowed in the default state"
@@ -86,7 +86,7 @@ context StoreContext is {
     }
 
     record DraftStoreState is {
-      id: StoreId,
+      id: StoreContext.StoreId,
       info: StoreContext.EditableInfo,
       meta: StoreContext.MetaInfo
     }
@@ -104,43 +104,11 @@ context StoreContext is {
           "remove all attributes not defined in the Deleted state"
           "adjust meta fields to reflect change"
           "yield the StoreDeleted event"
-          morph entity Store to state DeletedStore with record DeletedStoreState
-//          (
-//            storeName = @DraftStoreState.info.storeName,
-//            event = @DraftStoreState.optionalInfo,
-//            venue = @DraftStoreState.requiredInfo,
-//            location = @DraftStoreState.requiredInfo,
-//            sponsoringOrg = @DraftStoreState.requiredInfo,
-//            meta = !StoreContext.MetaInfo(
-//              createdOn = @DraftStoreState.meta.createdOn,
-//              createdBy = @DraftStoreState.meta.createdBy,
-//              lastUpdatedOn = now(),
-//              lastUpdatedBy = @DeleteStore.deletingMember,
-//              currentState = @StoreStates.Deleted
-//            )
-//          )
+          morph entity StoreContext.Store to state DeletedStore with record DeletedStoreState
         }
         on command MakeStoreReady {
           "yield the StoreIsReady event"
-          morph entity Store to state CreatedStore with record CreatedStoreState
-//          (
-//            info = !StoreContext.Info(
-//              name = @DraftStoreState.requiredInfo,
-//              description = @DraftStoreState.optionalInfo,
-//              products = @DraftStoreState.requiredInfo,
-//              event = @DraftStoreState.requiredInfo,
-//              venue = @DraftStoreState.requiredInfo,
-//              location = @DraftStoreState.requiredInfo,
-//              sponsoringOrg = @DraftStoreState.requiredInfo
-//            ),
-//            meta = !StoreContext.MetaInfo(
-//              createdOn = @DraftStoreState.meta.createdOn,
-//              createdBy = @DraftStoreState.meta.createdBy,
-//              lastUpdatedOn = now(),
-//              lastUpdatedBy = @MakeStoreReady.updatingMember,
-//              currentState = @StoreStates.Ready
-//            )
-//          )
+          morph entity StoreContext.Store to state CreatedStore with record CreatedStoreState
         }
         on command OpenStore {
           error "store must be moved to the Ready state. All required attributes must be provided."
@@ -164,7 +132,7 @@ context StoreContext is {
     }
 
     record CreatedStoreState is {
-      id: StoreId,
+      id: StoreContext.StoreId,
       info: StoreContext.Info,
       meta: StoreContext.MetaInfo
     }
@@ -187,13 +155,13 @@ context StoreContext is {
         on command OpenStore {
           set field CreatedStoreState.meta to "StoreContext.MetaInfo"
           send event StoreOpened to outlet StoreEvents.Events
-          become entity Store to handler OpenStoreHandler
+          become entity StoreContext.Store to handler StoreContext.Store.CreatedStore.OpenStoreHandler
         }
         on command CloseStore {
           "ensure all orders associated with store are Delivered or Cancelled before closing store"
           set field CreatedStoreState.meta to "StoreContext.MetaInfo"
           send event StoreClosed to outlet StoreEvents.Events
-          become entity Store to handler ClosedStoreHandler
+          become entity StoreContext.Store to handler StoreContext.Store.CreatedStore.ClosedStoreHandler
         }
         on command AddProductsToStore {
           "add provided products to store definition"
@@ -209,7 +177,7 @@ context StoreContext is {
         }
         on command TerminateStore {
           set field CreatedStoreState.meta to "StoreContext.MetaInfo"
-          morph entity Store to state TerminatedStore with record TerminatedStoreState
+          morph entity StoreContext.Store to state TerminatedStore with record TerminatedStoreState
             // (lastMeta = @CreatedStoreState.meta)
         }
       }
@@ -236,7 +204,7 @@ context StoreContext is {
             "ensure all orders associated with store are Delivered or Cancelled before closing store"
             set field CreatedStoreState.meta to "StoreContext.MetaInfo"
             send event StoreClosed to outlet StoreEvents.Events
-            become entity Store to handler ClosedStoreHandler
+            become entity StoreContext.Store to handler StoreContext.ClosedStoreHandler
           }
           on command AddProductsToStore {
             "add provided products to store definition"
@@ -252,7 +220,7 @@ context StoreContext is {
           }
           on command TerminateStore {
             set field CreatedStoreState.meta to "StoreContext.MetaInfo"
-            morph entity Store to state TerminatedStore with record TerminatedStoreState
+            morph entity StoreContext.Store to state TerminatedStore with record TerminatedStoreState
               // (lastMeta = @CreatedStoreState.meta)
           }
         }
@@ -272,12 +240,12 @@ context StoreContext is {
           on command DeleteStore {
             set field CreatedStoreState.meta to "StoreContext.MetaInfo"
             send event StoreDeleted to outlet StoreEvents.Events
-            morph entity Store to state DeletedStore with record DeletedStoreState
+            morph entity StoreContext.Store to state DeletedStore with record DeletedStoreState
           }
           on command OpenStore {
             set field CreatedStoreState.meta to "StoreContext.MetaInfo"
             send event StoreOpened to outlet StoreEvents.Events
-            become entity Store to handler OpenStoreHandler
+            become entity StoreContext.Store to handler StoreContext.Store.CreatedStoreState.OpenStoreHandler
           }
           on command CloseStore {
             error "Store is already closed."
@@ -296,7 +264,7 @@ context StoreContext is {
           }
           on command TerminateStore {
             set field CreatedStoreState.meta to "StoreContext.MetaInfo"
-            morph entity Store to state TerminatedStore with record TerminatedStoreState
+            morph entity StoreContext.Store to state TerminatedStore with record TerminatedStoreState
               // (lastMeta = @CreatedStoreState.meta)
         }
       }
@@ -314,7 +282,7 @@ context StoreContext is {
       handler DeletedStoreHandler is {
         on command TerminateStore {
           set field DeletedStoreState.meta to "StoreContext.MetaInfo"
-          morph entity Store to state TerminatedStore with record TerminatedStoreState
+          morph entity StoreContext.Store to state TerminatedStore with record TerminatedStoreState
             // (lastMeta = @DeletedStoreState.meta)
         }
         on other {

@@ -13,7 +13,7 @@ context ProductContext is {
 
   type ProductDetails is any of {TicketDetails}
   type ProductStatus is any of {Draft, Active, InActive, Deleted} briefly "Note: Delete is not the same as in Org, Tenant, etc because there is no PII. Here it is more like Terminate"
-  type SKU is Id(Product)
+  type SKU is Id(ProductContext.Product)
   type TicketDetails is one of {ReservedTicket, RestrictedTicket, OpenTicket}
 
   type ReservedTicket is {
@@ -36,7 +36,7 @@ context ProductContext is {
     image: String*,
     price: Number briefly "Required for non-Draft state",
     cost: Number briefly "Required for non-Draft state",
-    store: StoreId briefly "Required for non-Draft state"
+    store: StoreContext.StoreId briefly "Required for non-Draft state"
   }
   type ProductInfoUpdate is {
     name: String?,
@@ -45,7 +45,7 @@ context ProductContext is {
     image: String*,
     price: Number?,
     cost: Number?,
-    store: StoreId?
+    store: StoreContext.StoreId?
   }
   type ProductMetaInfo is {
     createdBy: MemberId,
