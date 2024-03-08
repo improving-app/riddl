@@ -155,13 +155,13 @@ context StoreContext is {
         on command OpenStore {
           set field CreatedStoreState.meta to "StoreContext.MetaInfo"
           send event StoreOpened to outlet StoreEvents.Events
-          become entity StoreContext.Store to handler StoreContext.Store.CreatedStore.OpenStoreHandler
+          become entity StoreContext.Store to handler StoreContext.Store.CreatedStoreState.OpenStoreHandler
         }
         on command CloseStore {
           "ensure all orders associated with store are Delivered or Cancelled before closing store"
           set field CreatedStoreState.meta to "StoreContext.MetaInfo"
           send event StoreClosed to outlet StoreEvents.Events
-          become entity StoreContext.Store to handler StoreContext.Store.CreatedStore.ClosedStoreHandler
+          become entity StoreContext.Store to handler StoreContext.Store.CreatedStoreState.ClosedStoreHandler
         }
         on command AddProductsToStore {
           "add provided products to store definition"

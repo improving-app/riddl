@@ -45,7 +45,7 @@ context AllIdsProjections is  {
         //orgStatus: OrganizationContext.Status
     }
     handler AllOrgIdsViewHandler is {
-        on event OrganizationEstablished {
+        on event ImprovingApp.OrganizationContext.OrganizationEstablished {
           "create row with org set to OrganizationEstablished.orgId"// and orgStatus set to Draft"
         }
         //on event OrganizationStatusUpdated {
@@ -90,7 +90,7 @@ context AllIdsProjections is  {
   projector AllMemberIdsView is {
      record AllMemberIdsFields {
         member: MemberId,
-        memberStatus: MemberContext.Status
+        memberStatus: MemberContext.MemberStates
     }
     handler AllMemberIdsViewHandler is {
         on event MemberContext.MemberRegistered {

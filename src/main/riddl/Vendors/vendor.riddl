@@ -1,7 +1,7 @@
 context Vendor is {
-    type StoreId is Id( Store )
-    type CatalogId is Id( Catalog )
-    type CategoryId is Id( Category )
+    type StoreId is Id( Vendor.Store )
+    type CatalogId is Id( Vendor.Catalog )
+    type CategoryId is Id( Vendor.Category )
     type ProductId is Id( Vendor.Product )
     type VendorId is Id( Vendor.Vendor )
 
@@ -37,7 +37,7 @@ context Vendor is {
             vendorId: VendorId,
             vendorInfo: VendorInfo
         }
-        state Draft of DraftState is {
+        state Draft of Vendor.DraftState is {
             handler DraftVendor is {???}
         }
 
@@ -45,21 +45,21 @@ context Vendor is {
             vendorId: VendorId,
             vendorInfo: VendorInfo
         }
-        state Active of ActiveState is {
+        state Active of Vendor.ActiveState is {
             handler ActiveVendorHandler is {???}
         }
         record InactiveState is {
             vendorId: VendorId,
             vendorInfo: VendorInfo
         }
-        state Inactive of InactiveState is {
+        state Inactive of Vendor.InactiveState is {
             handler InactiveVendor is {???}
         }
         record SuspendedState is {
             vendorId: VendorId,
             vendorInfo: VendorInfo
         }
-        state Suspended of SuspendedState is {
+        state Suspended of Vendor.SuspendedState is {
             handler SuspendedVendorHandler is {???}
         }
         record TerminatedState is {
@@ -83,7 +83,7 @@ context Vendor is {
             storeId: StoreContext.StoreId,
             storeInfo: StoreInfo
         }
-        state Open of OpenState is {
+        state Open of Vendor.Store.OpenState is {
             handler OpenStoreHandler is {???}
         }
 
@@ -91,7 +91,7 @@ context Vendor is {
             storeId: StoreContext.StoreId,
             storeInfo: StoreInfo
         }
-        state Closed of ClosedState is {
+        state Closed of Vendor.Store.ClosedState is {
             handler ClosedStoreHandler is {???}
         }
     }
@@ -120,21 +120,21 @@ context Vendor is {
 
         record ActiveState is {
             sku: String,
-            productInfo: ProductInfo
+            productInfo: Vendor.ProductInfo
             //kits i.e. combo meal - future scope
             //condiments - catsup, mustard, jalapenos, etc. - future scope
         }
-        state Active of ActiveState is {
+        state Active of Vendor.Product.ActiveState is {
             handler ActiveProductHandler is {???}
         }
 
         record InactiveState is {
             sku: String,
-            productInfo: ProductInfo
+            productInfo: ImprovingApp.Vendor.ProductInfo
             //kits i.e. combo meal
             //condiments - catsup, mustard, jalapenos, etc.
         }
-        state Inactive of InactiveState is {
+        state Inactive of ImprovingApp.Vendor.Product.InactiveState is {
             handler InactiveProductHandler is {???}
         }
     }
