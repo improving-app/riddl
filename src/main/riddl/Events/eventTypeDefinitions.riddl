@@ -72,7 +72,7 @@ type EditableEventInfo is {
     expectedStart: DateTime?,
     expectedEnd: DateTime?,
     isPrivate: Boolean?,
-    eventStatusInfo: EventStatusInfo? briefly "there is no need for DraftStatusInfo, so this will always be None in Draft state"
+    eventStatusInfo: EventStateInfo? briefly "there is no need for DraftStatusInfo, so this will always be None in Draft state"
     //eventDetails: EventSpecificDetails
     //eventTags: String+,// List of relevant, searchable tags that identify/describe this event
 }

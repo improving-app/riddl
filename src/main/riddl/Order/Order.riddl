@@ -24,7 +24,7 @@ context OrderContext is {
   type OrderMetaInfo is {
     order_id: OrderId,
     memberId: MemberId,
-    storeId: StoreId,
+    storeId: ImprovingApp.StoreContext.StoreId,
     createdOn: Date,
     lastModifiedBy: MemberId,
     lastModifiedOn: Date
@@ -33,7 +33,7 @@ context OrderContext is {
     lineItems: LineItem*,
     specialInstructions: String?
   }
-  command CreateOrder {orderId: OrderId, storeId: StoreId, info: OrderInfo, creatingMember: MemberId}
+  command CreateOrder {orderId: OrderId, storeId: ImprovingApp.StoreContext.StoreId, info: OrderInfo, creatingMember: MemberId}
   event OrderCreated {orderId: OrderId, info: OrderInfo, meta: OrderMetaInfo}
   command SetToPendingOrder {orderId: OrderId, updatingMember: MemberId}
   event PendingOrderSet {orderId: OrderId, info: OrderInfo, meta: OrderMetaInfo}

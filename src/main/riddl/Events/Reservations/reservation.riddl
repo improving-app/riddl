@@ -18,7 +18,8 @@ context ReservationContext is {
 
 		    handler ReservationHandler is {
 		        on command EstablishReservation {
-              morph entity Reservation to state Draft with record DraftState
+              morph entity Reservation to state ImprovingApp.Events.ReservationContext.Reservation.Draft with
+                record ImprovingApp.Events.ReservationContext.Reservation.DraftState
               "Copy fields from the command into Draft fields"
               "adjust meta fields to reflect the change set"
               send event ReservationEstablished to outlet ReservationContext.Events
@@ -35,14 +36,14 @@ context ReservationContext is {
         }
 		    state Draft of Reservation.DraftState is {
 		        handler DraftReservation is {
-		            on command EstablishReservation {
+		            on command ImprovingApp.Events.ReservationContext.EstablishReservation {
 		              error "Reservation already established"
 		            }
-		            on command EditReservationInfo {
-		              set field Draft.info to "EditReservationInfo.info"
+		            on command ImprovingApp.Events.ReservationContext.EditReservationInfo {
+		              set field ImprovingApp.Events.ReservationContext.Reservation.Draft.reservationInfo to "EditReservationInfo.info"
 		              send event ReservationInfoUpdated to outlet ReservationContext.Events
 		            }
-		            on command UpdateReservationStatus {
+		            on command ImprovingApp.Events.ReservationContext.UpdateReservationStatus {
                   "morph entity Reservation to state provided in UpdateReservationStatus"
                   "set MetaInfo to capture change data"
                   "yield event ReservationStatusUpdated"
@@ -56,14 +57,14 @@ context ReservationContext is {
         }
 		    state OnHold of Reservation.OnHoldState is {
 		        handler OnHoldReservation is {
-		            on command EstablishReservation {
+		            on command ImprovingApp.Events.ReservationContext.EstablishReservation {
 		              error "Reservation already established"
 		            }
-		            on command EditReservationInfo {
+		            on command ImprovingApp.Events.ReservationContext.EditReservationInfo {
 		              "set OnHold info fields to EditReservationInfo.info"
 		              "yield event ReservationInfoUpdated"
 		            }
-		            on command UpdateReservationStatus {
+		            on command ImprovingApp.Events.ReservationContext.UpdateReservationStatus {
                   "morph Reservation to the state provided in UpdateReservationStatus"
                   "set MetaInfo to capture change data"
                   "yield event ReservationStatusUpdated"
@@ -77,13 +78,13 @@ context ReservationContext is {
         }
 		    state Reserved of Reservation.ReservedState is {
 		        handler ReservedReservation is {
-		            on command EstablishReservation {
+		            on command ImprovingApp.Events.ReservationContext.EstablishReservation {
 		              error "Reservation already established"
 		            }
-		            on command EditReservationInfo {
+		            on command ImprovingApp.Events.ReservationContext.EditReservationInfo {
 		              error "Reservation is in Reserved state, editing info not allows"
 		            }
-		            on command UpdateReservationStatus {
+		            on command ImprovingApp.Events.ReservationContext.UpdateReservationStatus {
                   "morph Reservation to the state provided in UpdateReservationStatus"
                   "set MetaInfo to capture change data"
                   "yield event ReservationStatusUpdated"			            }
