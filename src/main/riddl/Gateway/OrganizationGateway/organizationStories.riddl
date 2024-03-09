@@ -1,6 +1,6 @@
-//Organization Gateway Stories
-
 epic OrganizationGatewayStories is { ??? }
+
+//Organization Gateway Stories
 
 // TODO: turn these stories into cases in the above epic
 // As an Owner of a Tenant I would like to create Organizations to track their Membership, Events, and Orders.

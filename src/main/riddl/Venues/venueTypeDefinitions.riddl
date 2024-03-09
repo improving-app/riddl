@@ -15,12 +15,12 @@ type UpdateInfo is {
 }
 
 //type VenueReservationsSchedule is {
-//	locationId: LocationId,
+//	locationId: Venues.LocationId,
 //	reservations: ReservationId+
 //}
 //
 //type VenueAvailabilitySchedule is {
-//	locationId: LocationId,
+//	locationId: Venues.LocationId,
 //	schedule: TimeRange+
 //}
 

@@ -1,6 +1,6 @@
 user Owner is "the person that owns the organization"
 
-story EstablishOrganization is {
+epic EstablishOrganization is {
   term Organization briefly "An organizational unit, incorporated or not. "
   case primary is {
     step from user Owner "creates an Organization" to

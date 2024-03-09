@@ -1,7 +1,9 @@
 context Calendars is {
-    //Thinking of "outsourcing" this feature to google calendar. As such, this domain is an integration
-    //to the 3rd party app. It would be a good chance to teach the focuser pattern. There might also be
-    //some light customization (TBD).
-    //The google calendar API can be found here: https://developers.google.com/calendar/api
-    ???
+  ???
 }
+
+//Thinking of "outsourcing" this feature to google calendar. As such, this domain is an integration
+//to the 3rd party app. It would be a good chance to teach the focuser pattern. There might also be
+//some light customization (TBD).
+//The google calendar API can be found here: https://developers.google.com/calendar/api
+

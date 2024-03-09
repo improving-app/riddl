@@ -1,51 +1,35 @@
-//Reservation Gateway Stories
-story CreateReservation {
-	As user Member wants to "Create a Reservation" so that "I can manage my Reservations & book them in ImprovingApp"
-  author Alex is {
-    name: "Alex Weinstein"
-    email: "alex.weinstin@improving.com"
-  }
+epic CreateReservation {
+	user ImprovingApp.GatewayAPI.Member wants to "Create a Reservation" so that "I can manage my Reservations & book them in ImprovingApp"
+  by author Alex
+
+  //"Create a new Reservation without booking it"
   case HappyPath is {
-    title: "Create a new Reservation without booking it"
-    scope domain {ImprovingApp}
-    interaction is {
-      step from user Member "provides a ReservationId" to user App
-        briefly "initial invocation",
-      step from user App send command Reservation.CreateReservation to user GatewayAPI
-    //    briefly "send creation message",
-    //  step from user GatewayAPI "Create Reservation" to entity ImprovingApp.ReservationContext.Reservations
-    //    briefly "create reservation",
-    //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationCreated" to pipe ImprovingApp.ReservationContext.ReservationEvents
-    //    briefly "reservation created"
-    //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationCreated" to user App
-    }
-    example Success is {
-    //  when Member provides CreateReservation command w/ necessary info to App
-    //  then App sends CreateReservation message to GatewayAPI
-    //  and GatewayAPI forwards message to ReservationContext
-    //  and Reservation is booked
-    //  and ReservationCreated message is returned from ReservationContext to GatewayAPI
-    //  and GatewayAPI forwards message to App
-    //  and App displays success notification to Member
-    }
+    step from user ImprovingApp.GatewayAPI.Member "provides a ReservationId" to user App
+      briefly "initial invocation"
+    step send command EstablishReservation from application App to context GatewayAPI
+      briefly "send creation message"
+    step from user GatewayAPI "Create Reservation" to entity ImprovingApp.Events.ReservationContext.Reservation
+      briefly "create reservation"
+    step send event ImprovingApp.Events.ReservationContext.ReservationEstablished
+      from entity ImprovingApp.Events.ReservationContext.Reservation to source ImprovingApp.Events.ReservationContext.PublicReservationEvent
+      briefly "reservation created"
+    step send event ImprovingApp.Events.ReservationContext.ReservationEstablished
+      from source ImprovingApp.Events.ReservationContext.PublicReservationEvent to application App
   }
 } briefly "A story about creating a reservation in Improving.app"
   described as "This is the story of how a reservation comes into existence"
+//Reservation Gateway Stories
 
-story BookReservation is {
-  As user Member wants to "Book a Reservation" so that "I can book my Reservations in ImprovingApp"
-  author Alex is {
-    name: "Alex Weinstein"
-    email: "alex.weinstin@improving.com"
-  }
+epic BookReservation is {
+  user Member wants to "Book a Reservation" so that "I can book my Reservations in ImprovingApp"
+  by author Alex
+  //"Book a new Reservation by picking from a list, given time parameters"
   case TimePickHappyPath is {
-    title: "Book a new Reservation by picking from a list, given time parameters"
-    scope domain {ImprovingApp}
-    interaction is {
-      step from user Member "provide time range" to user App
-        briefly "initial invocation",
-      step from user App send command Reservation.FindLocationsAvailability to user GatewayAPI
-        briefly "send availability query",
+    //interaction is {
+    //  step from user Member "provide time range" to user App
+    //    briefly "initial invocation",
+    //  step from user App send command Reservation.FindLocationsAvailability to user GatewayAPI
+    //    briefly "send availability query",
     //  step from user GatewayAPI "Find Availability for Locations" to entity ImprovingApp.LocationContext.Locations
     //    briefly "find available locations given parameters",
     //  step from entity ImprovingApp.LocationContext.Locations "LocationsAvailabilityResults" to pipe ImprovingApp.LocationContext.LocationEvents
@@ -60,8 +44,8 @@ story BookReservation is {
     //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationBooked" to pipe ImprovingApp.ReservationContext.ReservationEvents
     //    briefly "reservation booked"
     //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationBooked" to user App
-    }
-    example Success is {
+    //}
+    //example Success is {
     //  when Member queries for FindLocationsAvailability while providing a time range to App
     //  then App sends FindLocationsAvailability message to GatewayAPI
     //  and GatewayAPI forwards message to LocationContext
@@ -77,14 +61,13 @@ story BookReservation is {
     //  and App displays success notification to Member
     }
   }
+  //"Book a new Reservation by picking from a list, given maxCapacity parameter"
   case MaxCapacityPickHappyPath is {
-    title: "Book a new Reservation by picking from a list, given maxCapacity parameter"
-    scope domain {ImprovingApp}
-    interaction is {
-      step from user Member "provide maxCapacity" to user App
-        briefly "initial invocation",
-      step from user App send command Reservation.FindLocationsAvailability to user GatewayAPI
-        briefly "send availability query",
+    //interaction is {
+    //  step from user Member "provide maxCapacity" to user App
+    //    briefly "initial invocation",
+    //  step from user App send command Reservation.FindLocationsAvailability to user GatewayAPI
+    //    briefly "send availability query",
     //  step from user GatewayAPI "Find Availability for Locations" to entity ImprovingApp.LocationContext.Locations
     //    briefly "find available reservations given parameters",
     //  step from entity ImprovingApp.LocationContext.Locations "LocationsAvailabilityResults" to pipe ImprovingApp.LocationContext.LocationEvents
@@ -99,8 +82,8 @@ story BookReservation is {
     //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationBooked" to pipe ImprovingApp.ReservationContext.ReservationEvents
     //    briefly "reservation booked"
     //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationBooked" to user App
-    }
-    example Success is {
+    //}
+    //example Success is {
     //  when Member queries for FindLocationsAvailability while providing a maxCapacity to App
     //  then App sends FindLocationsAvailability message to GatewayAPI
     //  and GatewayAPI forwards message to LocationContext
@@ -114,23 +97,22 @@ story BookReservation is {
     //  and ReservationBooked message is returned from ReservationContext to GatewayAPI
     //  and GatewayAPI forwards message to App
     //  and App displays success notification to Member
-    }
+    //}
   }
+  //"Book a new Reservation automatically based on what is available next, parameterized by Reservation info"
   case NextAvailableHappyPath is {
-    title: "Book a new Reservation automatically based on what is available next, parameterized by Reservation info"
-    scope domain {ImprovingApp}
-    interaction is {
-      step from user Member "asks to book next Reservation with search parameters based ReservationInfo in a provided ReservationId" to user App
-        briefly "initial invocation",
-      step from user App send command Location.BookNextAvailable to user GatewayAPI
-        briefly "send smart booking query",
+    //interaction is {
+    //  step from user Member "asks to book next Reservation with search parameters based ReservationInfo in a provided ReservationId" to user App
+    //    briefly "initial invocation",
+    //  step from user App send command Location.BookNextAvailable to user GatewayAPI
+    //    briefly "send smart booking query",
     //  step from user GatewayAPI "Book Next Available Location" to entity ImprovingApp.LocationContext.Locations
     //    briefly "find available locations & automatically book one given fields of info provided",
     //  step from entity ImprovingApp.ReservationContext.Reservations "ReservationBooked" to pipe ImprovingApp.ReservationContext.ReservationEvents
     //    briefly "reservation booked"
     //  step from pipe ImprovingApp.ReservationContext.ReservationEvents "ReservationBooked" to user App
     }
-    example Success is {
+    //example Success is {
     //  when Member sends BookNextAvailable command while providing a ReservationInfo to App
     //  then App sends BookNextAvailable message to GatewayAPI
     //  and GatewayAPI forwards message to ReservationContext

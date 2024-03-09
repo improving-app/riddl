@@ -1,4 +1,4 @@
-type LocationId is Id (ImprovingApp.Venues.LocationContext.Location)
+type LocationId is Id (Venues.LocationContext.Location)
   briefly "Unique identifier for Location Entity"
 
 context LocationContext is {
@@ -6,7 +6,8 @@ context LocationContext is {
     include "locationMessages"
 
     entity Location is {
-        options (event-sourced, available)
+        option event-sourced
+        option available
 
 		    handler LocationHandler is {
 		        on command EstablishLocation {
@@ -21,19 +22,19 @@ context LocationContext is {
 		    }
 
         record DraftState is {
-            locationInfo: LocationContext.Info,
-            locationMeta: LocationContext.MetaInfo
+            locationInfo:  ImprovingApp.Venues.LocationContext.Info,
+            locationMeta:  ImprovingApp.Venues.LocationContext.MetaInfo
         }
 		    state Draft of Location.DraftState is {
 		        handler DraftLocation is {
-		            on command EstablishLocation {
+		            on command ImprovingApp.Venues.LocationContext.EstablishLocation {
 		              error "Location already established"
 		            }
-		            on command EditLocationInfo {
+		            on command ImprovingApp.Venues.LocationContext.EditLocationInfo {
 		              "set Draft info fields to EditLocationInfo.info"
 		              "yield event LocationInfoUpdated"
 		            }
-		            on command UpdateLocationStatus {
+		            on command ImprovingApp.Venues.LocationContext.UpdateLocationStatus {
 		              "morph Location to the state provided in UpdateVenueStatus"
                   "set MetaInfo to capture change data"
                   "yield event VenueInfoUpdated"
@@ -49,19 +50,19 @@ context LocationContext is {
 		    }
 
         record OpenState is {
-            locationInfo: LocationContext.Info,
-            locationMeta: LocationContext.MetaInfo
+            locationInfo: ImprovingApp.Venues.LocationContext.Info,
+            locationMeta: ImprovingApp.Venues.LocationContext.MetaInfo
         }
 		    state Open of Location.OpenState is {
 		        handler OpenLocation is {
-		            on command EstablishLocation {
+		            on command ImprovingApp.Venues.LocationContext.EstablishLocation {
 		              error "Location already established"
 		            }
-		            on command EditLocationInfo {
+		            on command ImprovingApp.Venues.LocationContext.EditLocationInfo {
 		              "set OnHold info fields to EditLocationInfo.info"
 		              "yield event LocationInfoUpdated"
 		            }
-		            on command UpdateLocationStatus {
+		            on command ImprovingApp.Venues.LocationContext.UpdateLocationStatus {
                   "morph Location to the state provided in UpdateLocationStatus"
                   "set MetaInfo to capture change data"
                   "yield event LocationStatusUpdated"
@@ -70,19 +71,19 @@ context LocationContext is {
 		    }
 
         record ClosedState is {
-            locationInfo: LocationContext.Info,
-            locationMeta: LocationContext.MetaInfo
+            locationInfo: ImprovingApp.Venues.LocationContext.Info,
+            locationMeta: ImprovingApp.Venues.LocationContext.MetaInfo
         }
 		    state Closed of Location.ClosedState is {
 		        handler ClosedLocation is {
-		            on command EstablishLocation {
+		            on command ImprovingApp.Venues.LocationContext.EstablishLocation {
 		              error "Location already established"
 		            }
-		            on command EditLocationInfo {
+		            on command ImprovingApp.Venues.LocationContext.EditLocationInfo {
 		              "set OnHold info fields to EditLocationInfo.info"
 		              "yield event LocationInfoUpdated"
 		            }
-		            on command UpdateLocationStatus {
+		            on command ImprovingApp.Venues.LocationContext.UpdateLocationStatus {
                   "morph Location to the state provided in UpdateLocationStatus"
                   "set MetaInfo to capture change data"
                   "yield event LocationStatusUpdated"

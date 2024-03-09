@@ -1,11 +1,11 @@
 projector OrganizationsView is {
    record Fields {
       orgId: ImprovingApp.OrganizationId, //org-owner & org-member correlation tables
-      orgOwner: ImprovingApp.MemberId,    //org-owner correlation table
-      orgMember: ImprovingAPp.MemberId     //org-member correlation table
+      orgOwner: MemberId,    //org-owner correlation table
+      orgMember: MemberId     //org-member correlation table
   }
   handler OrganizationsView is {
-      on event OrganizationEstablished {
+      on event ImprovingApp.OrganizationContext.OrganizationEstablished {
           "create row in org table with orgId set to OrganizationEstablished.info.orgId"
           "and set previous row's orgName to OrganizationEstablished.info.name"
           "and set previous row's orgInfo to OrganizationEstablished.info"

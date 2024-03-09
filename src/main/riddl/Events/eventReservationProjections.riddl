@@ -1,14 +1,14 @@
-query GetLocationForEvent is {event: EventId}
-result LocationForEvent is {event: EventId, location: LocationId}
-result EventNotFound is {}
-result NoReservationForEvent is {}
-result NoLocationForEventReservation is {}
+query GetLocationForEvent is { event: EventId }
+result LocationForEvent is { event: EventId, location: Venues.LocationId }
+result EventNotFound is { ??? }
+result NoReservationForEvent is { ??? }
+result NoLocationForEventReservation is { ??? }
 
 context EventReservationProjections is  {
   projector EventReservationView is {
      record EventReservationFields {
         event: EventId,
-        location: LocationId,
+        location: Venues.LocationId,
         reservation: ReservationId
     }
     handler EventReservationViewHandler is {

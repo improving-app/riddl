@@ -1,19 +1,11 @@
-// (c) 2022 Improving Inc. All Rights Reserved.
-
-// This file is the top level RIDDL definition file for the Improving Application.
-// It merely includes the subodmains and bounded contexts that make up the full domain.
 domain ImprovingApp is {
+    include "Common/Contact"
+    include "Common/Chrono"
     include "authors"
     include "Epics/epics"
     include "Applications/application"
-    include "Common/Contact"
-    // include "Common/UniqueIds"
-    include "Common/Chrono"
     include "Accounting/accounting"
     include "Calendars/calendar"
-    //include "Commerce/commerce"
-    //include "Inventory/inventory"
-    //include "Vendors/vendor"
     include "Gateway/gateway"
     include "Members/members"
     include "Organization/organization"
@@ -23,6 +15,9 @@ domain ImprovingApp is {
     include "Venues/venue"
     include "Store/Store"
     include "Product/product"
+    include "Commerce/commerce"
+    include "Inventory/inventory"
+    include "Vendors/vendor"
     include "Events/eventReservationProjections"
     include "Tenant/tenantProjections"
     include "AllIdsProjections/allIdsProjections"
@@ -31,3 +26,8 @@ domain ImprovingApp is {
     include "MembersAttendingEventsForAnOrganizationProjection/membersAttendingEventsForAnOrganizationProjection"
     include "test/TestGateway"
 } described in file "ImprovingApp.md"
+
+// This file is the top level RIDDL definition file for the Improving Application.
+// It merely includes the subodmains and bounded contexts that make up the full domain.
+
+// (c) 2022 Improving Inc. All Rights Reserved.

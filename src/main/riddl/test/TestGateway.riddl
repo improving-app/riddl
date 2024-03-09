@@ -1,8 +1,9 @@
-context TestGateway by author Reid is {
+context TestGateway is {
   option gateway
+  by author Reid
 
   include "messages"
-  include "handler"
+  // include "handler"
 
 } briefly "A gateway for testing Improving.app instances" explained as {
 | The messages sent to this service will create various entities. This is

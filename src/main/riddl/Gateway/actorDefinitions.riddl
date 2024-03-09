@@ -1,3 +1,4 @@
+actor AnonUser is "A non-enrolled anonymous user"
 actor Member is "The person that is being enrolled"
-actor App is "The applicaiton the user is using to perform this action"
+actor App is "The application the user is using to perform this action"
 actor GatewayAction is "The interface that accepts the request for processing by the backend"

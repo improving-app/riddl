@@ -6,7 +6,6 @@ domain GatewayAPI is {
     include "EventGateway/eventStories"
     include "MemberGateway/memberStories"
     include "MemberGateway/memberGateway"
-    include "MemberGateway/memberEpics"
     include "NotificationGateway/notificationStories"
     include "OrderGateway/orderStories"
     include "PlaceGateway/placeStories"

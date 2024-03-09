@@ -41,31 +41,8 @@ context EventContext is {
 
     handler EventHandler is {
       on command CreateEvent {
-        send event EventCreated
-          // (
-          //   eventId = @CreateEvent.eventId,
-          //   info = @CreateEvent.info,
-          //   meta = !EventMetaInfo(
-          //     createdOn = now(),
-          //     createdBy = @CreateEvent.onBehalfOf,
-          //     lastUpdatedOn = now(),
-          //     lastUpdatedBy = @CreateEvent.onBehalfOf,
-          //     currentState = @EventStates.Draft
-          //   )
-          // )
-        to outlet EventEvents.Events
+        send event EventCreated to outlet EventEvents.Events
         morph entity Event to state DraftEvent with record DraftEventState
-         // (
-         //   eventId = @CreateEvent.eventId,
-         //   info = @CreateEvent.info,
-         //   meta = !EventMetaInfo(
-         //     createdOn = now(),
-         //     createdBy = @CreateEvent.onBehalfOf,
-         //     lastUpdatedOn = now(),
-         //     lastUpdatedBy = @CreateEvent.onBehalfOf,
-         //     currentState = @OrganizationStates.Draft
-         //   )
-         // )
       }
       on other {
         error "You must first create an event using ScheduleEvent command."
@@ -83,218 +60,36 @@ context EventContext is {
         on command ScheduleEvent{
           if "all required info fields are present" then {
             "set a scheduled Akka call for emitting StartEvent at DraftEventState.info.expectedStart"
-            send event EventScheduled
-              // (
-              //   eventId = @ScheduleEvent.eventId,
-              //   info = !EventInfo(
-              //       eventName = @DraftEventState.info.eventName,
-              //       description = @DraftEventState.info.description,
-              //       eventURL = @DraftEventState.info.eventURL,
-              //       sponsoringOrg = @DraftEventState.info.sponsoringOrg,
-              //       expectedStart = @DraftEventState.info.expectedStart,
-              //       expectedEnd = @DraftEventState.info.expectedEnd,
-              //       isPrivate = @DraftEventState.info.isPrivate,
-              //       eventStatusInfo = !ScheduledEventInfo()
-              //   ),
-              //   meta = !EventMetaInfo(
-              //       createdOn = @DraftEventState.meta.createdOn,
-              //       createdBy = @DraftEventState.meta.createdBy,
-              //       lastUpdatedOn = now(),
-              //       lastUpdatedBy = @ScheduleEvent.onBehalfOf,
-              //       currentState = @EventStates.Scheduled
-              //   )
-              // )
-              to outlet EventEvents.Events
-            morph entity Event to state ScheduledEvent
-              with record ScheduledEventState
-               // (
-               //   eventId = @ScheduleEvent.eventId,
-               //   info = !EventInfo(
-               //       eventName = @DraftEventState.info.eventName,
-               //       description = @DraftEventState.info.description,
-               //       eventURL = @DraftEventState.info.eventURL,
-               //       sponsoringOrg = @DraftEventState.info.sponsoringOrg,
-               //       expectedStart = @DraftEventState.info.expectedStart,
-               //       expectedEnd = @DraftEventState.info.expectedEnd,
-               //       isPrivate = @DraftEventState.info.isPrivate,
-               //       eventStatusInfo = !ScheduledEventInfo()
-               //   ),
-               //   meta = !EventMetaInfo(
-               //     createdOn = @DraftEventState.meta.createdOn,
-               //     createdBy = @DraftEventState.meta.createdBy,
-               //     lastUpdatedOn = now(),
-               //     lastUpdatedBy = @ScheduleEvent.onBehalfOf,
-               //     currentState = @EventStates.Scheduled
-               //   )
-               // )
+            send event EventScheduled to outlet EventEvents.Events
+            morph entity Event to state ScheduledEvent with record ScheduledEventState
           }
         }
         on command EditEventInfo{
           set field DraftEventState.info to "EventContext.newEditableInfoFromFieldsPresentInEditable"
-            // (
-            //   editable = @EditEventInfo.info,
-            //   oldInfo = @DraftEventState.info
-            // )
           set field DraftEventState.meta to "EventMetaInfo"
-//            (
-//                 createdOn = @DraftEventState.meta.createdOn,
-//                 createdBy = @DraftEventState.meta.createdBy,
-//                 lastUpdatedOn = now(),
-//                 lastUpdatedBy = @EditEventInfo.onBehalfOf,
-//                 currentState = @EventStates.Draft
-//             )
           send event EventRescheduled
-//          (
-//               eventId = @DraftEventState.id,
-//               info = @DraftEventState.info,
-//               meta = @DraftEventState.meta
-//          )
             to outlet EventEvents.Events
         }
         on command CancelEvent{
           if "all required info fields are present" then {
             "cancel associated scheduled call to emit StartEvent"
-            send event EventCancelled
-//            (
-//              eventId = @CancelEvent.eventId,
-//              info = !EventInfo(
-//                eventName = @DraftEventState.info.eventName,
-//                description = @DraftEventState.info.description,
-//                eventURL = @DraftEventState.info.eventURL,
-//                sponsoringOrg = @DraftEventState.info.sponsoringOrg,
-//                expectedStart = @DraftEventState.info.expectedStart,
-//                expectedEnd = @DraftEventState.info.expectedEnd,
-//                isPrivate = @DraftEventState.info.isPrivate,
-//                eventStatusInfo = !CancelledEventInfo(
-//                  reason = @CancelEvent.reason,
-//                  timeStarted = startTimeIfPast(startTime = @DraftEventState.info.expectedStart),
-//                  timeEnded = nowIfStartIsPast(startTime = @DraftEventState.info.expectedStart)
-//                )
-//              ),
-//              meta = !EventMetaInfo(
-//                createdOn = @DraftEventState.meta.createdOn,
-//                createdBy = @DraftEventState.meta.createdBy,
-//                lastUpdatedOn = now(),
-//                lastUpdatedBy = @CancelEvent.onBehalfOf,
-//                currentState = @EventStates.Cancelled
-//              )
-//            )
-              to outlet EventEvents.Events
+            send event EventCancelled to outlet EventEvents.Events
             morph entity Event to state ScheduledEvent with record ScheduledEventState
-//            (
-//              eventId = @ScheduleEvent.eventId,
-//              info = !EventInfo(
-//                 eventName = @DraftEventState.info.eventName,
-//                 description = @DraftEventState.info.description,
-//                 eventURL = @DraftEventState.info.eventURL,
-//                 sponsoringOrg = @DraftEventState.info.sponsoringOrg,
-//                 expectedStart = @DraftEventState.info.expectedStart,
-//                 expectedEnd = @DraftEventState.info.expectedEnd,
-//                 isPrivate = @DraftEventState.info.isPrivate,
-//                 eventStatusInfo = !CancelledEventInfo(
-//                   reason = @CancelEvent.reason,
-//                   timeStarted = startTimeIfPast(startTime = @DraftEventState.info.expectedStart),
-//                   timeEnded = nowIfStartIsPast(startTime = @DraftEventState.info.expectedStart)
-//                 )
-//              ),
-//              meta = !EventMetaInfo(
-//                createdOn = @DraftEventState.meta.createdOn,
-//                createdBy = @DraftEventState.meta.createdBy,
-//                lastUpdatedOn = now(),
-//                lastUpdatedBy = @CancelEvent.onBehalfOf,
-//                currentState = @EventStates.Cancelled
-//              )
-//            )
           }
         }
         on command RescheduleEvent {
           if "start is validated to be before end in command" then {
             "adjust associated scheduled call to emit StartEvent"
             set field DraftEventState.info to "EditableEventInfo"
-//            (
-//              eventName = @DraftEventState.info.eventName,
-//              description = @DraftEventState.info.description,
-//              eventURL = @DraftEventState.info.eventURL,
-//              sponsoringOrg = @DraftEventState.info.sponsoringOrg,
-//              expectedStart = @RescheduleEvent.start,
-//              expectedEnd = @RescheduleEvent.end,
-//              isPrivate = @DraftEventState.info.isPrivate
-//            )
             set field DraftEventState.meta to "EventMetaInfo"
-//            (
-//              createdOn = @DraftEventState.meta.createdOn,
-//              createdBy = @DraftEventState.meta.createdBy,
-//              lastUpdatedOn = now(),
-//              lastUpdatedBy = @RescheduleEvent.onBehalfOf,
-//              currentState = @EventStates.Draft
-//            )
-            send event EventRescheduled
-//            (
-//              eventId = @DraftEventState.id,
-//              info = @DraftEventState.info,
-//              meta = @DraftEventState.meta
-//            )
-             to outlet EventEvents.Events
+            send event EventRescheduled to outlet EventEvents.Events
           }
         }
         on command DelayEvent{
           if "all required info fields are present" then {
             "adjust associated scheduled call to emit StartEvent"
-            send event EventDelayed
-//            (
-//              eventId = @DelayEvent.eventId,
-//              info = !EventInfo(
-//                eventName = @DraftEventState.info.eventName,
-//                description = @DraftEventState.info.description,
-//                eventURL = @DraftEventState.info.eventURL,
-//                sponsoringOrg = @DraftEventState.info.sponsoringOrg,
-//                expectedStart = incrementDelayedEventTime(
-//                  originalTime = @DraftEventState.info.expectedStart,
-//                  duration = @DelayEvent.expectedDuration
-//                ),
-//                expectedEnd = incrementDelayedEventTime(
-//                  originalTime = @DraftEventState.info.expectedEnd,
-//                  duration = @DelayEvent.expectedDuration
-//                ),
-//                isPrivate = @DraftEventState.info.isPrivate,
-//                eventStatusInfo = !DelayedEventInfo(
-//                  reason = @DelayEvent.reason,
-//                  timeStartedOpt = false
-//                )
-//              ),
-//              meta = !EventMetaInfo(
-//                  createdOn = @DraftEventState.meta.createdOn,
-//                  createdBy = @DraftEventState.meta.createdBy,
-//                  lastUpdatedOn = now(),
-//                  lastUpdatedBy = @DelayEvent.onBehalfOf,
-//                  currentState = @EventStates.Delayed
-//              )
-//            )
-              to outlet EventEvents.Events
+            send event EventDelayed to outlet EventEvents.Events
             morph entity Event to state ScheduledEvent with record ScheduledEventState
-//            (
-//              eventId = @ScheduleEvent.eventId,
-//              info = !EventInfo(
-//                 eventName = @DraftEventState.info.eventName,
-//                 description = @DraftEventState.info.description,
-//                 eventURL = @DraftEventState.info.eventURL,
-//                 sponsoringOrg = @DraftEventState.info.sponsoringOrg,
-//                 expectedStart = @DraftEventState.info.expectedStart,
-//                 expectedEnd = @DraftEventState.info.expectedEnd,
-//                 isPrivate = @DraftEventState.info.isPrivate,
-//                 eventStatusInfo = !DelayedEventInfo(
-//                   reason = @DelayEvent.reason,
-//                   timeStartedOpt = startTimeIfPast(startTime = @ScheduledEventState.info.expectedStart)
-//                 )
-//              ),
-//              meta = !EventMetaInfo(
-//                createdOn = @DraftEventState.meta.createdOn,
-//                createdBy = @DraftEventState.meta.createdBy,
-//                lastUpdatedOn = now(),
-//                lastUpdatedBy = @CancelEvent.onBehalfOf,
-//                currentState = @EventStates.Delayed
-//              )
-//            )
           }
         }
         on command StartEvent{
@@ -303,8 +98,9 @@ context EventContext is {
         on command EndEvent{
           error "Cannot end an event that has not started."
         }
+        // TODO: write AddLiveUpdate on clause
         on command AddLiveUpdate{
-          ??? // TODO: write AddLiveUpdate on clause
+          ???
         }
       }
     }
@@ -330,155 +126,38 @@ context EventContext is {
             //}
             on command EditEventInfo {
               set field ScheduledEventState.info to "EventContext.newInfoFromFieldsPresentInEditable"
-//              (
-//                editable = @EditEventInfo.info,
-//                oldInfo = @ScheduledEventState.info
-//              )
               set field ScheduledEventState.meta to "EventMetaInfo"
-//              (
-//               createdOn = @ScheduledEventState.meta.createdOn,
-//               createdBy = @ScheduledEventState.meta.createdBy,
-//               lastUpdatedOn = now(),
-//               lastUpdatedBy = @EditEventInfo.onBehalfOf,
-//               currentState = @EventStates.Scheduled
-//             )
-               send event EventInfoEdited
-//               (
-//                   eventId = @ScheduledEventState.id,
-//                   info = @ScheduledEventState.info,
-//                   meta = @ScheduledEventState.meta
-//               )
-                 to outlet EventEvents.Events
+              send event EventInfoEdited to outlet EventEvents.Events
             }
             on command CancelEvent {
               "cancel associated scheduled call to emit StartEvent"
-              send event EventCancelled
-//              (
-//                eventId = @CancelEvent.eventId,
-//                info = !EventInfo(
-//                  eventName = @ScheduledEventState.info.eventName,
-//                  description = @ScheduledEventState.info.description,
-//                  eventURL = @ScheduledEventState.info.eventURL,
-//                  sponsoringOrg = @ScheduledEventState.info.sponsoringOrg,
-//                  expectedStart = @ScheduledEventState.info.expectedStart,
-//                  expectedEnd = @ScheduledEventState.info.expectedEnd,
-//                  isPrivate = @ScheduledEventState.info.isPrivate,
-//                  eventStatusInfo = !CancelledEventInfo(
-//                    reason = @CancelEvent.reason,
-//                    timeStarted = startTimeIfPast(startTime = @ScheduledEventState.info.expectedStart),
-//                    timeEnded = nowIfStartIsPast(startTime = @ScheduledEventState.info.expectedStart)
-//                  )
-//                ),
-//                meta = !EventMetaInfo(
-//                  createdOn = @ScheduledEventState.meta.createdOn,
-//                  createdBy = @ScheduledEventState.meta.createdBy,
-//                  lastUpdatedOn = now(),
-//                  lastUpdatedBy = @CancelEvent.onBehalfOf,
-//                  currentState = @EventStates.Cancelled
-//                )
-//              )
-                to outlet EventEvents.Events
+              send event EventCancelled to outlet EventEvents.Events
               become entity Event to handler CancelledEventHandler
             }
             on command DelayEvent {
               "adjust associated scheduled Akka call to emit StartEvent"
-              send event EventDelayed
-//              (
-//                eventId = @DelayEvent.eventId,
-//                info = !EventInfo(
-//                  eventName = @ScheduledEventState.info.eventName,
-//                  description = @ScheduledEventState.info.description,
-//                  eventURL = @ScheduledEventState.info.eventURL,
-//                  sponsoringOrg = @ScheduledEventState.info.sponsoringOrg,
-//                  expectedStart = incrementDelayedEventTime(
-//                    originalTime = @ScheduledEventState.info.expectedStart,
-//                    duration = @DelayEvent.expectedDuration
-//                  ),
-//                  expectedEnd = incrementDelayedEventTime(
-//                    originalTime = @ScheduledEventState.info.expectedEnd,
-//                    duration = @DelayEvent.expectedDuration
-//                  ),
-//                  isPrivate = @ScheduledEventState.info.isPrivate,
-//                  eventStatusInfo = !CancelledEventInfo(
-//                    reason = @CancelEvent.reason,
-//                    timeStarted = startTimeIfPast(startTime = @ScheduledEventState.info.expectedStart),
-//                    timeEnded = nowIfStartIsPast(startTime = @ScheduledEventState.info.expectedStart)
-//                  )
-//                ),
-//                meta = !EventMetaInfo(
-//                  createdOn = @ScheduledEventState.meta.createdOn,
-//                  createdBy = @ScheduledEventState.meta.createdBy,
-//                  lastUpdatedOn = now(),
-//                  lastUpdatedBy = @DelayEvent.onBehalfOf,
-//                  currentState = @EventStates.Delayed
-//                )
-//              )
-                to outlet EventEvents.Events
+              send event EventDelayed to outlet EventEvents.Events
               become entity Event to handler DelayedEventHandler
             }
             on command StartEvent{
               "create scheduled Akka call using ScheduledEventState.info.expectedEnd to emit EndEvent"
-              send event EventStarted
-//              (
-//                eventId = @StartEvent.eventId,
-//                info = !EventInfo(
-//                  eventName = @ScheduledEventState.info.eventName,
-//                  description = @ScheduledEventState.info.description,
-//                  eventURL = @ScheduledEventState.info.eventURL,
-//                  sponsoringOrg = @ScheduledEventState.info.sponsoringOrg,
-//                  expectedStart = @ScheduledEventState.info.expectedStart,
-//                  expectedEnd = @ScheduledEventState.info.expectedEnd,
-//                  isPrivate = @ScheduledEventState.info.isPrivate,
-//                  eventStatusInfo = !InProgressEventInfo(
-//                    timeStarted = now()
-//                  )
-//                ),
-//                meta = !EventMetaInfo(
-//                  createdOn = @ScheduledEventState.meta.createdOn,
-//                  createdBy = @ScheduledEventState.meta.createdBy,
-//                  lastUpdatedOn = now(),
-//                  lastUpdatedBy = @StartEvent.onBehalfOf,
-//                  currentState = @EventStates.InProgress
-//                )
-//              )
-                to outlet EventEvents.Events
+              send event EventStarted to outlet EventEvents.Events
               become entity Event to handler InProgressEventHandler
           } briefly "to be invoked by Akka scheduler upon ScheduleEvent reception"
           on command RescheduleEvent {
             if "start is validated to be before end in command" then {
               "adjust associated scheduled call to emit StartEvent"
               set field ScheduledEventState.info to "EventInfo"
-//              (
-//                eventName = @ScheduledEventState.info.eventName,
-//                description = @ScheduledEventState.info.description,
-//                eventURL = @ScheduledEventState.info.eventURL,
-//                sponsoringOrg = @ScheduledEventState.info.sponsoringOrg,
-//                expectedStart = @RescheduleEvent.start,
-//                expectedEnd = @RescheduleEvent.end,
-//                isPrivate = @ScheduledEventState.info.isPrivate
-//              )
               set field ScheduledEventState.meta to "EventMetaInfo"
-//              (
-//                createdOn = @ScheduledEventState.meta.createdOn,
-//                createdBy = @ScheduledEventState.meta.createdBy,
-//                lastUpdatedOn = now(),
-//                lastUpdatedBy = @RescheduleEvent.onBehalfOf,
-//                currentState = @EventStates.Scheduled
-//              )
-              send event EventRescheduled
-//              (
-//                eventId = @ScheduledEventState.id,
-//                info = @ScheduledEventState.info,
-//                meta = @ScheduledEventState.meta
-//              )
-                to outlet EventEvents.Events
+              send event EventRescheduled to outlet EventEvents.Events
             }
           }
           on command EndEvent{
             error "End has not started. Cannot end an event that has not started."
           }
+          // TODO: implement AddLiveUpdate
           on command AddLiveUpdate {
-            ??? // TODO: implement AddLiveUpdate
+            ???
           }
         }
         handler InProgressEventHandler is {
@@ -499,72 +178,19 @@ context EventContext is {
             }
             on command DelayEvent{
               "adjust associated scheduled Akka call to emit StartEvent"
-              send event EventDelayed
-//              (
-//                eventId = @DelayEvent.eventId,
-//                info = !EventInfo(
-//                  eventName = @ScheduledEventState.info.eventName,
-//                  description = @ScheduledEventState.info.description,
-//                  eventURL = @ScheduledEventState.info.eventURL,
-//                  sponsoringOrg = @ScheduledEventState.info.sponsoringOrg,
-//                  expectedStart = incrementDelayedEventTime(
-//                    originalTime = @ScheduledEventState.info.expectedStart,
-//                    duration = @DelayEvent.expectedDuration
-//                  ),
-//                  expectedEnd = incrementDelayedEventTime(
-//                    originalTime = @ScheduledEventState.info.expectedEnd,
-//                    duration = @DelayEvent.expectedDuration
-//                  ),
-//                  isPrivate = @ScheduledEventState.info.isPrivate,
-//                  eventStatusInfo = !DelayedEventInfo(
-//                    reason = @DelayEvent.reason,
-//                    timeStartedOpt = startTimeIfPast(startTime = @ScheduledEventState.info.expectedStart)
-//                  )
-//                ),
-//                meta = !EventMetaInfo(
-//                  createdOn = @ScheduledEventState.meta.createdOn,
-//                  createdBy = @ScheduledEventState.meta.createdBy,
-//                  lastUpdatedOn = now(),
-//                  lastUpdatedBy = @DelayEvent.onBehalfOf,
-//                  currentState = @EventStates.Delayed
-//                )
-//              )
-                to outlet EventEvents.Events
+              send event EventDelayed to outlet EventEvents.Events
               become entity Event to handler DelayedEventHandler
             }
             on command StartEvent {
               error "Event is already started. Cannot start an event that is already in progress"
             }
             on command EndEvent {
-              send event EventEnded
-//              (
-//                eventId = @EndEvent.eventId,
-//                info = !EventInfo(
-//                  eventName = @ScheduledEventState.info.eventName,
-//                  description = @ScheduledEventState.info.description,
-//                  eventURL = @ScheduledEventState.info.eventURL,
-//                  sponsoringOrg = @ScheduledEventState.info.sponsoringOrg,
-//                  expectedStart = @ScheduledEventState.info.expectedStart,
-//                  expectedEnd = @ScheduledEventState.info.expectedEnd,
-//                  isPrivate = @ScheduledEventState.info.isPrivate,
-//                  eventStatusInfo = !PastEventInfo(
-//                    timeStarted = @ScheduledEventState.info.eventStatusInfo.timeStarted,
-//                    timeEnded = @ScheduledEventState.info.expectedStart
-//                  )
-//                ),
-//                meta = !EventMetaInfo(
-//                  createdOn = @ScheduledEventState.meta.createdOn,
-//                  createdBy = @ScheduledEventState.meta.createdBy,
-//                  lastUpdatedOn = now(),
-//                  lastUpdatedBy = @EndEvent.onBehalfOf,
-//                  currentState = @EventStates.Past
-//                )
-//              )
-                to outlet EventEvents.Events
+              send event EventEnded to outlet EventEvents.Events
               become entity Event to handler PastEventHandler
             }
+            // TODO: specify AddLiveUpdate on clause
             on command AddLiveUpdate {
-              ??? // TODO: specify AddLiveUpdate on clause
+              ???
             }
         }
         handler DelayedEventHandler is {
@@ -576,85 +202,20 @@ context EventContext is {
             //}
             on command EditEventInfo{
                set field ScheduledEventState.info to "EventContext.newInfoFromFieldsPresentInEditable"
-//               (
-//                 editable = @EditEventInfo.info,
-//                 oldInfo = @ScheduledEventState.info
-//               )
                set field ScheduledEventState.meta to "EventMetaInfo"
-//               (
-//                   createdOn = @ScheduledEventState.meta.createdOn,
-//                   createdBy = @ScheduledEventState.meta.createdBy,
-//                   lastUpdatedOn = now(),
-//                   lastUpdatedBy = @EditEventInfo.onBehalfOf,
-//                   currentState = @EventStates.Delayed
-//               )
-               send event EventInfoEdited
-//               (
-//                 eventId = @ScheduledEventState.id,
-//                 info = @ScheduledEventState.info,
-//                 meta = @ScheduledEventState.meta
-//               )
-                 to outlet EventEvents.Events
+               send event EventInfoEdited to outlet EventEvents.Events
             }
             on command CancelEvent{
               "cancel associated scheduled call to emit StartEvent"
-              send event EventCancelled
-//              (
-//                eventId = @CancelEvent.eventId,
-//                info = !EventInfo(
-//                  eventName = @ScheduledEventState.info.eventName,
-//                  description = @ScheduledEventState.info.description,
-//                  eventURL = @ScheduledEventState.info.eventURL,
-//                  sponsoringOrg = @ScheduledEventState.info.sponsoringOrg,
-//                  expectedStart = @ScheduledEventState.info.expectedStart,
-//                  expectedEnd = @ScheduledEventState.info.expectedEnd,
-//                  isPrivate = @ScheduledEventState.info.isPrivate,
-//                  eventStatusInfo = !CancelledEventInfo(
-//                    reason = @CancelEvent.reason,
-//                    timeStarted = startTimeIfPast(startTime = @ScheduledEventState.info.expectedStart),
-//                    timeEnded = nowIfStartIsPast(startTime = @ScheduledEventState.info.expectedStart)
-//                  )
-//                ),
-//                meta = !EventMetaInfo(
-//                  createdOn = @ScheduledEventState.meta.createdOn,
-//                  createdBy = @ScheduledEventState.meta.createdBy,
-//                  lastUpdatedOn = now(),
-//                  lastUpdatedBy = @CancelEvent.onBehalfOf,
-//                  currentState = @EventStates.Cancelled
-//                )
-//              )
-                to outlet EventEvents.Events
+              send event EventCancelled to outlet EventEvents.Events
               become entity Event to handler CancelledEventHandler
             }
             on command RescheduleEvent{
               if "start is validated to be before end in command" then {
                 "adjust associated scheduled call to emit StartEvent"
                 set field ScheduledEventState.info to "EventInfo"
-//                (
-//                  eventName = @ScheduledEventState.info.eventName,
-//                  description = @ScheduledEventState.info.description,
-//                  eventURL = @ScheduledEventState.info.eventURL,
-//                  sponsoringOrg = @ScheduledEventState.info.sponsoringOrg,
-//                  expectedStart = @RescheduleEvent.start,
-//                  expectedEnd = @RescheduleEvent.end,
-//                  isPrivate = @ScheduledEventState.info.isPrivate,
-//                  eventStatusInfo = !ScheduledEventInfo()
-//                )
                 set field ScheduledEventState.meta to "EventMetaInfo"
-//                (
-//                  createdOn = @ScheduledEventState.meta.createdOn,
-//                  createdBy = @ScheduledEventState.meta.createdBy,
-//                  lastUpdatedOn = now(),
-//                  lastUpdatedBy = @RescheduleEvent.onBehalfOf,
-//                  currentState = @EventStates.Delayed
-//                )
-                send event EventRescheduled
-//                (
-//                  eventId = @ScheduledEventState.id,
-//                  info = @ScheduledEventState.info,
-//                  meta = @ScheduledEventState.meta
-//                )
-                  to outlet EventEvents.Events
+                send event EventRescheduled to outlet EventEvents.Events
               }
             }
             on command DelayEvent{
@@ -662,37 +223,15 @@ context EventContext is {
             }
             on command StartEvent{
               "create scheduled Akka call using ScheduledEventState.info.expectedEnd to emit EndEvent"
-              send event EventStarted
-//              (
-//                eventId = @StartEvent.eventId,
-//                info = !EventInfo(
-//                    eventName = @ScheduledEventState.info.eventName,
-//                    description = @ScheduledEventState.info.description,
-//                    eventURL = @ScheduledEventState.info.eventURL,
-//                    sponsoringOrg = @ScheduledEventState.info.sponsoringOrg,
-//                    expectedStart = @ScheduledEventState.info.expectedStart,
-//                    expectedEnd = @ScheduledEventState.info.expectedEnd,
-//                    isPrivate = @ScheduledEventState.info.isPrivate,
-//                    eventStatusInfo = !InProgressEventInfo(
-//                      timeStarted = now()
-//                    )
-//                ),
-//                meta = !EventMetaInfo(
-//                    createdOn = @ScheduledEventState.meta.createdOn,
-//                    createdBy = @ScheduledEventState.meta.createdBy,
-//                    lastUpdatedOn = now(),
-//                    lastUpdatedBy = @StartEvent.onBehalfOf,
-//                    currentState = @EventStates.InProgress
-//                )
-//              )
-                to outlet EventEvents.Events
+              send event EventStarted to outlet EventEvents.Events
               become entity Event to handler InProgressEventHandler
             } briefly "to be invoked by Akka scheduler upon ScheduleEvent reception"
             on command EndEvent{
               error "Only events that are InProgress may be ended. If you wish to end this event it must be started first. If you wish to cancel the event, please use the CancelEvent Command."
             }
+            // TODO: IMplement AddLiveUpdate in on clause
             on command AddLiveUpdate{
-              ??? // TODO: IMplement AddLiveUpdate in on clause
+              ???
             }
         }
         handler CancelledEventHandler is {
@@ -700,31 +239,8 @@ context EventContext is {
               if "start is validated to be before end in command" then {
                 "adjust associated scheduled call to emit StartEvent"
                 set field ScheduledEventState.info to "EventInfo"
-//                (
-//                  eventName = @ScheduledEventState.info.eventName,
-//                  description = @ScheduledEventState.info.description,
-//                  eventURL = @ScheduledEventState.info.eventURL,
-//                  sponsoringOrg = @ScheduledEventState.info.sponsoringOrg,
-//                  expectedStart = @RescheduleEvent.start,
-//                  expectedEnd = @RescheduleEvent.end,
-//                  isPrivate = @ScheduledEventState.info.isPrivate,
-//                  eventStatusInfo = !ScheduledEventInfo()
-//                )
                 set field ScheduledEventState.meta to "EventMetaInfo"
-//                (
-//                  createdOn = @ScheduledEventState.meta.createdOn,
-//                  createdBy = @ScheduledEventState.meta.createdBy,
-//                  lastUpdatedOn = now(),
-//                  lastUpdatedBy = @RescheduleEvent.onBehalfOf,
-//                  currentState = @EventStates.Scheduled
-//                )
-                send event EventRescheduled
-//                (
-//                  eventId = @ScheduledEventState.id,
-//                  info = @ScheduledEventState.info,
-//                  meta = @ScheduledEventState.meta
-//                )
-                  to outlet EventEvents.Events
+                send event EventRescheduled to outlet EventEvents.Events
               }
             }
             on other {

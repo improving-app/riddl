@@ -3,7 +3,7 @@ result TenantByName is {
   tenants: TenantId,
   info: TenantContext.TenantInfo
 }
-result NoTenantWithName {}
+result NoTenantWithName { ??? }
 
 projector TenantViews is {
     record TenantFields {

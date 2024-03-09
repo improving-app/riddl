@@ -1,5 +1,5 @@
 command EstablishLocation is {
-  locationId: LocationId briefly "A unique identifier for this Location. This must be provided by the calling client.",
+  locationId: Venues.LocationId,
   name: String,
   description: String,
   directions: String,
@@ -13,75 +13,75 @@ command EstablishLocation is {
 } briefly "Creates a Location with all top-level fields, potentially without Locations"
 
 event LocationEstablished is {
-  locationId: LocationId,
-  locationInfo: LocationContext.Info,
+  locationId: Venues.LocationId,
+  locationInfo: Venues.LocationContext.Info,
   reservations: ReservationId*,
-  meta: LocationContext.MetaInfo
+  meta: Venues.LocationContext.MetaInfo
 }
 
 command AddLocationReservations is {
-  locationId: LocationId,
+  locationId: Venues.LocationId,
   reservations: ReservationId+
 }
 event LocationReservationsAdded is {
-  locationId: LocationId,
+  locationId: Venues.LocationId,
   allReservations: ReservationId+
 }
 
 command UpdateLocationStatus is {
-  locationId: LocationId,
-  status: LocationContext.Status,
+  locationId: Venues.LocationId,
+  status: Venues.LocationContext.Status,
   updatingMember: MemberId
 }
 event LocationStatusUpdated is {
-  locationId: LocationId,
-  newStatus: LocationContext.Status
+  locationId: Venues.LocationId,
+  newStatus: Venues.LocationContext.Status
 }
 
 command EditLocationInfo is {
-  locationId: LocationId briefly "The unique Id of the location to create",
-  newInfo: LocationContext.UpdateInfo briefly "The information about the location",
+  locationId: Venues.LocationId briefly "The unique Id of the location to create",
+  newInfo: Venues.LocationContext.UpdateInfo briefly "The information about the location",
   editingMember: MemberId briefly "Id of the member who is creating the location"
 } briefly "A command to edit the values of an Reservation's Info "
 event LocationInfoUpdated is {
-  locationId: LocationId,
-  info: LocationContext.Info,
-  meta: LocationContext.MetaInfo
+  locationId: Venues.LocationId,
+  info: Venues.LocationContext.Info,
+  meta: Venues.LocationContext.MetaInfo
 }
 
 query GetNextLocationReservations is {
-  locationId: LocationId,
+  locationId: Venues.LocationId,
   maxCount: Integer,
   startDate: DateTime? briefly "Used as start date of query when present instead of now()"
 }
 query GetLocationReservations is {
-  venueId: LocationId,
-  ranges: TimeRange+
+  venueId: Venues.LocationId,
+  ranges: ImprovingApp.TimeRange+
 }
 result LocationReservations is {
-  venueId: LocationId,
+  venueId: Venues.LocationId,
   schedule: ReservationId* briefly "All reservation that take place in the location within
 									the time range (for GetNextLocationReservations) or
 									maxCount+startDate (for GetLocationReservations) provided"
 }
 
 query GetNextLocationAvailability is {
-  locationId: LocationId,
+  locationId: Venues.LocationId,
   maxCount: Integer,
   startDate: DateTime? briefly "Used as start date of query when present instead of now()"
 }
 result LocationAvailabilityCalendar is {
-  locationId: LocationId,
-  schedule: TimeRange* briefly "A list of time ranges indicating availability"
+  locationId: Venues.LocationId,
+  schedule: ImprovingApp.TimeRange* briefly "A list of time ranges indicating availability"
 }
 
-query FindAvailableLocationsInRange is {locationId: LocationId, start: Date, end: Date}
-query FindAvailableLocationsInRangeWithAmenities is {locationId: LocationId, start: Date, end: Date, desiredAmenities: String*}
+query FindAvailableLocationsInRange is {locationId: Venues.LocationId, start: Date, end: Date}
+query FindAvailableLocationsInRangeWithAmenities is {locationId: Venues.LocationId, start: Date, end: Date, desiredAmenities: String*}
 
 query GetLocationVenue is {
-  locationId: LocationId
+  locationId: Venues.LocationId
 }
 result LocationVenue is {
-  locationId: LocationId,
+  locationId: Venues.LocationId,
   venueId: VenueId
 }

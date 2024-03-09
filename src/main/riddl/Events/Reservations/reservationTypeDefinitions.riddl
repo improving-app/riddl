@@ -1,15 +1,15 @@
 type Status is any of {Draft, OnHold, Reserved, Past, Cancelled} briefly "Internal status of a Reservation."
 
 type Info is {
-    range: TimeRange,
+    range: ImprovingApp.TimeRange,
     title: String,
     description: String,
-    location: LocationId,
+    location: Venues.LocationId,
     forOrg: OrganizationId
 }
 
 type UpdateInfo is {
-    range: TimeRange?,
+    range: ImprovingApp.TimeRange?,
     title: String?,
     description: String?,
     forOrg: OrganizationId?

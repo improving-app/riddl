@@ -1,21 +1,22 @@
 //all comments to be implemented post kalix-study
+//all comments to be implemented post kalix-study
 
-query GetAllTenantIds is {}
+query GetAllTenantIds is { ??? }
 result AllTenantIds is {tenants: TenantId*}
 
-query GetAllOrgIds is {}
+query GetAllOrgIds is { ??? }
 result AllOrgIds is {orgs: OrganizationId*}
 
-query GetAllEventIds is {}
+query GetAllEventIds is { ??? }
 result AllEventIds {events: EventId*}
 
-query GetAllMemberIds is {}
+query GetAllMemberIds is { ??? }
 result AllMemberIds is {members: MemberId*}
 
-query GetAllStoreIds is {}
-result AllStoreIds is {stores: StoreId*}
+query GetAllStoreIds is { ??? }
+result AllStoreIds is {stores: StoreContext.StoreId*}
 
-query GetAllSkus is {}
+query GetAllSkus is { ??? }
 result AllSkus is {skus: SKU*}
 
 context AllIdsProjections is  {
@@ -25,8 +26,9 @@ context AllIdsProjections is  {
         //tenantStatus: TenantContext.Status
     }
     handler AllTenantIdsViewHandler is {
+
         on event TenantEstablished {
-          "create row with tenant set to TenantEstablished.tenantId"// and tenantStatus to Draft"
+          "create row with tenant set to TenantEstablished.tenantId and tenantStatus to Draft"
         }
         //on event TenantContext.StatusUpdated {
         //    then "update row with tenant set to StatusUpdated.tenantId to tenantStatus with StatusUpdated.newStatus"
@@ -43,7 +45,7 @@ context AllIdsProjections is  {
         //orgStatus: OrganizationContext.Status
     }
     handler AllOrgIdsViewHandler is {
-        on event OrganizationEstablished {
+        on event ImprovingApp.OrganizationContext.OrganizationEstablished {
           "create row with org set to OrganizationEstablished.orgId"// and orgStatus set to Draft"
         }
         //on event OrganizationStatusUpdated {
@@ -88,7 +90,7 @@ context AllIdsProjections is  {
   projector AllMemberIdsView is {
      record AllMemberIdsFields {
         member: MemberId,
-        memberStatus: MemberContext.Status
+        memberStatus: MemberContext.MemberStates
     }
     handler AllMemberIdsViewHandler is {
         on event MemberContext.MemberRegistered {
@@ -105,7 +107,7 @@ context AllIdsProjections is  {
 
   projector AllStoreIdsView is {
      record AllStoreIdsFields {
-        store: StoreId
+        store: StoreContext.StoreId
     }
     handler AllStoreIdsViewHandler is {
         on event StoreCreated {

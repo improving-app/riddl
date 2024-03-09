@@ -2,9 +2,9 @@ domain InventoryDomain is {
     context ProductInventory is {
         entity Product is {
             type NullState is Nothing
-            state ActiveState of ^NullState is {???}
+            state ActiveState of ImprovingApp.InventoryDomain.ProductInventory.Product.NullState is {???}
             handler AvailableProductHandler is {???}
-            state EmptyState of ^NullState is {???}
+            state EmptyState of ImprovingApp.InventoryDomain.ProductInventory.Product.NullState is {???}
             handler EmptyStateHandler is {???}
         }
     }

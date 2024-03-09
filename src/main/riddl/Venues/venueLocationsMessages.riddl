@@ -4,5 +4,5 @@ query GetLocationsForVenue {
 }
 result LocationsForVenue {
 	venueId: VenueId,
-	location: LocationId+
+	location: Venues.LocationId+
 }

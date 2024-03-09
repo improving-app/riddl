@@ -3,12 +3,12 @@ context MemberContext is {
       briefly "Unique identifier for Tenant Entity"
 
     type PublicMemberEvent is one of {
-        MemberRegistered,
-        MemberActivated,
-        MemberSuspended,
-        MemberTerminated,
-        MemberInfoEdited,
-        MemberData
+        ImprovingApp.MemberContext.MemberRegistered,
+        ImprovingApp.MemberContext.MemberActivated,
+        ImprovingApp.MemberContext.MemberSuspended,
+        ImprovingApp.MemberContext.MemberTerminated,
+        ImprovingApp.MemberContext.MemberInfoEdited,
+        ImprovingApp.MemberContext.MemberData
     }
     source MemberEvents is {
         outlet Events is type PublicMemberEvent
@@ -38,7 +38,7 @@ context MemberContext is {
           briefly "Required - Real last name of the member",
         //mobileNumber: MobileNumber? briefly "Optional mobile phone number",
         //emailAddress: EmailAddress? briefly "Optional email address",
-        notificationPreference: NotificationPreference?
+        notificationPreference: ImprovingApp.GatewayAPI.MemberGateway.NotificationPreference?
           briefly "if this is set it is assumed that the user has opted in.",
         organizationMembership: OrganizationId*
           briefly "A possibly empty list of organizations this member belongs to.",
@@ -61,7 +61,7 @@ context MemberContext is {
           briefly "Real last name of the member",
         //mobileNumber: MobileNumber?,
         //emailAddress: EmailAddress?,
-        notificationPreference: NotificationPreference?
+        notificationPreference: ImprovingApp.GatewayAPI.MemberGateway.NotificationPreference?
           briefly "if this is set it is assumed that the user has opted in.",
         organizationMembership: OrganizationId*
           briefly "A list of organizations this member belongs to.",
@@ -209,7 +209,7 @@ context MemberContext is {
       |MetaInfoQuery has matched.
     }
 
-    result MemberListResult is {members: MemberMap}
+    result MemberListResult is {members: ImprovingApp.MemberContext.MemberMap}
     briefly "The data returned from the GetMembersByMetaInfo query"
     described as {
       |This result contains the MemberMap, which contains all members that
@@ -217,21 +217,12 @@ context MemberContext is {
     }
 
     entity Member is {
-        options(aggregate, technology("akka"))
+        option aggregate
+        option technology("akka")
 
         handler MemberHandler is {
-          on command RegisterMember {
-            morph entity Member to state DraftMemberState with record DraftMember
-//              (
-//                info = @MemberRegistered.info,
-//                meta = !MemberContext.MetaInfo(
-//                  createdOn = now(),
-//                  createdBy = @RegisterMember.onBehalfOf,
-//                  lastUpdatedOn = now(),
-//                  lastUpdatedBy = @RegisterMember.onBehalfOf,
-//                  currentState = @MemberStates.Draft
-//                )
-//              )
+          on command ImprovingApp.GatewayAPI.MemberGateway.RegisterMember {
+            morph entity ImprovingApp.MemberContext.Member to state DraftMemberState with record DraftMember
 
           }
           //on command RegisterMemberList {
@@ -252,39 +243,14 @@ context MemberContext is {
         }
         state DraftMemberState of record DraftMember is {
           handler DraftMemberHandler {
-            on command RegisterMember {
+            on command ImprovingApp.MemberContext.RegisterMember {
               error "Member has already been registered."
             }
-            on command ActivateMember {
+            on command ImprovingApp.MemberContext.ActivateMember {
               if "all required fields in requiredInfo are not None or Empty"
               then {
                 send event MemberRegistered to outlet MemberEvents.Events
-//                (
-//                  memberId = @DraftMemberState.id,
-//                  info = !MemberContext.EditableInfo(
-//                    contact = @DraftMemberState.info.contact,
-//                    handle = @DraftMemberState.info.handle,
-//                    avatar = @DraftMemberState.info.avatar,
-//                    firstName = @DraftMemberState.info.firstName,
-//                    lastName = @DraftMemberState.info.lastName,
-//                    notificationPreference = @DraftMemberState.info.notificationPreference,
-//                    organizationMembership = @DraftMemberState.info.organizationMembership,
-//                    tenant = @DraftMemberState.info.tenant
-//                  ),
-//                  meta = !MemberContext.MetaInfo(
-//                    createdOn = @DraftMemberState.meta.createdOn,
-//                    createdBy = @DraftMemberState.meta.createdBy,
-//                    lastUpdatedOn = now(),
-//                    lastUpdatedBy = @EditOrganizationInfo.editingMember,
-//                    currentState = @OrganizationStates.Active
-//                  )
-//                )
-                morph entity Member to state RegisteredMemberState with
-                  record RegisteredMember
-//                  (
-//                    info = @DraftMemberState.info,
-//                    orgMeta = @DraftMemberState.meta
-//                  )
+                morph entity Member to state RegisteredMemberState with record RegisteredMember
 
               } else {
                 if "all required fields in state are not present" then {
@@ -293,38 +259,15 @@ context MemberContext is {
               }
             }
             on command EditMemberInfo {
-              set field DraftMemberState.info to "MemberContext.EditableInfo"
-//              (
-//                contact = @EditMemberInfo.info.contact,
-//                handle = @EditMemberInfo.info.handle,
-//                avatar = @EditMemberInfo.info.avatar,
-//                firstName = @EditMemberInfo.info.firstName,
-//                lastName = @EditMemberInfo.info.lastName,
-//                tenant = @EditMemberInfo.info.tenant,
-//                notificationPreference = @EditMemberInfo.info.notificationPreference,
-//                organizationMembership = @EditMemberInfo.info.organizationMembership
-//              )
-              set field DraftMemberState.meta to "MemberContext.MetaInfo"
-//              (
-//                createdOn = @DraftMemberState.meta.createdOn,
-//                createdBy = @DraftMemberState.meta.createdBy,
-//                lastUpdatedOn = now(),
-//                lastUpdatedBy = @EditMemberInfo.editingMember,
-//                currentState = @MemberStates.Draft
-//              )
-              send event MemberInfoEdited
-//              (
-//                 memberId = @DraftMemberState.id,
-//                 info = @DraftMemberState.info,
-//                 meta = @DraftMemberState.meta
-//              )
-                to outlet MemberEvents.Events
+              set field Member.DraftMemberState.info to "MemberContext.EditableInfo"
+              set field Member.DraftMemberState.meta to "MemberContext.MetaInfo"
+              send event MemberInfoEdited to outlet ImprovingApp.MemberContext.MemberEvents.Events
             }
             // For GetMemberData, eventually probably only admins and self should be able to make this call. Also
             // potentially allow other roles to get some limited information (this will require adding another
             // aggregate).
             on query GetMemberData {
-              send record MemberInfo to outlet MemberEvents.Events
+              send record MemberInfo to outlet ImprovingApp.MemberContext.MemberEvents.Events
             }
           }
         } described as {
@@ -345,7 +288,7 @@ context MemberContext is {
             invariant lastName is ">=(length(@RegisteredMemberState.info.firstName), 3)"
 
             handler ActiveMemberHandler {
-                on command RegisterMember {
+                on command ImprovingApp.MemberContext.RegisterMember {
                   error "Member has already been registered."
                 }
                 on command EditMemberInfo {
@@ -367,113 +310,40 @@ context MemberContext is {
                         lastUpdatedBy = @EditMemberInfo.editingMember,
                         currentState = @MemberStates.Draft
                     )"
-                    send event MemberInfoEdited
-                      //  memberId = @DraftMemberState.id,
-                      //   info = !MemberContext.Info(
-                      //      contact = @RegisteredMemberState.info.contact,
-                      //      handle = @RegisteredMemberState.info.handle,
-                      //      avatar = @RegisteredMemberState.info.avatar,
-                      //      firstName = @RegisteredMemberState.info.firstName,
-                      //      lastName = @RegisteredMemberState.info.lastName,
-                      //      notificationPreference = @RegisteredMemberState.info.notificationPreference,
-                      //      organizationMembership = @RegisteredMemberState.info.organizationMembership,
-                      //      tenant = @RegisteredMemberState.info.tenant
-                      //  ),
-                      //  meta = @RegisteredMemberState.meta)
-                      to outlet MemberEvents.Events
+                    send event MemberInfoEdited to outlet ImprovingApp.MemberContext.MemberEvents.Events
                 }
-                on command SuspendMember {
+                on command ImprovingApp.MemberContext.SuspendMember {
                   if "all required fields in requiredInfo are not None or Empty" then {
-                    send event MemberSuspended
-                      //  (
-                      //    memberId = @RegisteredMemberState.id,
-                      //    info = @RegisteredMemberState.info,
-                      //    meta = !MemberContext.MetaInfo(
-                      //    createdOn = @RegisteredMemberState.meta.createdOn,
-                      //    createdBy = @RegisteredMemberState.meta.createdBy,
-                      //    lastUpdatedOn = now(),
-                      //    lastUpdatedBy = @SuspendMember.suspendingMember,
-                      //    currentState = @MemberStates.Suspended
-                      //  )
-                      to outlet MemberEvents.Events
+                    send event MemberSuspended to outlet MemberEvents.Events
                       become entity Member to handler SuspendedMemberHandler
                     }
                 }
-                on command TerminateMember {
-                  set field RegisteredMemberState.meta to
-                    "record MemberContext.MetaInfo"
-                    // (
-                    //   createdOn = @RegisteredMemberState.meta,
-                    //   createdBy = @RegisteredMemberState.meta,
-                    //   lastUpdatedOn = now(),
-                    //   lastUpdatedBy = @TerminateMember.terminatingMember,
-                    //   currentState = @RegisteredMemberState.meta
-                    // )
-                  morph entity Member to state TerminatedMember
-                    with record TerminatedMemberState
+                on command ImprovingApp.MemberContext.TerminateMember {
+                  set field RegisteredMemberState.meta to "record MemberContext.MetaInfo"
+                  morph entity ImprovingApp.MemberContext.Member to state ImprovingApp.MemberContext.Member.TerminatedMember with record TerminatedMemberState
                 }
                 on query GetMemberData {
                   reply record MemberInfo
                 }
             }
             handler SuspendedMemberHandler {
-                on command RegisterMember {
+                on command ImprovingApp.MemberContext.RegisterMember {
                   error "Member has already been registered."
                 }
-                on command ActivateMember {
-                  send event MemberActivated
-                    // (
-                    //    memberId = @RegisteredMemberState.id,
-                    //    info = @RegisteredMemberState.info,
-                    //    meta = !MemberContext.MetaInfo(
-                    //        createdOn = @RegisteredMemberState.meta.createdOn,
-                    //        createdBy = @RegisteredMemberState.meta.createdBy,
-                    //        lastUpdatedOn = now(),
-                    //        lastUpdatedBy = @ActivateMember.activatingMember,
-                    //        currentState = @MemberStates.Active
-                    //    )
-                    //)
-                    to outlet MemberEvents.Events
-                  become entity Member to handler ActiveMemberHandler
+                on command ImprovingApp.MemberContext.ActivateMember {
+                  send event ImprovingApp.GatewayAPI.MemberGateway.MemberActivated to outlet ImprovingApp.MemberContext.MemberEvents.Events
+                  become entity ImprovingApp.MemberContext.Member to handler ActiveMemberHandler
                 }
-                on command SuspendMember {
+                on command ImprovingApp.MemberContext.SuspendMember {
                    set field RegisteredMemberState.meta to "MemberContext.MetaInfo"
-                     // (
-                     //  createdOn = @RegisteredMemberState.meta.createdOn,
-                     //  createdBy = @RegisteredMemberState.meta.createdBy,
-                     //  lastUpdatedOn = now(),
-                     //  lastUpdatedBy = @SuspendMember.suspendingMember,
-                     //  currentState = @MemberStates.Suspended
-                     // )
-                   send event MemberSuspended
-                     // (
-                     //  memberId = @RegisteredMemberState.id,
-                     //  info = @RegisteredMemberState.info,
-                     //  meta = !MemberContext.MetaInfo(
-                     //      createdOn = @RegisteredMemberState.meta.createdOn,
-                     //      createdBy = @RegisteredMemberState.meta.createdBy,
-                     //      lastUpdatedOn = now(),
-                     //      lastUpdatedBy = @SuspendMember.suspendingMember,
-                     //      currentState = @MemberStates.Suspended
-                     //  )
-                     //)
-                     to outlet MemberEvents.Events
+                   send event ImprovingApp.MemberContext.MemberSuspended to outlet ImprovingApp.MemberContext.MemberEvents.Events
                 } briefly "A suspension reason can be updated by re-issuing the command"
-                on command TerminateMember {
+                on command ImprovingApp.MemberContext.TerminateMember {
                   set field RegisteredMemberState.meta to "MemberContext.MetaInfo"
-                    // (
-                    //  createdOn = @RegisteredMemberState.meta.createdOn,
-                    //  createdBy = @RegisteredMemberState.meta.createdBy,
-                    //  lastUpdatedOn = now(),
-                    //  lastUpdatedBy = @TerminateMember.terminatingMember,
-                    //  currentState = @RegisteredMemberState.meta
-                    // )
-                  morph entity Member to state TerminatedMember
-                    with record TerminatedMemberState
-                    // (lastMeta = @RegisteredMemberState.meta)
+                  morph entity ImprovingApp.MemberContext.Member to state TerminatedMember with record TerminatedMemberState
                 }
                 on query GetMemberData {
-                  reply record Info
+                  reply record ImprovingApp.MemberContext.Info
                 }
               } described as {
               |This state describes that a member cannot access anything due
