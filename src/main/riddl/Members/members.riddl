@@ -259,8 +259,8 @@ context MemberContext is {
               }
             }
             on command EditMemberInfo {
-              set field DraftMemberState.info to "MemberContext.EditableInfo"
-              set field DraftMemberState.meta to "MemberContext.MetaInfo"
+              set field Member.DraftMemberState.info to "MemberContext.EditableInfo"
+              set field Member.DraftMemberState.meta to "MemberContext.MetaInfo"
               send event MemberInfoEdited to outlet ImprovingApp.MemberContext.MemberEvents.Events
             }
             // For GetMemberData, eventually probably only admins and self should be able to make this call. Also
