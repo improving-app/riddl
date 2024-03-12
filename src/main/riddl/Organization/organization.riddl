@@ -14,7 +14,7 @@ context OrganizationContext is {
 
         handler OrganizationHandler is {
           on command ImprovingApp.OrganizationContext.EstablishOrganization {
-            send event ImprovingApp.OrganizationContext.OrganizationEstablished to outlet OrganizationEvents.Events
+            send event ImprovingApp.OrganizationContext.OrganizationEstablished to outlet OrganizationEventsSource.Source
             morph entity ImprovingApp.OrganizationContext.Organization to state DraftOrganization with record DraftOrganizationState
           }
           on other {
@@ -40,7 +40,7 @@ context OrganizationContext is {
                 on command EditOrganizationInfo {
                   set field DraftOrganizationState.info to "OrganizationContext.Info"
                   set field DraftOrganizationState.orgMeta to "OrganizationContext.MetaInfo"
-                  send event OrganizationInfoEdited to outlet OrganizationEvents.Events
+                  send event OrganizationInfoEdited to outlet OrganizationEventsSource.Source
                 }
                 on command UpdateParent {
                   if "successful" then {
@@ -241,7 +241,7 @@ context OrganizationContext is {
                 on command ImprovingApp.OrganizationContext.EditOrganizationInfo {
                   set field EstablishedOrganizationState.info to "OrganizationContext.Info"
                   set field EstablishedOrganizationState.orgMeta to "OrganizationContext.MetaInfo"
-                  send event OrganizationInfoEdited to outlet OrganizationEvents.Events
+                  send event OrganizationInfoEdited to outlet OrganizationEventsSource.Source
                 }
                 on command ImprovingApp.OrganizationContext.UpdateParent {
                   if "editingMember is not Authorized" then {
@@ -360,7 +360,7 @@ context OrganizationContext is {
                 // }
                 on command ImprovingApp.OrganizationContext.SuspendOrganization {
                    set field EstablishedOrganizationState.orgMeta to "OrganizationContext.MetaInfo"
-                   send event OrganizationSuspended to outlet OrganizationEvents.Events
+                   send event OrganizationSuspended to outlet OrganizationEventsSource.Source
                    become entity ImprovingApp.OrganizationContext.Organization to handler SuspendedOrganizationHandler
                 }
                 on command ImprovingApp.OrganizationContext.TerminateOrganization {
@@ -401,13 +401,13 @@ context OrganizationContext is {
                 on command ActivateOrganization {
                   set field EstablishedOrganizationState.orgMeta to "OrganizationContext.MetaInfo"
                   send event OrganizationActivated
-                    to outlet OrganizationEvents.Events
+                    to outlet OrganizationEventsSource.Source
                   become entity ImprovingApp.OrganizationContext.Organization
                     to handler ActiveOrganizationHandler
                 }
                 on command SuspendOrganization {
                   set field EstablishedOrganizationState.orgMeta to "OrganizationContext.MetaInfo"
-                  send event OrganizationSuspended to outlet OrganizationEvents.Events
+                  send event OrganizationSuspended to outlet OrganizationEventsSource.Source
                   become entity ImprovingApp.OrganizationContext.Organization to handler SuspendedOrganizationHandler
                 } briefly "A suspension reason can be updated by re-issuing the command"
                 on command TerminateOrganization {

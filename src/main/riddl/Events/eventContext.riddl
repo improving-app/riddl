@@ -6,7 +6,7 @@ context EventContext is {
   include "eventTypeDefinitions"
   include "eventSources"
 
-  function incrementDelayedEventTime is {
+  function IncrementDelayedEventTime is {
     requires {originalTime: DateTime, duration: Duration}
     returns { newTime: DateTime }
     body ???

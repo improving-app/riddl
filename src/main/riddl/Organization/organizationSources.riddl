@@ -1,4 +1,42 @@
-type PublicOrganizationEvent is one of {
+connector OrganizationEventsChannel is {
+  from outlet OrganizationEventsSource.Source to
+    inlet OrganizationEventsSink.Sink
+}
+
+connector OrganizationCommandsChannel is {
+  from outlet OrganizationCommandsSource.Source to
+    inlet OrganizationCommandsSink.Sink
+}
+
+source OrganizationEventsSource is {
+  outlet Source is type OrganizationEvent
+}
+
+sink OrganizationEventsSink is {
+  inlet Sink is type OrganizationEvent
+}
+
+source OrganizationCommandsSource is {
+  outlet Source is type OrganizationCommand
+}
+
+sink OrganizationCommandsSink is {
+  inlet Sink is type OrganizationCommand
+}
+
+type OrganizationCommand is one of {
+    ImprovingApp.OrganizationContext.EstablishOrganization,
+    ImprovingApp.OrganizationContext.ActivateOrganization,
+    ImprovingApp.OrganizationContext.SuspendOrganization,
+    ImprovingApp.OrganizationContext.TerminateOrganization,
+    ImprovingApp.OrganizationContext.EditOrganizationInfo,
+    ImprovingApp.OrganizationContext.AddMembersToOrganization,
+    ImprovingApp.OrganizationContext.AddOwnersToOrganization,
+    ImprovingApp.OrganizationContext.UpdateOrganizationContacts,
+    ImprovingApp.OrganizationContext.UpdateOrganizationAccounts
+}
+
+type OrganizationEvent is one of {
     ImprovingApp.OrganizationContext.OrganizationEstablished,
     ImprovingApp.OrganizationContext.OrganizationActivated,
     ImprovingApp.OrganizationContext.OrganizationSuspended,
@@ -9,7 +47,3 @@ type PublicOrganizationEvent is one of {
     ImprovingApp.OrganizationContext.OrganizationContactsUpdated,
     ImprovingApp.OrganizationContext.OrganizationAccountsUpdated
 }
-
-source OrganizationEvents is {
-    outlet Events is type PublicOrganizationEvent
-} explained as "This is a source for Organization Events"

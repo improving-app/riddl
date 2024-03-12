@@ -1,10 +1,6 @@
-source LiveUpdates is {
-    outlet Updates is type LiveUpdate
-} explained as "This is a source for things that happen as an event progresses"
-
-// plant EventPlant is {
-//     pipe EventPipe is {???}
-// }
+// source LiveUpdates is {
+//     outlet Updates is type LiveUpdate
+// } explained as "This is a source for things that happen as an event progresses"
 
 //ReservationAddedToEvent,
 type PublicEventEvent is one of {
