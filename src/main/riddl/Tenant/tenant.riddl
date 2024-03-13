@@ -19,7 +19,7 @@ context TenantContext is {
               if "primaryContact info is not complete" then {
                 error "primaryContact must be complete in order to establish a Tenant"
               } else {
-                send event TenantEstablished to outlet TenantEvents.Events
+                send event TenantEstablished to outlet TenantEventsSource.Events
                 morph entity Tenant to state EstablishedTenant with
                   record EstablishedTenantState
               }
@@ -155,14 +155,14 @@ context TenantContext is {
                 "Copy fields which are present from TenantContext.EditInfo.newInfo into info fields"
                 set field EstablishedTenantState.meta to "record TenantContext.TenantMetaInfo"
                 send event TenantContext.InfoEdited
-                  to outlet TenantEvents.Events
+                  to outlet TenantEventsSource.Events
               }
               on command SuspendTenant {
                 if "updating user is not authorized to suspend tenant" then {
                   error "User is not authorized to suspend Tenant"
                 } else {
                   set field EstablishedTenantState.meta to "record TenantContext.TenantMetaInfo"
-                  send event TenantContext.TenantSuspended to outlet TenantEvents.Events
+                  send event TenantContext.TenantSuspended to outlet TenantEventsSource.Events
                   become entity Tenant to handler SuspendedTenantHandler
                 }
               }
@@ -171,7 +171,7 @@ context TenantContext is {
 	                error "User is not authorized to modify Tenant"
 	              } else {
                   set field EstablishedTenantState.meta to "TenantContext.TenantMetaInfo"
-                  send event TenantContext.TenantTerminated to outlet TenantEvents.Events
+                  send event TenantContext.TenantTerminated to outlet TenantEventsSource.Events
 	                morph entity Tenant to state TerminatedTenant with record TerminatedTenantState
 	              }
 	            }
@@ -215,14 +215,14 @@ context TenantContext is {
                 "Copy fields which are present from TenantContext.EditInfo.newInfo into info fields"
                 set field EstablishedTenantState.meta to "TenantContext.TenantMetaInfo"
                 send event TenantContext.InfoEdited
-                  to outlet TenantEvents.Events
+                  to outlet TenantEventsSource.Events
               }
               on command ActivateTenant {
                 if "updating user is not authorized to activate the tenant" then{
                   error "User is not authorized to Activate Tenant"
                 } else {
                   set field EstablishedTenantState.meta to "TenantContext.TenantMetaInfo"
-                  send event TenantContext.TenantSuspended to outlet TenantEvents.Events
+                  send event TenantContext.TenantSuspended to outlet TenantEventsSource.Events
                   become entity Tenant to handler ActiveTenantHandler
                 }
               }
@@ -232,7 +232,7 @@ context TenantContext is {
                 } else {
 //                  set field EstablishedTenantState.meta to "TenantContext.TenantMetaInfo"
                   send event TenantContext.TenantTerminated
-                    to outlet TenantEvents.Events
+                    to outlet TenantEventsSource.Events
                   morph entity Tenant to state TerminatedTenant with record TerminatedTenantState
                 }
               }

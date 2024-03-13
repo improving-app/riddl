@@ -1,10 +1,41 @@
-type PublicTenantEvent is one of {
-    TenantContext.InfoEdited,
-    TenantContext.TenantActivated,
-    TenantContext.TenantSuspended,
-    TenantContext.TenantTerminated
+connector TenantCommandsChannel is {
+  from outlet TenantCommandsSource.Commands to
+    inlet TenantCommandsSink.Commands
 }
 
-source TenantEvents is {
-    outlet Events is type PublicTenantEvent
-} explained as "This is a source for Tenant Events"
+connector TenantEventsChannel is {
+  from outlet TenantEventsSource.Events to
+    inlet TenantEventsSink.Events
+}
+
+source TenantCommandsSource is {
+    outlet Commands is type TenantCommand
+}
+
+sink TenantCommandsSink is {
+    inlet Commands is type TenantCommand
+}
+
+source TenantEventsSource is {
+    outlet Events is type TenantEvent
+}
+
+sink TenantEventsSink is {
+    inlet Events is type TenantEvent
+}
+
+type TenantCommand is one of {
+    EstablishTenant,
+    ActivateTenant,
+    SuspendTenant,
+    TerminateTenant,
+    EditInfo
+}
+
+type TenantEvent is one of {
+    TenantEstablished,
+    TenantActivated,
+    TenantSuspended,
+    TenantTerminated,
+    InfoEdited
+}

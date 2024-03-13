@@ -3,16 +3,54 @@
 // } explained as "This is a source for things that happen as an event progresses"
 
 //ReservationAddedToEvent,
-type PublicEventEvent is one of {
-  Events.EventContext.EventInfoEdited,
-  Events.EventContext.EventCreated,
-  Events.EventContext.EventScheduled,
-  Events.EventContext.EventCancelled,
-  Events.EventContext.EventRescheduled,
-  Events.EventContext.EventDelayed,
-  Events.EventContext.EventStarted,
-  Events.EventContext.EventEnded
+
+connector EventCommandsChannel is {
+  from outlet EventCommandsSource.Commands to
+    inlet EventCommandsSink.Commands
 }
-source EventEvents is {
-  outlet Events is type PublicEventEvent
-} explained as "This is a source for event from Events entities"
+
+connector EventEventsChannel is {
+  from outlet EventEventsSource.Events to
+    inlet EventEventsSink.Events
+}
+
+source EventCommandsSource is {
+    outlet Commands is type EventCommand
+}
+
+sink EventCommandsSink is {
+    inlet Commands is type EventCommand
+}
+
+source EventEventsSource is {
+    outlet Events is type EventEvent
+}
+
+sink EventEventsSink is {
+    inlet Events is type EventEvent
+}
+
+type EventCommand is one of {
+  EditEventInfo,
+  CreateEvent,
+  ScheduleEvent,
+  CancelEvent,
+  RescheduleEvent,
+  DelayEvent,
+  StartEvent,
+  EndEvent,
+  TerminateEvent,
+  AddLiveUpdate
+}
+
+type EventEvent is one of {
+  EventInfoEdited,
+  EventCreated,
+  EventScheduled,
+  EventCancelled,
+  EventRescheduled,
+  EventDelayed,
+  EventStarted,
+  EventEnded,
+  EventTerminated
+}

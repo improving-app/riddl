@@ -41,7 +41,7 @@ context EventContext is {
 
     handler EventHandler is {
       on command CreateEvent {
-        send event EventCreated to outlet EventEvents.Events
+        send event EventCreated to outlet EventEventsSource.Events
         morph entity Event to state DraftEvent with record DraftEventState
       }
       on other {
@@ -60,7 +60,7 @@ context EventContext is {
         on command ScheduleEvent{
           if "all required info fields are present" then {
             "set a scheduled Akka call for emitting StartEvent at DraftEventState.info.expectedStart"
-            send event EventScheduled to outlet EventEvents.Events
+            send event EventScheduled to outlet EventEventsSource.Events
             morph entity Event to state ScheduledEvent with record ScheduledEventState
           }
         }
@@ -68,12 +68,12 @@ context EventContext is {
           set field DraftEventState.info to "EventContext.newEditableInfoFromFieldsPresentInEditable"
           set field DraftEventState.meta to "EventMetaInfo"
           send event EventRescheduled
-            to outlet EventEvents.Events
+            to outlet EventEventsSource.Events
         }
         on command CancelEvent{
           if "all required info fields are present" then {
             "cancel associated scheduled call to emit StartEvent"
-            send event EventCancelled to outlet EventEvents.Events
+            send event EventCancelled to outlet EventEventsSource.Events
             morph entity Event to state ScheduledEvent with record ScheduledEventState
           }
         }
@@ -82,13 +82,13 @@ context EventContext is {
             "adjust associated scheduled call to emit StartEvent"
             set field DraftEventState.info to "EditableEventInfo"
             set field DraftEventState.meta to "EventMetaInfo"
-            send event EventRescheduled to outlet EventEvents.Events
+            send event EventRescheduled to outlet EventEventsSource.Events
           }
         }
         on command DelayEvent{
           if "all required info fields are present" then {
             "adjust associated scheduled call to emit StartEvent"
-            send event EventDelayed to outlet EventEvents.Events
+            send event EventDelayed to outlet EventEventsSource.Events
             morph entity Event to state ScheduledEvent with record ScheduledEventState
           }
         }
@@ -127,21 +127,21 @@ context EventContext is {
             on command EditEventInfo {
               set field ScheduledEventState.info to "EventContext.newInfoFromFieldsPresentInEditable"
               set field ScheduledEventState.meta to "EventMetaInfo"
-              send event EventInfoEdited to outlet EventEvents.Events
+              send event EventInfoEdited to outlet EventEventsSource.Events
             }
             on command CancelEvent {
               "cancel associated scheduled call to emit StartEvent"
-              send event EventCancelled to outlet EventEvents.Events
+              send event EventCancelled to outlet EventEventsSource.Events
               become entity Event to handler CancelledEventHandler
             }
             on command DelayEvent {
               "adjust associated scheduled Akka call to emit StartEvent"
-              send event EventDelayed to outlet EventEvents.Events
+              send event EventDelayed to outlet EventEventsSource.Events
               become entity Event to handler DelayedEventHandler
             }
             on command StartEvent{
               "create scheduled Akka call using ScheduledEventState.info.expectedEnd to emit EndEvent"
-              send event EventStarted to outlet EventEvents.Events
+              send event EventStarted to outlet EventEventsSource.Events
               become entity Event to handler InProgressEventHandler
           } briefly "to be invoked by Akka scheduler upon ScheduleEvent reception"
           on command RescheduleEvent {
@@ -149,7 +149,7 @@ context EventContext is {
               "adjust associated scheduled call to emit StartEvent"
               set field ScheduledEventState.info to "EventInfo"
               set field ScheduledEventState.meta to "EventMetaInfo"
-              send event EventRescheduled to outlet EventEvents.Events
+              send event EventRescheduled to outlet EventEventsSource.Events
             }
           }
           on command EndEvent{
@@ -178,14 +178,14 @@ context EventContext is {
             }
             on command DelayEvent{
               "adjust associated scheduled Akka call to emit StartEvent"
-              send event EventDelayed to outlet EventEvents.Events
+              send event EventDelayed to outlet EventEventsSource.Events
               become entity Event to handler DelayedEventHandler
             }
             on command StartEvent {
               error "Event is already started. Cannot start an event that is already in progress"
             }
             on command EndEvent {
-              send event EventEnded to outlet EventEvents.Events
+              send event EventEnded to outlet EventEventsSource.Events
               become entity Event to handler PastEventHandler
             }
             // TODO: specify AddLiveUpdate on clause
@@ -203,11 +203,11 @@ context EventContext is {
             on command EditEventInfo{
                set field ScheduledEventState.info to "EventContext.newInfoFromFieldsPresentInEditable"
                set field ScheduledEventState.meta to "EventMetaInfo"
-               send event EventInfoEdited to outlet EventEvents.Events
+               send event EventInfoEdited to outlet EventEventsSource.Events
             }
             on command CancelEvent{
               "cancel associated scheduled call to emit StartEvent"
-              send event EventCancelled to outlet EventEvents.Events
+              send event EventCancelled to outlet EventEventsSource.Events
               become entity Event to handler CancelledEventHandler
             }
             on command RescheduleEvent{
@@ -215,7 +215,7 @@ context EventContext is {
                 "adjust associated scheduled call to emit StartEvent"
                 set field ScheduledEventState.info to "EventInfo"
                 set field ScheduledEventState.meta to "EventMetaInfo"
-                send event EventRescheduled to outlet EventEvents.Events
+                send event EventRescheduled to outlet EventEventsSource.Events
               }
             }
             on command DelayEvent{
@@ -223,7 +223,7 @@ context EventContext is {
             }
             on command StartEvent{
               "create scheduled Akka call using ScheduledEventState.info.expectedEnd to emit EndEvent"
-              send event EventStarted to outlet EventEvents.Events
+              send event EventStarted to outlet EventEventsSource.Events
               become entity Event to handler InProgressEventHandler
             } briefly "to be invoked by Akka scheduler upon ScheduleEvent reception"
             on command EndEvent{
@@ -240,7 +240,7 @@ context EventContext is {
                 "adjust associated scheduled call to emit StartEvent"
                 set field ScheduledEventState.info to "EventInfo"
                 set field ScheduledEventState.meta to "EventMetaInfo"
-                send event EventRescheduled to outlet EventEvents.Events
+                send event EventRescheduled to outlet EventEventsSource.Events
               }
             }
             on other {
