@@ -11,10 +11,10 @@ epic CreateReservation {
     step from user GatewayAPI "Create Reservation" to entity ImprovingApp.Events.ReservationContext.Reservation
       briefly "create reservation"
     step send event ImprovingApp.Events.ReservationContext.ReservationEstablished
-      from entity ImprovingApp.Events.ReservationContext.Reservation to source ImprovingApp.Events.ReservationContext.PublicReservationEvent
+      from entity ImprovingApp.Events.ReservationContext.Reservation to source ImprovingApp.Events.ReservationContext.ReservationEventsSource
       briefly "reservation created"
     step send event ImprovingApp.Events.ReservationContext.ReservationEstablished
-      from source ImprovingApp.Events.ReservationContext.PublicReservationEvent to application App
+      from source ImprovingApp.Events.ReservationContext.ReservationEventsSource to application App
   }
 } briefly "A story about creating a reservation in Improving.app"
   described as "This is the story of how a reservation comes into existence"

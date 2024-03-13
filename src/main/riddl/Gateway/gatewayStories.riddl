@@ -9,9 +9,9 @@ epic RegisterMember {
       briefly "send creation message"
     step from context GatewayAPI "Register Member" to entity ImprovingApp.MemberContext.Member
       briefly "add new Member"
-    step send event ImprovingApp.MemberContext.MemberRegistered from entity ImprovingApp.MemberContext.Member to source ImprovingApp.MemberContext.MemberEvents
+    step send event ImprovingApp.MemberContext.MemberRegistered from entity ImprovingApp.MemberContext.Member to source ImprovingApp.MemberContext.MemberEventsSource
       briefly "Member added in Draft state"
-    step send event ImprovingApp.MemberContext.MemberRegistered from source ImprovingApp.MemberContext.MemberEvents to application App
+    step send event ImprovingApp.MemberContext.MemberRegistered from source ImprovingApp.MemberContext.MemberEventsSource to application App
     //example Foo is {...}
   }
 } briefly "A story about registering a member in Improving.app"

@@ -1,15 +1,5 @@
 context ProductContext is {
-  type PublicProductEvent is one of {
-      ProductCreated,
-      ProductInfoUpdated,
-      ProductDeleted,
-      ProductActivated,
-      ProductInactivated
-  }
-
-  source ProductEvents is {
-      outlet Events is type PublicProductEvent
-  } explained as "This is a source for Product Events"
+  include "productSources"
 
   type ProductDetails is any of {TicketDetails}
   type ProductStatus is any of {Draft, Active, InActive, Deleted} briefly "Note: Delete is not the same as in Org, Tenant, etc because there is no PII. Here it is more like Terminate"
@@ -97,7 +87,7 @@ context ProductContext is {
         on command DeleteProduct{
           set field DraftProductState.meta to "ProductContext.ProductMetaInfo"
           send event ProductDeleted
-            to outlet ProductEvents.Events
+            to outlet ProductEventsSource.Events
           morph entity ProductContext.Product to state DeletedProductState with record DeletedProduct
         }
         on command ActivateProduct{
@@ -106,7 +96,7 @@ context ProductContext is {
           } else {
             // "all required fields are present"
             set field DraftProductState.meta to "ProductContext.ProductMetaInfo"
-            send event ProductActivated to outlet ProductEvents.Events
+            send event ProductActivated to outlet ProductEventsSource
             morph entity Product to state DefinedProductState with record DefinedProduct
           }
         }
@@ -136,7 +126,7 @@ context ProductContext is {
         }
         on command ProductContext.DeleteProduct{
           set field DefinedProductState.meta to "ProductContext.ProductMetaInfo"
-          send event ProductDeleted to outlet ProductEvents.Events
+          send event ProductDeleted to outlet ProductEventsSource.Events
           morph entity ProductContext.Product to state DeletedProductState with record DeletedProduct
         }
         on command ProductContext.ActivateProduct{
@@ -144,7 +134,7 @@ context ProductContext is {
         }
         on command ProductContext.InactivateProduct {
           set field DefinedProductState.meta to "ProductContext.ProductMetaInfo"
-          send event ProductInactivated to outlet ProductEvents.Events
+          send event ProductInactivated to outlet ProductEventsSource.Events
           become entity ProductContext.Product to handler Product.DefinedProductState.InactiveProductHandler
         }
         on query GetProductInfo{
@@ -162,12 +152,12 @@ context ProductContext is {
         }
         on command ProductContext.DeleteProduct{
           set field DefinedProductState.meta to "ProductContext.ProductMetaInfo"
-          send event ProductDeleted to outlet ProductEvents.Events
+          send event ProductDeleted to outlet ProductEventsSource.Events
           morph entity ProductContext.Product to state ProductContext.Product.DeletedProductState with record DeletedProduct
         }
         on command ProductContext.ActivateProduct{
           set field DefinedProductState.meta to "ProductContext.ProductMetaInfo"
-          send event ProductActivated to outlet ProductEvents.Events
+          send event ProductActivated to outlet ProductEventsSource.Events
           become entity ProductContext.Product to handler Product.DefinedProductState.ActiveProductHandler
         }
         on command ProductContext.InactivateProduct{

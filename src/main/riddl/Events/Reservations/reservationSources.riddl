@@ -1,0 +1,41 @@
+connector ReservationCommandsChannel is {
+  from outlet ReservationCommandsSource.Commands to
+    inlet ReservationCommandsSink.Commands
+}
+
+connector ReservationEventsChannel is {
+  from outlet ReservationEventsSource.Events to
+    inlet ReservationEventsSink.Events
+}
+
+source ReservationCommandsSource is {
+    outlet Commands is type ReservationCommand
+}
+
+sink ReservationCommandsSink is {
+    inlet Commands is type ReservationCommand
+}
+
+source ReservationEventsSource is {
+    outlet Events is type ReservationEvent
+}
+
+sink ReservationEventsSink is {
+    inlet Events is type ReservationEvent
+}
+
+type ReservationCommand is one of {
+    EstablishReservation,
+    EditReservationInfo,
+    UpdateReservationStatus,
+    DeleteReservation,
+    GetReservationInfo
+}
+
+type ReservationEvent is one of {
+    ReservationEstablished,
+    ReservationInfoUpdated,
+    ReservationStatusUpdated,
+    ReservationDeleted,
+    ReservationInfoResult
+}

@@ -1,0 +1,50 @@
+connector StoreCommandsChannel is {
+  from outlet StoreCommandsSource.Commands to
+    inlet StoreCommandsSink.Commands
+}
+
+connector StoreEventsChannel is {
+  from outlet StoreEventsSource.Events to
+    inlet StoreEventsSink.Events
+}
+
+source StoreCommandsSource is {
+    outlet Commands is type StoreCommand
+}
+
+sink StoreCommandsSink is {
+    inlet Commands is type StoreCommand
+}
+
+source StoreEventsSource is {
+    outlet Events is type StoreEvent
+}
+
+sink StoreEventsSink is {
+    inlet Events is type StoreEvent
+}
+
+type StoreCommand is one of {
+    CreateStore,
+    EditStoreInfo,
+    MakeStoreReady,
+    DeleteStore,
+    OpenStore,
+    CloseStore,
+    TerminateStore,
+    AddProductsToStore,
+    RemoveProductsFromStore,
+    GetStoreInfo,
+    GetProductsInStore
+}
+
+type StoreEvent is one of {
+    StoreCreated,
+    StoreInfoEdited,
+    StoreIsReady,
+    StoreDeleted,
+    StoreOpened,
+    StoreClosed,
+    ProductsAddedToStore,
+    ProductsRemovedFromStore
+}

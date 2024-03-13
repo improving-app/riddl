@@ -1,0 +1,41 @@
+connector ProductCommandsChannel is {
+  from outlet ProductCommandsSource.Commands to
+    inlet ProductCommandsSink.Commands
+}
+
+connector ProductEventsChannel is {
+  from outlet ProductEventsSource.Events to
+    inlet ProductEventsSink.Events
+}
+
+source ProductCommandsSource is {
+    outlet Commands is type ProductCommand
+}
+
+sink ProductCommandsSink is {
+    inlet Commands is type ProductCommand
+}
+
+source ProductEventsSource is {
+    outlet Events is type ProductEvent
+}
+
+sink ProductEventsSink is {
+    inlet Events is type ProductEvent
+}
+
+type ProductCommand is one of {
+    ImprovingApp.ProductContext.CreateProduct,
+    UpdateProductInfo,
+    DeleteProduct,
+    ActivateProduct,
+    InactivateProduct
+}
+
+type ProductEvent is one of {
+    ProductCreated,
+    ProductInfoUpdated,
+    ProductDeleted,
+    ProductActivated,
+    ProductInactivated
+}

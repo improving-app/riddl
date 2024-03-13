@@ -1,18 +1,8 @@
 context MemberContext is {
+    include "memberSources"
+
     type MemberId is Id(MemberContext.Member)
       briefly "Unique identifier for Tenant Entity"
-
-    type PublicMemberEvent is one of {
-        ImprovingApp.MemberContext.MemberRegistered,
-        ImprovingApp.MemberContext.MemberActivated,
-        ImprovingApp.MemberContext.MemberSuspended,
-        ImprovingApp.MemberContext.MemberTerminated,
-        ImprovingApp.MemberContext.MemberInfoEdited,
-        ImprovingApp.MemberContext.MemberData
-    }
-    source MemberEvents is {
-        outlet Events is type PublicMemberEvent
-    } explained as "This is a source for Organization Events"
 
     type MemberMap is mapping from MemberContext.MemberId to MemberContext.Info
 
@@ -249,7 +239,7 @@ context MemberContext is {
             on command ImprovingApp.MemberContext.ActivateMember {
               if "all required fields in requiredInfo are not None or Empty"
               then {
-                send event MemberRegistered to outlet MemberEvents.Events
+                send event MemberRegistered to outlet MemberEventsSource.Events
                 morph entity Member to state RegisteredMemberState with record RegisteredMember
 
               } else {
@@ -261,13 +251,13 @@ context MemberContext is {
             on command EditMemberInfo {
               set field Member.DraftMemberState.info to "MemberContext.EditableInfo"
               set field Member.DraftMemberState.meta to "MemberContext.MetaInfo"
-              send event MemberInfoEdited to outlet ImprovingApp.MemberContext.MemberEvents.Events
+              send event MemberInfoEdited to outlet ImprovingApp.MemberContext.MemberEventsSource.Events
             }
             // For GetMemberData, eventually probably only admins and self should be able to make this call. Also
             // potentially allow other roles to get some limited information (this will require adding another
             // aggregate).
             on query GetMemberData {
-              send record MemberInfo to outlet ImprovingApp.MemberContext.MemberEvents.Events
+              send record MemberInfo to outlet ImprovingApp.MemberContext.MemberEventsSource.Events
             }
           }
         } described as {
@@ -310,11 +300,11 @@ context MemberContext is {
                         lastUpdatedBy = @EditMemberInfo.editingMember,
                         currentState = @MemberStates.Draft
                     )"
-                    send event MemberInfoEdited to outlet ImprovingApp.MemberContext.MemberEvents.Events
+                    send event MemberInfoEdited to outlet ImprovingApp.MemberContext.MemberEventsSource.Events
                 }
                 on command ImprovingApp.MemberContext.SuspendMember {
                   if "all required fields in requiredInfo are not None or Empty" then {
-                    send event MemberSuspended to outlet MemberEvents.Events
+                    send event MemberSuspended to outlet MemberEventsSource.Events
                       become entity Member to handler SuspendedMemberHandler
                     }
                 }
@@ -331,12 +321,12 @@ context MemberContext is {
                   error "Member has already been registered."
                 }
                 on command ImprovingApp.MemberContext.ActivateMember {
-                  send event ImprovingApp.GatewayAPI.MemberGateway.MemberActivated to outlet ImprovingApp.MemberContext.MemberEvents.Events
+                  send event ImprovingApp.GatewayAPI.MemberGateway.MemberActivated to outlet ImprovingApp.MemberContext.MemberEventsSource.Events
                   become entity ImprovingApp.MemberContext.Member to handler ActiveMemberHandler
                 }
                 on command ImprovingApp.MemberContext.SuspendMember {
                    set field RegisteredMemberState.meta to "MemberContext.MetaInfo"
-                   send event ImprovingApp.MemberContext.MemberSuspended to outlet ImprovingApp.MemberContext.MemberEvents.Events
+                   send event ImprovingApp.MemberContext.MemberSuspended to outlet ImprovingApp.MemberContext.MemberEventsSource.Events
                 } briefly "A suspension reason can be updated by re-issuing the command"
                 on command ImprovingApp.MemberContext.TerminateMember {
                   set field RegisteredMemberState.meta to "MemberContext.MetaInfo"

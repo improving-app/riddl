@@ -1,0 +1,43 @@
+connector MemberCommandsChannel is {
+  from outlet MemberCommandsSource.Commands to
+    inlet MemberCommandsSink.Commands
+}
+
+connector MemberEventsChannel is {
+  from outlet MemberEventsSource.Events to
+    inlet MemberEventsSink.Events
+}
+
+source MemberCommandsSource is {
+    outlet Commands is type MemberCommand
+}
+
+sink MemberCommandsSink is {
+    inlet Commands is type MemberCommand
+}
+
+source MemberEventsSource is {
+    outlet Events is type MemberEvent
+}
+
+sink MemberEventsSink is {
+    inlet Events is type MemberEvent
+}
+
+type MemberCommand is one of {
+    ImprovingApp.MemberContext.RegisterMember,
+    ImprovingApp.MemberContext.ActivateMember,
+    ImprovingApp.MemberContext.SuspendMember,
+    ImprovingApp.MemberContext.TerminateMember,
+    ImprovingApp.MemberContext.EditMemberInfo,
+    ImprovingApp.MemberContext.GetMemberData
+}
+
+type MemberEvent is one of {
+    ImprovingApp.MemberContext.MemberRegistered,
+    ImprovingApp.MemberContext.MemberActivated,
+    ImprovingApp.MemberContext.MemberSuspended,
+    ImprovingApp.MemberContext.MemberTerminated,
+    ImprovingApp.MemberContext.MemberInfoEdited,
+    ImprovingApp.MemberContext.MemberData
+}

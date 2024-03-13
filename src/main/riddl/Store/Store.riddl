@@ -1,18 +1,5 @@
 context StoreContext is {
-  type PublicStoreEvent is one of {
-      StoreCreated,
-      StoreInfoEdited,
-      StoreIsReady,
-      StoreDeleted,
-      StoreOpened,
-      StoreClosed,
-      ProductsAddedToStore,
-      ProductsRemovedFromStore
-  }
-
-  source StoreEvents is {
-      outlet Events is type PublicStoreEvent
-  } explained as "This is a source for Store Events"
+  include "storeSources"
 
   type StoreStates is any of {Draft, Ready, Open, Closed, Deleted}
   type StoreId is Id(StoreContext.Store)
@@ -76,8 +63,7 @@ context StoreContext is {
 
     handler DefaultStoreHandler is {
       on command CreateStore {
-        send event StoreCreated
-          to outlet StoreEvents.Events
+        send event StoreCreated to outlet StoreEventsSource.Events
         morph entity StoreContext.Store to state Store.DraftStore with record Store.DraftStoreData
       }
       on other {
@@ -154,13 +140,13 @@ context StoreContext is {
         }
         on command OpenStore {
           set field Store.CreatedStore.meta to "StoreContext.MetaInfo"
-          send event StoreOpened to outlet StoreEvents.Events
+          send event StoreOpened to outlet StoreEventsSource.Events
           become entity StoreContext.Store to handler StoreContext.Store.CreatedStore.OpenStoreHandler
         }
         on command CloseStore {
           "ensure all orders associated with store are Delivered or Cancelled before closing store"
           set field CreatedStore.meta to "StoreContext.MetaInfo"
-          send event StoreClosed to outlet StoreEvents.Events
+          send event StoreClosed to outlet StoreEventsSource.Events
           become entity StoreContext.Store to handler StoreContext.Store.CreatedStore.ClosedStoreHandler
         }
         on command AddProductsToStore {
@@ -203,7 +189,7 @@ context StoreContext is {
           on command CloseStore {
             "ensure all orders associated with store are Delivered or Cancelled before closing store"
             set field CreatedStore.meta to "StoreContext.MetaInfo"
-            send event StoreClosed to outlet StoreEvents.Events
+            send event StoreClosed to outlet StoreEventsSource.Events
             become entity StoreContext.Store to handler StoreContext.Store.CreatedStore.ClosedStoreHandler
           }
           on command AddProductsToStore {
@@ -239,12 +225,12 @@ context StoreContext is {
           }
           on command DeleteStore {
             set field CreatedStore.meta to "StoreContext.MetaInfo"
-            send event StoreDeleted to outlet StoreEvents.Events
+            send event StoreDeleted to outlet StoreEventsSource.Events
             morph entity StoreContext.Store to state DeletedStore with record DeletedStoreData
           }
           on command OpenStore {
             set field CreatedStore.meta to "StoreContext.MetaInfo"
-            send event StoreOpened to outlet StoreEvents.Events
+            send event StoreOpened to outlet StoreEventsSource.Events
             become entity StoreContext.Store to handler Store.CreatedStore.OpenStoreHandler
           }
           on command CloseStore {
