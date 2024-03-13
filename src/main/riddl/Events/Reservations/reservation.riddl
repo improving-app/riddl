@@ -4,13 +4,7 @@ type ReservationId is Id (ImprovingApp.Events.ReservationContext.Reservation)
 context ReservationContext is {
     include "reservationTypeDefinitions"
     include "reservationMessages"
-
-    // TODO: List the names of the public reservation events here
-    type PublicReservationEvent is one of {
-      ???
-    }
-
-    outlet Events is type PublicReservationEvent
+    include "reservationSources"
 
     entity Reservation is {
         option event-sourced
@@ -22,7 +16,7 @@ context ReservationContext is {
                 record ImprovingApp.Events.ReservationContext.Reservation.DraftState
               "Copy fields from the command into Draft fields"
               "adjust meta fields to reflect the change set"
-              send event ReservationEstablished to outlet ReservationContext.Events
+              send event ReservationEstablished to outlet ReservationEventsSource.Events
 		        }
 		        on other {
 		          error "Only EstablishReservation command is allowed in the default state"
@@ -41,7 +35,7 @@ context ReservationContext is {
 		            }
 		            on command ImprovingApp.Events.ReservationContext.EditReservationInfo {
 		              set field ImprovingApp.Events.ReservationContext.Reservation.Draft.reservationInfo to "EditReservationInfo.info"
-		              send event ReservationInfoUpdated to outlet ReservationContext.Events
+		              send event ReservationInfoUpdated to outlet ReservationEventsSource.Events
 		            }
 		            on command ImprovingApp.Events.ReservationContext.UpdateReservationStatus {
                   "morph entity Reservation to state provided in UpdateReservationStatus"
