@@ -21,7 +21,7 @@ source ProductEventsSource is {
 }
 
 sink ProductEventsSink is {
-    inlet Events is type ProductCommand
+    inlet Events is type ProductEvent
 }
 
 type ProductCommand is one of {
