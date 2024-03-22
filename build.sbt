@@ -1,6 +1,6 @@
 Global / onChangedBuildSource := ReloadOnSourceChanges
 scalaVersion := "3.3.1"
-lazy val riddl_version = "0.39.0"
+lazy val riddl_version = "0.40.0"
 libraryDependencies ++= Seq(
   "com.ossuminc" %% "riddl-testkit" % riddl_version % "test",
   "com.ossuminc" %% "riddl-hugo" % riddl_version % "test",
@@ -15,5 +15,5 @@ riddlcPath := file(
   // NOTE: Set this to your local path which will always have this portion
   // NOTE: of the path as a constant: riddl/riddlc/target/universal/stage/bin/riddlc
   // NOTE: You must "sbt stage" in the riddl/riddlc directory for this to work
-  "/Users/reid/Code/Ossum/riddl/riddlc/target/universal/stage/bin/riddlc"
+  "/Users/reid/Code/ossuminc/riddl/riddlc/target/universal/stage/bin/riddlc"
 )
