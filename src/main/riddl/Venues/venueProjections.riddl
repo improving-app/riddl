@@ -19,19 +19,21 @@ projector VenuesView is {
             }
           }
         }
-        on query GetVenueInfo {
-          if "GetVenueInfo.venueId exists in this projector" then {
-            reply result VenueInfo
-         } else {
-           error "VenueId not found as requested"
-         }
-        }
-        on query GetVenueCapacityOverview {
-          if "GetVenueCapacityOverview.venueId exists in this projector" then {
-	          reply result VenueCapacityOverview
-          } else {
-            error "No venue found for this venueId"
-          }
-        }
+// Queries are not supported by Venues.
+// These need to be placed on the Repository.
+//        on query GetVenueInfo {
+//          if "GetVenueInfo.venueId exists in this projector" then {
+//            // send  result VenueInfo
+//         } else {
+//           error "VenueId not found as requested"
+//         }
+//        }
+//        on query GetVenueCapacityOverview {
+//          if "GetVenueCapacityOverview.venueId exists in this projector" then {
+//	          reply result VenueCapacityOverview
+//          } else {
+//            error "No venue found for this venueId"
+//          }
+//        }
     }
 }

@@ -1,6 +1,6 @@
 package app.improving.test
 
-import com.reactific.riddl.testkit.RunCommandSpecBase
+import com.ossuminc.riddl.testkit.RunCommandSpecBase
 
 class CheckRiddlTest extends RunCommandSpecBase {
 
