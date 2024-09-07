@@ -1,8 +1,7 @@
 epic CreateVenue is {
   user Member wants to "create a Venue" so that "I can manage my Venue in ImprovingApp"
-  by author Alex
   //"Create a new Venue"
-  case HappyPath is {
+  // case HappyPath is {
     //interaction is {
     //  arbitrary step from user Member "provide venue information" to user App
     //    briefly "initial invocation",
@@ -24,15 +23,17 @@ epic CreateVenue is {
     //  and App displays success notification to Member
     //}
   }
-} briefly "A story about creating a venue in Improving.app"
+} with {
+  by author Alex
+  briefly "A story about creating a venue in Improving.app"
   described as "This is the story of how a venue comes into existence"
+}
 
 //benefit is "So Members can create Locations for Venues in ImprovingApp"
 epic CreateLocation is {
   user Member wants to "create a Venue" so that "I can manage my Locations in ImprovingApp"
-  by author Alex
   //"Create a new Location"
-  case HappyPath is {
+  // case HappyPath is {
     //interaction is {
     //  arbitrary step from user Member "Location information" to user App
     //    briefly "initial invocation",
@@ -54,16 +55,18 @@ epic CreateLocation is {
     //  and App displays success notification to Member
     //}
   }
-} briefly "A story about creating a location in Improving.app"
+} with {
+  by author Alex
+  briefly "A story about creating a location in Improving.app"
   described as "This is the story of how a location comes into existence"
+}
 
 // benefit is "So Members can allow other Members to make Reservations in their Locations in ImprovingApp"
 // capability is "Make a Location Available for Reservation"
 epic UpdateLocationStatus is {
   user Member wants to "update a Location's status" so that "I can manage my Location statuses in ImprovingApp"
-  by author Alex
   //"Update Location Status to Available"
-  case ToAvailableHappyPath is {
+  // case ToAvailableHappyPath is {
     //interaction is {
     //  arbitrary step from user Member "presses button to update Location status to Available" to user App
     //    briefly "initial invocation",
@@ -85,16 +88,18 @@ epic UpdateLocationStatus is {
     //  and App displays success notification to Member
     //}
   }
-} briefly "A story about updating a location's status to Available in Improving.app"
+} with {
+  by author Alex
+  briefly "A story about updating a location's status to Available in Improving.app"
   described as "This is the story of how a location becomes available"
+}
 
 // capability is "Search (parameterized) for a Location that is available for Reservation"
 // benefit is "So Members can find Locations for making Reservations in ImprovingApp according to desired specifications"
 epic SearchAvailableLocations is {
   user Member wants to "search for available Locations given specific parameters" so that "I can make a Reservation in an available Location in ImprovingApp"
-  by author Alex
   //"Search for available Locations according to time range parameters"
-  case TimeSearchHappyPath is {
+  //case TimeSearchHappyPath is {
     //interaction is {
     //  arbitrary step from user Member "searches for location availability with time based parameters" to user App
     //    briefly "initial invocation",
@@ -139,5 +144,8 @@ epic SearchAvailableLocations is {
     //  and App displays success notification to Member
     //}
   }
-} briefly "A story about searching for available locations in Improving.app"
+} with {
+  by author Alex
+  briefly "A story about searching for available locations in Improving.app"
   described as "This is the story of how available locations are found according to user parameters"
+}

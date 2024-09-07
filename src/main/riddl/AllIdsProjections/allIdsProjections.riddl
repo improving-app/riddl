@@ -23,8 +23,7 @@ context AllIdsProjections is  {
   projector AllTenantIdsView is {
      record AllTenantIdsFields {
         tenant: TenantId
-        //tenantStatus: TenantContext.Status
-    }
+    } with { briefly "possibly add: tenantStatus: TenantContext.Status" }
     handler AllTenantIdsViewHandler is {
 
         on event TenantEstablished {
@@ -42,7 +41,10 @@ context AllIdsProjections is  {
   projector AllOrgIdsView is {
      record AllOrgIdsFields {
         org: OrganizationId
-        //orgStatus: OrganizationContext.Status
+    } with {
+      description as {
+        "maybe with: orgStatus: OrganizationContext.Status"
+      }
     }
     handler AllOrgIdsViewHandler is {
         on event ImprovingApp.OrganizationContext.OrganizationEstablished {
@@ -60,7 +62,8 @@ context AllIdsProjections is  {
   projector AllEventIdsView is {
      record AllEventIdsFields{
         event: EventId
-        //eventStatus: EventContext.Status
+    } with {
+      briefly "possibly add: eventStatus: EventContext.Status"
     }
     handler AllTenantIdsViewHandler is {
         on event EventScheduled {

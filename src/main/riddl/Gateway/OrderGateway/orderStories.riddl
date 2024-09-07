@@ -1,4 +1,4 @@
-epic OrderGatewayStories is { ??? }
+// epic OrderGatewayStories is { ??? }
 //Order Gateway Stories
 // TODO: Convert this file to epics/cases
 
@@ -11,16 +11,15 @@ As a Vendor I would like to notify Inventory about product loss (dropped hamburg
 //As a Member I would like to maintain my iAppCoins Account so that I can make purchases (funny money) (member has an iAppCoins Account)
 //As a Member I can deposit iAppCoins into my account so I can spend them within the app
 epic DepositCoins is {
-  capability is "Deposit coins in iAppCoin Account"
-  benefit is "So Member can buy things within ImprovingApp"
+  user Member wants to "deposit coins in iAppCoin Account"  so that "Member can buy things within ImprovingApp"
   case HappyPath {
     title "Deposit Coin"
     scope domain ImprovingApp
     interaction is {
       step from user Member "Deposit Coin" to user App
-        briefly "Member clicks Deposit button on the deposit form"
+        with { briefly "Member clicks Deposit button on the deposit form" }
       step from user App send command Member.DepositCoin to user GatewayAPI //ImprovingApp.Gateway.MemberGateway.IAppCoinAccount
-        briefly "App tells the Gateway to deposit coins to their iAppCoin Account"
+        with { briefly "App tells the Gateway to deposit coins to their iAppCoin Account" }
     }
     example "Deposit negative coin" {???}
     example "Deposit > 99 coin" {???}
@@ -30,8 +29,7 @@ epic DepositCoins is {
 
 //As a Member I would like to withdraw coins from my iAppCoinsAccount so that I can purchase products/tickets from a store
 epic WithdrawCoins is {
-  capability is "Withdraw coins from iAppCoin Account"
-  benefit is "To pay for items a Member purchases"
+  user Member wants to "Withdraw coins from iAppCoin Account" so that "he can pay for items a Member purchases"
   case HappyPath {
     title "Withdraw Coin"
     scope domain ImprovingApp

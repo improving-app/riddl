@@ -6,10 +6,14 @@ context DemoScenarioGateway is {
     maxOrgsDepth: Integer,
     maxOrgsWidth: Integer,
     numMembersPerOrg: Integer,
-    numEventsPerOrg: Integer,
-    //ticketTypesPerEvent: TicketType+
-  } briefly "contains all parameters for a DemoScenario - all Integers must be > 0 and at least one TicketType must be provided"
-
+    numEventsPerOrg: Integer
+  } with {
+  briefly "contains all parameters for a DemoScenario"
+    described by {
+      "all Integers must be > 0 and at least one TicketType must be provided"
+      "maybe add: //ticketTypesPerEvent: TicketType+"
+    }
+  }
   type ScenarioStarted is event {
     tenants: TenantId+,
     orgsByTenant: mapping from TenantId to OrganizationId+,
@@ -17,8 +21,9 @@ context DemoScenarioGateway is {
     eventsByOrg: mapping from OrganizationId to EventId+,
     store: ImprovingApp.StoreContext.StoreId,
     ticketsByEvent: mapping from EventId to SKU+
-  } briefly "contains all data created for a DemoScenario with inter-related references in key mapping provided"
-
+  } with {
+    briefly "contains all data created for a DemoScenario with inter-related references in key mapping provided"
+  }
   type PurchaseProduct is command {
    productSku: ProductContext.SKU
   }

@@ -2,6 +2,7 @@ type TenantId is Id(ImprovingApp.TenantContext.Tenant)
   briefly "Unique identifier for Tenant Entity"
 
 context TenantContext is {
+    by author James by author Alex
     include "tenantTypeDefinitions"
     include "tenantMessages"
     include "tenantProjections"

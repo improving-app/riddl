@@ -1,7 +1,7 @@
+include "authors"
 domain ImprovingApp is {
     include "Common/Contact"
     include "Common/Chrono"
-    include "authors"
     include "Epics/epics"
     include "Applications/application"
     include "Accounting/accounting"
@@ -25,7 +25,12 @@ domain ImprovingApp is {
     include "OrganizationsForMembersAttendingEventsProjection/organizationsForMembersAttendingEventsProjection"
     include "MembersAttendingEventsForAnOrganizationProjection/membersAttendingEventsForAnOrganizationProjection"
     include "test/TestGateway"
-} described in file "ImprovingApp.md"
+} with {
+  by author James
+  by author Alex
+  by author Reid
+  described in file "ImprovingApp.md"
+}
 
 // This file is the top level RIDDL definition file for the Improving Application.
 // It merely includes the subodmains and bounded contexts that make up the full domain.

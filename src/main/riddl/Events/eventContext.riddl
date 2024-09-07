@@ -2,6 +2,8 @@ type EventId is Id (ImprovingApp.Events.EventContext.Event)
   briefly "Unique identifier for Tenant Entity"
 
 context EventContext is {
+  by author James
+  by author Alex
   include "eventMessages"
   include "eventTypeDefinitions"
   include "eventSources"

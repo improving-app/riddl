@@ -1,112 +1,126 @@
 context MemberContext is {
     include "memberSources"
 
-    type MemberId is Id(MemberContext.Member)
+    type MemberId is Id(MemberContext.Member) with {
       briefly "Unique identifier for Tenant Entity"
+    }
 
     type MemberMap is mapping from MemberContext.MemberId to MemberContext.Info
 
     //Member Details
-    type MemberStates is any of {Draft, Active, Suspended} briefly "Internal status of an Organization."
+    type MemberStates is any of {Draft, Active, Suspended} with {
+      briefly "Internal status of an Organization."
+    }
 
-    type NotificationPreference is any of { Email, SMS, Application } described
-    as {
-      | The values of this enumeration define the ways in which a member may
-      | be notified of changes.
+    type NotificationPreference is any of { Email, SMS, Application } with {
+      described as {
+        | The values of this enumeration define the ways in which a member may
+        | be notified of changes.
+      }
     }
 
     type Info is {
-        contact: Contact
-          briefly "Required - Contact information of the member",
-        handle: String
-          briefly "Required - username. Must be unique.",
-        avatar: URL
-          briefly "Required - thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
-        firstName: String
-          briefly "Required - Real first name of the member",
-        lastName: String
-          briefly "Required - Real last name of the member",
-        //mobileNumber: MobileNumber? briefly "Optional mobile phone number",
-        //emailAddress: EmailAddress? briefly "Optional email address",
-        notificationPreference: ImprovingApp.GatewayAPI.MemberGateway.NotificationPreference?
-          briefly "if this is set it is assumed that the user has opted in.",
-        organizationMembership: OrganizationId*
-          briefly "A possibly empty list of organizations this member belongs to.",
-        tenant: TenantId
-          briefly "Required - Tenant id of the member"
-    } described as {
-      |This type provides the basic information about members that is
-      |retained by the Member entity. The fields of this type form the profile
-      |of the Member with demographics, contact info, and various options
-      |like notifications and group membership the Member can opt in to.
+        contact: Contact with {
+          briefly "Required - Contact information of the member" },
+        handle: String with {
+          briefly "Required - username. Must be unique." },
+        avatar: URL with {
+          briefly "Required - thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?" },
+        firstName: String with {
+          briefly "Required - Real first name of the member"},
+        lastName: String with {
+          briefly "Required - Real last name of the member"},
+        notificationPreference: ImprovingApp.GatewayAPI.MemberGateway.NotificationPreference? with {
+          briefly "if this is set it is assumed that the user has opted in."},
+        organizationMembership: OrganizationId* with {
+          briefly "A possibly empty list of organizations this member belongs to." },
+        tenant: TenantId with {
+          briefly "Required - Tenant id of the member" }
+    } with {
+      described as {
+        |//mobileNumber: MobileNumber? with { briefly "Optional mobile phone number" },
+        |//emailAddress: EmailAddress? with { briefly "Optional email address" },
+        |This type provides the basic information about members that is
+        |retained by the Member entity. The fields of this type form the profile
+        |of the Member with demographics, contact info, and various options
+        |like notifications and group membership the Member can opt in to.
+      }
     }
     type EditableInfo is {
-        handle: String?
-          briefly "username. Must be unique.",
-        avatar: URL?
-          briefly "thumbnail image of the user. Need to screen to ensure community guidelines compliance. i.e. no porn or offensive content. Use Gravitar?",
-        firstName: String?
-          briefly "Real first name of the member",
-        lastName: String?
-          briefly "Real last name of the member",
-        //mobileNumber: MobileNumber?,
-        //emailAddress: EmailAddress?,
+        handle: String? with {
+          briefly "username. Must be unique."},
+        avatar: URL? with {
+          briefly "thumbnail image of the user."
+           described as {
+             |Need to screen to ensure community guidelines compliance.
+             | i.e. no porn or offensive content. Use Gravitar?
+           }
+        },
+        firstName: String? with { briefly "Real first name of the member"},
+        lastName: String? with { briefly "Real last name of the member" }
         notificationPreference: ImprovingApp.GatewayAPI.MemberGateway.NotificationPreference?
-          briefly "if this is set it is assumed that the user has opted in.",
+          with { briefly "if this is set it is assumed that the user has opted in." },
         organizationMembership: OrganizationId*
-          briefly "A list of organizations this member belongs to.",
+          with { briefly "A list of organizations this member belongs to." },
         tenant: TenantId*
-          briefly "the tenant(s) this Member would belong to"
-    } described as {
-      |This aggregate type specifies a way to update any or all of the
-      |MemberInfo fields. If a field value is missing (they are all optional)
-      |then the current value is not updated.
+          with { briefly "the tenant(s) this Member would belong to" }
+    } with {
+      described as {
+        |//mobileNumber: MobileNumber?,
+        |//emailAddress: EmailAddress?,
+        |This aggregate type specifies a way to update any or all of the
+        |MemberInfo fields. If a field value is missing (they are all optional)
+        |then the current value is not updated.
+      }
     }
     type MetaInfo is {
         createdOn: TimeStamp
-          briefly "The timestamp the member was created",
+          with { briefly "The timestamp the member was created" },
         createdBy: MemberContext.MemberId
-          briefly "The member that created this member",
+           with { briefly "The member that created this member" },
         lastModifiedOn: TimeStamp
-          briefly "The timestamp the member was last modified",
+           with { briefly "The timestamp the member was last modified" },
         lastModifiedBy: MemberContext.MemberId
-          briefly "The member that last modified this member",
+           with { briefly "The member that last modified this member" },
         currentState: MemberStates
     }
     type MetaInfoQuery is {
         createdOn: TimeStamp?
-          briefly "Optionally the timestamp to match a member's creation timestamp against",
+           with { briefly "Optionally the timestamp to match a member's creation timestamp against" },
         createdBy: MemberContext.MemberId?
-          briefly "Optionally the member id to match a member's creator against",
+           with { briefly "Optionally the member id to match a member's creator against" },
         lastModifiedOn: TimeStamp?
-          briefly "Optionally the timestamp to match a member's last modification timestamp against",
+           with { briefly "Optionally the timestamp to match a member's last modification timestamp against" },
         lastModifiedBy: MemberContext.MemberId?
-          briefly "Optionally the member id to match a member's last modifier against",
+           with { briefly "Optionally the member id to match a member's last modifier against" },
         currentState: MemberStates
     }
 
     command RegisterMember is {
-      memberId: MemberId briefly "Unique identifier for the new member",
-      info: MemberContext.EditableInfo briefly "Info needed for registration",
-      registeringMember: MemberId briefly "Member that registered new member"
-    } briefly "Create a single new member"
+      memberId: MemberId  with { briefly "Unique identifier for the new member" },
+      info: MemberContext.EditableInfo  with { briefly "Info needed for registration" },
+      registeringMember: MemberId  with { briefly "Member that registered new member" }
+    } with {
+      briefly "Create a single new member"
       described as {
-       |RegisterMember creates a single new member. The member can be
-       |registered by either another member or by themselves. As this
-       |could be a self-service request the OrganizationType is optional.
+        |RegisterMember creates a single new member. The member can be
+        |registered by either another member or by themselves. As this
+        |could be a self-service request the OrganizationType is optional.
+      }
     }
 
     event MemberRegistered is {
-      memberId: MemberId briefly "Unique identifier for the registered member",
-      info: MemberContext.EditableInfo briefly "Info describing the member",
+      memberId: MemberId  with { briefly "Unique identifier for the registered member" },
+      info: MemberContext.EditableInfo  with { briefly "Info describing the member" },
       meta: MemberContext.MetaInfo
-    } briefly "Event issued after RegisterMember or RegisterMemberList"
-    described as {
-      |This event occurs whenever a member is registered and provides the
-      |meta information for the registered member.  In the case of
-      |RegisterMemberList one event per member in the list is published.
+    } with {
+      briefly "Event issued after RegisterMember or RegisterMemberList"
+      described as {
+        |This event occurs whenever a member is registered and provides the
+        |meta information for the registered member.  In the case of
+        |RegisterMemberList one event per member in the list is published.
+      }
     }
-
     // TODO: DO we still want this? Needs to be discussed, not sure why it was taken out - Alex
     //command RegisterMemberList is {
     //  memberList: MemberMap,
@@ -125,85 +139,120 @@ context MemberContext is {
     //}
 
     command EditMemberInfo is {memberId: MemberId, info: MemberContext.EditableInfo, editingMember: MemberId}
-    briefly "Edit info of a member"
-    described as {
-      |This command will overwrite the values of attributes provided in UpdateInfo.
-      |If an attribute is not referenced it will be left as is. If an attribute is
-      |referenced with no value, an empty value will replace what is currently
-      |stored. If an attribute is referenced with a value, the new value will
-      |overwrite what is stored.
+     with { briefly "Edit info of a member"
+      described as {
+        |This command will overwrite the values of attributes provided in UpdateInfo.
+        |If an attribute is not referenced it will be left as is. If an attribute is
+        |referenced with no value, an empty value will replace what is currently
+        |stored. If an attribute is referenced with a value, the new value will
+        |overwrite what is stored.
+      }
     }
 
-    event MemberInfoEdited is {memberId: MemberId, info: MemberContext.Info, meta: MemberContext.MetaInfo}
-    briefly "Event issued after EditMemberInfo"
-    described as {
-      |This event occurs whenever a member's information is edited.
+    event MemberInfoEdited is {
+      memberId: MemberId,
+      info: MemberContext.Info,
+      meta: MemberContext.MetaInfo
+    } with {
+       briefly "Event issued after EditMemberInfo"
+       described as {
+         |This event occurs whenever a member's information is edited.
+       }
+     }
+
+    command ActivateMember is {
+      memberId: MemberId,
+      activatingMember: MemberId
+    } with {
+      briefly "Update state of member to Active"
+      described as {
+        |This command activates the member.
+      }
     }
 
-    command ActivateMember is {memberId: MemberId, activatingMember: MemberId}
-    briefly "Update state of member to Active"
-    described as {
-      |This command activates the member.
+    event MemberActivated is {
+      memberId: MemberId,
+      meta: MemberContext.MetaInfo
+    } with {
+      briefly "Event issued after ActivateMember"
+      described as {
+        |This event is issued after ActivateMember to denote
+        |that the member is now active.
+      }
     }
 
-    event MemberActivated is {memberId: MemberId, meta: MemberContext.MetaInfo}
-    briefly "Event issued after ActivateMember"
-    described as {
-      |This event is issued after ActivateMember to denote
-      |that the member is now active.
+
+    command SuspendMember is {
+      memberId: MemberId,
+      suspendingMember: MemberId
+    } with {
+      briefly "Update state of member to Suspended"
+      described as {
+        |This command suspends the member such that most operations are not available.
+      }
     }
 
-
-    command SuspendMember is {memberId: MemberId, suspendingMember: MemberId}
-    briefly "Update state of member to Suspended"
-    described as {
-      |This command suspends the member such that most operations are not available.
+    event MemberSuspended is {
+      memberId: MemberId,
+      meta: MemberContext.MetaInfo
+    } with {
+      briefly "Event issued after SuspendMember"
+      described as {
+        |This event is issued after SuspendMember to denote
+        |that the member is now suspended.
+      }
     }
 
-    event MemberSuspended is {memberId: MemberId, meta: MemberContext.MetaInfo}
-    briefly "Event issued after SuspendMember"
-    described as {
-      |This event is issued after SuspendMember to denote
-      |that the member is now suspended.
+    command TerminateMember is {
+      memberId: MemberId,
+      terminatingMember: MemberId
+    } with {
+      briefly "Update state of member to Terminated"
+      described as {
+        |This command terminates the member.
+      }
     }
 
-    command TerminateMember is {memberId: MemberId, terminatingMember: MemberId}
-    briefly "Update state of member to Terminated"
-    described as {
-      |This command terminates the member.
+    event MemberTerminated is {
+      memberId: MemberId,
+      meta: MemberContext.MetaInfo
+    } with {
+      briefly "Event issued after TerminateMember"
+      described as {
+        |This event is issued after TerminateMember to denote
+        |that the member is now terminated.
+      }
     }
 
-    event MemberTerminated is {memberId: MemberId, meta: MemberContext.MetaInfo}
-    briefly "Event issued after TerminateMember"
-    described as {
-      |This event is issued after TerminateMember to denote
-      |that the member is now terminated.
-    }
-
-    query GetMemberData is {memberId: MemberId}
-    briefly "Get the data of a member"
-    described as {
-      |This query gets the data of a member if it exists.
+    query GetMemberData is { memberId: MemberId } with {
+      briefly "Get the data of a member"
+      described as {
+        |This query gets the data of a member if it exists.
+      }
     }
 
     result MemberData is {info: MemberContext.Info, meta: MemberContext.MetaInfo}
-    briefly "The data of the member returned from the GetMemberData query"
-    described as {
-      |This result contains the member id, member information, and member metadata.
+    with {
+      briefly "The data of the member returned from the GetMemberData query"
+      described as {
+        |This result contains the member id, member information, and member metadata.
+      }
     }
 
-    query GetMembersByMetaInfo is {queryData: MemberContext.MetaInfoQuery}
-    briefly "Get the members based on the meta info"
-    described as {
-      |This query gets the members by checking if at least one of the fields of
-      |MetaInfoQuery has matched.
+    query GetMembersByMetaInfo is {queryData: MemberContext.MetaInfoQuery} with {
+      briefly "Get the members based on the meta info"
+      described as {
+        |This query gets the members by checking if at least one of the fields of
+        |MetaInfoQuery has matched.
+      }
     }
 
-    result MemberListResult is {members: ImprovingApp.MemberContext.MemberMap}
-    briefly "The data returned from the GetMembersByMetaInfo query"
-    described as {
-      |This result contains the MemberMap, which contains all members that
-      |matched to at least one of the fields of MetaInfoQuery.
+    result MemberListResult is {members: ImprovingApp.MemberContext.MemberMap} with {
+      briefly "The data returned from the GetMembersByMetaInfo query"
+      described as {
+        |This result contains the MemberMap, which contains all members that
+        |matched to at least one of the fields of MetaInfoQuery.
+      }
     }
 
     entity Member is {
@@ -213,7 +262,6 @@ context MemberContext is {
         handler MemberHandler is {
           on command ImprovingApp.GatewayAPI.MemberGateway.RegisterMember {
             morph entity ImprovingApp.MemberContext.Member to state DraftMemberState with record DraftMember
-
           }
           //on command RegisterMemberList {
           //    //TODO: list operations on the following:
@@ -231,39 +279,41 @@ context MemberContext is {
           info: MemberContext.EditableInfo,
           meta: MemberContext.MetaInfo
         }
-        state DraftMemberState of record DraftMember is {
-          handler DraftMemberHandler {
-            on command ImprovingApp.MemberContext.RegisterMember {
-              error "Member has already been registered."
-            }
-            on command ImprovingApp.MemberContext.ActivateMember {
-              if "all required fields in requiredInfo are not None or Empty"
-              then {
-                send event MemberRegistered to outlet MemberEventsSource.Events
-                morph entity Member to state RegisteredMemberState with record RegisteredMember
-
-              } else {
-                if "all required fields in state are not present" then {
-                  error "state is not sufficiently filled out to activate organization"
-                }
-              }
-            }
-            on command EditMemberInfo {
-              set field Member.DraftMemberState.info to "MemberContext.EditableInfo"
-              set field Member.DraftMemberState.meta to "MemberContext.MetaInfo"
-              send event MemberInfoEdited to outlet ImprovingApp.MemberContext.MemberEventsSource.Events
-            }
-            // For GetMemberData, eventually probably only admins and self should be able to make this call. Also
-            // potentially allow other roles to get some limited information (this will require adding another
-            // aggregate).
-            on query GetMemberData {
-              send record MemberInfo to outlet ImprovingApp.MemberContext.MemberEventsSource.Events
-            }
+        state DraftMemberState of record DraftMember with {
+          described as {
+            |This state is the initial state of a Member. It describes that the member
+            |is not yet ready to be active. Once out of this state, a member cannot go
+            |back to Draft.
           }
-        } described as {
-          |This state is the initial state of a Member. It describes that the member
-          |is not yet ready to be active. Once out of this state, a member cannot go
-          |back to Draft.
+        }
+
+        handler DraftMemberHandler {
+          on command ImprovingApp.MemberContext.RegisterMember {
+            error "Member has already been registered."
+          }
+          on command ImprovingApp.MemberContext.ActivateMember {
+            if "all required fields in requiredInfo are not None or Empty" then
+              send event MemberRegistered to outlet MemberEventsSource.Events
+              morph entity Member to state RegisteredMemberState with record RegisteredMember
+            else {
+              if "all required fields in state are not present" then
+                error "state is not sufficiently filled out to activate organization"
+              else
+                "do nothing"
+              end
+            } end
+          }
+          on command EditMemberInfo {
+            set field Member.DraftMemberState.info to "MemberContext.EditableInfo"
+            set field Member.DraftMemberState.meta to "MemberContext.MetaInfo"
+            send event MemberInfoEdited to outlet ImprovingApp.MemberContext.MemberEventsSource.Events
+          }
+          // For GetMemberData, eventually probably only admins and self should be able to make this call. Also
+          // potentially allow other roles to get some limited information (this will require adding another
+          // aggregate).
+          on query GetMemberData {
+            send record MemberInfo to outlet ImprovingApp.MemberContext.MemberEventsSource.Events
+          }
         }
 
         record RegisteredMember is {
@@ -271,93 +321,98 @@ context MemberContext is {
             info: MemberContext.Info,
             meta: MemberContext.MetaInfo
         }
-        state RegisteredMemberState of RegisteredMember is {
-            invariant time_sanity is "<=(@RegisteredMemberState.meta, @RegisteredMemberState.meta)"
+        state RegisteredMemberState of RegisteredMember
 
-            invariant firstName is ">=(length(@RegisteredMemberState.info.firstName), 3)"
-            invariant lastName is ">=(length(@RegisteredMemberState.info.firstName), 3)"
+        invariant time_sanity is "<=(@RegisteredMemberState.meta, @RegisteredMemberState.meta)"
+        invariant firstName is ">=(length(@RegisteredMemberState.info.firstName), 3)"
+        invariant lastName is ">=(length(@RegisteredMemberState.info.firstName), 3)"
 
-            handler ActiveMemberHandler {
-                on command ImprovingApp.MemberContext.RegisterMember {
-                  error "Member has already been registered."
-                }
-                on command EditMemberInfo {
-                    set field RegisteredMemberState.info to "MemberContext.Info(
-                       contact = @EditMemberInfo.info.contact,
-                       handle = @EditMemberInfo.info.handle,
-                       avatar = @EditMemberInfo.info.avatar,
-                       firstName = @EditMemberInfo.info.firstName,
-                       lastName = @EditMemberInfo.info.lastName,
-                       notificationPreference = @EditMemberInfo.info.notificationPreference,
-                       organizationMembership = @EditMemberInfo.info.organizationMembership,
-                       tenant = @EditMemberInfo.info.tenant
-                    )"
-                    set field RegisteredMemberState.meta to
-                    "!MemberContext.MetaInfo(
-                        createdOn = @RegisteredMemberState.meta.createdOn,
-                        createdBy = @RegisteredMemberState.meta.createdBy,
-                        lastUpdatedOn = now(),
-                        lastUpdatedBy = @EditMemberInfo.editingMember,
-                        currentState = @MemberStates.Draft
-                    )"
-                    send event MemberInfoEdited to outlet ImprovingApp.MemberContext.MemberEventsSource.Events
-                }
-                on command ImprovingApp.MemberContext.SuspendMember {
-                  if "all required fields in requiredInfo are not None or Empty" then {
-                    send event MemberSuspended to outlet MemberEventsSource.Events
-                      become entity Member to handler SuspendedMemberHandler
-                    }
-                }
-                on command ImprovingApp.MemberContext.TerminateMember {
-                  set field RegisteredMemberState.meta to "record MemberContext.MetaInfo"
-                  morph entity ImprovingApp.MemberContext.Member to state ImprovingApp.MemberContext.Member.TerminatedMember with record TerminatedMemberState
-                }
-                on query GetMemberData {
-                  reply record MemberInfo
+        handler ActiveMemberHandler {
+            on command ImprovingApp.MemberContext.RegisterMember {
+              error "Member has already been registered."
+            }
+            on command EditMemberInfo {
+                set field RegisteredMemberState.info to "MemberContext.Info(
+                   contact = @EditMemberInfo.info.contact,
+                   handle = @EditMemberInfo.info.handle,
+                   avatar = @EditMemberInfo.info.avatar,
+                   firstName = @EditMemberInfo.info.firstName,
+                   lastName = @EditMemberInfo.info.lastName,
+                   notificationPreference = @EditMemberInfo.info.notificationPreference,
+                   organizationMembership = @EditMemberInfo.info.organizationMembership,
+                   tenant = @EditMemberInfo.info.tenant
+                )"
+                set field RegisteredMemberState.meta to
+                "!MemberContext.MetaInfo(
+                    createdOn = @RegisteredMemberState.meta.createdOn,
+                    createdBy = @RegisteredMemberState.meta.createdBy,
+                    lastUpdatedOn = now(),
+                    lastUpdatedBy = @EditMemberInfo.editingMember,
+                    currentState = @MemberStates.Draft
+                )"
+                send event MemberInfoEdited to outlet ImprovingApp.MemberContext.MemberEventsSource.Events
+            }
+            on command ImprovingApp.MemberContext.SuspendMember {
+              if "all required fields in requiredInfo are not None or Empty" then {
+                send event MemberSuspended to outlet MemberEventsSource.Events
+                  become entity Member to handler SuspendedMemberHandler
                 }
             }
-            handler SuspendedMemberHandler {
-                on command ImprovingApp.MemberContext.RegisterMember {
-                  error "Member has already been registered."
-                }
-                on command ImprovingApp.MemberContext.ActivateMember {
-                  send event ImprovingApp.GatewayAPI.MemberGateway.MemberActivated to outlet ImprovingApp.MemberContext.MemberEventsSource.Events
-                  become entity ImprovingApp.MemberContext.Member to handler ActiveMemberHandler
-                }
-                on command ImprovingApp.MemberContext.SuspendMember {
-                   set field RegisteredMemberState.meta to "MemberContext.MetaInfo"
-                   send event ImprovingApp.MemberContext.MemberSuspended to outlet ImprovingApp.MemberContext.MemberEventsSource.Events
-                } briefly "A suspension reason can be updated by re-issuing the command"
-                on command ImprovingApp.MemberContext.TerminateMember {
-                  set field RegisteredMemberState.meta to "MemberContext.MetaInfo"
-                  morph entity ImprovingApp.MemberContext.Member to state TerminatedMember with record TerminatedMemberState
-                }
-                on query GetMemberData {
-                  reply record ImprovingApp.MemberContext.Info
-                }
-              } described as {
-              |This state describes that a member cannot access anything due
-              |to being a bad user. This state transition is only possible
-              |as a command issued by an administrator and therefore can only
-              |be removed from the suspended state by an administrator.
+            on command ImprovingApp.MemberContext.TerminateMember {
+              set field RegisteredMemberState.meta to "record MemberContext.MetaInfo"
+              morph entity ImprovingApp.MemberContext.Member to state ImprovingApp.MemberContext.Member.TerminatedMember with record TerminatedMemberState
             }
-        } described as {
-          |This state describes that a member is now active. An active
-          |member can transition to any state other than Draft.
+            on query GetMemberData {
+              reply record MemberInfo
+            }
+        } with {
+          described as {
+            |This state describes that a member is now active. An active
+            |member can transition to any state other than Draft.
+          }
+        }
+
+        handler SuspendedMemberHandler {
+            on command ImprovingApp.MemberContext.RegisterMember {
+              error "Member has already been registered."
+            }
+            on command ImprovingApp.MemberContext.ActivateMember {
+              send event ImprovingApp.GatewayAPI.MemberGateway.MemberActivated to outlet ImprovingApp.MemberContext.MemberEventsSource.Events
+              become entity ImprovingApp.MemberContext.Member to handler ActiveMemberHandler
+            }
+            on command ImprovingApp.MemberContext.SuspendMember {
+               set field RegisteredMemberState.meta to "MemberContext.MetaInfo"
+               send event ImprovingApp.MemberContext.MemberSuspended to outlet ImprovingApp.MemberContext.MemberEventsSource.Events
+            } with { briefly "A suspension reason can be updated by re-issuing the command" }
+            on command ImprovingApp.MemberContext.TerminateMember {
+              set field RegisteredMemberState.meta to "MemberContext.MetaInfo"
+              morph entity ImprovingApp.MemberContext.Member to state TerminatedMember with record TerminatedMemberState
+            }
+            on query GetMemberData {
+              reply record ImprovingApp.MemberContext.Info
+            }
+        } with {
+          described as {
+            |This handle does not let a member access anything due
+            |to being a bad user. This state transition is only possible
+            |as a command issued by an administrator and therefore can only
+            |be removed from the suspended state by an administrator.
+          }
         }
 
         record TerminatedMemberState is {
             lastMeta: MemberContext.MetaInfo
         }
-        state TerminatedMember of TerminatedMemberState is {
-            handler TerminatedMemberHandler is {
-              on other {
-                error "Terminated members cannot process messages"
-              }
-            }
-        } described as {
-          |This state describes a member who exercises their right to be forgotten.
+        state TerminatedMember of TerminatedMemberState with {
+          described as {
+           |This state describes a member who exercises their right to be forgotten.
+          }
+        }
+        handler TerminatedMemberHandler is {
+          on other {
+            error "Terminated members cannot process messages"
+          }
         }
 
-    } described in file "member-entity.md"
-} described in file "members-context.md"
+    } with { described in file "member-entity.md" }
+} with { described in file "members-context.md" }

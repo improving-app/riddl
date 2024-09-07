@@ -1,16 +1,26 @@
 application UserInterface is {
   command EstablishOrganization is {
-    info: MemberContext.EditableInfo briefly "Details about an organization required for it to exist. See OrganizationContext.Organization.Info for details.",
+    info: MemberContext.EditableInfo with {
+      briefly "Details about an organization required for it to exist. See OrganizationContext.Organization.Info for details."
+    },
     tenant: TenantId,
     parent: OrganizationContext.Parent?,
     members: MemberList,
     owners: OwnerList,
     contacts: ContactList,
-    onBehalfOf: MemberContext.MemberId briefly "The Id of the Member who is issuing the command."
-  } briefly "If parentOrg is not defined you are creating a BaseOrganization. If it is, you are creating a SubOrganization."
-
+    onBehalfOf: MemberContext.MemberId with {
+      briefly "The Id of the Member who is issuing the command."
+    }
+  } with {
+    described as {
+      |If parentOrg is not defined you are creating a BaseOrganization.
+      |If it is, you are creating a SubOrganization.
+    }
+  }
   result OrganizationEstablished is {
-    organizationId: OrganizationId briefly "Unique identifier returned by EstablishOrganization command",
+    organizationId: OrganizationId with {
+      briefly "Unique identifier returned by EstablishOrganization command"
+    },
     info: OrganizationContext.Info,
     parent: OrganizationContext.Parent?,
     members: MemberList,
@@ -37,12 +47,16 @@ application UserInterface is {
   }
 
   command RegisterMember is {
-    info: MemberContext.EditableInfo briefly "Details about a member required for it to exist. See MemberContext.Member.MemberInfo for details.",
+    info: MemberContext.EditableInfo with {
+      briefly "Details about a member required for it to exist. See MemberContext.Member.MemberInfo for details."
+    },
     onBehalfOf: MemberContext.MemberId
   }
 
   result MemberRegistered is {
-    memberId: MemberContext.MemberId briefly "Unique identifier returned by RegisterMember command",
+    memberId: MemberContext.MemberId with {
+      briefly "Unique identifier returned by RegisterMember command"
+    }  ,
     info: MemberContext.EditableInfo,
     meta: MemberMetaInfo
   }

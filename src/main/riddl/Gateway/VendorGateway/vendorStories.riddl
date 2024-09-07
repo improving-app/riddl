@@ -1,9 +1,9 @@
 epic VendorStories is {
+  user OwnerOfOrganization wants to "create a Vendor to manage Stores at my Event"
+  so that "stores are not left unattended"
   ???
+} with {
+  described as {
+    |Vendor must create a Tenant, then an Org, then Vendor, then Store(s)
+  }
 }
-
-//Vendor Gateway Stories
-/*
-As an Owner of a Organization I want to create a Vendor to manage Stores at my Event
-  - Vendor must create a Tenant, then an Org, then Vendor, then Store(s)
-*/

@@ -1,7 +1,9 @@
 epic RegisterMember is {
   user Member wants "to register as a member" so that "they can perform functions in the app"
+  ???
+} with {
   by author Alex
-  term 'member' described as {
+  term 'member' is {
      | An entity that is allowed to do queries on other entities or actions on other entities.
      | Much of their behaviour will be constrained or permitted be based on ownership, membership, &
      | permissions in the future.

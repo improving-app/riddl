@@ -1,26 +1,30 @@
 epic RegisterMember {
   user ImprovingApp.GatewayAPI.AnonUser wants to "register himself" so that "they can use ImprovingApp"
-  by author James
 
   case HappyPath is {
-    step from user ImprovingApp.GatewayAPI.Member "RegisterMember" to user App
+    user ImprovingApp.GatewayAPI.AnonUser wants to "register himself" so that "they can use ImprovingApp"
+    step from user ImprovingApp.GatewayAPI.Member "RegisterMember" to user App with {
       briefly "initial invocation"
+    }
     step send command ImprovingApp.MemberContext.RegisterMember from application UserInterface to context GatewayAPI
-      briefly "send creation message"
+      with { briefly "send creation message" }
     step from context GatewayAPI "Register Member" to entity ImprovingApp.MemberContext.Member
-      briefly "add new Member"
+      with { briefly "add new Member"  }
     step send event ImprovingApp.MemberContext.MemberRegistered from entity ImprovingApp.MemberContext.Member to source ImprovingApp.MemberContext.MemberEventsSource
-      briefly "Member added in Draft state"
+      with { briefly "Member added in Draft state" }
     step send event ImprovingApp.MemberContext.MemberRegistered from source ImprovingApp.MemberContext.MemberEventsSource to application App
     //example Foo is {...}
   }
-} briefly "A story about registering a member in Improving.app"
+} with {
+  by author James
+  briefly "A story about registering a member in Improving.app"
   described as "This is the story of how a member comes to existence in Improving.app"
+}
 
 // TODO: Convert this file to new syntax for epics and applicaiton
 // Member Stories (James)
 //As a person who would like to use the features of ImprovingApp I would like to register a new user account so that I can access those features
-epic RegisterMember is { ??? }
+// epic RegisterMember is { ??? }
 
 As a Member I would like to maintain my iAppCoins Account so that I can make purchases (funny money)
 As a user of ImprovingApp I can deposit iAppCoins into my account so I can spend them within the app
@@ -49,19 +53,26 @@ epic EventBookingEasyButton is {
   case primary is {
     step from user Owner "presses easy button to make a reservation" to
       input ImprovingApp.Improving_app.MyEventsPages.easy
-      briefly "make a reservation by searching for a location - includes max attendance, start/end time, already created event info"
+      with {
+        briefly "make a reservation by searching for a location - includes max attendance, start/end time, already created event info"
+      }
     step from output ImprovingApp.Improving_app.MyEventsPage.show
-      "presented" to user Owner
-      briefly "location(s) will appear as that honour max attendance and event info parameters in the nearest time to start and end available"
+      "presented" to user Owner with {
+        briefly "location(s) will appear as that honour max attendance and event info parameters in the nearest time to start and end available"
+      }
     step from user Owner "selects a location" to
-      input ImprovingApp.Improving_app.MyEventsPages.easy
+      input ImprovingApp.Improving_app.MyEventsPages.easy with {
       briefly "user selects a location based on the list that appeared in the previous step & requests gateway to create reservation"
+      }
     step from output ImprovingApp.Improving_app.MyEventsPage.show
-      "presented" to user Owner
-      briefly "notify user that event now has a reservation in selected location"
+      "presented" to user Owner with {
+        briefly "notify user that event now has a reservation in selected location"
+      }
   }
-} briefly "A story about scheduling an event with the easy button in Improving.app"
-described as "This is the story of how an event is scheduled with an easy button."
+} with {
+  briefly "A story about scheduling an event with the easy button in Improving.app"
+  described as "This is the story of how an event is scheduled with an easy button."
+}
 
 //Place Stories (Alex)
 As a Tenant Owner I would like to create a Venue

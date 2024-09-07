@@ -1,30 +1,32 @@
 epic CreateReservation {
 	user ImprovingApp.GatewayAPI.Member wants to "Create a Reservation" so that "I can manage my Reservations & book them in ImprovingApp"
-  by author Alex
 
   //"Create a new Reservation without booking it"
   case HappyPath is {
+    user ImprovingApp.GatewayAPI.Member wants to "Create a Reservation" so that "a booking is created"
     step from user ImprovingApp.GatewayAPI.Member "provides a ReservationId" to user App
-      briefly "initial invocation"
+      with { briefly "initial invocation" }
     step send command EstablishReservation from application App to context GatewayAPI
-      briefly "send creation message"
+      with { briefly "send creation message" }
     step from user GatewayAPI "Create Reservation" to entity ImprovingApp.Events.ReservationContext.Reservation
-      briefly "create reservation"
+      with { briefly "create reservation" }
     step send event ImprovingApp.Events.ReservationContext.ReservationEstablished
       from entity ImprovingApp.Events.ReservationContext.Reservation to source ImprovingApp.Events.ReservationContext.ReservationEventsSource
-      briefly "reservation created"
+      with { briefly "reservation created" }
     step send event ImprovingApp.Events.ReservationContext.ReservationEstablished
       from source ImprovingApp.Events.ReservationContext.ReservationEventsSource to application App
   }
-} briefly "A story about creating a reservation in Improving.app"
+} with {
+  by author Alex
+  briefly "A story about creating a reservation in Improving.app"
   described as "This is the story of how a reservation comes into existence"
+}
 //Reservation Gateway Stories
 
 epic BookReservation is {
   user Member wants to "Book a Reservation" so that "I can book my Reservations in ImprovingApp"
-  by author Alex
   //"Book a new Reservation by picking from a list, given time parameters"
-  case TimePickHappyPath is {
+  //case TimePickHappyPath is {
     //interaction is {
     //  step from user Member "provide time range" to user App
     //    briefly "initial invocation",
@@ -62,7 +64,7 @@ epic BookReservation is {
     }
   }
   //"Book a new Reservation by picking from a list, given maxCapacity parameter"
-  case MaxCapacityPickHappyPath is {
+  //case MaxCapacityPickHappyPath is {
     //interaction is {
     //  step from user Member "provide maxCapacity" to user App
     //    briefly "initial invocation",
@@ -100,7 +102,7 @@ epic BookReservation is {
     //}
   }
   //"Book a new Reservation automatically based on what is available next, parameterized by Reservation info"
-  case NextAvailableHappyPath is {
+  //case NextAvailableHappyPath is {
     //interaction is {
     //  step from user Member "asks to book next Reservation with search parameters based ReservationInfo in a provided ReservationId" to user App
     //    briefly "initial invocation",
@@ -122,5 +124,8 @@ epic BookReservation is {
     //  and App displays success notification to Member
     }
   }
-} briefly "A story about booking a reservation in Improving.app"
+} with {
+  by author Alex
+  briefly "A story about booking a reservation in Improving.app"
   described as "This is the story of how a reservation is booked in an available Location"
+}

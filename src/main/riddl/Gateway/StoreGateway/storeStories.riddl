@@ -1,21 +1,31 @@
 epic CreateVendor {
+  user OwnerOfAnEvent wants to "create a Store" so that "I can sell Tickets to my Event and Products at my Event"
   ???
-} described as "As the Owner of an Event I would like to create a Store to sell Tickets to my Event and Products at my Event"
+}
 
 epic ListAndPriceEventAndProducts {
+  user VendorOfAStore wants to "list, price and set inventory for Tickets to Events and Products"
+  so that "I can sell in the Store"
   ???
-} described as "As Vendor of a Store I would like to list and price and set inventory for Tickets to Events and Products I intend to sell in the Store"
+}
 
 epic InventoryAndProductTracking {
+  user VendorOfAStore wants to "track Inventory of Tickets or Products"
+   so that "I don't oversell at the Store"
  ???
-} described as "As Vendor of a Store I would like to track Inventory of Tickets/Products so I don't oversell at the Store"
+}
 
 epic RealTimeSalesReporting {
- ???
-} described as "As Vendor of a Store I would like to view near real time reports about sales"
+  user VendorOfAStore wants to "view near real time reports about sales"
+  so that "I can plan product placement and reconcile with inventory"
+  ???
+}
 
 epic MarkOrderDelivered {
- ???
-} described as "As a Vendor of a Store I would like to mark an Order delivered when a Member receives their order"
+  user VendorOfAStore wants to
+    "mark an Order delivered when a Member receives their order"
+  so that "I can thank them for their purchase"
+  ???
+}
 
 //Store Gateway Stories

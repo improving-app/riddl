@@ -5,13 +5,13 @@ context StoreContext is {
   type StoreId is Id(StoreContext.Store)
 
   type Info is {
-    name: String briefly "Required",
-    description: String briefly "Required",
-    products: SKU+ briefly "Required",
+    name: String with { briefly "Required" },
+    description: String  with { briefly "Required" },
+    products: SKU+  with { briefly "Required" },
     event: EventId?,
-    venue: VenueId briefly "Required",
-    location: Venues.LocationId briefly "Required",
-    sponsoringOrg: OrganizationId briefly "Required"
+    venue: VenueId  with { briefly "Required" },
+    location: Venues.LocationId  with { briefly "Required" },
+    sponsoringOrg: OrganizationId  with { briefly "Required" }
   }
 
   type MetaInfo is {
@@ -76,54 +76,99 @@ context StoreContext is {
       info: StoreContext.EditableInfo,
       meta: StoreContext.MetaInfo
     }
-    state DraftStore of Store.DraftStoreData is {
-      handler DraftStoreHandler is {
-        on command CreateStore {
-          error "Store already created"
-        }
-        on command EditStoreInfo {
-          "copy fields from info to Draft info fields"
-          "adjust meta fields to reflect the change"
-          "yield the StoreUpdated event"
-        }
-        on command DeleteStore {
-          "remove all attributes not defined in the Deleted state"
-          "adjust meta fields to reflect change"
-          "yield the StoreDeleted event"
-          morph entity StoreContext.Store to state DeletedStore with record DeletedStoreData
-        }
-        on command MakeStoreReady {
-          "yield the StoreIsReady event"
-          morph entity StoreContext.Store to state CreatedStore with record CreatedStoreData
-        }
-        on command OpenStore {
-          error "store must be moved to the Ready state. All required attributes must be provided."
-        }
-        on command CloseStore {
-          error "A store in Draft state may not be closed" // FIXME: Really? Why not?
-        }
-        on command AddProductsToStore {
-          "add provided products to store definition"
-          "and adjust meta fields to reflect the change"
-          "yield the ProductsAddedToStore event"
-          // TODO: Add cases where there is invalid product
-        }
-        on command RemoveProductsFromStore {
-          "remove provided products from store"
-          "adjust meta fields to reflect the change"
-          "yield the ProductsRemovedFromStore event"
-          // TODO: Add case where product to be removed doesn't exist in store
-        }
+    state DraftStore of Store.DraftStoreData
+    handler DraftStoreHandler is {
+      on command CreateStore {
+        error "Store already created"
+      }
+      on command EditStoreInfo {
+        "copy fields from info to Draft info fields"
+        "adjust meta fields to reflect the change"
+        "yield the StoreUpdated event"
+      }
+      on command DeleteStore {
+        "remove all attributes not defined in the Deleted state"
+        "adjust meta fields to reflect change"
+        "yield the StoreDeleted event"
+        morph entity StoreContext.Store to state DeletedStore with record DeletedStoreData
+      }
+      on command MakeStoreReady {
+        "yield the StoreIsReady event"
+        morph entity StoreContext.Store to state CreatedStore with record CreatedStoreData
+      }
+      on command OpenStore {
+        error "store must be moved to the Ready state. All required attributes must be provided."
+      }
+      on command CloseStore {
+        error "A store in Draft state may not be closed" // FIXME: Really? Why not?
+      }
+      on command AddProductsToStore {
+        "add provided products to store definition"
+        "and adjust meta fields to reflect the change"
+        "yield the ProductsAddedToStore event"
+        // TODO: Add cases where there is invalid product
+      }
+      on command RemoveProductsFromStore {
+        "remove provided products from store"
+        "adjust meta fields to reflect the change"
+        "yield the ProductsRemovedFromStore event"
+        // TODO: Add case where product to be removed doesn't exist in store
       }
     }
+
 
     record CreatedStoreData is {
       id: StoreContext.StoreId,
       info: StoreContext.Info,
       meta: StoreContext.MetaInfo
     }
-    state CreatedStore of CreatedStoreData is {
-      handler ReadyStoreHandler is {
+    state CreatedStore of CreatedStoreData
+    handler ReadyStoreHandler is {
+      on command CreateStore {
+        error "Store already created"
+      }
+      on command EditStoreInfo {
+        "copy fields from info to Draft info fields"
+        "adjust meta fields to reflect the change"
+        "yield the StoreUpdated event"
+      }
+      on command DeleteStore {
+        error "Store must be closed before deleting it"
+      }
+      on command MakeStoreReady {
+        error "Store must be in Draft state before being made Ready"
+      }
+      on command OpenStore {
+        set field Store.CreatedStore.meta to "StoreContext.MetaInfo"
+        send event StoreOpened to outlet StoreEventsSource.Events
+        become entity StoreContext.Store to handler StoreContext.Store.CreatedStore.OpenStoreHandler
+      }
+      on command CloseStore {
+        "ensure all orders associated with store are Delivered or Cancelled before closing store"
+        set field CreatedStore.meta to "StoreContext.MetaInfo"
+        send event StoreClosed to outlet StoreEventsSource.Events
+        become entity StoreContext.Store to handler StoreContext.Store.CreatedStore.ClosedStoreHandler
+      }
+      on command AddProductsToStore {
+        "add provided products to store definition"
+        "and adjust meta fields to reflect the change"
+        "yield the ProductsAddedToStore event"
+        // TODO: Add cases where there is invalid product
+      }
+      on command RemoveProductsFromStore {
+        "remove provided products from store"
+        "adjust meta fields to reflect the change"
+        "yield the ProductsRemovedFromStore event"
+        // TODO: Add case where product to be removed doesn't exist in store
+      }
+      on command TerminateStore {
+        set field CreatedStore.meta to "StoreContext.MetaInfo"
+        morph entity StoreContext.Store to state TerminatedStore with record TerminatedStoreData
+          // (lastMeta = @CreatedStoreState.meta)
+      }
+    }
+
+    handler OpenStoreHandler is {
         on command CreateStore {
           error "Store already created"
         }
@@ -132,16 +177,14 @@ context StoreContext is {
           "adjust meta fields to reflect the change"
           "yield the StoreUpdated event"
         }
-        on command DeleteStore {
-          error "Store must be closed before deleting it"
-        }
         on command MakeStoreReady {
           error "Store must be in Draft state before being made Ready"
         }
+        on command DeleteStore {
+          error "Store must be closed before deleting it"
+        }
         on command OpenStore {
-          set field Store.CreatedStore.meta to "StoreContext.MetaInfo"
-          send event StoreOpened to outlet StoreEventsSource.Events
-          become entity StoreContext.Store to handler StoreContext.Store.CreatedStore.OpenStoreHandler
+          error "Store is already opened"
         }
         on command CloseStore {
           "ensure all orders associated with store are Delivered or Cancelled before closing store"
@@ -168,91 +211,47 @@ context StoreContext is {
         }
       }
 
-      handler OpenStoreHandler is {
-          on command CreateStore {
-            error "Store already created"
-          }
-          on command EditStoreInfo {
-            "copy fields from info to Draft info fields"
-            "adjust meta fields to reflect the change"
-            "yield the StoreUpdated event"
-          }
-          on command MakeStoreReady {
-            error "Store must be in Draft state before being made Ready"
-          }
-          on command DeleteStore {
-            error "Store must be closed before deleting it"
-          }
-          on command OpenStore {
-            error "Store is already opened"
-          }
-          on command CloseStore {
-            "ensure all orders associated with store are Delivered or Cancelled before closing store"
-            set field CreatedStore.meta to "StoreContext.MetaInfo"
-            send event StoreClosed to outlet StoreEventsSource.Events
-            become entity StoreContext.Store to handler StoreContext.Store.CreatedStore.ClosedStoreHandler
-          }
-          on command AddProductsToStore {
-            "add provided products to store definition"
-            "and adjust meta fields to reflect the change"
-            "yield the ProductsAddedToStore event"
-            // TODO: Add cases where there is invalid product
-          }
-          on command RemoveProductsFromStore {
-            "remove provided products from store"
-            "adjust meta fields to reflect the change"
-            "yield the ProductsRemovedFromStore event"
-            // TODO: Add case where product to be removed doesn't exist in store
-          }
-          on command TerminateStore {
-            set field CreatedStore.meta to "StoreContext.MetaInfo"
-            morph entity StoreContext.Store to state TerminatedStore with record TerminatedStoreData
-              // (lastMeta = @CreatedStoreState.meta)
-          }
+      handler ClosedStoreHandler is {
+        on command CreateStore {
+          error "Store already created"
         }
-
-        handler ClosedStoreHandler is {
-          on command CreateStore {
-            error "Store already created"
-          }
-          on command EditStoreInfo {
-            "copy fields from info to Draft info fields"
-            "adjust meta fields to reflect the change"
-            "yield the StoreUpdated event"
-          }
-          on command MakeStoreReady {
-            error "Store must be in Draft state before being made Ready"
-          }
-          on command DeleteStore {
-            set field CreatedStore.meta to "StoreContext.MetaInfo"
-            send event StoreDeleted to outlet StoreEventsSource.Events
-            morph entity StoreContext.Store to state DeletedStore with record DeletedStoreData
-          }
-          on command OpenStore {
-            set field CreatedStore.meta to "StoreContext.MetaInfo"
-            send event StoreOpened to outlet StoreEventsSource.Events
-            become entity StoreContext.Store to handler Store.CreatedStore.OpenStoreHandler
-          }
-          on command CloseStore {
-            error "Store is already closed."
-          }
-          on command AddProductsToStore {
-            "add provided products to store definition"
-            "and adjust meta fields to reflect the change"
-            "yield the ProductsAddedToStore event"
-            // TODO: Add cases where there is invalid product
-          }
-          on command RemoveProductsFromStore {
-            "remove provided products from store"
-            "adjust meta fields to reflect the change"
-            "yield the ProductsRemovedFromStore event"
-            // TODO: Add case where product to be removed doesn't exist in store
-          }
-          on command TerminateStore {
-            set field CreatedStore.meta to "StoreContext.MetaInfo"
-            morph entity StoreContext.Store to state TerminatedStore with record TerminatedStoreData
-              // (lastMeta = @CreatedStoreState.meta)
+        on command EditStoreInfo {
+          "copy fields from info to Draft info fields"
+          "adjust meta fields to reflect the change"
+          "yield the StoreUpdated event"
         }
+        on command MakeStoreReady {
+          error "Store must be in Draft state before being made Ready"
+        }
+        on command DeleteStore {
+          set field CreatedStore.meta to "StoreContext.MetaInfo"
+          send event StoreDeleted to outlet StoreEventsSource.Events
+          morph entity StoreContext.Store to state DeletedStore with record DeletedStoreData
+        }
+        on command OpenStore {
+          set field CreatedStore.meta to "StoreContext.MetaInfo"
+          send event StoreOpened to outlet StoreEventsSource.Events
+          become entity StoreContext.Store to handler Store.CreatedStore.OpenStoreHandler
+        }
+        on command CloseStore {
+          error "Store is already closed."
+        }
+        on command AddProductsToStore {
+          "add provided products to store definition"
+          "and adjust meta fields to reflect the change"
+          "yield the ProductsAddedToStore event"
+          // TODO: Add cases where there is invalid product
+        }
+        on command RemoveProductsFromStore {
+          "remove provided products from store"
+          "adjust meta fields to reflect the change"
+          "yield the ProductsRemovedFromStore event"
+          // TODO: Add case where product to be removed doesn't exist in store
+        }
+        on command TerminateStore {
+          set field CreatedStore.meta to "StoreContext.MetaInfo"
+          morph entity StoreContext.Store to state TerminatedStore with record TerminatedStoreData
+            // (lastMeta = @CreatedStoreState.meta)
       }
     }
 
@@ -264,27 +263,25 @@ context StoreContext is {
       sponsoringOrg: OrganizationId,
       meta: StoreContext.MetaInfo
     }
-    state DeletedStore of DeletedStoreData is {
-      handler DeletedStoreHandler is {
-        on command TerminateStore {
-          set field DeletedStore.meta to "StoreContext.MetaInfo"
-          morph entity StoreContext.Store to state TerminatedStore with record TerminatedStoreData
-            // (lastMeta = @DeletedStoreState.meta)
-        }
-        on other {
-         error "No actions are permitted on a Deleted store"
-       }
+    state DeletedStore of DeletedStoreData
+    handler DeletedStoreHandler is {
+      on command TerminateStore {
+        set field DeletedStore.meta to "StoreContext.MetaInfo"
+        morph entity StoreContext.Store to state TerminatedStore with record TerminatedStoreData
+          // (lastMeta = @DeletedStoreState.meta)
       }
+      on other {
+       error "No actions are permitted on a Deleted store"
+     }
     }
 
     record TerminatedStoreData is {
       lastMeta: StoreContext.MetaInfo
     }
-    state TerminatedStore of TerminatedStoreData is {
-      handler TerminatedStoreHandler is {
-        on other {
-          error "No actions are permitted on a Terminated store"
-        }
+    state TerminatedStore of TerminatedStoreData
+    handler TerminatedStoreHandler is {
+      on other {
+        error "No actions are permitted on a Terminated store"
       }
     }
   }

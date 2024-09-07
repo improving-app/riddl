@@ -3,31 +3,38 @@ type Percentage is range(0,100)
 
 // value
 record EntityParameters is {
-  tenants: Integer, // 1
-  organizations: Integer,  // (1),
-  members: Integer, // (2),
-  orders: Integer, // (2),
-  events: Integer // (10)
-} described as {
-| These are the parameters for the CreateScenario command. They specify how
-| many of the various entities to create as an upper bound of a random number
+  tenants: Integer with { briefly "1" } ,
+  organizations: Integer with { briefly "1" },
+  members: Integer with { briefly "2" },
+  orders: Integer with { briefly "2" },
+  events: Integer with { briefly "10" }
+} with {
+  described as {
+  | These are the parameters for the CreateScenario command. They specify how
+  | many of the various entities to create as an upper bound of a random number
+  }
 }
-
 command CreateScenario is {
-  parameters: EntityParameters briefly "How many entities of each kind"
-} described as {
-|This command begins a test run. The fields of this command describe a testing
-|that creates a variety of
+  parameters: EntityParameters with { briefly "How many entities of each kind" }
+} with {
+  described as {
+    |This command begins a test run. The fields of this command describe a testing
+    |that creates a variety of
+  }
 }
 
 record RunParameters is {
   ???
-} described as {
-| TBD
+} with {
+  described as {
+    | TBD
+  }
 }
 
 command RunScenario is {
-  parameters: TestGateway.RunParameters briefly "How to load the system"
-} described as {
-| TBD
+  parameters: TestGateway.RunParameters with { briefly "How to load the system" }
+} with {
+  described as {
+  | TBD
+  }
 }

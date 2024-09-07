@@ -5,13 +5,13 @@ result MembersAtEventsOnDay is {memberEvents: ImprovingApp.MemberEvents+}
 context MembersAttendingEventsForAnOrganizationProjection is  {
   projector MembersAttendingEventsForAnOrganizationView is {
     record MembersAttendingEventsForAnOrganizationFields {
-        event: EventId,     //ticket-event & org-event correlation tables, event table
-        eventName: String,  //event table
-        eventDate: Date,     //event table
-        eventOrg: OrganizationId, //org-event correlation table
-        ticketSku: SKU, // ticket-event & ticket-member correlation tables
-        attendingMember: MemberId, //ticket-member correlation table & member table
-        attendingMemberName: String //member table
+        event: EventId with { briefly "ticket-event & org-event correlation tables, event table" },
+        eventName: String with { briefly "event table" },
+        eventDate: Date with { briefly "event table" },
+        eventOrg: OrganizationId with { briefly "org-event correlation table" },
+        ticketSku: SKU with { briefly "ticket-event & ticket-member correlation tables" },
+        attendingMember: MemberId with { briefly "ticket-member correlation table & member table" },
+        attendingMemberName: String with { briefly "member table" }
     }
     handler MembersAttendingEventsForAnOrganizationEventsViewHandler is {
         on event MemberContext.MemberRegistered {

@@ -7,13 +7,13 @@ result OrgsByMembersForEvents is {orgEventMembers: OrgMembersEvents+}
 context OrganizationsForMembersAttendingEventsProjections is  {
   projector OrganizationsForMembersAttendingEventsView is {
      record OrganizationsForMembersAttendingEventsFields {
-        event: EventId,     //event table, ticket-event correlation table
-        eventName: String,  //event table
-        ticketSku: SKU, // ticket-event & ticket-member correlation tables
-        attendingMemberOrg: OrganizationId, //org table & org-member correlation table
-        attendingMemberOrgName: String, //org table
-        attendingMember: MemberId, //ticket-member, org-member correlation table & member table
-        attendingMemberName: String //member table
+        event: EventId with { briefly "event table, ticket-event correlation table" },
+        eventName: String with { briefly "event table" },
+        ticketSku: SKU with { briefly "ticket-event & ticket-member correlation tables" },
+        attendingMemberOrg: OrganizationId with { briefly "org table & org-member correlation table" },
+        attendingMemberOrgName: String with { briefly "org table" },
+        attendingMember: MemberId with { briefly "ticket-member, org-member correlation table & member table" },
+        attendingMemberName: String with { briefly "member table" }
     }
     handler OrganizationsForMembersAttendingEventsViewHandler is {
         on event ImprovingApp.OrganizationContext.OrganizationEstablished {

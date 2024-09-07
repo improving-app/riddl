@@ -4,28 +4,33 @@ user Member is "any member (user) of the system"
 include "memberEpics"
 
 epic EstablishOrganization is {
-  by author Reid
+  user OrgOwner wants "to establish an organization" so that "they can conduct business"
   case primary is {
     user OrgOwner wants "to establish an organization" so that "they can conduct business as that organization"
     step from user OrgOwner "creates an Organization" to input
-        ImprovingApp.UserInterface.Organization.EstablishOrganization briefly "fill out form"
+        ImprovingApp.UserInterface.Organization.EstablishOrganization with { briefly "fill out form" }
     step
-      from output ImprovingApp.UserInterface.Organization.DisplayOrganization
-      "organizationAdded"
-      to user OrgOwner briefly "organization added"
+      from output ImprovingApp.UserInterface.Organization.DisplayOrganization "organizationAdded"
+      to user OrgOwner with { briefly "organization added" }
   }
-} briefly "A story about establishing an organization in Improving.app"
+} with {
+  by author Reid
+  briefly "A story about establishing an organization in Improving.app"
   described as "This is the story of how an organization comes to existence"
+}
 
 epic RegisterMemberToOrganization is {
-  by author Reid
+  user OrgOwner wants "to register a member" so that "they can fill the roster for their organization"
   case primary is {
-    //user OrgOwner wants "to register a member" so that "they can fill the roster for their organization"
+    user OrgOwner wants "to register a member" so that "they can fill the roster for their organization"
+    ???
   }
-} briefly "A story about registering a member into an organization"
+} with {
+  by author Reid
+  briefly "A story about registering a member into an organization"
   described as "TBD"
-
-epic UpdateOrganizationInfo is {???}
+}
+// epic UpdateOrganizationInfo is {???}
 
 /* epic
 Create X Tenants

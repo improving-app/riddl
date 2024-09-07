@@ -3,11 +3,11 @@ context OrderContext is {
   type LineItem is {
     product: SKU,
     quantity: Number,
-    unitPrice: Number
+    unitPrice: Number with {
       described as {
       |This field is calculated and therefore should never be set
       |and instead works more like a function.
-    },
+    }},
     lineTotal: Number
   }
 
@@ -15,11 +15,11 @@ context OrderContext is {
     order_id: OrderId,
     lineItems: LineItem+,
     specialInstructions: String?,
-    orderTotal: Number
+    orderTotal: Number with {
       described as {
       |This field is calculated and therefore should never be set
       |and instead works more like a function.
-    }
+    }}
   }
   type OrderMetaInfo is {
     order_id: OrderId,
@@ -71,38 +71,37 @@ context OrderContext is {
       info: OrderInfo,
       meta: OrderMetaInfo
     }
-    state Draft of Order.DraftState is {
-      handler DraftOrderHandler is {
-        on command CreateOrder {
-          error "Order has already been created."
-        }
-        on command UpdateOrderInfo {
-          "copy fields from the UpdateOrderInfo command into the Draft Order"
-          "adjust meta fields to reflect the change set"
-          "yield OrderInfoUpdated event"
-        }
-        on command SetToPendingOrder {
-          "morph order to Pending state"
-          "adjust meta fields to reflect change set"
-          "yield PendingOrderSet event"
-        }
-        on command SetToInProcessOrder {
-          error "Draft orders may not transition to the InProcess state"
-        }
-        on command SetToReadyOrder {
-          error "Draft orders may not transition to the Ready state"
-        }
-        on command DeliverOrder {
-          error "Draft orders may not transition to the Delivered state"
-        }
-        on command CancelOrder {
-          "morph order to Cancelled state"
-          "adjust meta fields to reflect change set"
-          "yield OrderCancelled event"
-        }
-        on query GetOrderInfo {
-          "yield OrderInfoResult message"
-        }
+    state Draft of Order.DraftState
+    handler DraftOrderHandler is {
+      on command CreateOrder {
+        error "Order has already been created."
+      }
+      on command UpdateOrderInfo {
+        "copy fields from the UpdateOrderInfo command into the Draft Order"
+        "adjust meta fields to reflect the change set"
+        "yield OrderInfoUpdated event"
+      }
+      on command SetToPendingOrder {
+        "morph order to Pending state"
+        "adjust meta fields to reflect change set"
+        "yield PendingOrderSet event"
+      }
+      on command SetToInProcessOrder {
+        error "Draft orders may not transition to the InProcess state"
+      }
+      on command SetToReadyOrder {
+        error "Draft orders may not transition to the Ready state"
+      }
+      on command DeliverOrder {
+        error "Draft orders may not transition to the Delivered state"
+      }
+      on command CancelOrder {
+        "morph order to Cancelled state"
+        "adjust meta fields to reflect change set"
+        "yield OrderCancelled event"
+      }
+      on query GetOrderInfo {
+        "yield OrderInfoResult message"
       }
     }
 
@@ -110,38 +109,37 @@ context OrderContext is {
       info: OrderInfo,
       meta: OrderMetaInfo
     }
-    state Pending of Order.PendingState is {
-      handler PendingOrderHandler is {
-        on command CreateOrder {
-          error "Order has already been created."
-        }
-        on command UpdateOrderInfo {
-          "copy fields from the UpdateOrderInfo command into the Draft Order"
-          "adjust meta fields to reflect the change set"
-          "yield OrderInfoUpdated event"
-        }
-        on command SetToPendingOrder {
-          error "Pending orders may not transition to the Pending state"
-        }
-        on command SetToInProcessOrder {
-          "morph order to InProcess state"
-          "adjust meta fields to reflect change set"
-          "yield InProcessOrderSet event"
-        }
-        on command SetToReadyOrder {
-          error "Pending orders may not transition to the Ready state"
-        }
-        on command DeliverOrder {
-          error "Pending orders may not transition to the Delivered state"
-        }
-        on command CancelOrder {
-          "morph order to Cancelled state"
-          "adjust meta fields to reflect change set"
-          "yield OrderCancelled event"
-        }
-        on query GetOrderInfo {
-          "yield OrderInfoResult message"
-        }
+    state Pending of Order.PendingState
+    handler PendingOrderHandler is {
+      on command CreateOrder {
+        error "Order has already been created."
+      }
+      on command UpdateOrderInfo {
+        "copy fields from the UpdateOrderInfo command into the Draft Order"
+        "adjust meta fields to reflect the change set"
+        "yield OrderInfoUpdated event"
+      }
+      on command SetToPendingOrder {
+        error "Pending orders may not transition to the Pending state"
+      }
+      on command SetToInProcessOrder {
+        "morph order to InProcess state"
+        "adjust meta fields to reflect change set"
+        "yield InProcessOrderSet event"
+      }
+      on command SetToReadyOrder {
+        error "Pending orders may not transition to the Ready state"
+      }
+      on command DeliverOrder {
+        error "Pending orders may not transition to the Delivered state"
+      }
+      on command CancelOrder {
+        "morph order to Cancelled state"
+        "adjust meta fields to reflect change set"
+        "yield OrderCancelled event"
+      }
+      on query GetOrderInfo {
+        "yield OrderInfoResult message"
       }
     }
 
@@ -150,34 +148,33 @@ context OrderContext is {
       meta: OrderMetaInfo
     }
 
-    state InProcess of Order.InProcessState is {
-      handler InProcessOrderHandler is {
-        on command CreateOrder {
-          error "Order has already been created."
-        }
-        on command UpdateOrderInfo {
-          error "InProcess Orders may not be modified."
-        }
-        on command SetToPendingOrder {
-          error "Pending orders may not transition to the Pending state"
-        }
-        on command SetToInProcessOrder {
-          error "Draft orders may not transition to the InProcess state"
-        }
-        on command SetToReadyOrder {
-          "morph order to Ready state"
-          "adjust meta fields to reflect change set"
-          "yield ReadyOrderSet event"
-        }
-        on command DeliverOrder {
-          error "Pending orders may not transition to the Delivered state"
-        }
-        on command CancelOrder {
-          error "InProcess Orders may not be cancelled."
-        }
-        on query GetOrderInfo {
-          "yield OrderInfoResult message"
-        }
+    state InProcess of Order.InProcessState
+    handler InProcessOrderHandler is {
+      on command CreateOrder {
+        error "Order has already been created."
+      }
+      on command UpdateOrderInfo {
+        error "InProcess Orders may not be modified."
+      }
+      on command SetToPendingOrder {
+        error "Pending orders may not transition to the Pending state"
+      }
+      on command SetToInProcessOrder {
+        error "Draft orders may not transition to the InProcess state"
+      }
+      on command SetToReadyOrder {
+        "morph order to Ready state"
+        "adjust meta fields to reflect change set"
+        "yield ReadyOrderSet event"
+      }
+      on command DeliverOrder {
+        error "Pending orders may not transition to the Delivered state"
+      }
+      on command CancelOrder {
+        error "InProcess Orders may not be cancelled."
+      }
+      on query GetOrderInfo {
+        "yield OrderInfoResult message"
       }
     }
 
@@ -185,34 +182,33 @@ context OrderContext is {
       info: OrderInfo,
       meta: OrderMetaInfo
     }
-    state Ready of Order.ReadyState is {
-      handler ReadyOrderHandler is {
-        on command CreateOrder {
-          error "Order has already been created."
-        }
-        on command UpdateOrderInfo {
-          error "Ready Orders may not be modified."
-        }
-        on command SetToPendingOrder {
-          error "Pending orders may not transition to the Pending state"
-        }
-        on command SetToInProcessOrder {
-          error "Draft orders may not transition to the InProcess state"
-        }
-        on command SetToReadyOrder {
-          error "Pending orders may not transition to the Ready state"
-        }
-        on command DeliverOrder {
-          "morph order to Delivered state"
-          "adjust meta fields to reflect change set"
-          "yield OrderDelivered event"
-        }
-        on command CancelOrder {
-          error "Ready Orders may not be cancelled."
-        }
-        on query GetOrderInfo {
-          "yield OrderInfoResult message"
-        }
+    state Ready of Order.ReadyState
+    handler ReadyOrderHandler is {
+      on command CreateOrder {
+        error "Order has already been created."
+      }
+      on command UpdateOrderInfo {
+        error "Ready Orders may not be modified."
+      }
+      on command SetToPendingOrder {
+        error "Pending orders may not transition to the Pending state"
+      }
+      on command SetToInProcessOrder {
+        error "Draft orders may not transition to the InProcess state"
+      }
+      on command SetToReadyOrder {
+        error "Pending orders may not transition to the Ready state"
+      }
+      on command DeliverOrder {
+        "morph order to Delivered state"
+        "adjust meta fields to reflect change set"
+        "yield OrderDelivered event"
+      }
+      on command CancelOrder {
+        error "Ready Orders may not be cancelled."
+      }
+      on query GetOrderInfo {
+        "yield OrderInfoResult message"
       }
     }
 
@@ -220,35 +216,34 @@ context OrderContext is {
       info: OrderInfo,
       meta: OrderMetaInfo
     }
-    state Delivered of Order.DeliveredState is {
-      handler DeliveredOrderHandler is {
-        on command CreateOrder {
-          error "Order has already been created."
-        }
-        on command UpdateOrderInfo {
-          error "Delivered Orders may not be modified."
-        }
-        on command SetToPendingOrder {
-          error "Pending orders may not transition to the Pending state"
-        }
-        on command SetToInProcessOrder {
-          error "Draft orders may not transition to the InProcess state"
-        }
-        on command SetToReadyOrder {
-          error "Pending orders may not transition to the Ready state"
-        }
-        on command DeliverOrder {
-          morph entity Order to state Order.Delivered with
-            record Order.DeliveredState
-          "adjust meta fields to reflect change set"
-          "yield OrderDelivered event"
-        }
-        on command CancelOrder {
-          error "Delivered Orders may not be cancelled."
-        }
-        on query GetOrderInfo {
-          "yield OrderInfoResult message"
-        }
+    state Delivered of Order.DeliveredState
+    handler DeliveredOrderHandler is {
+      on command CreateOrder {
+        error "Order has already been created."
+      }
+      on command UpdateOrderInfo {
+        error "Delivered Orders may not be modified."
+      }
+      on command SetToPendingOrder {
+        error "Pending orders may not transition to the Pending state"
+      }
+      on command SetToInProcessOrder {
+        error "Draft orders may not transition to the InProcess state"
+      }
+      on command SetToReadyOrder {
+        error "Pending orders may not transition to the Ready state"
+      }
+      on command DeliverOrder {
+        morph entity Order to state Order.Delivered with
+          record Order.DeliveredState
+        "adjust meta fields to reflect change set"
+        "yield OrderDelivered event"
+      }
+      on command CancelOrder {
+        error "Delivered Orders may not be cancelled."
+      }
+      on query GetOrderInfo {
+        "yield OrderInfoResult message"
       }
     }
 
@@ -256,33 +251,35 @@ context OrderContext is {
       info: OrderInfo,
       meta: OrderMetaInfo
     }
-    state Cancelled of Order.CancelledState is {
-      handler CancelledOrderHandler is {
-        on command CreateOrder {
-          error "Order has already been created."
-        }
-        on command UpdateOrderInfo {
-          error "Cancelled Orders may not be modified."
-        }
-        on command SetToPendingOrder {
-          error "Pending orders may not transition to the Pending state"
-        }
-        on command SetToInProcessOrder {
-          error "Draft orders may not transition to the InProcess state"
-        }
-        on command SetToReadyOrder {
-          error "Pending orders may not transition to the Ready state"
-        }
-        on command DeliverOrder {
-          error "Pending orders may not transition to the Delivered state"
-        }
-        on command CancelOrder {
-          error "Delivered Orders may not be cancelled."
-        }
-        on query GetOrderInfo {
-          "yield result OrderInfoResult"
-        }
+    state Cancelled of Order.CancelledState
+    handler CancelledOrderHandler is {
+      on command CreateOrder {
+        error "Order has already been created."
+      }
+      on command UpdateOrderInfo {
+        error "Cancelled Orders may not be modified."
+      }
+      on command SetToPendingOrder {
+        error "Pending orders may not transition to the Pending state"
+      }
+      on command SetToInProcessOrder {
+        error "Draft orders may not transition to the InProcess state"
+      }
+      on command SetToReadyOrder {
+        error "Pending orders may not transition to the Ready state"
+      }
+      on command DeliverOrder {
+        error "Pending orders may not transition to the Delivered state"
+      }
+      on command CancelOrder {
+        error "Delivered Orders may not be cancelled."
+      }
+      on query GetOrderInfo {
+        "yield result OrderInfoResult"
       }
     }
   }
+} with {
+  by author James
+  by author Alex
 }
